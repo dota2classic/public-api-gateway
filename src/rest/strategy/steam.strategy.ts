@@ -1,7 +1,7 @@
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy as SteamStrategyT } from 'passport-steam';
 import { Injectable } from '@nestjs/common';
-import { backUrl } from '../../utils';
+import { backUrl } from '../../utils/utils';
 
 @Injectable()
 export default class SteamStrategy extends PassportStrategy(SteamStrategyT) {

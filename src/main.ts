@@ -1,13 +1,11 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-
+import { UserRepository } from './cache/user/user.repository';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.setGlobalPrefix('v1');
-
-
 
   const options = new DocumentBuilder()
     .setTitle('Public REST api for dota2classic')
@@ -19,7 +17,13 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, options);
   SwaggerModule.setup('api', app, document);
 
+  app.enableCors({
+    origin: '*',
+  });
+  // app.use(cookieParser());
+
   await app.listen(6001);
 
+  await app.get(UserRepository).fillCaches();
 }
 bootstrap();

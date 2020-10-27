@@ -11,3 +11,6 @@ export const isProd = profile === 'prod';
 export const isDev = !isProd;
 
 export const GAMESERVER_APIURL = process.env.GS_URL || 'localhost:5003'
+
+
+export const TOKEN_KEY = 'dota2classic_auth_token'

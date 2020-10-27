@@ -1,19 +1,13 @@
-import {
-  Controller,
-  Get,
-  Injectable,
-  Redirect,
-  Req,
-  Res,
-  UseGuards,
-} from '@nestjs/common';
+import { Controller, Get, Req, Res, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { frontUrl } from '../utils';
-
+import { frontUrl } from '../utils/utils';
+import { JwtService } from '@nestjs/jwt';
+import { steam64to32 } from '../utils/steamIds';
+import { TOKEN_KEY } from '../utils/env';
 
 @Controller('auth/steam')
 export class SteamController {
-  constructor() {}
+  constructor(private jwtService: JwtService) {}
 
   @Get()
   @UseGuards(AuthGuard('steam'))
@@ -22,16 +16,12 @@ export class SteamController {
   @Get('callback')
   @UseGuards(AuthGuard('steam'))
   async steamAuthRequest(@Req() req, @Res() res) {
-    // @ts-ignore
-    console.log('YAI!!', req.user!!._json.steamid);
+    const steam32id = steam64to32(req.user!!._json.steamid);
+    const token = this.jwtService.sign({ sub: steam32id });
 
-    // const steam32id = steam64to32(req.user!!._json.steamid);
-
-    // await this.authService.attachSteam(
-    //   // @ts-ignore
-    //   steam32id,
-    //   cookieUserId,
-    // );
-    res.status(302).redirect(`${frontUrl}/me`);
+    // ok here we might need to create a user pepega
+    res
+      .cookie(TOKEN_KEY, token)
+      .redirect(`${frontUrl}/me`);
   }
 }
