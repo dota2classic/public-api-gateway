@@ -1,5 +1,16 @@
+export abstract class ITimedEntity {
+  resolvedAt: Date;
+}
+
+// seconds
+const CACHE_TIME = 60;
+
+const secDiff = (d: Date, d2: Date) => {
+  return (d.getTime() - d2.getTime()) / 1000;
+};
+
 export abstract class RuntimeRepository<
-  T,
+  T extends ITimedEntity,
   KeyName extends keyof T,
   Key = T[KeyName]
 > {
@@ -9,12 +20,13 @@ export abstract class RuntimeRepository<
 
   get = async (id: Key): Promise<T | null> => {
     const cached = this.cache.get(id);
-    if (cached) {
+    if (cached && secDiff(cached.resolvedAt, new Date()) < CACHE_TIME) {
       return cached;
     }
     const loaded = await this.resolve(id);
     if (loaded) {
       await this.save(id, loaded);
+      loaded.resolvedAt = new Date();
       return loaded;
     }
   };
