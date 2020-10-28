@@ -50,7 +50,6 @@ export class MatchController {
     );
   }
 
-
   @ApiParam({
     name: 'id',
     required: true,
@@ -69,6 +68,7 @@ export class MatchController {
   })
   @ApiQuery({
     name: 'hero',
+    type: String,
     required: false,
   })
   @Get('/player/:id')
