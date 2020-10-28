@@ -111,6 +111,65 @@ export const MatchApiAxiosParamCreator = function (configuration?: Configuration
                 options: localVarRequestOptions,
             };
         },
+        /**
+         * 
+         * @param {string} id 
+         * @param {number} page 
+         * @param {number} [perPage] 
+         * @param {number} [mode] 
+         * @param {string} [hero] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        matchControllerPlayerMatches: async (id: string, page: number, perPage?: number, mode?: number, hero?: string, options: any = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            if (id === null || id === undefined) {
+                throw new RequiredError('id','Required parameter id was null or undefined when calling matchControllerPlayerMatches.');
+            }
+            // verify required parameter 'page' is not null or undefined
+            if (page === null || page === undefined) {
+                throw new RequiredError('page','Required parameter page was null or undefined when calling matchControllerPlayerMatches.');
+            }
+            const localVarPath = `/match/player/{id}`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            const localVarUrlObj = globalImportUrl.parse(localVarPath, true);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (page !== undefined) {
+                localVarQueryParameter['page'] = page;
+            }
+
+            if (perPage !== undefined) {
+                localVarQueryParameter['per_page'] = perPage;
+            }
+
+            if (mode !== undefined) {
+                localVarQueryParameter['mode'] = mode;
+            }
+
+            if (hero !== undefined) {
+                localVarQueryParameter['hero'] = hero;
+            }
+
+
+    
+            localVarUrlObj.query = {...localVarUrlObj.query, ...localVarQueryParameter, ...options.query};
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: globalImportUrl.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
     }
 };
 
@@ -148,6 +207,23 @@ export const MatchApiFp = function(configuration?: Configuration) {
                 return axios.request(axiosRequestArgs);
             };
         },
+        /**
+         * 
+         * @param {string} id 
+         * @param {number} page 
+         * @param {number} [perPage] 
+         * @param {number} [mode] 
+         * @param {string} [hero] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async matchControllerPlayerMatches(id: string, page: number, perPage?: number, mode?: number, hero?: string, options?: any): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GameserverMatchPageDto>> {
+            const localVarAxiosArgs = await MatchApiAxiosParamCreator(configuration).matchControllerPlayerMatches(id, page, perPage, mode, hero, options);
+            return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
+                const axiosRequestArgs = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
+                return axios.request(axiosRequestArgs);
+            };
+        },
     }
 };
 
@@ -176,6 +252,19 @@ export const MatchApiFactory = function (configuration?: Configuration, basePath
          */
         matchControllerMatches(page: number, perPage?: number, mode?: number, options?: any): AxiosPromise<GameserverMatchPageDto> {
             return MatchApiFp(configuration).matchControllerMatches(page, perPage, mode, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @param {string} id 
+         * @param {number} page 
+         * @param {number} [perPage] 
+         * @param {number} [mode] 
+         * @param {string} [hero] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        matchControllerPlayerMatches(id: string, page: number, perPage?: number, mode?: number, hero?: string, options?: any): AxiosPromise<GameserverMatchPageDto> {
+            return MatchApiFp(configuration).matchControllerPlayerMatches(id, page, perPage, mode, hero, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -209,6 +298,21 @@ export class MatchApi extends BaseAPI {
      */
     public matchControllerMatches(page: number, perPage?: number, mode?: number, options?: any) {
         return MatchApiFp(this.configuration).matchControllerMatches(page, perPage, mode, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {string} id 
+     * @param {number} page 
+     * @param {number} [perPage] 
+     * @param {number} [mode] 
+     * @param {string} [hero] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof MatchApi
+     */
+    public matchControllerPlayerMatches(id: string, page: number, perPage?: number, mode?: number, hero?: string, options?: any) {
+        return MatchApiFp(this.configuration).matchControllerPlayerMatches(id, page, perPage, mode, hero, options).then((request) => request(this.axios, this.basePath));
     }
 
 }

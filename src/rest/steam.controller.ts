@@ -4,16 +4,20 @@ import { frontUrl } from '../utils/utils';
 import { JwtService } from '@nestjs/jwt';
 import { steam64to32 } from '../utils/steamIds';
 import { TOKEN_KEY } from '../utils/env';
+import { ApiExcludeEndpoint } from '@nestjs/swagger';
+
 
 @Controller('auth/steam')
 export class SteamController {
   constructor(private jwtService: JwtService) {}
 
   @Get()
+  @ApiExcludeEndpoint()
   @UseGuards(AuthGuard('steam'))
   async discordAuth(@Req() req) {}
 
   @Get('callback')
+  @ApiExcludeEndpoint()
   @UseGuards(AuthGuard('steam'))
   async steamAuthRequest(@Req() req, @Res() res) {
     const steam32id = steam64to32(req.user!!._json.steamid);

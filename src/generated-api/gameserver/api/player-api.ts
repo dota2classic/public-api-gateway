@@ -20,6 +20,8 @@ import { Configuration } from '../configuration';
 import { BASE_PATH, COLLECTION_FORMATS, RequestArgs, BaseAPI, RequiredError } from '../base';
 // @ts-ignore
 import { GameserverLeaderboardEntryDto } from '../models';
+// @ts-ignore
+import { GameserverPlayerSummaryDto } from '../models';
 /**
  * PlayerApi - axios parameter creator
  * @export
@@ -37,8 +39,49 @@ export const PlayerApiAxiosParamCreator = function (configuration?: Configuratio
             if (version === null || version === undefined) {
                 throw new RequiredError('version','Required parameter version was null or undefined when calling playerControllerLeaderboard.');
             }
-            const localVarPath = `/player/{version}/leaderboard`
+            const localVarPath = `/player/leaderboard/{version}`
                 .replace(`{${"version"}}`, encodeURIComponent(String(version)));
+            const localVarUrlObj = globalImportUrl.parse(localVarPath, true);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            localVarUrlObj.query = {...localVarUrlObj.query, ...localVarQueryParameter, ...options.query};
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: globalImportUrl.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {string} version 
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        playerControllerPlayerSummary: async (version: string, id: string, options: any = {}): Promise<RequestArgs> => {
+            // verify required parameter 'version' is not null or undefined
+            if (version === null || version === undefined) {
+                throw new RequiredError('version','Required parameter version was null or undefined when calling playerControllerPlayerSummary.');
+            }
+            // verify required parameter 'id' is not null or undefined
+            if (id === null || id === undefined) {
+                throw new RequiredError('id','Required parameter id was null or undefined when calling playerControllerPlayerSummary.');
+            }
+            const localVarPath = `/player/summary/{version}/{id}`
+                .replace(`{${"version"}}`, encodeURIComponent(String(version)))
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
             const localVarUrlObj = globalImportUrl.parse(localVarPath, true);
             let baseOptions;
             if (configuration) {
@@ -83,6 +126,20 @@ export const PlayerApiFp = function(configuration?: Configuration) {
                 return axios.request(axiosRequestArgs);
             };
         },
+        /**
+         * 
+         * @param {string} version 
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async playerControllerPlayerSummary(version: string, id: string, options?: any): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GameserverPlayerSummaryDto>> {
+            const localVarAxiosArgs = await PlayerApiAxiosParamCreator(configuration).playerControllerPlayerSummary(version, id, options);
+            return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
+                const axiosRequestArgs = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
+                return axios.request(axiosRequestArgs);
+            };
+        },
     }
 };
 
@@ -100,6 +157,16 @@ export const PlayerApiFactory = function (configuration?: Configuration, basePat
          */
         playerControllerLeaderboard(version: string, options?: any): AxiosPromise<Array<GameserverLeaderboardEntryDto>> {
             return PlayerApiFp(configuration).playerControllerLeaderboard(version, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @param {string} version 
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        playerControllerPlayerSummary(version: string, id: string, options?: any): AxiosPromise<GameserverPlayerSummaryDto> {
+            return PlayerApiFp(configuration).playerControllerPlayerSummary(version, id, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -120,6 +187,18 @@ export class PlayerApi extends BaseAPI {
      */
     public playerControllerLeaderboard(version: string, options?: any) {
         return PlayerApiFp(this.configuration).playerControllerLeaderboard(version, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {string} version 
+     * @param {string} id 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof PlayerApi
+     */
+    public playerControllerPlayerSummary(version: string, id: string, options?: any) {
+        return PlayerApiFp(this.configuration).playerControllerPlayerSummary(version, id, options).then((request) => request(this.axios, this.basePath));
     }
 
 }

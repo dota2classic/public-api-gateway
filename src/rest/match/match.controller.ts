@@ -49,4 +49,38 @@ export class MatchController {
       await this.ms.matchControllerGetMatch(id).then(t => t.data),
     );
   }
+
+
+  @ApiParam({
+    name: 'id',
+    required: true,
+  })
+  @ApiQuery({
+    name: 'page',
+    required: true,
+  })
+  @ApiQuery({
+    name: 'per_page',
+    required: false,
+  })
+  @ApiQuery({
+    name: 'mode',
+    required: false,
+  })
+  @ApiQuery({
+    name: 'hero',
+    required: false,
+  })
+  @Get('/player/:id')
+  async playerMatches(
+    @Param('id') steam_id: string,
+    @Query('page') page: number,
+    @Query('per_page') perPage: number = 25,
+    @Query('mode') mode?: MatchmakingMode,
+    @Query('mode') hero?: string,
+  ): Promise<MatchPageDto> {
+    return this.ms
+      .matchControllerPlayerMatches(steam_id, page, perPage, mode, hero)
+      .then(t => this.mapper.mapMatchPage(t.data));
+  }
 }
