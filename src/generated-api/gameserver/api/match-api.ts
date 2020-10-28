@@ -34,10 +34,10 @@ export const MatchApiAxiosParamCreator = function (configuration?: Configuration
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        restControllerGetMatch: async (id: number, options: any = {}): Promise<RequestArgs> => {
+        matchControllerGetMatch: async (id: number, options: any = {}): Promise<RequestArgs> => {
             // verify required parameter 'id' is not null or undefined
             if (id === null || id === undefined) {
-                throw new RequiredError('id','Required parameter id was null or undefined when calling restControllerGetMatch.');
+                throw new RequiredError('id','Required parameter id was null or undefined when calling matchControllerGetMatch.');
             }
             const localVarPath = `/match/{id}`
                 .replace(`{${"id"}}`, encodeURIComponent(String(id)));
@@ -71,10 +71,10 @@ export const MatchApiAxiosParamCreator = function (configuration?: Configuration
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        restControllerMatches: async (page: number, perPage?: number, mode?: number, options: any = {}): Promise<RequestArgs> => {
+        matchControllerMatches: async (page: number, perPage?: number, mode?: number, options: any = {}): Promise<RequestArgs> => {
             // verify required parameter 'page' is not null or undefined
             if (page === null || page === undefined) {
-                throw new RequiredError('page','Required parameter page was null or undefined when calling restControllerMatches.');
+                throw new RequiredError('page','Required parameter page was null or undefined when calling matchControllerMatches.');
             }
             const localVarPath = `/match/all`;
             const localVarUrlObj = globalImportUrl.parse(localVarPath, true);
@@ -126,8 +126,8 @@ export const MatchApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async restControllerGetMatch(id: number, options?: any): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GameserverMatchDto>> {
-            const localVarAxiosArgs = await MatchApiAxiosParamCreator(configuration).restControllerGetMatch(id, options);
+        async matchControllerGetMatch(id: number, options?: any): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GameserverMatchDto>> {
+            const localVarAxiosArgs = await MatchApiAxiosParamCreator(configuration).matchControllerGetMatch(id, options);
             return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
                 const axiosRequestArgs = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
                 return axios.request(axiosRequestArgs);
@@ -141,8 +141,8 @@ export const MatchApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async restControllerMatches(page: number, perPage?: number, mode?: number, options?: any): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GameserverMatchPageDto>> {
-            const localVarAxiosArgs = await MatchApiAxiosParamCreator(configuration).restControllerMatches(page, perPage, mode, options);
+        async matchControllerMatches(page: number, perPage?: number, mode?: number, options?: any): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GameserverMatchPageDto>> {
+            const localVarAxiosArgs = await MatchApiAxiosParamCreator(configuration).matchControllerMatches(page, perPage, mode, options);
             return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
                 const axiosRequestArgs = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
                 return axios.request(axiosRequestArgs);
@@ -163,8 +163,8 @@ export const MatchApiFactory = function (configuration?: Configuration, basePath
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        restControllerGetMatch(id: number, options?: any): AxiosPromise<GameserverMatchDto> {
-            return MatchApiFp(configuration).restControllerGetMatch(id, options).then((request) => request(axios, basePath));
+        matchControllerGetMatch(id: number, options?: any): AxiosPromise<GameserverMatchDto> {
+            return MatchApiFp(configuration).matchControllerGetMatch(id, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -174,8 +174,8 @@ export const MatchApiFactory = function (configuration?: Configuration, basePath
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        restControllerMatches(page: number, perPage?: number, mode?: number, options?: any): AxiosPromise<GameserverMatchPageDto> {
-            return MatchApiFp(configuration).restControllerMatches(page, perPage, mode, options).then((request) => request(axios, basePath));
+        matchControllerMatches(page: number, perPage?: number, mode?: number, options?: any): AxiosPromise<GameserverMatchPageDto> {
+            return MatchApiFp(configuration).matchControllerMatches(page, perPage, mode, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -194,8 +194,8 @@ export class MatchApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof MatchApi
      */
-    public restControllerGetMatch(id: number, options?: any) {
-        return MatchApiFp(this.configuration).restControllerGetMatch(id, options).then((request) => request(this.axios, this.basePath));
+    public matchControllerGetMatch(id: number, options?: any) {
+        return MatchApiFp(this.configuration).matchControllerGetMatch(id, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -207,8 +207,8 @@ export class MatchApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof MatchApi
      */
-    public restControllerMatches(page: number, perPage?: number, mode?: number, options?: any) {
-        return MatchApiFp(this.configuration).restControllerMatches(page, perPage, mode, options).then((request) => request(this.axios, this.basePath));
+    public matchControllerMatches(page: number, perPage?: number, mode?: number, options?: any) {
+        return MatchApiFp(this.configuration).matchControllerMatches(page, perPage, mode, options).then((request) => request(this.axios, this.basePath));
     }
 
 }

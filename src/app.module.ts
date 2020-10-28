@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { CacheModule, Module } from '@nestjs/common';
 import { MatchController } from './rest/match/match.controller';
 import { SteamController } from './rest/steam.controller';
 import SteamStrategy from './rest/strategy/steam.strategy';
@@ -11,6 +11,8 @@ import { GetUserInfoQuery } from './gateway/queries/GetUserInfo/get-user-info.qu
 import { UserRepository } from './cache/user/user.repository';
 import { CqrsModule } from '@nestjs/cqrs';
 import { MatchMapper } from './rest/match/match.mapper';
+import { PlayerController } from './rest/player/player.controller';
+import { PlayerMapper } from './rest/player/player.mapper';
 
 @Module({
   imports: [
@@ -19,6 +21,9 @@ import { MatchMapper } from './rest/match/match.mapper';
       signOptions: { expiresIn: '10 days' },
     }),
     CqrsModule,
+    CacheModule.register({
+      ttl: 60
+    }),
     ClientsModule.register([
       {
         name: 'QueryCore',
@@ -31,19 +36,16 @@ import { MatchMapper } from './rest/match/match.mapper';
       },
     ]),
   ],
-  controllers: [MatchController, SteamController],
+  controllers: [MatchController, SteamController, PlayerController],
   providers: [
-
-
     outerQuery(GetAllQuery, 'QueryCore'),
     outerQuery(GetUserInfoQuery, 'QueryCore'),
 
     SteamStrategy,
 
-
     MatchMapper,
+    PlayerMapper,
     UserRepository,
-
   ],
 })
 export class AppModule {}

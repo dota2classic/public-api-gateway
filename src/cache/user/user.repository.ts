@@ -31,4 +31,9 @@ export class UserRepository extends RuntimeRepository<UserModel, 'id'> {
       )
       .then(t => new UserModel(t.id.value, t.name));
   }
+
+
+  public async name(id: UserModel['id']): Promise<string> {
+    return this.get(id).then(t => t.name)
+  }
 }

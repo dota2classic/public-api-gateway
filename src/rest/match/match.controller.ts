@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Query } from '@nestjs/common';
+import { CacheInterceptor, Controller, Get, Param, Query, UseInterceptors } from '@nestjs/common';
 import { ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { MatchmakingMode } from '../../gateway/shared-types/matchmaking-mode';
 import { MatchApi } from '../../generated-api/gameserver';
@@ -8,6 +8,7 @@ import { MatchMapper } from './match.mapper';
 
 @Controller('match')
 @ApiTags('match')
+@UseInterceptors(CacheInterceptor)
 export class MatchController {
   private ms: MatchApi;
 
@@ -34,7 +35,7 @@ export class MatchController {
     @Query('mode') mode?: MatchmakingMode,
   ): Promise<MatchPageDto> {
     return this.ms
-      .restControllerMatches(page, perPage, mode)
+      .matchControllerMatches(page, perPage, mode)
       .then(t => this.mapper.mapMatchPage(t.data));
   }
 
@@ -45,7 +46,7 @@ export class MatchController {
   @Get('/:id')
   async match(@Param('id') id: number): Promise<MatchDto> {
     return this.mapper.mapMatch(
-      await this.ms.restControllerGetMatch(id).then(t => t.data),
+      await this.ms.matchControllerGetMatch(id).then(t => t.data),
     );
   }
 }

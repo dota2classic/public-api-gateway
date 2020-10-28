@@ -14,4 +14,5 @@
 
 
 export * from './api/match-api';
+export * from './api/player-api';
 
