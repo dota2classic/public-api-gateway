@@ -13,6 +13,7 @@ import { CqrsModule } from '@nestjs/cqrs';
 import { MatchMapper } from './rest/match/match.mapper';
 import { PlayerController } from './rest/player/player.controller';
 import { PlayerMapper } from './rest/player/player.mapper';
+import { JwtStrategy } from './rest/strategy/jwt.strategy';
 
 @Module({
   imports: [
@@ -42,6 +43,7 @@ import { PlayerMapper } from './rest/player/player.mapper';
     outerQuery(GetUserInfoQuery, 'QueryCore'),
 
     SteamStrategy,
+    JwtStrategy,
 
     MatchMapper,
     PlayerMapper,
