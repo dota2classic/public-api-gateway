@@ -4,7 +4,7 @@ import { SteamController } from './rest/steam.controller';
 import SteamStrategy from './rest/strategy/steam.strategy';
 import { JwtModule } from '@nestjs/jwt';
 import { ClientsModule, Transport } from '@nestjs/microservices';
-import { REDIS_URL } from './utils/env';
+import { REDIS_PASSWORD, REDIS_URL } from './utils/env';
 import { outerQuery } from './gateway/util/outerQuery';
 import { GetAllQuery } from './gateway/queries/GetAll/get-all.query';
 import { GetUserInfoQuery } from './gateway/queries/GetUserInfo/get-user-info.query';
@@ -30,6 +30,7 @@ import { JwtStrategy } from './rest/strategy/jwt.strategy';
         name: 'QueryCore',
         transport: Transport.REDIS,
         options: {
+          password: REDIS_PASSWORD(),
           url: REDIS_URL(),
           retryAttempts: Infinity,
           retryDelay: 5000,
