@@ -7,13 +7,21 @@ import { PlayerMapper } from './player.mapper';
 import { LeaderboardEntryDto, PlayerSummaryDto } from './dto/player.dto';
 import { CurrentUser } from '../../utils/decorator/current-user';
 import { AuthGuard } from '@nestjs/passport';
+import { QueryBus } from '@nestjs/cqrs';
+import { GetPartyQuery } from '../../gateway/queries/GetParty/get-party.query';
+import { GetPartyQueryResult } from '../../gateway/queries/GetParty/get-party-query.result';
+import { D2CUser } from '../strategy/jwt.strategy';
+import { PlayerId } from '../../gateway/shared-types/player-id';
 
 @Controller('player')
 @ApiTags('player')
 export class PlayerController {
   private ms: PlayerApi;
 
-  constructor(private readonly mapper: PlayerMapper) {
+  constructor(
+    private readonly mapper: PlayerMapper,
+    private readonly qbus: QueryBus,
+  ) {
     this.ms = new PlayerApi(undefined, `http://${GAMESERVER_APIURL}`);
   }
 
@@ -46,5 +54,15 @@ export class PlayerController {
       steam_id,
     );
     return this.mapper.mapPlayerSummary(rawData.data);
+  }
+
+  @Get('/party')
+  @UseGuards(AuthGuard('jwt'))
+  async myParty(@CurrentUser() user: D2CUser) {
+    const party = this.qbus.execute<GetPartyQuery, GetPartyQueryResult>(
+      new GetPartyQuery(new PlayerId(user.steam_id)),
+    );
+
+    console.log(party);
   }
 }
