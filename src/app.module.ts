@@ -14,6 +14,7 @@ import { MatchMapper } from './rest/match/match.mapper';
 import { PlayerController } from './rest/player/player.controller';
 import { PlayerMapper } from './rest/player/player.mapper';
 import { JwtStrategy } from './rest/strategy/jwt.strategy';
+import { GetPartyQuery } from './gateway/queries/GetParty/get-party.query';
 
 @Module({
   imports: [
@@ -42,6 +43,7 @@ import { JwtStrategy } from './rest/strategy/jwt.strategy';
   providers: [
     outerQuery(GetAllQuery, 'QueryCore'),
     outerQuery(GetUserInfoQuery, 'QueryCore'),
+    outerQuery(GetPartyQuery, 'QueryCore'),
 
     SteamStrategy,
     JwtStrategy,

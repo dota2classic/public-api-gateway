@@ -19,7 +19,7 @@ export class UserRepository extends RuntimeRepository<UserModel, 'id'> {
       .execute<GetAllQuery, GetAllQueryResult>(new GetAllQuery())
       .then(result => {
         result.entries.forEach(t =>
-          this.save(t.id.value, new UserModel(t.id.value, t.name)),
+          this.save(t.id.value, new UserModel(t.id.value, t.name, t.avatar)),
         );
       });
   }
@@ -29,11 +29,15 @@ export class UserRepository extends RuntimeRepository<UserModel, 'id'> {
       .execute<GetUserInfoQuery, GetUserInfoQueryResult>(
         new GetUserInfoQuery(new PlayerId(id)),
       )
-      .then(t => new UserModel(t.id.value, t.name));
+      .then(t => new UserModel(t.id.value, t.name, t.avatar));
   }
 
 
   public async name(id: UserModel['id']): Promise<string> {
     return this.get(id).then(t => t.name)
+  }
+
+  public async avatar(id: UserModel['id']): Promise<string> {
+    return this.get(id).then(t => t.avatar)
   }
 }

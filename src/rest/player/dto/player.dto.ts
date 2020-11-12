@@ -13,3 +13,9 @@ export class PlayerSummaryDto {
   mmr: number;
   rank: number;
 }
+
+export class PlayerPreviewDto {
+  name: string;
+  id: string;
+  avatar: string;
+}

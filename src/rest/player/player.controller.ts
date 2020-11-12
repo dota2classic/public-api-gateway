@@ -4,7 +4,7 @@ import { Dota2Version } from '../../gateway/shared-types/dota2version';
 import { PlayerApi } from '../../generated-api/gameserver';
 import { GAMESERVER_APIURL } from '../../utils/env';
 import { PlayerMapper } from './player.mapper';
-import { LeaderboardEntryDto, PlayerSummaryDto } from './dto/player.dto';
+import { LeaderboardEntryDto, PlayerPreviewDto, PlayerSummaryDto } from './dto/player.dto';
 import { CurrentUser } from '../../utils/decorator/current-user';
 import { AuthGuard } from '@nestjs/passport';
 import { QueryBus } from '@nestjs/cqrs';
@@ -12,6 +12,7 @@ import { GetPartyQuery } from '../../gateway/queries/GetParty/get-party.query';
 import { GetPartyQueryResult } from '../../gateway/queries/GetParty/get-party-query.result';
 import { D2CUser } from '../strategy/jwt.strategy';
 import { PlayerId } from '../../gateway/shared-types/player-id';
+import { UserRepository } from '../../cache/user/user.repository';
 
 @Controller('player')
 @ApiTags('player')
@@ -21,6 +22,7 @@ export class PlayerController {
   constructor(
     private readonly mapper: PlayerMapper,
     private readonly qbus: QueryBus,
+    private readonly userRepository: UserRepository,
   ) {
     this.ms = new PlayerApi(undefined, `http://${GAMESERVER_APIURL}`);
   }
@@ -57,12 +59,22 @@ export class PlayerController {
   }
 
   @Get('/party')
+  @ApiBearerAuth()
   @UseGuards(AuthGuard('jwt'))
   async myParty(@CurrentUser() user: D2CUser) {
-    const party = this.qbus.execute<GetPartyQuery, GetPartyQueryResult>(
+    const party = await this.qbus.execute<GetPartyQuery, GetPartyQueryResult>(
       new GetPartyQuery(new PlayerId(user.steam_id)),
     );
+    return this.mapper.mapParty(party);
+  }
 
-    console.log(party);
+  @Get('/search')
+  async search(
+    @Query('name') name: string,
+    @CurrentUser() user: D2CUser,
+  ): Promise<PlayerPreviewDto[]> {
+    return (await this.userRepository.all())
+      .filter(t => t.name.toLowerCase().includes(name.toLowerCase()))
+      .slice(0, 100);
   }
 }
