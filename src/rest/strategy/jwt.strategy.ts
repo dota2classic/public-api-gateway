@@ -1,6 +1,7 @@
-import { ExtractJwt, Strategy } from "passport-jwt";
-import { PassportStrategy } from "@nestjs/passport";
-import { Injectable } from "@nestjs/common";
+import { ExtractJwt, Strategy } from 'passport-jwt';
+import { PassportStrategy } from '@nestjs/passport';
+import { Injectable } from '@nestjs/common';
+import { CurrentUserDto } from '../../utils/decorator/current-user';
 
 export interface D2CUser {
   steam_id: string;
@@ -15,9 +16,10 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  async validate(payload: any) {
+  async validate(payload: any): Promise<CurrentUserDto> {
     return {
-      steam_id: payload.sub
-    }
+      steam_id: payload.sub,
+      role: payload.role,
+    };
   }
 }

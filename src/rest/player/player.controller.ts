@@ -13,6 +13,7 @@ import { GetPartyQueryResult } from '../../gateway/queries/GetParty/get-party-qu
 import { D2CUser } from '../strategy/jwt.strategy';
 import { PlayerId } from '../../gateway/shared-types/player-id';
 import { UserRepository } from '../../cache/user/user.repository';
+import { WithUser } from '../../utils/decorator/with-user';
 
 @Controller('player')
 @ApiTags('player')
@@ -28,8 +29,7 @@ export class PlayerController {
   }
 
   @Get('/me')
-  @ApiBearerAuth()
-  @UseGuards(AuthGuard('jwt'))
+  @WithUser()
   async me(@CurrentUser() user): Promise<PlayerSummaryDto> {
     const rawData = await this.ms.playerControllerPlayerSummary(
       Dota2Version.Dota_681,
