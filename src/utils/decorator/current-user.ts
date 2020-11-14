@@ -3,7 +3,7 @@ import { Role } from '../../gateway/shared-types/roles';
 
 export interface CurrentUserDto {
   steam_id: string;
-  role: Role;
+  roles: Role[];
 }
 
 export const CurrentUser = createParamDecorator(

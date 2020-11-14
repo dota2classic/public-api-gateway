@@ -2,6 +2,7 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 import { PassportStrategy } from '@nestjs/passport';
 import { Injectable } from '@nestjs/common';
 import { CurrentUserDto } from '../../utils/decorator/current-user';
+import { JWT_SECRET } from '../../utils/env';
 
 export interface D2CUser {
   steam_id: string;
@@ -12,14 +13,14 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: true,
-      secretOrKey: 'secretdotakey:)',
+      secretOrKey: JWT_SECRET,
     });
   }
 
   async validate(payload: any): Promise<CurrentUserDto> {
     return {
       steam_id: payload.sub,
-      role: payload.role,
+      roles: payload.roles,
     };
   }
 }

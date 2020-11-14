@@ -13,6 +13,7 @@
 
 
 
+export * from './api/info-api';
 export * from './api/match-api';
 export * from './api/player-api';
 

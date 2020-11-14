@@ -4,7 +4,7 @@ import { SteamController } from './rest/steam.controller';
 import SteamStrategy from './rest/strategy/steam.strategy';
 import { JwtModule } from '@nestjs/jwt';
 import { ClientsModule, Transport } from '@nestjs/microservices';
-import { REDIS_PASSWORD, REDIS_URL } from './utils/env';
+import { JWT_SECRET, REDIS_PASSWORD, REDIS_URL } from './utils/env';
 import { outerQuery } from './gateway/util/outerQuery';
 import { GetAllQuery } from './gateway/queries/GetAll/get-all.query';
 import { GetUserInfoQuery } from './gateway/queries/GetUserInfo/get-user-info.query';
@@ -16,11 +16,12 @@ import { PlayerMapper } from './rest/player/player.mapper';
 import { JwtStrategy } from './rest/strategy/jwt.strategy';
 import { GetPartyQuery } from './gateway/queries/GetParty/get-party.query';
 import { AdminController } from './rest/admin/admin.controller';
+import { AdminMapper } from './rest/admin/admin.mapper';
 
 @Module({
   imports: [
     JwtModule.register({
-      secret: 'secretdotakey:)',
+      secret: JWT_SECRET,
       signOptions: { expiresIn: '10 days' },
     }),
     CqrsModule,
@@ -51,6 +52,8 @@ import { AdminController } from './rest/admin/admin.controller';
 
     MatchMapper,
     PlayerMapper,
+    AdminMapper,
+
     UserRepository,
   ],
 })
