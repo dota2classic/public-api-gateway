@@ -15,8 +15,12 @@ import { PlayerController } from './rest/player/player.controller';
 import { PlayerMapper } from './rest/player/player.mapper';
 import { JwtStrategy } from './rest/strategy/jwt.strategy';
 import { GetPartyQuery } from './gateway/queries/GetParty/get-party.query';
-import { AdminController } from './rest/admin/admin.controller';
+import { ServerController } from './rest/admin/server.controller';
 import { AdminMapper } from './rest/admin/admin.mapper';
+import { UserCreatedHandler } from './cache/event-handler/user-created.handler';
+import { EventController } from './event.controller';
+import { UserUpdatedHandler } from './cache/event-handler/user-updated.handler';
+import { AdminUserController } from './rest/admin/admin-user.controller';
 
 @Module({
   imports: [
@@ -26,7 +30,7 @@ import { AdminMapper } from './rest/admin/admin.mapper';
     }),
     CqrsModule,
     CacheModule.register({
-      ttl: 60
+      ttl: 60,
     }),
     ClientsModule.register([
       {
@@ -41,7 +45,14 @@ import { AdminMapper } from './rest/admin/admin.mapper';
       },
     ]),
   ],
-  controllers: [MatchController, SteamController, PlayerController, AdminController],
+  controllers: [
+    MatchController,
+    SteamController,
+    PlayerController,
+    ServerController,
+    EventController,
+    AdminUserController
+  ],
   providers: [
     outerQuery(GetAllQuery, 'QueryCore'),
     outerQuery(GetUserInfoQuery, 'QueryCore'),
@@ -55,6 +66,8 @@ import { AdminMapper } from './rest/admin/admin.mapper';
     AdminMapper,
 
     UserRepository,
+    UserCreatedHandler,
+    UserUpdatedHandler
   ],
 })
 export class AppModule {}

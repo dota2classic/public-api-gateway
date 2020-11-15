@@ -1,6 +1,7 @@
 import { Dota2Version } from '../../../gateway/shared-types/dota2version';
 import { PlayerId } from '../../../gateway/shared-types/player-id';
 import { MatchmakingMode } from '../../../gateway/shared-types/matchmaking-mode';
+import { Role } from '../../../gateway/shared-types/roles';
 
 export class MatchInfoDto {
   constructor(
@@ -27,4 +28,9 @@ export class GameSessionDto {
   url: string;
   matchId: number;
   info: MatchInfoDto;
+}
+
+export class UpdateRolesDto {
+  steam_id: string;
+  roles: Role[]
 }

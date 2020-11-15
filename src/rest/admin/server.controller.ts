@@ -8,9 +8,9 @@ import { InfoApi } from 'src/generated-api/gameserver/api/info-api';
 import { AdminMapper } from './admin.mapper';
 import { ApiTags } from '@nestjs/swagger';
 
-@Controller('admin')
+@Controller('servers')
 @ApiTags('admin')
-export class AdminController {
+export class ServerController {
   private readonly ms: InfoApi;
   constructor(
     @Inject('QueryCore') private readonly rq: ClientProxy,
@@ -42,7 +42,7 @@ export class AdminController {
   @AdminGuard()
   @WithUser()
   @Post('/debug_event')
-  async match(@Body() b: EventAdminDto) {
+  async debugEvent(@Body() b: EventAdminDto) {
     this.rq.emit(b.name, b.body);
   }
 }
