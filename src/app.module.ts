@@ -27,8 +27,15 @@ import { UserConnectionRepository } from './cache/user-connection/user-connectio
 import { GetAllConnectionsQuery } from './gateway/queries/GetAllConnections/get-all-connections.query';
 import { GetConnectionsQuery } from './gateway/queries/GetConnections/get-connections.query';
 import { Client } from 'discord.js';
+import { join } from "path";
+import { ServeStaticModule } from '@nestjs/serve-static';
+
 @Module({
   imports: [
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, './upload'),
+      serveRoot: '/static/',
+    }),
     JwtModule.register({
       secret: JWT_SECRET,
       signOptions: { expiresIn: '10 days' },
