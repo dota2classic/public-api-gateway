@@ -1,4 +1,4 @@
-import { CacheModule, Module } from '@nestjs/common';
+import { CacheModule, Logger, Module } from '@nestjs/common';
 import { MatchController } from './rest/match/match.controller';
 import { SteamController } from './rest/steam.controller';
 import SteamStrategy from './rest/strategy/steam.strategy';
@@ -21,7 +21,12 @@ import { UserCreatedHandler } from './cache/event-handler/user-created.handler';
 import { EventController } from './event.controller';
 import { UserUpdatedHandler } from './cache/event-handler/user-updated.handler';
 import { AdminUserController } from './rest/admin/admin-user.controller';
-
+import { DiscordController } from './rest/discord.controller';
+import { DiscordStrategy } from './rest/strategy/discord.strategy';
+import { UserConnectionRepository } from './cache/user-connection/user-connection.repository';
+import { GetAllConnectionsQuery } from './gateway/queries/GetAllConnections/get-all-connections.query';
+import { GetConnectionsQuery } from './gateway/queries/GetConnections/get-connections.query';
+import { Client } from 'discord.js';
 @Module({
   imports: [
     JwtModule.register({
@@ -47,27 +52,60 @@ import { AdminUserController } from './rest/admin/admin-user.controller';
   ],
   controllers: [
     MatchController,
-    SteamController,
     PlayerController,
     ServerController,
     EventController,
-    AdminUserController
+    AdminUserController,
+
+    SteamController,
+    DiscordController,
   ],
   providers: [
     outerQuery(GetAllQuery, 'QueryCore'),
     outerQuery(GetUserInfoQuery, 'QueryCore'),
     outerQuery(GetPartyQuery, 'QueryCore'),
+    outerQuery(GetAllConnectionsQuery, 'QueryCore'),
+    outerQuery(GetConnectionsQuery, 'QueryCore'),
+
+    {
+      provide: 'DiscordClient',
+      useFactory: async () => {
+        const client = new Client();
+
+        const logger = new Logger(Client.name);
+
+        await client.login(
+          `NzU4OTAwMDY4MzYzMDEwMDcy.X21qww.4JFzI_R1JOiSb6I3Vmo2pT3NuGQ`,
+        );
+
+        let resolve: () => void;
+        const readyPromise = new Promise(r => {
+          resolve = r;
+        });
+
+        client.on('ready', async () => {
+          logger.log('Bot ready and operating.');
+          resolve();
+        });
+
+        await readyPromise;
+
+        return client;
+      },
+    },
 
     SteamStrategy,
     JwtStrategy,
+    DiscordStrategy,
 
     MatchMapper,
     PlayerMapper,
     AdminMapper,
 
     UserRepository,
+    UserConnectionRepository,
     UserCreatedHandler,
-    UserUpdatedHandler
+    UserUpdatedHandler,
   ],
 })
 export class AppModule {}

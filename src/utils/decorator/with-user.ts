@@ -1,9 +1,29 @@
 import { ApiBearerAuth } from '@nestjs/swagger';
-import { CanActivate, ExecutionContext, UseGuards } from '@nestjs/common';
+import { CanActivate, ExecutionContext, Injectable, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { Role } from '../../gateway/shared-types/roles';
 import { Observable } from 'rxjs';
 import { CurrentUserDto } from './current-user';
+import { JwtService } from '@nestjs/jwt';
+
+
+
+@Injectable()
+export class CookieUserGuard implements CanActivate {
+  constructor(private readonly jwtService: JwtService) {}
+
+  async canActivate(ctx: ExecutionContext): Promise<boolean> {
+    const request = ctx.switchToHttp().getRequest();
+
+    const token = request.cookies["dota2classic_auth_token"];
+    const some: any = this.jwtService.decode(token);
+
+    request.cookieUserId = some?.sub;
+    // If you want to allow the request even if auth fails, always return true
+    return true;
+  }
+}
+
 
 export function WithUser(): MethodDecorator & ClassDecorator {
   const a = ApiBearerAuth();

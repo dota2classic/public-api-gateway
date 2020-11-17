@@ -8,14 +8,14 @@ export class DiscordStrategy extends PassportStrategy(DiscordStrategyT) {
   constructor() {
     super(
       {
-        clientID: '724025468654977155',
-        clientSecret: 'K130WorBqCszpYHxnYyYf08s7bwohRjN',
+        clientID: '758900068363010072',
+        clientSecret: 'FalBJZM8eqX1rOakBA9_InR8X2QZgSab',
         callbackURL: `${backUrl}/v1/auth/discord/callback`,
         scope: ['identify'],
       },
       async (accessToken, refreshToken, profile, cb) => {
-        const user = await this.authService.getOrCreateDiscord(profile.id);
-        cb(null, user);
+        // const user = await this.authService.getOrCreateDiscord(profile.id);
+        cb(null, profile);
       },
     );
   }
@@ -26,7 +26,7 @@ export class DiscordStrategy extends PassportStrategy(DiscordStrategyT) {
     profile: any,
     done: (...args: any[]) => void,
   ): Promise<any> {
-    const user = await this.authService.getOrCreateDiscord(profile.id);
-    done(null, user);
+    // const user = await this.authService.getOrCreateDiscord(profile.id);
+    done(null, profile);
   }
 }

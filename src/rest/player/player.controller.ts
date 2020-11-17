@@ -1,11 +1,11 @@
-import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Inject, Param, Query, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Dota2Version } from '../../gateway/shared-types/dota2version';
 import { PlayerApi } from '../../generated-api/gameserver';
 import { GAMESERVER_APIURL } from '../../utils/env';
 import { PlayerMapper } from './player.mapper';
-import { LeaderboardEntryDto, PlayerPreviewDto, PlayerSummaryDto } from './dto/player.dto';
-import { CurrentUser } from '../../utils/decorator/current-user';
+import { LeaderboardEntryDto, MyProfileDto, PlayerPreviewDto, PlayerSummaryDto } from './dto/player.dto';
+import { CurrentUser, CurrentUserDto } from '../../utils/decorator/current-user';
 import { AuthGuard } from '@nestjs/passport';
 import { QueryBus } from '@nestjs/cqrs';
 import { GetPartyQuery } from '../../gateway/queries/GetParty/get-party.query';
@@ -14,6 +14,9 @@ import { D2CUser } from '../strategy/jwt.strategy';
 import { PlayerId } from '../../gateway/shared-types/player-id';
 import { UserRepository } from '../../cache/user/user.repository';
 import { WithUser } from '../../utils/decorator/with-user';
+import { UserConnectionRepository } from '../../cache/user-connection/user-connection.repository';
+import { Client } from 'discord.js';
+import { UserConnection } from '../../gateway/shared-types/user-connection';
 
 @Controller('player')
 @ApiTags('player')
@@ -24,6 +27,8 @@ export class PlayerController {
     private readonly mapper: PlayerMapper,
     private readonly qbus: QueryBus,
     private readonly userRepository: UserRepository,
+    private readonly userConnectionRep: UserConnectionRepository,
+    @Inject('DiscordClient') private readonly client: Client,
   ) {
     this.ms = new PlayerApi(undefined, `http://${GAMESERVER_APIURL}`);
   }
@@ -36,6 +41,33 @@ export class PlayerController {
       user.steam_id,
     );
     return this.mapper.mapPlayerSummary(rawData.data);
+  }
+
+  @Get('/connections')
+  @WithUser()
+  async connections(
+    @CurrentUser() user: CurrentUserDto,
+  ): Promise<MyProfileDto> {
+    const connections = await this.userConnectionRep.resolve(user.steam_id);
+
+    if (!connections) return {};
+
+    const externalUser = this.client.users.resolve(connections.externalId);
+
+
+    if(!externalUser)
+      return {
+        error: true
+      }
+
+    return {
+      discord: {
+        connection: UserConnection.DISCORD,
+        avatar: externalUser.avatarURL(),
+        name: externalUser.username,
+        id: externalUser.id,
+      },
+    };
   }
 
   @ApiQuery({ required: false, name: 'version' })
