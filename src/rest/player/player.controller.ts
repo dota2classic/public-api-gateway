@@ -1,13 +1,28 @@
-import { Controller, Get, Inject, Param, Query, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Inject,
+  Param,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Dota2Version } from '../../gateway/shared-types/dota2version';
 import { PlayerApi } from '../../generated-api/gameserver';
 import { GAMESERVER_APIURL } from '../../utils/env';
 import { PlayerMapper } from './player.mapper';
-import { LeaderboardEntryDto, MyProfileDto, PlayerPreviewDto, PlayerSummaryDto } from './dto/player.dto';
-import { CurrentUser, CurrentUserDto } from '../../utils/decorator/current-user';
+import {
+  LeaderboardEntryDto,
+  MyProfileDto,
+  PlayerPreviewDto,
+  PlayerSummaryDto,
+} from './dto/player.dto';
+import {
+  CurrentUser,
+  CurrentUserDto,
+} from '../../utils/decorator/current-user';
 import { AuthGuard } from '@nestjs/passport';
-import { QueryBus } from '@nestjs/cqrs';
+import { EventBus, QueryBus } from '@nestjs/cqrs';
 import { GetPartyQuery } from '../../gateway/queries/GetParty/get-party.query';
 import { GetPartyQueryResult } from '../../gateway/queries/GetParty/get-party-query.result';
 import { D2CUser } from '../strategy/jwt.strategy';
@@ -17,6 +32,8 @@ import { WithUser } from '../../utils/decorator/with-user';
 import { UserConnectionRepository } from '../../cache/user-connection/user-connection.repository';
 import { Client } from 'discord.js';
 import { UserConnection } from '../../gateway/shared-types/user-connection';
+import { UserMightExistEvent } from '../../gateway/events/user/user-might-exist.event';
+import { ClientProxy } from '@nestjs/microservices';
 
 @Controller('player')
 @ApiTags('player')
@@ -29,6 +46,9 @@ export class PlayerController {
     private readonly userRepository: UserRepository,
     private readonly userConnectionRep: UserConnectionRepository,
     @Inject('DiscordClient') private readonly client: Client,
+    @Inject('QueryCore') private readonly redisEventQueue: ClientProxy,
+
+    private readonly ebus: EventBus,
   ) {
     this.ms = new PlayerApi(undefined, `http://${GAMESERVER_APIURL}`);
   }
@@ -54,11 +74,10 @@ export class PlayerController {
 
     const externalUser = this.client.users.resolve(connections.externalId);
 
-
-    if(!externalUser)
+    if (!externalUser)
       return {
-        error: true
-      }
+        error: true,
+      };
 
     return {
       discord: {
@@ -86,6 +105,11 @@ export class PlayerController {
     const rawData = await this.ms.playerControllerPlayerSummary(
       Dota2Version.Dota_681,
       steam_id,
+    );
+
+    this.redisEventQueue.emit(
+      UserMightExistEvent.name,
+      new UserMightExistEvent(new PlayerId(steam_id)),
     );
     return this.mapper.mapPlayerSummary(rawData.data);
   }
