@@ -42,11 +42,13 @@ export class UserConnectionRepository extends RuntimeRepository<
       )
       .then(
         t =>
-          new UserConnectionModel(
-            t.con?.id.value,
-            t?.con.connection,
-            t.con.externalId,
-          ),
+          (t.con &&
+            new UserConnectionModel(
+              t.con?.id.value,
+              t?.con.connection,
+              t?.con.externalId,
+            )) ||
+          undefined,
       );
   }
 }

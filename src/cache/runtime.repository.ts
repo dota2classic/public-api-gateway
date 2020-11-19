@@ -5,8 +5,8 @@ export abstract class ITimedEntity {
 // seconds
 const CACHE_TIME = 60;
 
-const secDiff = (d: Date, d2: Date) => {
-  return (d.getTime() - d2.getTime()) / 1000;
+export const secDiff = (d: Date, d2: Date) => {
+  return Math.abs((d.getTime() - d2.getTime()) / 1000);
 };
 
 export abstract class RuntimeRepository<
@@ -16,7 +16,7 @@ export abstract class RuntimeRepository<
 > {
   protected cache = new Map<Key, T>();
 
-  abstract async resolve(id: Key): Promise<T>;
+  abstract async resolve(id: Key): Promise<T | undefined>;
 
   get = async (id: Key): Promise<T | null> => {
     const cached = this.cache.get(id);
