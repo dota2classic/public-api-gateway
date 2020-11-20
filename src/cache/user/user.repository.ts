@@ -7,6 +7,7 @@ import { GetAllQueryResult } from '../../gateway/queries/GetAll/get-all-query.re
 import { GetUserInfoQuery } from '../../gateway/queries/GetUserInfo/get-user-info.query';
 import { PlayerId } from '../../gateway/shared-types/player-id';
 import { GetUserInfoQueryResult } from '../../gateway/queries/GetUserInfo/get-user-info-query.result';
+import { Role } from '../../gateway/shared-types/roles';
 
 @Injectable()
 export class UserRepository extends RuntimeRepository<UserModel, 'id'> {
@@ -35,6 +36,10 @@ export class UserRepository extends RuntimeRepository<UserModel, 'id'> {
 
   public async name(id: UserModel['id']): Promise<string> {
     return this.get(id).then(t => t.name)
+  }
+
+  public async roles(id: UserModel['id']): Promise<Role[]> {
+    return this.get(id).then(t => t.roles).catch(() => [])
   }
 
   public async avatar(id: UserModel['id']): Promise<string> {

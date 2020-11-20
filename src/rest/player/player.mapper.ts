@@ -19,6 +19,7 @@ export class PlayerMapper {
       steam_id: it.steam_id,
       mmr: it.mmr,
       name: await this.userRepository.name(it.steam_id),
+      roles: await this.userRepository.roles(it.steam_id),
       id: numSteamId(it.steam_id),
       rank,
     };
@@ -31,6 +32,7 @@ export class PlayerMapper {
       steam_id: it.steam_id,
       mmr: it.mmr,
       name: await this.userRepository.name(it.steam_id),
+      roles: await this.userRepository.roles(it.steam_id),
       id: numSteamId(it.steam_id),
       rank: it.rank,
     };

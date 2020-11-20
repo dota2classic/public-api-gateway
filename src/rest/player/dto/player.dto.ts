@@ -1,4 +1,5 @@
 import { UserConnection } from '../../../gateway/shared-types/user-connection';
+import { Role } from '../../../gateway/shared-types/roles';
 
 export class LeaderboardEntryDto {
   steam_id: string;
@@ -6,6 +7,7 @@ export class LeaderboardEntryDto {
   id: string;
   mmr: number;
   rank: number;
+  roles: Role[];
 }
 
 export class PlayerSummaryDto {
@@ -13,6 +15,7 @@ export class PlayerSummaryDto {
   name: string;
   id: string;
   mmr: number;
+  roles: Role[];
   rank: number;
 }
 export class ConnectionDto {
