@@ -45,4 +45,8 @@ export class UserRepository extends RuntimeRepository<UserModel, 'id'> {
   public async avatar(id: UserModel['id']): Promise<string> {
     return this.get(id).then(t => t.avatar)
   }
+
+  public nameSync(id: UserModel['id']): string | undefined {
+    return this.getSync(id)?.name
+  }
 }

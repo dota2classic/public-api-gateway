@@ -4,14 +4,12 @@ import { MatchmakingMode } from '../../../gateway/shared-types/matchmaking-mode'
 import { Role } from '../../../gateway/shared-types/roles';
 
 export class MatchInfoDto {
-  constructor(
-    public readonly mode: MatchmakingMode,
-    public readonly roomId: string,
-    public readonly radiant: string[],
-    public readonly dire: string[],
-    public readonly averageMMR: number,
-    public readonly version: Dota2Version,
-  ) {}
+  mode: MatchmakingMode;
+  roomId: string;
+  radiant: string[];
+  dire: string[];
+  averageMMR: number;
+  version: Dota2Version;
 }
 
 export class EventAdminDto {
@@ -32,5 +30,22 @@ export class GameSessionDto {
 
 export class UpdateRolesDto {
   steam_id: string;
-  roles: Role[]
+  role: Role;
+  end_time: number
+}
+
+
+
+
+export class RoleSubscriptionEntryDto {
+  end_time: number;
+  role: Role;
+  steam_id: string;
+}
+
+
+export class UserRoleSummaryDto {
+  public readonly steam_id: string;
+  public readonly name: string;
+  public readonly entries: RoleSubscriptionEntryDto[];
 }

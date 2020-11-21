@@ -31,6 +31,10 @@ export abstract class RuntimeRepository<
     }
   };
 
+  getSync = (id: Key): T | null => {
+    return this.cache.get(id) || null;
+  };
+
   save = async (id: Key, item: T) => {
     this.cache.set(id, item);
   };

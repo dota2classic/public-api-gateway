@@ -7,6 +7,7 @@ import { GAMESERVER_APIURL } from '../../utils/env';
 import { InfoApi } from 'src/generated-api/gameserver/api/info-api';
 import { AdminMapper } from './admin.mapper';
 import { ApiTags } from '@nestjs/swagger';
+import { KillServerRequestedEvent } from '../../gateway/events/gs/kill-server-requested.event';
 
 @Controller('servers')
 @ApiTags('admin')
@@ -29,6 +30,15 @@ export class ServerController {
       .then(t => t.data.map(this.mapper.mapGameServer));
   }
 
+  @AdminGuard()
+  @WithUser()
+  @Post(`/stop_server`)
+  async stopServer(@Body() url: string) {
+    this.rq.emit(
+      KillServerRequestedEvent.name,
+      new KillServerRequestedEvent(url),
+    );
+  }
 
   @AdminGuard()
   @WithUser()

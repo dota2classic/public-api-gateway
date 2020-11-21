@@ -29,6 +29,7 @@ import { GetConnectionsQuery } from './gateway/queries/GetConnections/get-connec
 import { Client } from 'discord.js';
 import { join } from "path";
 import { ServeStaticModule } from '@nestjs/serve-static';
+import { GetRoleSubscriptionsQuery } from './gateway/queries/user/GetRoleSubscriptions/get-role-subscriptions.query';
 
 @Module({
   imports: [
@@ -73,6 +74,7 @@ import { ServeStaticModule } from '@nestjs/serve-static';
     outerQuery(GetPartyQuery, 'QueryCore'),
     outerQuery(GetAllConnectionsQuery, 'QueryCore'),
     outerQuery(GetConnectionsQuery, 'QueryCore'),
+    outerQuery(GetRoleSubscriptionsQuery, 'QueryCore'),
 
     {
       provide: 'DiscordClient',
