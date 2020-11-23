@@ -4,7 +4,7 @@ import { SteamController } from './rest/steam.controller';
 import SteamStrategy from './rest/strategy/steam.strategy';
 import { JwtModule } from '@nestjs/jwt';
 import { ClientsModule, Transport } from '@nestjs/microservices';
-import { JWT_SECRET, REDIS_PASSWORD, REDIS_URL } from './utils/env';
+import { isDev, JWT_SECRET, REDIS_PASSWORD, REDIS_URL } from './utils/env';
 import { outerQuery } from './gateway/util/outerQuery';
 import { GetAllQuery } from './gateway/queries/GetAll/get-all.query';
 import { GetUserInfoQuery } from './gateway/queries/GetUserInfo/get-user-info.query';
@@ -30,9 +30,17 @@ import { Client } from 'discord.js';
 import { join } from "path";
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { GetRoleSubscriptionsQuery } from './gateway/queries/user/GetRoleSubscriptions/get-role-subscriptions.query';
+import { SentryModule } from '@ntegral/nestjs-sentry';
 
 @Module({
   imports: [
+    SentryModule.forRoot({
+      dsn:
+        "https://a35837c6229e4ba89afaec487df6e21c@o435989.ingest.sentry.io/5529680",
+      debug: false,
+      environment: isDev ? "dev" : "production",
+      logLevel: 2, //based on sentry.io loglevel //
+    }),
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, './upload'),
       serveRoot: '/static/',
