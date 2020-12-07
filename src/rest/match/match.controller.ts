@@ -77,8 +77,9 @@ export class MatchController {
     @Query('page') page: number,
     @Query('per_page') perPage: number = 25,
     @Query('mode') mode?: MatchmakingMode,
-    @Query('mode') hero?: string,
+    @Query('hero') hero?: string,
   ): Promise<MatchPageDto> {
+    console.log(hero)
     return this.ms
       .matchControllerPlayerMatches(steam_id, page, perPage, mode, hero)
       .then(t => this.mapper.mapMatchPage(t.data));

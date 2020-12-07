@@ -34,6 +34,7 @@ import { Client } from 'discord.js';
 import { UserConnection } from '../../gateway/shared-types/user-connection';
 import { UserMightExistEvent } from '../../gateway/events/user/user-might-exist.event';
 import { ClientProxy } from '@nestjs/microservices';
+import { HeroStatsDto, PlayerGeneralStatsDto } from './dto/hero.dto';
 
 @Controller('player')
 @ApiTags('player')
@@ -122,6 +123,24 @@ export class PlayerController {
       new GetPartyQuery(new PlayerId(user.steam_id)),
     );
     return this.mapper.mapParty(party);
+  }
+
+  @Get('/summary/hero/:id')
+  async heroSummary(@Param('id') steam_id: string): Promise<HeroStatsDto[]> {
+    const d = await this.ms.playerControllerPlayerHeroSummary(
+      Dota2Version.Dota_681,
+      steam_id,
+    );
+    return d.data;
+  }
+
+  @Get('/summary/general/:id')
+  async generalSummary(@Param('id') steam_id: string): Promise<PlayerGeneralStatsDto> {
+    const d = await this.ms.playerControllerPlayerGeneralSummary(
+      Dota2Version.Dota_681,
+      steam_id,
+    );
+    return d.data;
   }
 
   @Get('/search')
