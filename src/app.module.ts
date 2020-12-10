@@ -27,18 +27,22 @@ import { UserConnectionRepository } from './cache/user-connection/user-connectio
 import { GetAllConnectionsQuery } from './gateway/queries/GetAllConnections/get-all-connections.query';
 import { GetConnectionsQuery } from './gateway/queries/GetConnections/get-connections.query';
 import { Client } from 'discord.js';
-import { join } from "path";
+import { join } from 'path';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { GetRoleSubscriptionsQuery } from './gateway/queries/user/GetRoleSubscriptions/get-role-subscriptions.query';
 import { SentryModule } from '@ntegral/nestjs-sentry';
+import { LiveMatchUpdateHandler } from './cache/event-handler/live-match-update.handler';
+import { GameSessionFinishedEvent } from './gateway/events/game-session-finished.event';
+import { MatchFinishedHandler } from './cache/event-handler/match-finished.handler';
+import { LiveMatchService } from './cache/live-match.service';
 
 @Module({
   imports: [
     SentryModule.forRoot({
       dsn:
-        "https://a35837c6229e4ba89afaec487df6e21c@o435989.ingest.sentry.io/5529680",
+        'https://a35837c6229e4ba89afaec487df6e21c@o435989.ingest.sentry.io/5529680',
       debug: false,
-      environment: isDev ? "dev" : "production",
+      environment: isDev ? 'dev' : 'production',
       logLevel: 2, //based on sentry.io loglevel //
     }),
     ServeStaticModule.forRoot({
@@ -114,6 +118,7 @@ import { SentryModule } from '@ntegral/nestjs-sentry';
     SteamStrategy,
     JwtStrategy,
     DiscordStrategy,
+    LiveMatchService,
 
     MatchMapper,
     PlayerMapper,
@@ -123,6 +128,9 @@ import { SentryModule } from '@ntegral/nestjs-sentry';
     UserConnectionRepository,
     UserCreatedHandler,
     UserUpdatedHandler,
+    LiveMatchUpdateHandler,
+    GameSessionFinishedEvent,
+    MatchFinishedHandler,
   ],
 })
 export class AppModule {}

@@ -3,8 +3,9 @@ import { ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { MatchmakingMode } from '../../gateway/shared-types/matchmaking-mode';
 import { MatchApi } from '../../generated-api/gameserver';
 import { GAMESERVER_APIURL } from '../../utils/env';
-import { MatchDto, MatchPageDto } from './dto/match.dto';
+import { LiveMatchDto, MatchDto, MatchPageDto } from './dto/match.dto';
 import { MatchMapper } from './match.mapper';
+import { LiveMatchService } from '../../cache/live-match.service';
 
 @Controller('match')
 @ApiTags('match')
@@ -12,7 +13,8 @@ import { MatchMapper } from './match.mapper';
 export class MatchController {
   private ms: MatchApi;
 
-  constructor(private readonly mapper: MatchMapper) {
+
+  constructor(private readonly mapper: MatchMapper, private readonly ls: LiveMatchService) {
     this.ms = new MatchApi(undefined, `http://${GAMESERVER_APIURL}`);
   }
 
@@ -83,5 +85,10 @@ export class MatchController {
     return this.ms
       .matchControllerPlayerMatches(steam_id, page, perPage, mode, hero)
       .then(t => this.mapper.mapMatchPage(t.data));
+  }
+
+  @Get('/live')
+  async liveMatches(): Promise<LiveMatchDto[]>{
+    return [...this.ls.cache.values()]
   }
 }
