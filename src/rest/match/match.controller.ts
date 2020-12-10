@@ -9,7 +9,7 @@ import { LiveMatchService } from '../../cache/live-match.service';
 
 @Controller('match')
 @ApiTags('match')
-@UseInterceptors(CacheInterceptor)
+// @UseInterceptors(CacheInterceptor)
 export class MatchController {
   private ms: MatchApi;
 

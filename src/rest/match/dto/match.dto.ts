@@ -57,6 +57,7 @@ export class PlayerInfo {
   kills: number;
   deaths: number;
   assists: number;
+  name: string;
 }
 
 export class LiveMatchDto {
