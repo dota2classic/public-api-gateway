@@ -2,12 +2,14 @@ import { Body, Controller, Get, Inject, Post } from '@nestjs/common';
 import { EventAdminDto, GameServerDto, GameSessionDto } from './dto/admin.dto';
 import { ClientProxy } from '@nestjs/microservices';
 import { AdminGuard, WithUser } from '../../utils/decorator/with-user';
-import { QueryBus } from '@nestjs/cqrs';
+import { EventBus, QueryBus } from '@nestjs/cqrs';
 import { GAMESERVER_APIURL } from '../../utils/env';
 import { InfoApi } from 'src/generated-api/gameserver/api/info-api';
 import { AdminMapper } from './admin.mapper';
 import { ApiTags } from '@nestjs/swagger';
 import { KillServerRequestedEvent } from '../../gateway/events/gs/kill-server-requested.event';
+import { construct } from '../../gateway/util/construct';
+import { LiveMatchUpdateEvent } from '../../gateway/events/gs/live-match-update.event';
 
 @Controller('servers')
 @ApiTags('admin')
@@ -17,6 +19,7 @@ export class ServerController {
     @Inject('QueryCore') private readonly rq: ClientProxy,
     private readonly qBus: QueryBus,
     private readonly mapper: AdminMapper,
+    private readonly ebus: EventBus
   ) {
     this.ms = new InfoApi(undefined, `http://${GAMESERVER_APIURL}`);
   }

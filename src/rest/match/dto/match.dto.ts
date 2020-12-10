@@ -45,7 +45,7 @@ export class MatchPageDto {
 }
 
 
-class PlayerInfo {
+export class PlayerInfo {
   hero: string;
   team: number;
   steam_id: string;

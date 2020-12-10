@@ -3,7 +3,7 @@ import { ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { MatchmakingMode } from '../../gateway/shared-types/matchmaking-mode';
 import { MatchApi } from '../../generated-api/gameserver';
 import { GAMESERVER_APIURL } from '../../utils/env';
-import { LiveMatchDto, MatchDto, MatchPageDto } from './dto/match.dto';
+import { MatchDto, MatchPageDto } from './dto/match.dto';
 import { MatchMapper } from './match.mapper';
 import { LiveMatchService } from '../../cache/live-match.service';
 
@@ -13,9 +13,16 @@ import { LiveMatchService } from '../../cache/live-match.service';
 export class MatchController {
   private ms: MatchApi;
 
-
-  constructor(private readonly mapper: MatchMapper, private readonly ls: LiveMatchService) {
+  constructor(
+    private readonly mapper: MatchMapper,
+    private readonly ls: LiveMatchService,
+  ) {
     this.ms = new MatchApi(undefined, `http://${GAMESERVER_APIURL}`);
+  }
+
+  @Get('/live/list')
+  async liveMatches() {
+    return [...this.ls.cache.values()];
   }
 
   @ApiQuery({
@@ -81,14 +88,8 @@ export class MatchController {
     @Query('mode') mode?: MatchmakingMode,
     @Query('hero') hero?: string,
   ): Promise<MatchPageDto> {
-    console.log(hero)
     return this.ms
       .matchControllerPlayerMatches(steam_id, page, perPage, mode, hero)
       .then(t => this.mapper.mapMatchPage(t.data));
-  }
-
-  @Get('/live')
-  async liveMatches(): Promise<LiveMatchDto[]>{
-    return [...this.ls.cache.values()]
   }
 }

@@ -8,6 +8,7 @@ export class LiveMatchUpdateHandler
   constructor(private readonly ls: LiveMatchService) {}
 
   async handle(event: LiveMatchUpdateEvent) {
+    console.log("Yeah")
     this.ls.cache.set(event.matchId, event);
   }
 }
