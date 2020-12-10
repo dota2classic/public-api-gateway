@@ -8,9 +8,7 @@ import { MatchFinishedEvent } from './gateway/events/match-finished.event';
 
 @Controller()
 export class EventController {
-
-  constructor(private readonly ebus: EventBus) {
-  }
+  constructor(private readonly ebus: EventBus) {}
 
   private event<T>(constructor: Constructor<T>, data: any) {
     const buff = data;
@@ -28,13 +26,10 @@ export class EventController {
     this.event(UserUpdatedEvent, data);
   }
 
-
-  @EventPattern('LiveMatchUpdateEvent')
+  @EventPattern(LiveMatchUpdateEvent.name)
   async LiveMatchUpdateEvent(data: LiveMatchUpdateEvent) {
-    console.log("xx")
     this.event(LiveMatchUpdateEvent, data);
   }
-
 
   @EventPattern(MatchFinishedEvent.name)
   async MatchFinishedEvent(data: MatchFinishedEvent) {

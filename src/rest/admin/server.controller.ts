@@ -56,6 +56,7 @@ export class ServerController {
   @WithUser()
   @Post('/debug_event')
   async debugEvent(@Body() b: EventAdminDto) {
-    this.rq.emit(b.name, b.body);
+    await this.rq.emit(b.name, b.body).toPromise();
+    console.log("Emitted")
   }
 }
