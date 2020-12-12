@@ -9,7 +9,6 @@ import { LiveMatchService } from '../../cache/live-match.service';
 
 @Controller('match')
 @ApiTags('match')
-@UseInterceptors(CacheInterceptor)
 export class MatchController {
   private ms: MatchApi;
 
@@ -19,7 +18,7 @@ export class MatchController {
     this.ms = new MatchApi(undefined, `http://${GAMESERVER_APIURL}`);
   }
 
-
+  @UseInterceptors(CacheInterceptor)
   @ApiQuery({
     name: 'page',
     required: true,
@@ -43,6 +42,9 @@ export class MatchController {
       .then(t => this.mapper.mapMatchPage(t.data));
   }
 
+
+
+  @UseInterceptors(CacheInterceptor)
   @ApiParam({
     name: 'id',
     required: true,
@@ -54,6 +56,8 @@ export class MatchController {
     );
   }
 
+
+  @UseInterceptors(CacheInterceptor)
   @ApiParam({
     name: 'id',
     required: true,

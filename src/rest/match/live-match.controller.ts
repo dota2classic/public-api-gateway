@@ -19,7 +19,6 @@ export class LiveMatchController {
   })
   @Get('/:id')
   async liveMatch(@Param('id', ParseIntPipe) id: number): Promise<LiveMatchDto | undefined> {
-    console.log("hehhehe ;)", this.ls.forId(id), id)
     return this.ls.forId(id);
   }
 }

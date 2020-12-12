@@ -1,10 +1,11 @@
 import {
+  CacheInterceptor,
   Controller,
   Get,
   Inject,
   Param,
   Query,
-  UseGuards,
+  UseGuards, UseInterceptors,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Dota2Version } from '../../gateway/shared-types/dota2version';
@@ -90,6 +91,8 @@ export class PlayerController {
     };
   }
 
+
+  @UseInterceptors(CacheInterceptor)
   @ApiQuery({ required: false, name: 'version' })
   @Get('/leaderboard')
   async leaderboard(
@@ -98,6 +101,7 @@ export class PlayerController {
     const rawData = await this.ms.playerControllerLeaderboard(version);
     return Promise.all(rawData.data.map(this.mapper.mapLeaderboardEntry));
   }
+
 
   @Get('/summary/:id')
   async playerSummary(
@@ -125,6 +129,8 @@ export class PlayerController {
     return this.mapper.mapParty(party);
   }
 
+
+  @UseInterceptors(CacheInterceptor)
   @Get('/summary/hero/:id')
   async heroSummary(@Param('id') steam_id: string): Promise<HeroStatsDto[]> {
     const d = await this.ms.playerControllerPlayerHeroSummary(
@@ -134,6 +140,8 @@ export class PlayerController {
     return d.data;
   }
 
+
+  @UseInterceptors(CacheInterceptor)
   @Get('/summary/general/:id')
   async generalSummary(@Param('id') steam_id: string): Promise<PlayerGeneralStatsDto> {
     const d = await this.ms.playerControllerPlayerGeneralSummary(
