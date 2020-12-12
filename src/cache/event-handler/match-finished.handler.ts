@@ -7,6 +7,6 @@ export class MatchFinishedHandler implements IEventHandler<MatchFinishedEvent> {
   constructor(private readonly ls: LiveMatchService) {}
 
   async handle(event: MatchFinishedEvent) {
-    this.ls.cache.delete(event.matchId)
+    this.ls.onStop(event.matchId);
   }
 }

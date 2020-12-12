@@ -9,21 +9,16 @@ import { LiveMatchService } from '../../cache/live-match.service';
 
 @Controller('match')
 @ApiTags('match')
-// @UseInterceptors(CacheInterceptor)
+@UseInterceptors(CacheInterceptor)
 export class MatchController {
   private ms: MatchApi;
 
   constructor(
     private readonly mapper: MatchMapper,
-    private readonly ls: LiveMatchService,
   ) {
     this.ms = new MatchApi(undefined, `http://${GAMESERVER_APIURL}`);
   }
 
-  @Get('/live/list')
-  async liveMatches() {
-    return [...this.ls.cache.values()];
-  }
 
   @ApiQuery({
     name: 'page',

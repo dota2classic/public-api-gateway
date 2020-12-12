@@ -35,6 +35,7 @@ import { LiveMatchUpdateHandler } from './cache/event-handler/live-match-update.
 import { GameSessionFinishedEvent } from './gateway/events/game-session-finished.event';
 import { MatchFinishedHandler } from './cache/event-handler/match-finished.handler';
 import { LiveMatchService } from './cache/live-match.service';
+import { LiveMatchController } from './rest/match/live-match.controller';
 
 @Module({
   imports: [
@@ -72,6 +73,7 @@ import { LiveMatchService } from './cache/live-match.service';
   ],
   controllers: [
     MatchController,
+    LiveMatchController,
     PlayerController,
     ServerController,
     EventController,
