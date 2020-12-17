@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { LiveMatchDto } from '../rest/match/dto/match.dto';
-import { Observable, Subject } from 'rxjs';
+import { concat, Observable, of, Subject } from 'rxjs';
 import { delay } from 'rxjs/operators';
 import { LIVE_MATCH_DELAY } from '../utils/env';
 
@@ -27,7 +27,7 @@ export class LiveMatchService {
       this.readCache.set(event.matchId, delayedStream);
 
       delayedStream.subscribe(e => {
-        console.log("Updated ecache live matches")
+        console.log('Updated ecache live matches');
         this.entityCache.set(e.matchId, e);
       });
     }
@@ -41,7 +41,7 @@ export class LiveMatchService {
       sub.complete();
       this.cache.delete(id);
       this.readCache.delete(id);
-      this.entityCache.delete(id)
+      this.entityCache.delete(id);
     }
   }
 
@@ -50,13 +50,14 @@ export class LiveMatchService {
   }
 
   public streamMatch(id: number): Observable<LiveMatchDto> {
-    return (
-      this.cache.get(id) ||
-      (() => {
-        const s = new Subject<LiveMatchDto>();
-        s.complete();
-        return s;
-      })()
-    );
+    const liveOne = this.cache.get(id);
+
+    if (liveOne) {
+      return concat(of(this.entityCache.get(id)), liveOne);
+    }
+
+    const s = new Subject<LiveMatchDto>();
+    s.complete();
+    return s;
   }
 }
