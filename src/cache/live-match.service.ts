@@ -50,7 +50,7 @@ export class LiveMatchService {
   }
 
   public streamMatch(id: number): Observable<LiveMatchDto> {
-    const liveOne = this.cache.get(id);
+    const liveOne = this.readCache.get(id);
 
     if (liveOne) {
       return concat(of(this.entityCache.get(id)), liveOne);
