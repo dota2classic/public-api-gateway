@@ -4,7 +4,7 @@ import { SteamController } from './rest/steam.controller';
 import SteamStrategy from './rest/strategy/steam.strategy';
 import { JwtModule } from '@nestjs/jwt';
 import { ClientsModule, Transport } from '@nestjs/microservices';
-import { isDev, JWT_SECRET, REDIS_PASSWORD, REDIS_URL } from './utils/env';
+import { DISCORD_API_TOKEN, isDev, JWT_SECRET, REDIS_PASSWORD, REDIS_URL } from './utils/env';
 import { outerQuery } from './gateway/util/outerQuery';
 import { GetAllQuery } from './gateway/queries/GetAll/get-all.query';
 import { GetUserInfoQuery } from './gateway/queries/GetUserInfo/get-user-info.query';
@@ -98,7 +98,7 @@ import { LiveMatchController } from './rest/match/live-match.controller';
         const logger = new Logger(Client.name);
 
         await client.login(
-          `NzU4OTAwMDY4MzYzMDEwMDcy.X21qww.4JFzI_R1JOiSb6I3Vmo2pT3NuGQ`,
+          DISCORD_API_TOKEN(),
         );
 
         let resolve: () => void;
