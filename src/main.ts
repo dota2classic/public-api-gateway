@@ -3,12 +3,10 @@ import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { UserRepository } from './cache/user/user.repository';
 import * as cookieParser from 'cookie-parser';
-import { inspect } from 'util';
-import { CommandBus, EventBus } from '@nestjs/cqrs';
-import { Logger } from '@nestjs/common';
-import { Subscriber } from 'rxjs';
+import { CACHE_MANAGER } from '@nestjs/common';
 import { REDIS_PASSWORD, REDIS_URL } from './utils/env';
 import { Transport } from '@nestjs/microservices';
+import * as request from 'supertest';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -30,11 +28,10 @@ async function bootstrap() {
       url: REDIS_URL(),
       retryAttempts: Infinity,
       retryDelay: 5000,
-      password: REDIS_PASSWORD()
+      password: REDIS_PASSWORD(),
     },
   });
   app.use(cookieParser());
-
 
   app.enableCors({
     origin: '*',
@@ -43,7 +40,7 @@ async function bootstrap() {
 
   await app.listen(6001);
 
-  await app.startAllMicroservicesAsync()
+  await app.startAllMicroservicesAsync();
 
   await app.get(UserRepository).fillCaches();
 }

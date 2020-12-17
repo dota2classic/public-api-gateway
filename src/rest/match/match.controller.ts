@@ -1,20 +1,17 @@
-import { CacheInterceptor, Controller, Get, Param, Query, UseInterceptors } from '@nestjs/common';
+import { CacheInterceptor, Controller, Get, NotFoundException, Param, Query, UseInterceptors } from '@nestjs/common';
 import { ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { MatchmakingMode } from '../../gateway/shared-types/matchmaking-mode';
 import { MatchApi } from '../../generated-api/gameserver';
 import { GAMESERVER_APIURL } from '../../utils/env';
 import { MatchDto, MatchPageDto } from './dto/match.dto';
 import { MatchMapper } from './match.mapper';
-import { LiveMatchService } from '../../cache/live-match.service';
 
 @Controller('match')
 @ApiTags('match')
 export class MatchController {
   private ms: MatchApi;
 
-  constructor(
-    private readonly mapper: MatchMapper,
-  ) {
+  constructor(private readonly mapper: MatchMapper) {
     this.ms = new MatchApi(undefined, `http://${GAMESERVER_APIURL}`);
   }
 
@@ -42,8 +39,6 @@ export class MatchController {
       .then(t => this.mapper.mapMatchPage(t.data));
   }
 
-
-
   @UseInterceptors(CacheInterceptor)
   @ApiParam({
     name: 'id',
@@ -51,11 +46,14 @@ export class MatchController {
   })
   @Get('/:id')
   async match(@Param('id') id: number): Promise<MatchDto> {
-    return this.mapper.mapMatch(
-      await this.ms.matchControllerGetMatch(id).then(t => t.data),
-    );
+    try {
+      return this.mapper.mapMatch(
+        await this.ms.matchControllerGetMatch(id).then(t => t.data),
+      );
+    } catch (e) {
+      throw new NotFoundException();
+    }
   }
-
 
   @UseInterceptors(CacheInterceptor)
   @ApiParam({

@@ -16,6 +16,7 @@ export class DiscordController {
   ) {}
 
   @Get()
+  @ApiExcludeEndpoint()
   @UseGuards(AuthGuard('discord'))
   async discordAuth(@Req() req) {}
 

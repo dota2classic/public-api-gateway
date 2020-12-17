@@ -36,14 +36,12 @@ export class MatchDto {
   timestamp: string;
 }
 
-
 export class MatchPageDto {
   data: MatchDto[];
   page: number;
   pages: number;
   perPage: number;
 }
-
 
 export class PlayerInfo {
   hero: string;
@@ -67,4 +65,15 @@ export class LiveMatchDto {
   server: string;
   timestamp: number;
   heroes: PlayerInfo[];
+}
+
+export class MessageObjectDto<T> {
+  data: string | T;
+  id?: string;
+  type?: string;
+  retry?: number;
+}
+
+export class LiveMatchSseDto extends MessageObjectDto<LiveMatchDto> {
+  data: LiveMatchDto;
 }

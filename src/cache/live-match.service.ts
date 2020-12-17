@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { LiveMatchDto } from '../rest/match/dto/match.dto';
-import { Subject } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 import { delay } from 'rxjs/operators';
 import { LIVE_MATCH_DELAY } from '../utils/env';
 
@@ -9,8 +9,9 @@ export class LiveMatchService {
   // MINUTE DELAY
   // matchID key => events
   private cache = new Map<number, Subject<LiveMatchDto>>();
-  private readCache = new Map<number, LiveMatchDto>();
+  private readCache = new Map<number, Observable<LiveMatchDto>>();
 
+  private readonly entityCache = new Map<number, LiveMatchDto>();
   private readonly logger = new Logger(LiveMatchService.name);
 
   constructor() {
@@ -22,8 +23,12 @@ export class LiveMatchService {
       // if not subject, we
       const eventStream = new Subject<LiveMatchDto>();
       this.cache.set(event.matchId, eventStream);
-      eventStream.pipe(delay(LIVE_MATCH_DELAY)).subscribe(lastItem => {
-        this.readCache.set(event.matchId, lastItem);
+      const delayedStream = eventStream.pipe(delay(LIVE_MATCH_DELAY));
+      this.readCache.set(event.matchId, delayedStream);
+
+      delayedStream.subscribe(e => {
+        console.log("Updated ecache live matches")
+        this.entityCache.set(e.matchId, e);
       });
     }
 
@@ -36,14 +41,22 @@ export class LiveMatchService {
       sub.complete();
       this.cache.delete(id);
       this.readCache.delete(id);
+      this.entityCache.delete(id)
     }
   }
 
   public list(): LiveMatchDto[] {
-    return [...this.readCache.values()];
+    return [...this.entityCache.values()];
   }
 
-  public forId(id: number): LiveMatchDto | undefined {
-    return this.readCache.get(id);
+  public streamMatch(id: number): Observable<LiveMatchDto> {
+    return (
+      this.cache.get(id) ||
+      (() => {
+        const s = new Subject<LiveMatchDto>();
+        s.complete();
+        return s;
+      })()
+    );
   }
 }
