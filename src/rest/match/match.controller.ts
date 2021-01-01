@@ -1,4 +1,13 @@
-import { CacheInterceptor, Controller, Get, NotFoundException, Param, Query, UseInterceptors } from '@nestjs/common';
+import {
+  CacheInterceptor,
+  CacheTTL,
+  Controller,
+  Get,
+  NotFoundException,
+  Param,
+  Query,
+  UseInterceptors,
+} from '@nestjs/common';
 import { ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { MatchmakingMode } from '../../gateway/shared-types/matchmaking-mode';
 import { MatchApi } from '../../generated-api/gameserver';
@@ -40,6 +49,7 @@ export class MatchController {
   }
 
   @UseInterceptors(CacheInterceptor)
+  @CacheTTL(10)
   @ApiParam({
     name: 'id',
     required: true,

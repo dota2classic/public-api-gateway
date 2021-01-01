@@ -36,6 +36,7 @@ import { GameSessionFinishedEvent } from './gateway/events/game-session-finished
 import { MatchFinishedHandler } from './cache/event-handler/match-finished.handler';
 import { LiveMatchService } from './cache/live-match.service';
 import { LiveMatchController } from './rest/match/live-match.controller';
+import { GetPlayerInfoQuery } from './gateway/queries/GetPlayerInfo/get-player-info.query';
 
 @Module({
   imports: [
@@ -89,6 +90,7 @@ import { LiveMatchController } from './rest/match/live-match.controller';
     outerQuery(GetAllConnectionsQuery, 'QueryCore'),
     outerQuery(GetConnectionsQuery, 'QueryCore'),
     outerQuery(GetRoleSubscriptionsQuery, 'QueryCore'),
+    outerQuery(GetPlayerInfoQuery, 'QueryCore'),
 
     {
       provide: 'DiscordClient',

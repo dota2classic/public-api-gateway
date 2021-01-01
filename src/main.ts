@@ -3,10 +3,13 @@ import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { UserRepository } from './cache/user/user.repository';
 import * as cookieParser from 'cookie-parser';
-import { CACHE_MANAGER } from '@nestjs/common';
+import { CACHE_MANAGER, Logger } from '@nestjs/common';
 import { REDIS_PASSWORD, REDIS_URL } from './utils/env';
 import { Transport } from '@nestjs/microservices';
 import * as request from 'supertest';
+import { inspect } from "util";
+import { Subscriber } from 'rxjs';
+import { CommandBus, EventBus, QueryBus } from '@nestjs/cqrs';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -43,5 +46,38 @@ async function bootstrap() {
   await app.startAllMicroservicesAsync();
 
   await app.get(UserRepository).fillCaches();
+
+
+
+  const ebus = app.get(EventBus);
+  const cbus = app.get(CommandBus);
+  const qbus = app.get(QueryBus);
+
+  const clogger = new Logger('CommandLogger');
+  const elogger = new Logger('EventLogger');
+  const qlogger = new Logger('QueryLogger');
+
+  ebus._subscribe(
+    new Subscriber<any>(e => {
+
+      elogger.log(
+        // `${inspect(e)}`,
+        e.__proto__.constructor.name,
+      );
+    }),
+  );
+
+
+  cbus._subscribe(
+    new Subscriber<any>(e => {
+      clogger.log(`${inspect(e)}, ${e.__proto__.constructor.name}`);
+    }),
+  );
+
+  qbus._subscribe(
+    new Subscriber<any>(e => {
+      qlogger.log(e.__proto__.constructor.name);
+    }),
+  );
 }
 bootstrap();
