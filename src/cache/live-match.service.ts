@@ -9,7 +9,6 @@ export class LiveMatchService {
   // MINUTE DELAY
   // matchID key => events
   private cache = new Map<number, Subject<LiveMatchDto>>();
-  private readCache = new Map<number, Observable<LiveMatchDto>>();
 
   private readonly entityCache = new Map<number, LiveMatchDto>();
   private readonly logger = new Logger(LiveMatchService.name);
@@ -23,11 +22,8 @@ export class LiveMatchService {
       // if not subject, we
       const eventStream = new Subject<LiveMatchDto>();
       this.cache.set(event.matchId, eventStream);
-      const delayedStream = eventStream.pipe(delay(LIVE_MATCH_DELAY));
-      this.readCache.set(event.matchId, delayedStream);
 
-      delayedStream.subscribe(e => {
-        console.log('Updated ecache live matches');
+      eventStream.pipe(delay(LIVE_MATCH_DELAY)).subscribe(e => {
         this.entityCache.set(e.matchId, e);
       });
     }
@@ -40,7 +36,6 @@ export class LiveMatchService {
     if (sub) {
       sub.complete();
       this.cache.delete(id);
-      this.readCache.delete(id);
       this.entityCache.delete(id);
     }
   }
@@ -50,10 +45,13 @@ export class LiveMatchService {
   }
 
   public streamMatch(id: number): Observable<LiveMatchDto> {
-    const liveOne = this.readCache.get(id);
+    const liveOne = this.cache.get(id);
 
     if (liveOne) {
-      return concat(of(this.entityCache.get(id)), liveOne);
+      return concat(
+        of(this.entityCache.get(id)),
+        liveOne.pipe(delay(LIVE_MATCH_DELAY)),
+      );
     }
 
     const s = new Subject<LiveMatchDto>();
