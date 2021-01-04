@@ -1,5 +1,5 @@
 import { Body, Controller, Get, Inject, Post } from '@nestjs/common';
-import { EventAdminDto, GameServerDto, GameSessionDto } from './dto/admin.dto';
+import { EventAdminDto, GameServerDto, GameSessionDto, StopServerDto } from './dto/admin.dto';
 import { ClientProxy } from '@nestjs/microservices';
 import { AdminGuard, WithUser } from '../../utils/decorator/with-user';
 import { EventBus, QueryBus } from '@nestjs/cqrs';
@@ -36,10 +36,11 @@ export class ServerController {
   @AdminGuard()
   @WithUser()
   @Post(`/stop_server`)
-  async stopServer(@Body() url: string) {
+  async stopServer(@Body() url: StopServerDto) {
+    console.log("sad kek")
     this.rq.emit(
       KillServerRequestedEvent.name,
-      new KillServerRequestedEvent(url),
+      new KillServerRequestedEvent(url.url),
     );
   }
 

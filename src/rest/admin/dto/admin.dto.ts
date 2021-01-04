@@ -67,3 +67,7 @@ export class UserBanSummaryDto {
 export class BanHammerDto {
   public readonly endTime: number;
 }
+
+export class StopServerDto {
+  public readonly url: string;
+}
