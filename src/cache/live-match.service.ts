@@ -50,7 +50,7 @@ export class LiveMatchService {
     if (liveOne) {
       return concat(
         of(this.entityCache.get(id)),
-        liveOne.pipe(delay(LIVE_MATCH_DELAY)),
+        liveOne //.pipe(delay(LIVE_MATCH_DELAY)),
       );
     }
 
