@@ -75,7 +75,8 @@ export enum GameserverMatchDtoModeEnum {
     DIRETIDE = 'DIRETIDE',
     GREEVILING = 'GREEVILING',
     ABILITYDRAFT = 'ABILITY_DRAFT',
-    TOURNAMENT = 'TOURNAMENT'
+    TOURNAMENT = 'TOURNAMENT',
+    BOTS = 'BOTS'
 }
 
 

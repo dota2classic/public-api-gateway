@@ -17,6 +17,7 @@ export class PlayerSummaryDto {
   mmr: number;
   roles: Role[];
   rank: number;
+  unrankedGamesLeft: number;
 }
 export class ConnectionDto {
   connection: UserConnection;

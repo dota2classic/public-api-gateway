@@ -35,6 +35,7 @@ export class PlayerMapper {
       roles: await this.userRepository.roles(it.steam_id),
       id: numSteamId(it.steam_id),
       rank: it.rank,
+      unrankedGamesLeft: it.newbieUnrankedGamesLeft
     };
   };
 

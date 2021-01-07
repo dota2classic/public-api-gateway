@@ -37,6 +37,12 @@ export interface GameserverPlayerSummaryDto {
      * @memberof GameserverPlayerSummaryDto
      */
     rank: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof GameserverPlayerSummaryDto
+     */
+    newbieUnrankedGamesLeft: number;
 }
 
 
