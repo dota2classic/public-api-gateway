@@ -28,14 +28,15 @@ export class LiveMatchService {
       });
     }
 
-    this.cache.get(event.matchId).next(event);
+    const str = this.cache.get(event.matchId);
+    if (!str.isStopped) this.cache.get(event.matchId).next(event);
   }
 
   public onStop(id: number) {
     const sub = this.cache.get(id);
     if (sub) {
       sub.complete();
-      this.cache.delete(id);
+      // this.cache.delete(id);
       this.entityCache.delete(id);
     }
   }
@@ -47,15 +48,13 @@ export class LiveMatchService {
   public streamMatch(id: number): Observable<LiveMatchDto> {
     const liveOne = this.cache.get(id);
 
-    if (liveOne) {
+    if (liveOne && liveOne.isStopped) {
       return concat(
         of(this.entityCache.get(id)),
-        liveOne //.pipe(delay(LIVE_MATCH_DELAY)),
+        liveOne, //.pipe(delay(LIVE_MATCH_DELAY)),
       );
     }
 
-    const s = new Subject<LiveMatchDto>();
-    s.complete();
-    return s;
+    return of();
   }
 }
