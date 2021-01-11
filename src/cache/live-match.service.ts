@@ -48,7 +48,7 @@ export class LiveMatchService {
   public streamMatch(id: number): Observable<LiveMatchDto> {
     const liveOne = this.cache.get(id);
 
-    if (liveOne && liveOne.isStopped) {
+    if (liveOne && !liveOne.isStopped) {
       return concat(
         of(this.entityCache.get(id)),
         liveOne, //.pipe(delay(LIVE_MATCH_DELAY)),
