@@ -9,6 +9,7 @@ export class LiveMatchService {
   // MINUTE DELAY
   // matchID key => events
   private cache = new Map<number, Subject<LiveMatchDto>>();
+  private finishedMatchesCache = new Map<number, boolean>();
 
   private readonly entityCache = new Map<number, LiveMatchDto>();
   private readonly logger = new Logger(LiveMatchService.name);
@@ -17,7 +18,13 @@ export class LiveMatchService {
     this.logger.log(`Using delay of ${LIVE_MATCH_DELAY} for live previews`);
   }
 
+  private isMatchComplete(id: number): boolean {
+    return this.finishedMatchesCache.get(id) === true;
+  }
+
   public pushEvent(event: LiveMatchDto) {
+    if (this.isMatchComplete(event.matchId)) return;
+
     if (!this.cache.has(event.matchId)) {
       // if not subject, we
       const eventStream = new Subject<LiveMatchDto>();
@@ -28,15 +35,15 @@ export class LiveMatchService {
       });
     }
 
-    const str = this.cache.get(event.matchId);
-    if (!str.isStopped) this.cache.get(event.matchId).next(event);
+    this.cache.get(event.matchId).next(event);
   }
 
   public onStop(id: number) {
     const sub = this.cache.get(id);
     if (sub) {
       sub.complete();
-      // this.cache.delete(id);
+      this.cache.delete(id);
+      this.finishedMatchesCache.set(id, true);
       this.entityCache.delete(id);
     }
   }
