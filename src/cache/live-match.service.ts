@@ -49,7 +49,7 @@ export class LiveMatchService {
   }
 
   public list(): LiveMatchDto[] {
-    return [...this.entityCache.values()];
+    return [...this.entityCache.values()].filter(t => !this.isMatchComplete(t.matchId));
   }
 
   public streamMatch(id: number): Observable<LiveMatchDto> {
