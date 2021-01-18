@@ -1,5 +1,6 @@
 import { UserConnection } from '../../../gateway/shared-types/user-connection';
 import { Role } from '../../../gateway/shared-types/roles';
+import { BanStatusDto } from '../../admin/dto/admin.dto';
 
 export class LeaderboardEntryDto {
   steam_id: string;
@@ -8,6 +9,19 @@ export class LeaderboardEntryDto {
   mmr: number;
   rank: number;
   roles: Role[];
+}
+
+
+
+export class MeDto {
+  steam_id: string;
+  name: string;
+  id: string;
+  mmr: number;
+  roles: Role[];
+  rank: number;
+  unrankedGamesLeft: number;
+  banStatus: BanStatusDto
 }
 
 export class PlayerSummaryDto {

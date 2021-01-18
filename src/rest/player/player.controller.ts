@@ -1,27 +1,11 @@
-import {
-  CacheInterceptor,
-  Controller,
-  Get,
-  Inject,
-  Param,
-  Query,
-  UseGuards, UseInterceptors,
-} from '@nestjs/common';
+import { CacheInterceptor, Controller, Get, Inject, Param, Query, UseGuards, UseInterceptors } from '@nestjs/common';
 import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Dota2Version } from '../../gateway/shared-types/dota2version';
 import { PlayerApi } from '../../generated-api/gameserver';
 import { GAMESERVER_APIURL } from '../../utils/env';
 import { PlayerMapper } from './player.mapper';
-import {
-  LeaderboardEntryDto,
-  MyProfileDto,
-  PlayerPreviewDto,
-  PlayerSummaryDto,
-} from './dto/player.dto';
-import {
-  CurrentUser,
-  CurrentUserDto,
-} from '../../utils/decorator/current-user';
+import { LeaderboardEntryDto, MeDto, MyProfileDto, PlayerPreviewDto, PlayerSummaryDto } from './dto/player.dto';
+import { CurrentUser, CurrentUserDto } from '../../utils/decorator/current-user';
 import { AuthGuard } from '@nestjs/passport';
 import { EventBus, QueryBus } from '@nestjs/cqrs';
 import { GetPartyQuery } from '../../gateway/queries/GetParty/get-party.query';
@@ -36,6 +20,8 @@ import { UserConnection } from '../../gateway/shared-types/user-connection';
 import { UserMightExistEvent } from '../../gateway/events/user/user-might-exist.event';
 import { ClientProxy } from '@nestjs/microservices';
 import { HeroStatsDto, PlayerGeneralStatsDto } from './dto/hero.dto';
+import { GetPlayerInfoQuery } from '../../gateway/queries/GetPlayerInfo/get-player-info.query';
+import { GetPlayerInfoQueryResult } from '../../gateway/queries/GetPlayerInfo/get-player-info-query.result';
 
 @Controller('player')
 @ApiTags('player')
@@ -57,12 +43,23 @@ export class PlayerController {
 
   @Get('/me')
   @WithUser()
-  async me(@CurrentUser() user): Promise<PlayerSummaryDto> {
+  async me(@CurrentUser() user): Promise<MeDto> {
     const rawData = await this.ms.playerControllerPlayerSummary(
       Dota2Version.Dota_681,
       user.steam_id,
     );
-    return this.mapper.mapPlayerSummary(rawData.data);
+
+    const res = await this.qbus.execute<
+      GetPlayerInfoQuery,
+      GetPlayerInfoQueryResult
+    >(
+      new GetPlayerInfoQuery(
+        new PlayerId(user.steam_id),
+        Dota2Version.Dota_681,
+      ),
+    );
+
+    return this.mapper.mapMe(rawData.data, res.banStatus);
   }
 
   @Get('/connections')
@@ -91,7 +88,6 @@ export class PlayerController {
     };
   }
 
-
   @UseInterceptors(CacheInterceptor)
   @ApiQuery({ required: false, name: 'version' })
   @Get('/leaderboard')
@@ -101,7 +97,6 @@ export class PlayerController {
     const rawData = await this.ms.playerControllerLeaderboard(version);
     return Promise.all(rawData.data.map(this.mapper.mapLeaderboardEntry));
   }
-
 
   @Get('/summary/:id')
   async playerSummary(
@@ -129,7 +124,6 @@ export class PlayerController {
     return this.mapper.mapParty(party);
   }
 
-
   @UseInterceptors(CacheInterceptor)
   @Get('/summary/hero/:id')
   async heroSummary(@Param('id') steam_id: string): Promise<HeroStatsDto[]> {
@@ -140,10 +134,11 @@ export class PlayerController {
     return d.data;
   }
 
-
   @UseInterceptors(CacheInterceptor)
   @Get('/summary/general/:id')
-  async generalSummary(@Param('id') steam_id: string): Promise<PlayerGeneralStatsDto> {
+  async generalSummary(
+    @Param('id') steam_id: string,
+  ): Promise<PlayerGeneralStatsDto> {
     const d = await this.ms.playerControllerPlayerGeneralSummary(
       Dota2Version.Dota_681,
       steam_id,

@@ -1,11 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { GameserverLeaderboardEntryDto, GameserverPlayerSummaryDto } from '../../generated-api/gameserver/models';
 import { UserRepository } from '../../cache/user/user.repository';
-import { LeaderboardEntryDto, PlayerSummaryDto } from './dto/player.dto';
+import { LeaderboardEntryDto, MeDto, PlayerSummaryDto } from './dto/player.dto';
 import { numSteamId } from '../../utils/steamIds';
 import { GetPartyQueryResult } from '../../gateway/queries/GetParty/get-party-query.result';
 import { PartyDto, PlayerInPartyDto } from './dto/party.dto';
 import { PlayerId } from '../../gateway/shared-types/player-id';
+import { BanStatus } from '../../gateway/queries/GetPlayerInfo/get-player-info-query.result';
 
 @Injectable()
 export class PlayerMapper {
@@ -24,6 +25,21 @@ export class PlayerMapper {
       rank,
     };
   };
+
+
+  public mapMe = async (it: GameserverPlayerSummaryDto, status: BanStatus): Promise<MeDto> => {
+    return {
+      steam_id: it.steam_id,
+      mmr: it.mmr,
+      name: await this.userRepository.name(it.steam_id),
+      roles: await this.userRepository.roles(it.steam_id),
+      id: numSteamId(it.steam_id),
+      rank: it.rank,
+      unrankedGamesLeft: it.newbieUnrankedGamesLeft,
+      banStatus: status
+    };
+
+  }
 
   public mapPlayerSummary = async (
     it: GameserverPlayerSummaryDto,
