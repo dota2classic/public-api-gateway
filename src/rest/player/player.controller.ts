@@ -1,4 +1,14 @@
-import { CacheInterceptor, Controller, Get, Inject, Param, Query, UseGuards, UseInterceptors } from '@nestjs/common';
+import {
+  CacheInterceptor,
+  CacheTTL,
+  Controller,
+  Get,
+  Inject,
+  Param,
+  Query,
+  UseGuards,
+  UseInterceptors,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Dota2Version } from '../../gateway/shared-types/dota2version';
 import { PlayerApi } from '../../generated-api/gameserver';
@@ -43,23 +53,17 @@ export class PlayerController {
 
   @Get('/me')
   @WithUser()
+  @CacheTTL(60)
   async me(@CurrentUser() user): Promise<MeDto> {
     const rawData = await this.ms.playerControllerPlayerSummary(
       Dota2Version.Dota_681,
       user.steam_id,
     );
 
-    const res = await this.qbus.execute<
-      GetPlayerInfoQuery,
-      GetPlayerInfoQueryResult
-    >(
-      new GetPlayerInfoQuery(
-        new PlayerId(user.steam_id),
-        Dota2Version.Dota_681,
-      ),
-    );
+    const res = await this.ms.playerControllerBanInfo(user.steam_id)
 
-    return this.mapper.mapMe(rawData.data, res.banStatus);
+
+    return this.mapper.mapMe(rawData.data, res.data);
   }
 
   @Get('/connections')

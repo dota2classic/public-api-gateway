@@ -1,5 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { GameserverLeaderboardEntryDto, GameserverPlayerSummaryDto } from '../../generated-api/gameserver/models';
+import {
+  GameserverBanStatusDto,
+  GameserverLeaderboardEntryDto,
+  GameserverPlayerSummaryDto,
+} from '../../generated-api/gameserver/models';
 import { UserRepository } from '../../cache/user/user.repository';
 import { LeaderboardEntryDto, MeDto, PlayerSummaryDto } from './dto/player.dto';
 import { numSteamId } from '../../utils/steamIds';
@@ -7,6 +11,7 @@ import { GetPartyQueryResult } from '../../gateway/queries/GetParty/get-party-qu
 import { PartyDto, PlayerInPartyDto } from './dto/party.dto';
 import { PlayerId } from '../../gateway/shared-types/player-id';
 import { BanStatus } from '../../gateway/queries/GetPlayerInfo/get-player-info-query.result';
+import { BanReason } from '../../gateway/shared-types/ban';
 
 @Injectable()
 export class PlayerMapper {
@@ -27,7 +32,7 @@ export class PlayerMapper {
   };
 
 
-  public mapMe = async (it: GameserverPlayerSummaryDto, status: BanStatus): Promise<MeDto> => {
+  public mapMe = async (it: GameserverPlayerSummaryDto, status: GameserverBanStatusDto): Promise<MeDto> => {
     return {
       steam_id: it.steam_id,
       mmr: it.mmr,
@@ -36,7 +41,11 @@ export class PlayerMapper {
       id: numSteamId(it.steam_id),
       rank: it.rank,
       unrankedGamesLeft: it.newbieUnrankedGamesLeft,
-      banStatus: status
+      banStatus: {
+        isBanned: status.isBanned,
+        bannedUntil: status.bannedUntil,
+        status: status.status as any,
+      }
     };
 
   }

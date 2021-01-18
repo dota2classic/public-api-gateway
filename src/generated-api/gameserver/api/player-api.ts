@@ -19,6 +19,8 @@ import { Configuration } from '../configuration';
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS, RequestArgs, BaseAPI, RequiredError } from '../base';
 // @ts-ignore
+import { GameserverBanStatusDto } from '../models';
+// @ts-ignore
 import { GameserverHeroStatsDto } from '../models';
 // @ts-ignore
 import { GameserverLeaderboardEntryDto } from '../models';
@@ -32,6 +34,41 @@ import { GameserverPlayerSummaryDto } from '../models';
  */
 export const PlayerApiAxiosParamCreator = function (configuration?: Configuration) {
     return {
+        /**
+         * 
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        playerControllerBanInfo: async (id: string, options: any = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            if (id === null || id === undefined) {
+                throw new RequiredError('id','Required parameter id was null or undefined when calling playerControllerBanInfo.');
+            }
+            const localVarPath = `/player/ban_info/{id}`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            const localVarUrlObj = globalImportUrl.parse(localVarPath, true);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            localVarUrlObj.query = {...localVarUrlObj.query, ...localVarQueryParameter, ...options.query};
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: globalImportUrl.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
         /**
          * 
          * @param {string} version 
@@ -201,6 +238,19 @@ export const PlayerApiFp = function(configuration?: Configuration) {
     return {
         /**
          * 
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async playerControllerBanInfo(id: string, options?: any): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GameserverBanStatusDto>> {
+            const localVarAxiosArgs = await PlayerApiAxiosParamCreator(configuration).playerControllerBanInfo(id, options);
+            return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
+                const axiosRequestArgs = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
+                return axios.request(axiosRequestArgs);
+            };
+        },
+        /**
+         * 
          * @param {string} version 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -265,6 +315,15 @@ export const PlayerApiFactory = function (configuration?: Configuration, basePat
     return {
         /**
          * 
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        playerControllerBanInfo(id: string, options?: any): AxiosPromise<GameserverBanStatusDto> {
+            return PlayerApiFp(configuration).playerControllerBanInfo(id, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @param {string} version 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -312,6 +371,17 @@ export const PlayerApiFactory = function (configuration?: Configuration, basePat
  * @extends {BaseAPI}
  */
 export class PlayerApi extends BaseAPI {
+    /**
+     * 
+     * @param {string} id 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof PlayerApi
+     */
+    public playerControllerBanInfo(id: string, options?: any) {
+        return PlayerApiFp(this.configuration).playerControllerBanInfo(id, options).then((request) => request(this.axios, this.basePath));
+    }
+
     /**
      * 
      * @param {string} version 

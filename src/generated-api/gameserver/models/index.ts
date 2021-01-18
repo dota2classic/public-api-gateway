@@ -1,3 +1,4 @@
+export * from './gameserver-ban-status-dto';
 export * from './gameserver-game-server-dto';
 export * from './gameserver-game-session-dto';
 export * from './gameserver-hero-stats-dto';
