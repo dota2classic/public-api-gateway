@@ -37,6 +37,14 @@ import { MatchFinishedHandler } from './cache/event-handler/match-finished.handl
 import { LiveMatchService } from './cache/live-match.service';
 import { LiveMatchController } from './rest/match/live-match.controller';
 import { GetPlayerInfoQuery } from './gateway/queries/GetPlayerInfo/get-player-info.query';
+import { GetAllQueryResult } from './gateway/queries/GetAll/get-all-query.result';
+import { QueryCache } from './cache/query-cache';
+import { GetUserInfoQueryResult } from './gateway/queries/GetUserInfo/get-user-info-query.result';
+import { GetPartyQueryResult } from './gateway/queries/GetParty/get-party-query.result';
+import { GetAllConnectionsQueryResult } from './gateway/queries/GetAllConnections/get-all-connections-query.result';
+import { GetConnectionsQueryResult } from './gateway/queries/GetConnections/get-connections-query.result';
+import { GetRoleSubscriptionsQueryResult } from './gateway/queries/user/GetRoleSubscriptions/get-role-subscriptions-query.result';
+import { GetPlayerInfoQueryResult } from './gateway/queries/GetPlayerInfo/get-player-info-query.result';
 
 @Module({
   imports: [
@@ -84,13 +92,44 @@ import { GetPlayerInfoQuery } from './gateway/queries/GetPlayerInfo/get-player-i
     DiscordController,
   ],
   providers: [
-    outerQuery(GetAllQuery, 'QueryCore'),
-    outerQuery(GetUserInfoQuery, 'QueryCore'),
-    outerQuery(GetPartyQuery, 'QueryCore'),
-    outerQuery(GetAllConnectionsQuery, 'QueryCore'),
-    outerQuery(GetConnectionsQuery, 'QueryCore'),
-    outerQuery(GetRoleSubscriptionsQuery, 'QueryCore'),
-    outerQuery(GetPlayerInfoQuery, 'QueryCore'),
+    outerQuery(
+      GetAllQuery,
+      'QueryCore',
+      new QueryCache<GetAllQuery, GetAllQueryResult>(10),
+    ),
+    outerQuery(
+      GetUserInfoQuery,
+      'QueryCore',
+      new QueryCache<GetUserInfoQuery, GetUserInfoQueryResult>(200),
+    ),
+    outerQuery(
+      GetPartyQuery,
+      'QueryCore',
+      new QueryCache<GetPartyQuery, GetPartyQueryResult>(10),
+    ),
+    outerQuery(
+      GetAllConnectionsQuery,
+      'QueryCore',
+      new QueryCache<GetAllConnectionsQuery, GetAllConnectionsQueryResult>(10),
+    ),
+    outerQuery(
+      GetConnectionsQuery,
+      'QueryCore',
+      new QueryCache<GetConnectionsQuery, GetConnectionsQueryResult>(10),
+    ),
+    outerQuery(
+      GetRoleSubscriptionsQuery,
+      'QueryCore',
+      new QueryCache<
+        GetRoleSubscriptionsQuery,
+        GetRoleSubscriptionsQueryResult
+      >(10),
+    ),
+    outerQuery(
+      GetPlayerInfoQuery,
+      'QueryCore',
+      new QueryCache<GetPlayerInfoQuery, GetPlayerInfoQueryResult>(300),
+    ),
 
     {
       provide: 'DiscordClient',
@@ -99,9 +138,7 @@ import { GetPlayerInfoQuery } from './gateway/queries/GetPlayerInfo/get-player-i
 
         const logger = new Logger(Client.name);
 
-        await client.login(
-          DISCORD_API_TOKEN(),
-        );
+        await client.login(DISCORD_API_TOKEN());
 
         let resolve: () => void;
         const readyPromise = new Promise(r => {
