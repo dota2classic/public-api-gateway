@@ -1,7 +1,7 @@
 import { Body, Controller, Get, Inject, Post } from '@nestjs/common';
 import { EventAdminDto, GameServerDto, GameSessionDto, StopServerDto } from './dto/admin.dto';
 import { ClientProxy } from '@nestjs/microservices';
-import { AdminGuard, WithUser } from '../../utils/decorator/with-user';
+import { AdminGuard, ModeratorGuard, WithUser } from '../../utils/decorator/with-user';
 import { EventBus, QueryBus } from '@nestjs/cqrs';
 import { GAMESERVER_APIURL } from '../../utils/env';
 import { InfoApi } from 'src/generated-api/gameserver/api/info-api';
@@ -24,7 +24,7 @@ export class ServerController {
     this.ms = new InfoApi(undefined, `http://${GAMESERVER_APIURL}`);
   }
 
-  @AdminGuard()
+  @ModeratorGuard()
   @WithUser()
   @Get('/server_pool')
   async serverPool(): Promise<GameServerDto[]> {
@@ -44,7 +44,7 @@ export class ServerController {
     );
   }
 
-  @AdminGuard()
+  @ModeratorGuard()
   @WithUser()
   @Get('/live_sessions')
   async liveSessions(): Promise<GameSessionDto[]> {

@@ -52,4 +52,5 @@ export class RoleGuard implements CanActivate {
   }
 }
 
+export const ModeratorGuard = () => UseGuards(new RoleGuard(Role.ADMIN), new RoleGuard(Role.MODERATOR));
 export const AdminGuard = () => UseGuards(new RoleGuard(Role.ADMIN));

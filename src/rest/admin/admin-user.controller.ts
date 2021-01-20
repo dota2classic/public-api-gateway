@@ -6,7 +6,7 @@ import { ApiTags } from '@nestjs/swagger';
 import { BanHammerDto, UpdateRolesDto, UserBanSummaryDto, UserRoleSummaryDto } from './dto/admin.dto';
 import { UserRolesUpdatedEvent } from '../../gateway/events/user/user-roles-updated.event';
 import { PlayerId } from '../../gateway/shared-types/player-id';
-import { AdminGuard, WithUser } from '../../utils/decorator/with-user';
+import { ModeratorGuard, WithUser } from '../../utils/decorator/with-user';
 import { GetRoleSubscriptionsQuery } from '../../gateway/queries/user/GetRoleSubscriptions/get-role-subscriptions.query';
 import { GetRoleSubscriptionsQueryResult } from '../../gateway/queries/user/GetRoleSubscriptions/get-role-subscriptions-query.result';
 import { UserRepository } from '../../cache/user/user.repository';
@@ -26,7 +26,7 @@ export class AdminUserController {
     private readonly ebus: EventBus,
   ) {}
 
-  @AdminGuard()
+  @ModeratorGuard()
   @WithUser()
   @Post('update_role')
   public async updateRole(@Body() b: UpdateRolesDto) {
@@ -37,7 +37,7 @@ export class AdminUserController {
     });
   }
 
-  @AdminGuard()
+  @ModeratorGuard()
   @WithUser()
   @Get('roles/:id')
   public async roleOf(@Param('id') id: string): Promise<UserRoleSummaryDto> {
@@ -52,7 +52,7 @@ export class AdminUserController {
     }))[0];
   }
 
-  @AdminGuard()
+  @ModeratorGuard()
   @WithUser()
   @Get('ban/:id')
   public async banOf(@Param('id') id: string): Promise<UserBanSummaryDto> {
@@ -67,7 +67,7 @@ export class AdminUserController {
     };
   }
 
-  @AdminGuard()
+  @ModeratorGuard()
   @WithUser()
   @Post('ban/:id')
   public async banId(@Param('id') id: string, @Body() b: BanHammerDto) {
@@ -77,7 +77,7 @@ export class AdminUserController {
     });
   }
 
-  @AdminGuard()
+  @ModeratorGuard()
   @WithUser()
   @Get('roles')
   public async listRoles(): Promise<UserRoleSummaryDto[]> {

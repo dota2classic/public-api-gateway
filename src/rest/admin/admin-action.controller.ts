@@ -3,7 +3,7 @@ import { ApiTags } from '@nestjs/swagger';
 import { ClientProxy } from '@nestjs/microservices';
 import { EventBus, QueryBus } from '@nestjs/cqrs';
 import { UserRepository } from '../../cache/user/user.repository';
-import { AdminGuard, WithUser } from '../../utils/decorator/with-user';
+import { ModeratorGuard, WithUser } from '../../utils/decorator/with-user';
 import { UpdateRolesDto } from './dto/admin.dto';
 import { UserRolesUpdatedEvent } from '../../gateway/events/user/user-roles-updated.event';
 import { PlayerId } from '../../gateway/shared-types/player-id';
@@ -23,7 +23,7 @@ export class AdminActionController {
 
 
 
-  @AdminGuard()
+  @ModeratorGuard()
   @WithUser()
   @Post('ttt')
   public async tt(@Body() b: UpdateRolesDto) {
