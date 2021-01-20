@@ -6,8 +6,6 @@ import { Observable } from 'rxjs';
 import { CurrentUserDto } from './current-user';
 import { JwtService } from '@nestjs/jwt';
 
-
-
 @Injectable()
 export class CookieUserGuard implements CanActivate {
   constructor(private readonly jwtService: JwtService) {}
@@ -15,7 +13,7 @@ export class CookieUserGuard implements CanActivate {
   async canActivate(ctx: ExecutionContext): Promise<boolean> {
     const request = ctx.switchToHttp().getRequest();
 
-    const token = request.cookies["dota2classic_auth_token"];
+    const token = request.cookies['dota2classic_auth_token'];
     const some: any = this.jwtService.decode(token);
 
     request.cookieUserId = some?.sub;
@@ -23,7 +21,6 @@ export class CookieUserGuard implements CanActivate {
     return true;
   }
 }
-
 
 export function WithUser(): MethodDecorator & ClassDecorator {
   const a = ApiBearerAuth();
@@ -40,7 +37,7 @@ export function WithUser(): MethodDecorator & ClassDecorator {
 }
 
 export class RoleGuard implements CanActivate {
-  constructor(private role: Role) {}
+  constructor(private role: Role | Role[]) {}
   canActivate(
     context: ExecutionContext,
   ): boolean | Promise<boolean> | Observable<boolean> {
@@ -48,7 +45,9 @@ export class RoleGuard implements CanActivate {
 
     // @ts-ignore
     const user: CurrentUserDto | undefined = request.user;
-    return !!user?.roles.find(t => t === this.role);
+    if (Array.isArray(this.role)) {
+      return !!user?.roles.find(t => this.role.includes(t));
+    } else return !!user?.roles.find(t => t === this.role);
   }
 }
 
