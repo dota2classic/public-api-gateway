@@ -45,6 +45,7 @@ import { GetAllConnectionsQueryResult } from './gateway/queries/GetAllConnection
 import { GetConnectionsQueryResult } from './gateway/queries/GetConnections/get-connections-query.result';
 import { GetRoleSubscriptionsQueryResult } from './gateway/queries/user/GetRoleSubscriptions/get-role-subscriptions-query.result';
 import { GetPlayerInfoQueryResult } from './gateway/queries/GetPlayerInfo/get-player-info-query.result';
+import { StatsController } from './rest/stats/stats.controller';
 
 @Module({
   imports: [
@@ -88,6 +89,7 @@ import { GetPlayerInfoQueryResult } from './gateway/queries/GetPlayerInfo/get-pl
     EventController,
     AdminUserController,
 
+    StatsController,
     SteamController,
     DiscordController,
   ],

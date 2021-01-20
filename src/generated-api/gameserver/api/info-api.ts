@@ -86,6 +86,35 @@ export const InfoApiAxiosParamCreator = function (configuration?: Configuration)
                 options: localVarRequestOptions,
             };
         },
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        infoControllerGetCurrentOnline: async (options: any = {}): Promise<RequestArgs> => {
+            const localVarPath = `/info/current_online`;
+            const localVarUrlObj = globalImportUrl.parse(localVarPath, true);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            localVarUrlObj.query = {...localVarUrlObj.query, ...localVarQueryParameter, ...options.query};
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: globalImportUrl.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
     }
 };
 
@@ -119,6 +148,18 @@ export const InfoApiFp = function(configuration?: Configuration) {
                 return axios.request(axiosRequestArgs);
             };
         },
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async infoControllerGetCurrentOnline(options?: any): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<number>> {
+            const localVarAxiosArgs = await InfoApiAxiosParamCreator(configuration).infoControllerGetCurrentOnline(options);
+            return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
+                const axiosRequestArgs = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
+                return axios.request(axiosRequestArgs);
+            };
+        },
     }
 };
 
@@ -143,6 +184,14 @@ export const InfoApiFactory = function (configuration?: Configuration, basePath?
          */
         infoControllerGameSessions(options?: any): AxiosPromise<Array<GameserverGameSessionDto>> {
             return InfoApiFp(configuration).infoControllerGameSessions(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        infoControllerGetCurrentOnline(options?: any): AxiosPromise<number> {
+            return InfoApiFp(configuration).infoControllerGetCurrentOnline(options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -172,6 +221,16 @@ export class InfoApi extends BaseAPI {
      */
     public infoControllerGameSessions(options?: any) {
         return InfoApiFp(this.configuration).infoControllerGameSessions(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof InfoApi
+     */
+    public infoControllerGetCurrentOnline(options?: any) {
+        return InfoApiFp(this.configuration).infoControllerGetCurrentOnline(options).then((request) => request(this.axios, this.basePath));
     }
 
 }
