@@ -37,7 +37,10 @@ export function WithUser(): MethodDecorator & ClassDecorator {
 }
 
 export class RoleGuard implements CanActivate {
-  constructor(private role: Role | Role[]) {}
+  private readonly role: Role[];
+  constructor(...role: Role[]) {
+    this.role = role
+  }
   canActivate(
     context: ExecutionContext,
   ): boolean | Promise<boolean> | Observable<boolean> {
@@ -45,11 +48,9 @@ export class RoleGuard implements CanActivate {
 
     // @ts-ignore
     const user: CurrentUserDto | undefined = request.user;
-    if (Array.isArray(this.role)) {
-      return !!user?.roles.find(t => this.role.includes(t));
-    } else return !!user?.roles.find(t => t === this.role);
+    return !!user?.roles.find(t => this.role.includes(t));
   }
 }
 
-export const ModeratorGuard = () => UseGuards(new RoleGuard(Role.ADMIN), new RoleGuard(Role.MODERATOR));
+export const ModeratorGuard = () => UseGuards(new RoleGuard(Role.ADMIN, Role.MODERATOR));
 export const AdminGuard = () => UseGuards(new RoleGuard(Role.ADMIN));

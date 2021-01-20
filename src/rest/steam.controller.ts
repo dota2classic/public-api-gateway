@@ -2,7 +2,7 @@ import { Controller, Get, Req, Res, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { frontUrl } from '../utils/utils';
 import { JwtService } from '@nestjs/jwt';
-import { steam64to32 } from '../utils/steamIds';
+import { numSteamId, steam64to32 } from '../utils/steamIds';
 import { TOKEN_KEY } from '../utils/env';
 import { ApiExcludeEndpoint } from '@nestjs/swagger';
 import { UserRepository } from '../cache/user/user.repository';
@@ -27,17 +27,20 @@ export class SteamController {
     const steam32id = steam64to32(req.user!!._json.steamid);
 
     const existingUser = await this.userRepository.get(steam32id);
+    const numericalId = numSteamId(steam32id)
 
     if (existingUser) {
       const token = this.jwtService.sign({ sub: steam32id, roles: existingUser.roles });
 
+
+
       // ok here we might need to create a user pepega
-      res.cookie(TOKEN_KEY, token).redirect(`${frontUrl}/me`);
+      res.cookie(TOKEN_KEY, token).redirect(`${frontUrl}/player/${numericalId}`);
     } else {
       const token = this.jwtService.sign({ sub: steam32id, roles: [Role.PLAYER] });
 
       // ok here we might need to create a user pepega
-      res.cookie(TOKEN_KEY, token).redirect(`${frontUrl}/me`);
+      res.cookie(TOKEN_KEY, token).redirect(`${frontUrl}/player/${numericalId}`);
     }
   }
 }

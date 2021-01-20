@@ -8,6 +8,7 @@ import { CookiesUserId } from '../utils/decorator/current-user';
 import { AttachUserConnectionCommand } from '../gateway/commands/attach-user-connection.command';
 import { PlayerId } from '../gateway/shared-types/player-id';
 import { UserConnection } from '../gateway/shared-types/user-connection';
+import { numSteamId } from '../utils/steamIds';
 
 @Controller('auth/discord')
 export class DiscordController {
@@ -41,6 +42,8 @@ export class DiscordController {
       ),
     );
 
-    res.status(302).redirect(`${frontUrl}/me`);
+    const numericalSteamId = numSteamId(steam_id)
+
+    res.status(302).redirect(`${frontUrl}/player/${numericalSteamId}`);
   }
 }
