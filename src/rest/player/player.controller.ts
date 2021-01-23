@@ -95,6 +95,8 @@ export class PlayerController {
   @UseInterceptors(CacheInterceptor)
   @ApiQuery({ required: false, name: 'version' })
   @Get('/leaderboard')
+  // every half and hour
+  @CacheTTL(60 * 30)
   async leaderboard(
     @Query('version') version: Dota2Version = Dota2Version.Dota_681,
   ): Promise<LeaderboardEntryDto[]> {
