@@ -15,38 +15,35 @@ export class UserRepository extends RuntimeRepository<UserModel, 'id'> {
     super();
   }
 
-  public async fillCaches(){
-    await this.qbus
-      .execute<GetAllQuery, GetAllQueryResult>(new GetAllQuery())
-      .then(result => {
-        result.entries.forEach(t =>
-          this.save(t.id.value, new UserModel(t.id.value, t.name, t.avatar, t.roles)),
-        );
-      });
-  }
+  public async fillCaches() {}
 
   async resolve(id: UserModel['id']): Promise<UserModel> {
     return this.qbus
       .execute<GetUserInfoQuery, GetUserInfoQueryResult>(
         new GetUserInfoQuery(new PlayerId(id)),
       )
-      .then(t => new UserModel(t.id.value, t.name, t.avatar, t.roles));
+      .then(t => {
+        const u = new UserModel(t.id.value, t.name, t.avatar, t.roles);
+        this.save(u.id, u);
+        return u;
+      });
   }
 
-
   public async name(id: UserModel['id']): Promise<string> {
-    return this.get(id).then(t => t.name)
+    return this.resolve(id).then(t => t.name);
   }
 
   public async roles(id: UserModel['id']): Promise<Role[]> {
-    return this.get(id).then(t => t.roles).catch(() => [])
+    return this.resolve(id)
+      .then(t => t.roles)
+      .catch(() => []);
   }
 
   public async avatar(id: UserModel['id']): Promise<string> {
-    return this.get(id).then(t => t.avatar)
+    return this.resolve(id).then(t => t.avatar);
   }
 
   public nameSync(id: UserModel['id']): string | undefined {
-    return this.getSync(id)?.name
+    return this.getSync(id)?.name;
   }
 }

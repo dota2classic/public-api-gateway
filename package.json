@@ -36,6 +36,7 @@
     "@ntegral/nestjs-sentry": "^1.0.4",
     "cache-manager": "^3.4.0",
     "cookie-parser": "^1.4.5",
+    "d2c-rcaches": "^1.0.2",
     "discord.js": "^12.4.1",
     "dotenv": "^8.2.0",
     "node-fetch": "^2.6.1",

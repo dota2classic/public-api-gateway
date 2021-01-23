@@ -3,7 +3,12 @@ import { ClientProxy } from '@nestjs/microservices';
 import { EventBus, QueryBus } from '@nestjs/cqrs';
 import { InfoApi } from 'src/generated-api/gameserver/api/info-api';
 import { ApiTags } from '@nestjs/swagger';
-import { BanHammerDto, UpdateRolesDto, UserBanSummaryDto, UserRoleSummaryDto } from './dto/admin.dto';
+import {
+  BanHammerDto,
+  UpdateRolesDto,
+  UserBanSummaryDto,
+  UserRoleSummaryDto,
+} from './dto/admin.dto';
 import { UserRolesUpdatedEvent } from '../../gateway/events/user/user-roles-updated.event';
 import { PlayerId } from '../../gateway/shared-types/player-id';
 import { ModeratorGuard, WithUser } from '../../utils/decorator/with-user';
@@ -45,11 +50,15 @@ export class AdminUserController {
       GetRoleSubscriptionsQuery,
       GetRoleSubscriptionsQueryResult
     >(new GetRoleSubscriptionsQuery(new PlayerId(id)));
-    return q.entries.map(t => ({
-      steam_id: t.steam_id,
-      name: this.urep.nameSync(t.steam_id),
-      entries: t.entries.map(z => ({ ...z, steam_id: z.playerId.value })),
-    }))[0];
+    return (
+      await Promise.all(
+        q.entries.map(async t => ({
+          steam_id: t.steam_id,
+          name: await this.urep.name(t.steam_id),
+          entries: t.entries.map(z => ({ ...z, steam_id: z.playerId.value })),
+        })),
+      )
+    )[0];
   }
 
   @ModeratorGuard()

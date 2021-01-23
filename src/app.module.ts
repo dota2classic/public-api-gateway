@@ -38,7 +38,6 @@ import { LiveMatchService } from './cache/live-match.service';
 import { LiveMatchController } from './rest/match/live-match.controller';
 import { GetPlayerInfoQuery } from './gateway/queries/GetPlayerInfo/get-player-info.query';
 import { GetAllQueryResult } from './gateway/queries/GetAll/get-all-query.result';
-import { QueryCache } from './cache/query-cache';
 import { GetUserInfoQueryResult } from './gateway/queries/GetUserInfo/get-user-info-query.result';
 import { GetPartyQueryResult } from './gateway/queries/GetParty/get-party-query.result';
 import { GetAllConnectionsQueryResult } from './gateway/queries/GetAllConnections/get-all-connections-query.result';
@@ -46,6 +45,7 @@ import { GetConnectionsQueryResult } from './gateway/queries/GetConnections/get-
 import { GetRoleSubscriptionsQueryResult } from './gateway/queries/user/GetRoleSubscriptions/get-role-subscriptions-query.result';
 import { GetPlayerInfoQueryResult } from './gateway/queries/GetPlayerInfo/get-player-info-query.result';
 import { StatsController } from './rest/stats/stats.controller';
+import { QueryCache } from 'd2c-rcaches';
 
 @Module({
   imports: [
@@ -97,27 +97,47 @@ import { StatsController } from './rest/stats/stats.controller';
     outerQuery(
       GetAllQuery,
       'QueryCore',
-      new QueryCache<GetAllQuery, GetAllQueryResult>(10),
+      new QueryCache<GetAllQuery, GetAllQueryResult>({
+        url: REDIS_URL(),
+        password: REDIS_PASSWORD(),
+        ttl: 10
+      }),
     ),
     outerQuery(
       GetUserInfoQuery,
       'QueryCore',
-      new QueryCache<GetUserInfoQuery, GetUserInfoQueryResult>(200),
+      new QueryCache<GetUserInfoQuery, GetUserInfoQueryResult>({
+        url: REDIS_URL(),
+        password: REDIS_PASSWORD(),
+        ttl: 200
+      }),
     ),
     outerQuery(
       GetPartyQuery,
       'QueryCore',
-      new QueryCache<GetPartyQuery, GetPartyQueryResult>(10),
+      new QueryCache<GetPartyQuery, GetPartyQueryResult>({
+        url: REDIS_URL(),
+        password: REDIS_PASSWORD(),
+        ttl: 10
+      }),
     ),
     outerQuery(
       GetAllConnectionsQuery,
       'QueryCore',
-      new QueryCache<GetAllConnectionsQuery, GetAllConnectionsQueryResult>(10),
+      new QueryCache<GetAllConnectionsQuery, GetAllConnectionsQueryResult>({
+        url: REDIS_URL(),
+        password: REDIS_PASSWORD(),
+        ttl: 10
+      }),
     ),
     outerQuery(
       GetConnectionsQuery,
       'QueryCore',
-      new QueryCache<GetConnectionsQuery, GetConnectionsQueryResult>(10),
+      new QueryCache<GetConnectionsQuery, GetConnectionsQueryResult>({
+        url: REDIS_URL(),
+        password: REDIS_PASSWORD(),
+        ttl: 10
+      }),
     ),
     outerQuery(
       GetRoleSubscriptionsQuery,
@@ -125,12 +145,20 @@ import { StatsController } from './rest/stats/stats.controller';
       new QueryCache<
         GetRoleSubscriptionsQuery,
         GetRoleSubscriptionsQueryResult
-      >(10),
+      >({
+        url: REDIS_URL(),
+        password: REDIS_PASSWORD(),
+        ttl: 10
+      }),
     ),
     outerQuery(
       GetPlayerInfoQuery,
       'QueryCore',
-      new QueryCache<GetPlayerInfoQuery, GetPlayerInfoQueryResult>(300),
+      new QueryCache<GetPlayerInfoQuery, GetPlayerInfoQueryResult>({
+        url: REDIS_URL(),
+        password: REDIS_PASSWORD(),
+        ttl: 10
+      }),
     ),
 
     {

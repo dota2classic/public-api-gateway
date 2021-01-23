@@ -21,10 +21,10 @@ export class EventController {
     this.event(UserCreatedEvent, data);
   }
 
-  @EventPattern(UserUpdatedEvent.name)
-  async UserUpdatedEvent(data: UserUpdatedEvent) {
-    this.event(UserUpdatedEvent, data);
-  }
+  // @EventPattern(UserUpdatedEvent.name)
+  // async UserUpdatedEvent(data: UserUpdatedEvent) {
+  //   this.event(UserUpdatedEvent, data);
+  // }
 
   @EventPattern(LiveMatchUpdateEvent.name)
   async LiveMatchUpdateEvent(data: LiveMatchUpdateEvent) {
