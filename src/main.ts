@@ -45,7 +45,7 @@ async function bootstrap() {
 
   await app.startAllMicroservicesAsync();
 
-  await app.get(UserRepository).fillCaches();
+  // await app.get(UserRepository).fillCaches();
 
 
 
@@ -79,5 +79,7 @@ async function bootstrap() {
       qlogger.log(e.__proto__.constructor.name);
     }),
   );
+
+  console.log("Started api gateway")
 }
 bootstrap();

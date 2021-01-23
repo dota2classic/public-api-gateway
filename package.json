@@ -35,6 +35,7 @@
     "@nestjs/swagger": "^4.6.1",
     "@ntegral/nestjs-sentry": "^1.0.4",
     "cache-manager": "^3.4.0",
+    "cache-manager-redis-store": "^2.0.0",
     "cookie-parser": "^1.4.5",
     "d2c-rcaches": "^1.0.2",
     "discord.js": "^12.4.1",

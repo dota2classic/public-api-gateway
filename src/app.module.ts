@@ -46,6 +46,11 @@ import { GetRoleSubscriptionsQueryResult } from './gateway/queries/user/GetRoleS
 import { GetPlayerInfoQueryResult } from './gateway/queries/GetPlayerInfo/get-player-info-query.result';
 import { StatsController } from './rest/stats/stats.controller';
 import { QueryCache } from 'd2c-rcaches';
+import * as redisStore from 'cache-manager-redis-store';
+
+
+const host = REDIS_URL().replace('redis://', '').split(':')[0];
+
 
 @Module({
   imports: [
@@ -67,6 +72,11 @@ import { QueryCache } from 'd2c-rcaches';
     CqrsModule,
     CacheModule.register({
       ttl: 60,
+      store: redisStore,
+      host: host,
+      port: 6379,
+      auth_pass: REDIS_PASSWORD(),
+
     }),
     ClientsModule.register([
       {
