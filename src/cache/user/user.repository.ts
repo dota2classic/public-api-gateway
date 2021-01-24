@@ -16,7 +16,8 @@ export class UserRepository extends RuntimeRepository<UserModel, 'id'> {
   }
 
   async resolve(id: UserModel['id']): Promise<UserModel> {
-    return this.qbus
+    const cached = this.get(id);
+    const newVersion = this.qbus
       .execute<GetUserInfoQuery, GetUserInfoQueryResult>(
         new GetUserInfoQuery(new PlayerId(id)),
       )
@@ -25,6 +26,12 @@ export class UserRepository extends RuntimeRepository<UserModel, 'id'> {
         this.save(u.id, u);
         return u;
       });
+
+    if (cached) {
+      return cached;
+    } else {
+      return await newVersion;
+    }
   }
 
   public async name(id: UserModel['id']): Promise<string> {
