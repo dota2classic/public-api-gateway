@@ -57,28 +57,28 @@ async function bootstrap() {
   const elogger = new Logger('EventLogger');
   const qlogger = new Logger('QueryLogger');
 
-  ebus._subscribe(
-    new Subscriber<any>(e => {
-
-      elogger.log(
-        // `${inspect(e)}`,
-        e.__proto__.constructor.name,
-      );
-    }),
-  );
-
-
-  cbus._subscribe(
-    new Subscriber<any>(e => {
-      clogger.log(`${inspect(e)}, ${e.__proto__.constructor.name}`);
-    }),
-  );
-
-  qbus._subscribe(
-    new Subscriber<any>(e => {
-      qlogger.log(e.__proto__.constructor.name);
-    }),
-  );
+  // ebus._subscribe(
+  //   new Subscriber<any>(e => {
+  //
+  //     elogger.log(
+  //       // `${inspect(e)}`,
+  //       e.__proto__.constructor.name,
+  //     );
+  //   }),
+  // );
+  //
+  //
+  // cbus._subscribe(
+  //   new Subscriber<any>(e => {
+  //     clogger.log(`${inspect(e)}, ${e.__proto__.constructor.name}`);
+  //   }),
+  // );
+  //
+  // qbus._subscribe(
+  //   new Subscriber<any>(e => {
+  //     qlogger.log(e.__proto__.constructor.name);
+  //   }),
+  // );
 
   console.log("Started api gateway")
 }

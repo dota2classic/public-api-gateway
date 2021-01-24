@@ -15,8 +15,6 @@ export class UserRepository extends RuntimeRepository<UserModel, 'id'> {
     super();
   }
 
-  public async fillCaches() {}
-
   async resolve(id: UserModel['id']): Promise<UserModel> {
     return this.qbus
       .execute<GetUserInfoQuery, GetUserInfoQueryResult>(
