@@ -2,6 +2,7 @@ export * from './gameserver-ban-status-dto';
 export * from './gameserver-game-server-dto';
 export * from './gameserver-game-session-dto';
 export * from './gameserver-hero-stats-dto';
+export * from './gameserver-hero-summary-dto';
 export * from './gameserver-leaderboard-entry-dto';
 export * from './gameserver-match-dto';
 export * from './gameserver-match-info-dto';

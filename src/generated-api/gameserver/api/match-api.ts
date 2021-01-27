@@ -66,6 +66,58 @@ export const MatchApiAxiosParamCreator = function (configuration?: Configuration
         /**
          * 
          * @param {number} page 
+         * @param {string} hero 
+         * @param {number} [perPage] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        matchControllerHeroMatches: async (page: number, hero: string, perPage?: number, options: any = {}): Promise<RequestArgs> => {
+            // verify required parameter 'page' is not null or undefined
+            if (page === null || page === undefined) {
+                throw new RequiredError('page','Required parameter page was null or undefined when calling matchControllerHeroMatches.');
+            }
+            // verify required parameter 'hero' is not null or undefined
+            if (hero === null || hero === undefined) {
+                throw new RequiredError('hero','Required parameter hero was null or undefined when calling matchControllerHeroMatches.');
+            }
+            const localVarPath = `/match/by_hero`;
+            const localVarUrlObj = globalImportUrl.parse(localVarPath, true);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (page !== undefined) {
+                localVarQueryParameter['page'] = page;
+            }
+
+            if (perPage !== undefined) {
+                localVarQueryParameter['per_page'] = perPage;
+            }
+
+            if (hero !== undefined) {
+                localVarQueryParameter['hero'] = hero;
+            }
+
+
+    
+            localVarUrlObj.query = {...localVarUrlObj.query, ...localVarQueryParameter, ...options.query};
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: globalImportUrl.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {number} page 
          * @param {number} [perPage] 
          * @param {number} [mode] 
          * @param {*} [options] Override http request option.
@@ -195,6 +247,21 @@ export const MatchApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @param {number} page 
+         * @param {string} hero 
+         * @param {number} [perPage] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async matchControllerHeroMatches(page: number, hero: string, perPage?: number, options?: any): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GameserverMatchPageDto>> {
+            const localVarAxiosArgs = await MatchApiAxiosParamCreator(configuration).matchControllerHeroMatches(page, hero, perPage, options);
+            return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
+                const axiosRequestArgs = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
+                return axios.request(axiosRequestArgs);
+            };
+        },
+        /**
+         * 
+         * @param {number} page 
          * @param {number} [perPage] 
          * @param {number} [mode] 
          * @param {*} [options] Override http request option.
@@ -245,6 +312,17 @@ export const MatchApiFactory = function (configuration?: Configuration, basePath
         /**
          * 
          * @param {number} page 
+         * @param {string} hero 
+         * @param {number} [perPage] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        matchControllerHeroMatches(page: number, hero: string, perPage?: number, options?: any): AxiosPromise<GameserverMatchPageDto> {
+            return MatchApiFp(configuration).matchControllerHeroMatches(page, hero, perPage, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @param {number} page 
          * @param {number} [perPage] 
          * @param {number} [mode] 
          * @param {*} [options] Override http request option.
@@ -285,6 +363,19 @@ export class MatchApi extends BaseAPI {
      */
     public matchControllerGetMatch(id: number, options?: any) {
         return MatchApiFp(this.configuration).matchControllerGetMatch(id, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {number} page 
+     * @param {string} hero 
+     * @param {number} [perPage] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof MatchApi
+     */
+    public matchControllerHeroMatches(page: number, hero: string, perPage?: number, options?: any) {
+        return MatchApiFp(this.configuration).matchControllerHeroMatches(page, hero, perPage, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

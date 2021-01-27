@@ -69,7 +69,8 @@ export enum GameserverMatchInfoDtoModeEnum {
     GREEVILING = 'GREEVILING',
     ABILITYDRAFT = 'ABILITY_DRAFT',
     TOURNAMENT = 'TOURNAMENT',
-    BOTS = 'BOTS'
+    BOTS = 'BOTS',
+    HIGHROOM = 'HIGHROOM'
 }
 /**
     * @export

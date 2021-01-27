@@ -49,6 +49,30 @@ export class MatchController {
   }
 
   @UseInterceptors(CacheInterceptor)
+  @ApiQuery({
+    name: 'page',
+    required: true,
+  })
+  @ApiQuery({
+    name: 'per_page',
+    required: false,
+  })
+  @ApiQuery({
+    name: 'hero',
+    required: true,
+  })
+  @Get('/by_hero')
+  async heroMatches(
+    @Query('page') page: number,
+    @Query('per_page') perPage: number = 25,
+    @Query('hero') hero: string,
+  ): Promise<MatchPageDto> {
+    return this.ms
+      .matchControllerHeroMatches(page, hero, perPage)
+      .then(t => this.mapper.mapMatchPage(t.data));
+  }
+
+  @UseInterceptors(CacheInterceptor)
   @CacheTTL(10)
   @ApiParam({
     name: 'id',

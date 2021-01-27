@@ -47,6 +47,7 @@ import { GetPlayerInfoQueryResult } from './gateway/queries/GetPlayerInfo/get-pl
 import { StatsController } from './rest/stats/stats.controller';
 import { QueryCache } from 'd2c-rcaches';
 import * as redisStore from 'cache-manager-redis-store';
+import { MetaController } from './rest/meta/meta.controller';
 
 
 const host = REDIS_URL().replace('redis://', '').split(':')[0];
@@ -99,6 +100,7 @@ const host = REDIS_URL().replace('redis://', '').split(':')[0];
     EventController,
     AdminUserController,
 
+    MetaController,
     StatsController,
     SteamController,
     DiscordController,
