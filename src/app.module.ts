@@ -68,7 +68,7 @@ const host = REDIS_URL().replace('redis://', '').split(':')[0];
     }),
     JwtModule.register({
       secret: JWT_SECRET,
-      signOptions: { expiresIn: '10 days' },
+      signOptions: { expiresIn: '100 days' },
     }),
     CqrsModule,
     CacheModule.register({
