@@ -94,10 +94,10 @@ export class AdminUserController {
       GetRoleSubscriptionsQuery,
       GetRoleSubscriptionsQueryResult
     >(new GetRoleSubscriptionsQuery());
-    return q.entries.map(t => ({
+    return Promise.all(q.entries.map(async t => ({
       steam_id: t.steam_id,
-      name: this.urep.nameSync(t.steam_id),
+      name: await this.urep.name(t.steam_id),
       entries: t.entries.map(z => ({ ...z, steam_id: z.playerId.value })),
-    }));
+    })));
   }
 }

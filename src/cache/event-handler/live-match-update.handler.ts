@@ -14,10 +14,10 @@ export class LiveMatchUpdateHandler
   async handle(event: LiveMatchUpdateEvent) {
     this.ls.pushEvent({
       ...event,
-      heroes: event.heroes.map(h => ({
+      heroes: await Promise.all(event.heroes.map(async h => ({
         ...h,
-        name: h.bot ? '' : this.uRep.nameSync(h.steam_id),
-      })),
+        name: h.bot ? '' : await this.uRep.name(h.steam_id),
+      }))),
     });
   }
 }

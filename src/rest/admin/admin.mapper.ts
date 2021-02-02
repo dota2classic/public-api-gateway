@@ -1,5 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { GameserverGameServerDto, GameserverGameSessionDto } from '../../generated-api/gameserver/models';
+import {
+  GameserverGameServerDto,
+  GameserverGameSessionDto,
+} from '../../generated-api/gameserver/models';
 import { GameServerDto, GameSessionDto } from './dto/admin.dto';
 import { Dota2Version } from '../../gateway/shared-types/dota2version';
 import { MatchmakingMode } from '../../gateway/shared-types/matchmaking-mode';
@@ -7,18 +10,21 @@ import { UserRepository } from '../../cache/user/user.repository';
 
 @Injectable()
 export class AdminMapper {
-
-  constructor(private readonly userRep: UserRepository) {
-  }
+  constructor(private readonly userRep: UserRepository) {}
   public mapGameServer = (t: GameserverGameServerDto): GameServerDto => ({
     url: t.url,
     version: (t.version as unknown) as Dota2Version,
   });
 
-  public mapGameSession = (it: GameserverGameSessionDto): GameSessionDto => {
-
-    const radiant = it.info.radiant.map(t => this.userRep.nameSync(t))
-    const dire = it.info.dire.map(t => this.userRep.nameSync(t))
+  public mapGameSession = async (
+    it: GameserverGameSessionDto,
+  ): Promise<GameSessionDto> => {
+    const radiant = await Promise.all(
+      it.info.radiant.map(async t => await this.userRep.name(t)),
+    );
+    const dire = await Promise.all(
+      it.info.dire.map(async t => await this.userRep.name(t)),
+    );
 
     return {
       url: it.url,
@@ -30,6 +36,6 @@ export class AdminMapper {
         mode: (it.info.mode as unknown) as MatchmakingMode,
         version: (it.info.version as unknown) as Dota2Version,
       },
-    }
+    };
   };
 }
