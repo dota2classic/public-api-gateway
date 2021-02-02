@@ -12,7 +12,6 @@ export class LiveMatchUpdateHandler
   ) {}
 
   async handle(event: LiveMatchUpdateEvent) {
-    console.log("Received event")
     this.ls.pushEvent({
       ...event,
       heroes: event.heroes.map(h => ({

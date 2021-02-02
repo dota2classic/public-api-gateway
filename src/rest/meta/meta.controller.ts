@@ -3,10 +3,11 @@ import { ApiTags } from '@nestjs/swagger';
 import { HeroSummaryDto } from './dto/meta.dto';
 import { MetaApi } from '../../generated-api/gameserver';
 import { GAMESERVER_APIURL } from '../../utils/env';
+import { HttpCacheInterceptor } from '../../utils/cache-key-track';
 
 @Controller('meta')
 @ApiTags('meta')
-@UseInterceptors(CacheInterceptor)
+@UseInterceptors(HttpCacheInterceptor)
 export class MetaController {
   private ms: MetaApi;
 

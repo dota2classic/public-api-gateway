@@ -28,6 +28,8 @@ import { GameserverLeaderboardEntryDto } from '../models';
 import { GameserverPlayerGeneralStatsDto } from '../models';
 // @ts-ignore
 import { GameserverPlayerSummaryDto } from '../models';
+// @ts-ignore
+import { GameserverReportPlayerDto } from '../models';
 /**
  * PlayerApi - axios parameter creator
  * @export
@@ -227,6 +229,44 @@ export const PlayerApiAxiosParamCreator = function (configuration?: Configuratio
                 options: localVarRequestOptions,
             };
         },
+        /**
+         * 
+         * @param {GameserverReportPlayerDto} gameserverReportPlayerDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        playerControllerReportPlayer: async (gameserverReportPlayerDto: GameserverReportPlayerDto, options: any = {}): Promise<RequestArgs> => {
+            // verify required parameter 'gameserverReportPlayerDto' is not null or undefined
+            if (gameserverReportPlayerDto === null || gameserverReportPlayerDto === undefined) {
+                throw new RequiredError('gameserverReportPlayerDto','Required parameter gameserverReportPlayerDto was null or undefined when calling playerControllerReportPlayer.');
+            }
+            const localVarPath = `/player/report`;
+            const localVarUrlObj = globalImportUrl.parse(localVarPath, true);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            localVarUrlObj.query = {...localVarUrlObj.query, ...localVarQueryParameter, ...options.query};
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            const needsSerialization = (typeof gameserverReportPlayerDto !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            localVarRequestOptions.data =  needsSerialization ? JSON.stringify(gameserverReportPlayerDto !== undefined ? gameserverReportPlayerDto : {}) : (gameserverReportPlayerDto || "");
+
+            return {
+                url: globalImportUrl.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
     }
 };
 
@@ -304,6 +344,19 @@ export const PlayerApiFp = function(configuration?: Configuration) {
                 return axios.request(axiosRequestArgs);
             };
         },
+        /**
+         * 
+         * @param {GameserverReportPlayerDto} gameserverReportPlayerDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async playerControllerReportPlayer(gameserverReportPlayerDto: GameserverReportPlayerDto, options?: any): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await PlayerApiAxiosParamCreator(configuration).playerControllerReportPlayer(gameserverReportPlayerDto, options);
+            return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
+                const axiosRequestArgs = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
+                return axios.request(axiosRequestArgs);
+            };
+        },
     }
 };
 
@@ -360,6 +413,15 @@ export const PlayerApiFactory = function (configuration?: Configuration, basePat
          */
         playerControllerPlayerSummary(version: string, id: string, options?: any): AxiosPromise<GameserverPlayerSummaryDto> {
             return PlayerApiFp(configuration).playerControllerPlayerSummary(version, id, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @param {GameserverReportPlayerDto} gameserverReportPlayerDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        playerControllerReportPlayer(gameserverReportPlayerDto: GameserverReportPlayerDto, options?: any): AxiosPromise<void> {
+            return PlayerApiFp(configuration).playerControllerReportPlayer(gameserverReportPlayerDto, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -427,6 +489,17 @@ export class PlayerApi extends BaseAPI {
      */
     public playerControllerPlayerSummary(version: string, id: string, options?: any) {
         return PlayerApiFp(this.configuration).playerControllerPlayerSummary(version, id, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {GameserverReportPlayerDto} gameserverReportPlayerDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof PlayerApi
+     */
+    public playerControllerReportPlayer(gameserverReportPlayerDto: GameserverReportPlayerDto, options?: any) {
+        return PlayerApiFp(this.configuration).playerControllerReportPlayer(gameserverReportPlayerDto, options).then((request) => request(this.axios, this.basePath));
     }
 
 }

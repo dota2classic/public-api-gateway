@@ -21,7 +21,8 @@ export class MeDto {
   roles: Role[];
   rank: number;
   unrankedGamesLeft: number;
-  banStatus: BanStatusDto
+  banStatus: BanStatusDto;
+  reportsAvailable: number;
 }
 
 export class PlayerSummaryDto {

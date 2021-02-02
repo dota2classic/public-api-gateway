@@ -10,3 +10,4 @@ export * from './gameserver-match-page-dto';
 export * from './gameserver-player-general-stats-dto';
 export * from './gameserver-player-in-match-dto';
 export * from './gameserver-player-summary-dto';
+export * from './gameserver-report-player-dto';

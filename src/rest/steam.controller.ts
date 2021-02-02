@@ -39,7 +39,7 @@ export class SteamController {
       req.user!!._json.avatarfull,
     ))
 
-    const existingUser = await this.userRepository.get(steam32id);
+    const existingUser = await this.userRepository.resolve(steam32id);
     const numericalId = numSteamId(steam32id);
 
 

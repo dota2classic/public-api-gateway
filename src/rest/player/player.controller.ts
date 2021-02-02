@@ -1,10 +1,12 @@
 import {
-  CacheInterceptor,
+  Body,
   CacheTTL,
   Controller,
   Get,
   Inject,
+  InternalServerErrorException,
   Param,
+  Post,
   Query,
   UseGuards,
   UseInterceptors,
@@ -14,8 +16,17 @@ import { Dota2Version } from '../../gateway/shared-types/dota2version';
 import { PlayerApi } from '../../generated-api/gameserver';
 import { GAMESERVER_APIURL } from '../../utils/env';
 import { PlayerMapper } from './player.mapper';
-import { LeaderboardEntryDto, MeDto, MyProfileDto, PlayerPreviewDto, PlayerSummaryDto } from './dto/player.dto';
-import { CurrentUser, CurrentUserDto } from '../../utils/decorator/current-user';
+import {
+  LeaderboardEntryDto,
+  MeDto,
+  MyProfileDto,
+  PlayerPreviewDto,
+  PlayerSummaryDto,
+} from './dto/player.dto';
+import {
+  CurrentUser,
+  CurrentUserDto,
+} from '../../utils/decorator/current-user';
 import { AuthGuard } from '@nestjs/passport';
 import { EventBus, QueryBus } from '@nestjs/cqrs';
 import { GetPartyQuery } from '../../gateway/queries/GetParty/get-party.query';
@@ -30,8 +41,10 @@ import { UserConnection } from '../../gateway/shared-types/user-connection';
 import { UserMightExistEvent } from '../../gateway/events/user/user-might-exist.event';
 import { ClientProxy } from '@nestjs/microservices';
 import { HeroStatsDto, PlayerGeneralStatsDto } from './dto/hero.dto';
-import { GetPlayerInfoQuery } from '../../gateway/queries/GetPlayerInfo/get-player-info.query';
-import { GetPlayerInfoQueryResult } from '../../gateway/queries/GetPlayerInfo/get-player-info-query.result';
+import { HttpCacheInterceptor } from '../../utils/cache-key-track';
+import { ReportDto } from './dto/report.dto';
+import { GetReportsAvailableQuery } from '../../gateway/queries/GetReportsAvailable/get-reports-available.query';
+import { GetReportsAvailableQueryResult } from '../../gateway/queries/GetReportsAvailable/get-reports-available-query.result';
 
 @Controller('player')
 @ApiTags('player')
@@ -54,16 +67,23 @@ export class PlayerController {
   @Get('/me')
   @WithUser()
   @CacheTTL(60)
-  async me(@CurrentUser() user): Promise<MeDto> {
+  async me(@CurrentUser() user: CurrentUserDto): Promise<MeDto> {
     const rawData = await this.ms.playerControllerPlayerSummary(
       Dota2Version.Dota_681,
       user.steam_id,
     );
 
-    const res = await this.ms.playerControllerBanInfo(user.steam_id)
+    const res = await this.ms.playerControllerBanInfo(user.steam_id);
 
+    const pid = new PlayerId(user.steam_id);
+    const u =
+      pid &&
+      (await this.qbus.execute<
+        GetReportsAvailableQuery,
+        GetReportsAvailableQueryResult
+      >(new GetReportsAvailableQuery(pid)));
 
-    return this.mapper.mapMe(rawData.data, res.data);
+    return this.mapper.mapMe(rawData.data, res.data, u);
   }
 
   @Get('/connections')
@@ -92,7 +112,7 @@ export class PlayerController {
     };
   }
 
-  @UseInterceptors(CacheInterceptor)
+  @UseInterceptors(HttpCacheInterceptor)
   @ApiQuery({ required: false, name: 'version' })
   @Get('/leaderboard')
   // every half and hour
@@ -130,7 +150,7 @@ export class PlayerController {
     return this.mapper.mapParty(party);
   }
 
-  @UseInterceptors(CacheInterceptor)
+  @UseInterceptors(HttpCacheInterceptor)
   @Get('/summary/hero/:id')
   async heroSummary(@Param('id') steam_id: string): Promise<HeroStatsDto[]> {
     const d = await this.ms.playerControllerPlayerHeroSummary(
@@ -140,7 +160,7 @@ export class PlayerController {
     return d.data;
   }
 
-  @UseInterceptors(CacheInterceptor)
+  @UseInterceptors(HttpCacheInterceptor)
   @Get('/summary/general/:id')
   async generalSummary(
     @Param('id') steam_id: string,
@@ -160,5 +180,26 @@ export class PlayerController {
     return (await this.userRepository.all())
       .filter(t => t.name.toLowerCase().includes(name.toLowerCase()))
       .slice(0, 100);
+  }
+
+  @Post('/report')
+  @WithUser()
+  async reportPlayer(
+    @CurrentUser() user: CurrentUserDto,
+    @Body() dto: ReportDto,
+  ): Promise<boolean> {
+    try {
+      await this.ms.playerControllerReportPlayer({
+        reported: new PlayerId(dto.reported),
+        reporter: new PlayerId(user.steam_id),
+        matchId: dto.matchId,
+        text: dto.text.substr(0, 500),
+      });
+      return true;
+    } catch (e) {
+      return false;
+    } finally {
+      console.log('hehehehe', dto.matchId);
+    }
   }
 }

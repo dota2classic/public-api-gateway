@@ -32,6 +32,7 @@ export class MatchDto {
   winner: number;
 
   duration: number;
+  reportable: boolean;
 
   timestamp: string;
 }

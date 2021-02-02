@@ -19,7 +19,8 @@ export class UserRepository extends RuntimeRepository<UserModel, 'id'> {
         new GetUserInfoQuery(new PlayerId(id)),
       )
       .then(t => {
-        return new UserModel(t.id.value, t.name, t.avatar, t.roles);
+        if (t) return new UserModel(t.id.value, t.name, t.avatar, t.roles);
+        else return undefined;
       });
   }
 

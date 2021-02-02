@@ -4,7 +4,13 @@ import { SteamController } from './rest/steam.controller';
 import SteamStrategy from './rest/strategy/steam.strategy';
 import { JwtModule } from '@nestjs/jwt';
 import { ClientsModule, Transport } from '@nestjs/microservices';
-import { DISCORD_API_TOKEN, isDev, JWT_SECRET, REDIS_PASSWORD, REDIS_URL } from './utils/env';
+import {
+  DISCORD_API_TOKEN,
+  isDev,
+  JWT_SECRET,
+  REDIS_PASSWORD,
+  REDIS_URL,
+} from './utils/env';
 import { outerQuery } from './gateway/util/outerQuery';
 import { GetAllQuery } from './gateway/queries/GetAll/get-all.query';
 import { GetUserInfoQuery } from './gateway/queries/GetUserInfo/get-user-info.query';
@@ -48,10 +54,21 @@ import { StatsController } from './rest/stats/stats.controller';
 import { QueryCache } from 'd2c-rcaches';
 import * as redisStore from 'cache-manager-redis-store';
 import { MetaController } from './rest/meta/meta.controller';
+import { HttpCacheInterceptor } from './utils/cache-key-track';
+import { GetReportsAvailableQuery } from './gateway/queries/GetReportsAvailable/get-reports-available.query';
+import { GetReportsAvailableQueryResult } from './gateway/queries/GetReportsAvailable/get-reports-available-query.result';
 
+const host = REDIS_URL()
+  .replace('redis://', '')
+  .split(':')[0];
 
-const host = REDIS_URL().replace('redis://', '').split(':')[0];
-
+function qCache<T, B>() {
+  return new QueryCache<T, B>({
+    url: REDIS_URL(),
+    password: REDIS_PASSWORD(),
+    ttl: 10,
+  });
+}
 
 @Module({
   imports: [
@@ -77,7 +94,6 @@ const host = REDIS_URL().replace('redis://', '').split(':')[0];
       host: host,
       port: 6379,
       auth_pass: REDIS_PASSWORD(),
-
     }),
     ClientsModule.register([
       {
@@ -106,72 +122,15 @@ const host = REDIS_URL().replace('redis://', '').split(':')[0];
     DiscordController,
   ],
   providers: [
-    outerQuery(
-      GetAllQuery,
-      'QueryCore',
-      new QueryCache<GetAllQuery, GetAllQueryResult>({
-        url: REDIS_URL(),
-        password: REDIS_PASSWORD(),
-        ttl: 10
-      }),
-    ),
-    outerQuery(
-      GetUserInfoQuery,
-      'QueryCore',
-      new QueryCache<GetUserInfoQuery, GetUserInfoQueryResult>({
-        url: REDIS_URL(),
-        password: REDIS_PASSWORD(),
-        ttl: 200
-      }),
-    ),
-    outerQuery(
-      GetPartyQuery,
-      'QueryCore',
-      new QueryCache<GetPartyQuery, GetPartyQueryResult>({
-        url: REDIS_URL(),
-        password: REDIS_PASSWORD(),
-        ttl: 10
-      }),
-    ),
-    outerQuery(
-      GetAllConnectionsQuery,
-      'QueryCore',
-      new QueryCache<GetAllConnectionsQuery, GetAllConnectionsQueryResult>({
-        url: REDIS_URL(),
-        password: REDIS_PASSWORD(),
-        ttl: 10
-      }),
-    ),
-    outerQuery(
-      GetConnectionsQuery,
-      'QueryCore',
-      new QueryCache<GetConnectionsQuery, GetConnectionsQueryResult>({
-        url: REDIS_URL(),
-        password: REDIS_PASSWORD(),
-        ttl: 10
-      }),
-    ),
-    outerQuery(
-      GetRoleSubscriptionsQuery,
-      'QueryCore',
-      new QueryCache<
-        GetRoleSubscriptionsQuery,
-        GetRoleSubscriptionsQueryResult
-      >({
-        url: REDIS_URL(),
-        password: REDIS_PASSWORD(),
-        ttl: 10
-      }),
-    ),
-    outerQuery(
-      GetPlayerInfoQuery,
-      'QueryCore',
-      new QueryCache<GetPlayerInfoQuery, GetPlayerInfoQueryResult>({
-        url: REDIS_URL(),
-        password: REDIS_PASSWORD(),
-        ttl: 10
-      }),
-    ),
+    HttpCacheInterceptor,
+    outerQuery(GetAllQuery, 'QueryCore', qCache()),
+    outerQuery(GetUserInfoQuery, 'QueryCore', qCache()),
+    outerQuery(GetPartyQuery, 'QueryCore', qCache()),
+    outerQuery(GetAllConnectionsQuery, 'QueryCore', qCache()),
+    outerQuery(GetConnectionsQuery, 'QueryCore', qCache()),
+    outerQuery(GetReportsAvailableQuery, 'QueryCore', qCache()),
+    outerQuery(GetRoleSubscriptionsQuery, 'QueryCore', qCache()),
+    outerQuery(GetPlayerInfoQuery, 'QueryCore', qCache()),
 
     {
       provide: 'DiscordClient',

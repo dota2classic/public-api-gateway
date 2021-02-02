@@ -1,5 +1,4 @@
 import {
-  CacheInterceptor,
   CacheTTL,
   Controller,
   Get,
@@ -14,17 +13,30 @@ import { MatchApi } from '../../generated-api/gameserver';
 import { GAMESERVER_APIURL } from '../../utils/env';
 import { MatchDto, MatchPageDto } from './dto/match.dto';
 import { MatchMapper } from './match.mapper';
+import { WithOptionalUser } from '../../utils/decorator/with-optional-user';
+import {
+  CurrentUser,
+  CurrentUserDto,
+} from '../../utils/decorator/current-user';
+import { PlayerId } from '../../gateway/shared-types/player-id';
+import { HttpCacheInterceptor } from '../../utils/cache-key-track';
+import { QueryBus } from '@nestjs/cqrs';
+import { GetReportsAvailableQuery } from '../../gateway/queries/GetReportsAvailable/get-reports-available.query';
+import { GetReportsAvailableQueryResult } from '../../gateway/queries/GetReportsAvailable/get-reports-available-query.result';
 
 @Controller('match')
 @ApiTags('match')
 export class MatchController {
   private ms: MatchApi;
 
-  constructor(private readonly mapper: MatchMapper) {
+  constructor(
+    private readonly mapper: MatchMapper,
+    private readonly qbus: QueryBus,
+  ) {
     this.ms = new MatchApi(undefined, `http://${GAMESERVER_APIURL}`);
   }
 
-  @UseInterceptors(CacheInterceptor)
+  @UseInterceptors(HttpCacheInterceptor)
   @ApiQuery({
     name: 'page',
     required: true,
@@ -48,7 +60,7 @@ export class MatchController {
       .then(t => this.mapper.mapMatchPage(t.data));
   }
 
-  @UseInterceptors(CacheInterceptor)
+  @UseInterceptors(HttpCacheInterceptor)
   @ApiQuery({
     name: 'page',
     required: true,
@@ -72,24 +84,35 @@ export class MatchController {
       .then(t => this.mapper.mapMatchPage(t.data));
   }
 
-  @UseInterceptors(CacheInterceptor)
+  @UseInterceptors(HttpCacheInterceptor)
   @CacheTTL(10)
   @ApiParam({
     name: 'id',
     required: true,
   })
   @Get('/:id')
-  async match(@Param('id') id: number): Promise<MatchDto> {
+  @WithOptionalUser()
+  async match(
+    @CurrentUser() user: CurrentUserDto | undefined,
+    @Param('id') id: number,
+  ): Promise<MatchDto> {
     try {
+      const pid = (user && new PlayerId(user.steam_id)) || undefined;
+
+      const u =
+        pid && (await this.qbus.execute<GetReportsAvailableQuery, GetReportsAvailableQueryResult>(new GetReportsAvailableQuery(pid)));
+
+      console.log(u)
       return this.mapper.mapMatch(
         await this.ms.matchControllerGetMatch(id).then(t => t.data),
+        u,
       );
     } catch (e) {
       throw new NotFoundException();
     }
   }
 
-  @UseInterceptors(CacheInterceptor)
+  @UseInterceptors(HttpCacheInterceptor)
   @ApiParam({
     name: 'id',
     required: true,
