@@ -10,9 +10,8 @@ import { PlayerId } from '../../gateway/shared-types/player-id';
 import { MATCH_REPORT_TIMEOUT } from '../../gateway/shared-types/timings';
 import { GetReportsAvailableQueryResult } from '../../gateway/queries/GetReportsAvailable/get-reports-available-query.result';
 
-export interface PlayerMappableResource extends GetReportsAvailableQueryResult{
-
-}
+export interface PlayerMappableResource
+  extends GetReportsAvailableQueryResult {}
 @Injectable()
 export class MatchMapper {
   constructor(private readonly userRepository: UserRepository) {}
@@ -22,13 +21,21 @@ export class MatchMapper {
   ): Promise<PlayerInMatchDto> => {
     return {
       ...it,
-      name: await this.userRepository.name(it.steam_id)
+      name: await this.userRepository.name(it.steam_id),
     };
   };
 
-  public mapMatch = async (it: GameserverMatchDto, mapFor?: PlayerMappableResource): Promise<MatchDto> => {
-    const timeDiff = new Date().getTime() - new Date(it.timestamp).getTime()
-    const isReportable = mapFor !== undefined && timeDiff <= MATCH_REPORT_TIMEOUT && mapFor.available > 0
+  public mapMatch = async (
+    it: GameserverMatchDto,
+    mapFor?: PlayerMappableResource,
+  ): Promise<MatchDto> => {
+    const timeDiff = new Date().getTime() - new Date(it.timestamp).getTime();
+    const isReportable =
+      mapFor !== undefined &&
+      (it.radiant.find(z => z.steam_id === mapFor.id.value) ||
+        it.dire.find(z => z.steam_id === mapFor.id.value)) &&
+      timeDiff <= MATCH_REPORT_TIMEOUT &&
+      mapFor.available > 0;
     return {
       ...it,
       reportable: isReportable,
@@ -39,7 +46,7 @@ export class MatchMapper {
 
   public mapMatchPage = async (
     it: GameserverMatchPageDto,
-    mapFor?: PlayerMappableResource
+    mapFor?: PlayerMappableResource,
   ): Promise<MatchPageDto> => {
     return {
       ...it,

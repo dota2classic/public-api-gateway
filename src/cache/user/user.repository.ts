@@ -6,11 +6,15 @@ import { GetUserInfoQuery } from '../../gateway/queries/GetUserInfo/get-user-inf
 import { PlayerId } from '../../gateway/shared-types/player-id';
 import { GetUserInfoQueryResult } from '../../gateway/queries/GetUserInfo/get-user-info-query.result';
 import { Role } from '../../gateway/shared-types/roles';
+import { qCache } from '../../app.module';
+import { QueryCache } from 'd2c-rcaches';
 
 @Injectable()
 export class UserRepository extends RuntimeRepository<UserModel, 'id'> {
+  private readonly rcache: QueryCache<any, any>;
   constructor(private readonly qbus: QueryBus) {
     super();
+    this.rcache = qCache();
   }
 
   async resolve(id: UserModel['id']): Promise<UserModel> {
@@ -19,7 +23,11 @@ export class UserRepository extends RuntimeRepository<UserModel, 'id'> {
         new GetUserInfoQuery(new PlayerId(id)),
       )
       .then(t => {
-        if (t) return new UserModel(t.id.value, t.name, t.avatar, t.roles);
+        if (t){
+          const m = new UserModel(t.id.value, t.name, t.avatar, t.roles)
+          this.save(t.id.value, m)
+          return m;
+        }
         else return undefined;
       });
   }

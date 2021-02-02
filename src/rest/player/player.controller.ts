@@ -177,6 +177,7 @@ export class PlayerController {
     @Query('name') name: string,
     @CurrentUser() user: D2CUser,
   ): Promise<PlayerPreviewDto[]> {
+    //TODO!!! WE NEED TO MAKE THIS GOOD NOT BAD :wicked:
     return (await this.userRepository.all())
       .filter(t => t.name.toLowerCase().includes(name.toLowerCase()))
       .slice(0, 100);

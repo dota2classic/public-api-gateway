@@ -62,7 +62,7 @@ const host = REDIS_URL()
   .replace('redis://', '')
   .split(':')[0];
 
-function qCache<T, B>() {
+export function qCache<T, B>() {
   return new QueryCache<T, B>({
     url: REDIS_URL(),
     password: REDIS_PASSWORD(),
