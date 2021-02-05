@@ -57,6 +57,11 @@ import { MetaController } from './rest/meta/meta.controller';
 import { HttpCacheInterceptor } from './utils/cache-key-track';
 import { GetReportsAvailableQuery } from './gateway/queries/GetReportsAvailable/get-reports-available.query';
 import { GetReportsAvailableQueryResult } from './gateway/queries/GetReportsAvailable/get-reports-available-query.result';
+import { AdminTournamentController } from './rest/admin/admin-tournament.controller';
+import { TournamentMapper } from './rest/admin/mapper/tournament.mapper';
+import { TournamentController } from './rest/tournament/tournament.controller';
+import { TeamController } from './rest/tournament/team.controller';
+import { MulterModule } from '@nestjs/platform-express';
 
 const host = REDIS_URL()
   .replace('redis://', '')
@@ -82,6 +87,9 @@ export function qCache<T, B>() {
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, './upload'),
       serveRoot: '/static/',
+    }),
+    MulterModule.register({
+      dest: './dist/upload',
     }),
     JwtModule.register({
       secret: JWT_SECRET,
@@ -120,8 +128,12 @@ export function qCache<T, B>() {
     StatsController,
     SteamController,
     DiscordController,
+    AdminTournamentController,
+    TournamentController,
+    TeamController
   ],
   providers: [
+    TournamentMapper,
     HttpCacheInterceptor,
     outerQuery(GetAllQuery, 'QueryCore', qCache()),
     outerQuery(GetUserInfoQuery, 'QueryCore', qCache()),

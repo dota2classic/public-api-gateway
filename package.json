@@ -21,7 +21,8 @@
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "docker": "docker build . -t dota2classic/matchmaking:api-gateway && docker push dota2classic/matchmaking:api-gateway",
     "docker:local": "docker build . -t dota2classic/matchmaking:api-gateway",
-    "apigen:gameserver": "openapi-generator generate --skip-validate-spec -i http://localhost:5003/api-json -g typescript-axios -o ./generated --config gameserver-openapi-generate.json && rm -rf src/generated-api/gameserver && cp -r ./generated src/generated-api/gameserver && rm -rf ./generated"
+    "apigen:gameserver": "openapi-generator generate --skip-validate-spec -i http://localhost:5003/api-json -g typescript-axios -o ./generated --config gameserver-openapi-generate.json && rm -rf src/generated-api/gameserver && cp -r ./generated src/generated-api/gameserver && rm -rf ./generated",
+    "apigen:tournament": "openapi-generator generate --skip-validate-spec -i http://localhost:6100/api-json -g typescript-axios -o ./generated --config tournament-openapi-generate.json && rm -rf src/generated-api/tournament && cp -r ./generated src/generated-api/tournament && rm -rf ./generated"
   },
   "dependencies": {
     "@nestjs/common": "^7.6.1",

@@ -4,10 +4,10 @@ import {
   Controller,
   Get,
   Inject,
-  InternalServerErrorException,
   Param,
   Post,
   Query,
+  UploadedFile,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -16,17 +16,8 @@ import { Dota2Version } from '../../gateway/shared-types/dota2version';
 import { PlayerApi } from '../../generated-api/gameserver';
 import { GAMESERVER_APIURL } from '../../utils/env';
 import { PlayerMapper } from './player.mapper';
-import {
-  LeaderboardEntryDto,
-  MeDto,
-  MyProfileDto,
-  PlayerPreviewDto,
-  PlayerSummaryDto,
-} from './dto/player.dto';
-import {
-  CurrentUser,
-  CurrentUserDto,
-} from '../../utils/decorator/current-user';
+import { LeaderboardEntryDto, MeDto, MyProfileDto, PlayerPreviewDto, PlayerSummaryDto } from './dto/player.dto';
+import { CurrentUser, CurrentUserDto } from '../../utils/decorator/current-user';
 import { AuthGuard } from '@nestjs/passport';
 import { EventBus, QueryBus } from '@nestjs/cqrs';
 import { GetPartyQuery } from '../../gateway/queries/GetParty/get-party.query';
@@ -45,6 +36,11 @@ import { HttpCacheInterceptor } from '../../utils/cache-key-track';
 import { ReportDto } from './dto/report.dto';
 import { GetReportsAvailableQuery } from '../../gateway/queries/GetReportsAvailable/get-reports-available.query';
 import { GetReportsAvailableQueryResult } from '../../gateway/queries/GetReportsAvailable/get-reports-available-query.result';
+import { extname } from 'path';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { backUrl } from '../../utils/utils';
+
 
 @Controller('player')
 @ApiTags('player')
@@ -63,6 +59,35 @@ export class PlayerController {
   ) {
     this.ms = new PlayerApi(undefined, `http://${GAMESERVER_APIURL}`);
   }
+
+
+  @Post('upload')
+  @WithUser()
+  @UseInterceptors(
+    FileInterceptor('image', {
+      storage: diskStorage({
+        destination: './dist/upload',
+        filename: (req, file, cb) => {
+          // Generating a 32 random chars long string
+          const randomName = Array(32)
+            .fill(null)
+            .map(() => Math.round(Math.random() * 16).toString(16))
+            .join('');
+          //Calling the callback passing the random name generated with the original extension name
+          cb(null, `${randomName}${extname(file.originalname)}`);
+        },
+      }),
+    }),
+  )
+  public async uploadImage(@UploadedFile() file) {
+
+    // console.log(`upload hehe`, file)
+    //.split('.').slice(0, -1).join('.');
+    // img.path = file.filename;
+    // await rep.save(img);
+    return  file.filename;
+  }
+
 
   @Get('/me')
   @WithUser()
