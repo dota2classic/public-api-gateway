@@ -20,7 +20,8 @@ export class AdminTournamentController {
       name: dto.name,
       entryType: dto.entryType as any,
       startDate: dto.startDate,
-      imageUrl: dto.imageUrl
+      imageUrl: dto.imageUrl,
+      strategy: dto.strategy as any
     });
 
     return this.mapper.mapTournament(res.data);

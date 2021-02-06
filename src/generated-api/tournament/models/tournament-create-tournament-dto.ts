@@ -43,6 +43,12 @@ export interface TournamentCreateTournamentDto {
      * @memberof TournamentCreateTournamentDto
      */
     imageUrl: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof TournamentCreateTournamentDto
+     */
+    strategy: TournamentCreateTournamentDtoStrategyEnum;
 }
 
 /**
@@ -52,6 +58,14 @@ export interface TournamentCreateTournamentDto {
 export enum TournamentCreateTournamentDtoEntryTypeEnum {
     PLAYER = 'PLAYER',
     TEAM = 'TEAM'
+}
+/**
+    * @export
+    * @enum {string}
+    */
+export enum TournamentCreateTournamentDtoStrategyEnum {
+    SINGLEELIMINATION = 'SINGLE_ELIMINATION',
+    DOUBLEELIMINATION = 'DOUBLE_ELIMINATION'
 }
 
 

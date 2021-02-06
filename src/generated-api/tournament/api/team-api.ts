@@ -26,6 +26,8 @@ import { TournamentCreateTeamInviteDto } from '../models';
 import { TournamentSubmitInvitationDto } from '../models';
 // @ts-ignore
 import { TournamentTeamDto } from '../models';
+// @ts-ignore
+import { TournamentTournamentDto } from '../models';
 /**
  * TeamApi - axios parameter creator
  * @export
@@ -82,6 +84,41 @@ export const TeamApiAxiosParamCreator = function (configuration?: Configuration)
                 throw new RequiredError('id','Required parameter id was null or undefined when calling teamControllerGetTeam.');
             }
             const localVarPath = `/team/view/{id}`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            const localVarUrlObj = globalImportUrl.parse(localVarPath, true);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            localVarUrlObj.query = {...localVarUrlObj.query, ...localVarQueryParameter, ...options.query};
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: globalImportUrl.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        teamControllerGetTournaments: async (id: string, options: any = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            if (id === null || id === undefined) {
+                throw new RequiredError('id','Required parameter id was null or undefined when calling teamControllerGetTournaments.');
+            }
+            const localVarPath = `/team/tournament_list/{id}`
                 .replace(`{${"id"}}`, encodeURIComponent(String(id)));
             const localVarUrlObj = globalImportUrl.parse(localVarPath, true);
             let baseOptions;
@@ -253,6 +290,19 @@ export const TeamApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async teamControllerGetTournaments(id: string, options?: any): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<TournamentTournamentDto>>> {
+            const localVarAxiosArgs = await TeamApiAxiosParamCreator(configuration).teamControllerGetTournaments(id, options);
+            return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
+                const axiosRequestArgs = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
+                return axios.request(axiosRequestArgs);
+            };
+        },
+        /**
+         * 
          * @param {TournamentCreateTeamInviteDto} tournamentCreateTeamInviteDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -319,6 +369,15 @@ export const TeamApiFactory = function (configuration?: Configuration, basePath?
         },
         /**
          * 
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        teamControllerGetTournaments(id: string, options?: any): AxiosPromise<Array<TournamentTournamentDto>> {
+            return TeamApiFp(configuration).teamControllerGetTournaments(id, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @param {TournamentCreateTeamInviteDto} tournamentCreateTeamInviteDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -374,6 +433,17 @@ export class TeamApi extends BaseAPI {
      */
     public teamControllerGetTeam(id: string, options?: any) {
         return TeamApiFp(this.configuration).teamControllerGetTeam(id, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {string} id 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof TeamApi
+     */
+    public teamControllerGetTournaments(id: string, options?: any) {
+        return TeamApiFp(this.configuration).teamControllerGetTournaments(id, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

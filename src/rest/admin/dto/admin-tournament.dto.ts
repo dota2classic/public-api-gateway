@@ -1,11 +1,12 @@
-import { BracketEntryType } from '../../../gateway/shared-types/tournament';
+import { BracketEntryType, BracketType } from '../../../gateway/shared-types/tournament';
 import { TournamentTournamentDtoStatusEnum } from '../../../generated-api/tournament/models';
 
 export class CreateTournamentDto {
   public readonly name: string;
   public readonly entryType: BracketEntryType;
   public readonly startDate: number;
-  public readonly imageUrl: string
+  public readonly imageUrl: string;
+  public readonly strategy: BracketType;
 
 }
 

@@ -33,7 +33,7 @@ export class UserRepository extends RuntimeRepository<UserModel, 'id'> {
   }
 
   public async name(id: UserModel['id']): Promise<string> {
-    return this.resolve(id).then(t => t.name);
+    return this.resolve(id).then(t => t?.name || id);
   }
 
   public async roles(id: UserModel['id']): Promise<Role[]> {
