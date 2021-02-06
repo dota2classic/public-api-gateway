@@ -1,11 +1,20 @@
-import { Controller, Get, Param } from '@nestjs/common';
+import { Controller, Get, Param, Post } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { TeamApi, TournamentApi } from '../../generated-api/tournament';
 import { TOURNAMENT_APIURL } from '../../utils/env';
 import { TournamentMapper } from '../admin/mapper/tournament.mapper';
-import { TournamentDto } from '../admin/dto/admin-tournament.dto';
-import { BracketDto, BracketRoundDto } from './dto/tournament.dto';
-import { CompactTeamDto, TeamDto } from './dto/team.dto';
+import {
+  FullTournamentDto,
+  TournamentDto,
+} from '../admin/dto/admin-tournament.dto';
+import { BracketDto } from './dto/tournament.dto';
+import { CompactTeamDto } from './dto/team.dto';
+import {
+  CurrentUser,
+  CurrentUserDto,
+} from '../../utils/decorator/current-user';
+import { WithOptionalUser } from '../../utils/decorator/with-optional-user';
+import { WithUser } from '../../utils/decorator/with-user';
 
 @Controller('tournament')
 @ApiTags('tournament')
@@ -16,6 +25,24 @@ export class TournamentController {
   constructor(private readonly mapper: TournamentMapper) {
     this.ms = new TournamentApi(undefined, `http://${TOURNAMENT_APIURL}`);
     this.ts = new TeamApi(undefined, `http://${TOURNAMENT_APIURL}`);
+  }
+
+  @Post('join_as_player/:id')
+  @WithUser()
+  public async joinTournamentAsPlayer(
+    @Param('id') id: number,
+    @CurrentUser() user: CurrentUserDto,
+  ) {
+    await this.ms.tournamentControllerRegisterPlayer(id, user.steam_id);
+  }
+
+  @Post('leave_as_player/:id')
+  @WithUser()
+  public async leaveTournamentAsPlayer(
+    @Param('id') id: number,
+    @CurrentUser() user: CurrentUserDto,
+  ) {
+    await this.ms.tournamentControllerLeaveTournamentPlayer(id, user.steam_id);
   }
 
   @Get('list')
@@ -32,16 +59,24 @@ export class TournamentController {
   }
 
   @Get(`/teams/:id`)
-  public async tournamentTeams(@Param('id') id: number): Promise<CompactTeamDto[]> {
+  public async tournamentTeams(
+    @Param('id') id: number,
+  ): Promise<CompactTeamDto[]> {
     return this.ms
       .tournamentControllerTournamentTeams(id)
-      .then(teams => Promise.all(teams.data.map(t => this.mapper.mapTeamCompact(t))));
+      .then(teams =>
+        Promise.all(teams.data.map(t => this.mapper.mapTeamCompact(t))),
+      );
   }
 
   @Get(`/:id`)
-  public async getTournament(@Param('id') id: number): Promise<TournamentDto> {
+  @WithOptionalUser()
+  public async getTournament(
+    @Param('id') id: number,
+    @CurrentUser() user?: CurrentUserDto,
+  ): Promise<FullTournamentDto> {
     return this.ms
       .tournamentControllerGetTournament(id)
-      .then(d => this.mapper.mapTournament(d.data));
+      .then(d => this.mapper.mapFullTournament(d.data, user));
   }
 }

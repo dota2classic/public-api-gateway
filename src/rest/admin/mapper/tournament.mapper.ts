@@ -3,11 +3,14 @@ import {
   TournamentBracketDto,
   TournamentBracketRoundDto,
   TournamentCompactTeamDto,
+  TournamentFullTournamentDto,
+  TournamentFullTournamentDtoEntryTypeEnum,
+  TournamentFullTournamentDtoStatusEnum,
   TournamentSeedItemDto,
   TournamentTeamDto,
   TournamentTournamentDto,
 } from '../../../generated-api/tournament/models';
-import { TournamentDto } from '../dto/admin-tournament.dto';
+import { FullTournamentDto, TournamentDto } from '../dto/admin-tournament.dto';
 import { CompactTeamDto, TeamDto } from '../../tournament/dto/team.dto';
 import { UserRepository } from '../../../cache/user/user.repository';
 import {
@@ -16,6 +19,7 @@ import {
   RoundType,
   SeedItemDto,
 } from '../../tournament/dto/tournament.dto';
+import { CurrentUserDto } from '../../../utils/decorator/current-user';
 
 @Injectable()
 export class TournamentMapper {
@@ -28,6 +32,46 @@ export class TournamentMapper {
       startDate: dto.startDate,
       status: dto.status,
       imageUrl: dto.imageUrl,
+    };
+  };
+
+  public mapFullTournament = async (
+    dto: TournamentFullTournamentDto,
+    user?: CurrentUserDto,
+  ): Promise<FullTournamentDto> => {
+    const isTeamTournament =
+      dto.entryType === TournamentFullTournamentDtoEntryTypeEnum.TEAM;
+
+    let isParticipating: boolean = false;
+
+    const isLocked = dto.status !== TournamentFullTournamentDtoStatusEnum.NEW;
+    if (isTeamTournament) {
+      isParticipating = !!dto.participants.find(t =>
+        t.team!!.members.find(p => p.steam_id === user.steam_id),
+      );
+    } else {
+      isParticipating = !!dto.participants.find(
+        t => t.steam_id === user.steam_id,
+      );
+    }
+
+
+    return {
+      name: dto.name,
+      entryType: dto.entryType as any,
+      id: dto.id,
+      startDate: dto.startDate,
+      status: dto.status as any,
+      imageUrl: dto.imageUrl,
+      participants: await Promise.all(
+        dto.participants.map(async p => ({
+          profile:
+            p.steam_id && (await this.userRepository.resolve(p.steam_id)),
+          team: p.team && (await this.mapTeam(p.team)),
+        })),
+      ),
+      isLocked: isLocked,
+      isParticipating: isParticipating
     };
   };
 

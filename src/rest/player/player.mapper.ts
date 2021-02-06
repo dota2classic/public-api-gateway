@@ -13,10 +13,15 @@ import { PlayerId } from '../../gateway/shared-types/player-id';
 import { BanStatus } from '../../gateway/queries/GetPlayerInfo/get-player-info-query.result';
 import { BanReason } from '../../gateway/shared-types/ban';
 import { GetReportsAvailableQueryResult } from '../../gateway/queries/GetReportsAvailable/get-reports-available-query.result';
+import { TournamentTeamDto } from '../../generated-api/tournament/models';
+import { TournamentMapper } from '../admin/mapper/tournament.mapper';
 
 @Injectable()
 export class PlayerMapper {
-  constructor(private readonly userRepository: UserRepository) {}
+  constructor(
+    private readonly userRepository: UserRepository,
+    private readonly teamMapper: TournamentMapper,
+  ) {}
 
   public mapLeaderboardEntry = async (
     it: GameserverLeaderboardEntryDto,
@@ -32,8 +37,12 @@ export class PlayerMapper {
     };
   };
 
-
-  public mapMe = async (it: GameserverPlayerSummaryDto, status: GameserverBanStatusDto, reports: GetReportsAvailableQueryResult): Promise<MeDto> => {
+  public mapMe = async (
+    it: GameserverPlayerSummaryDto,
+    status: GameserverBanStatusDto,
+    team: TournamentTeamDto | undefined,
+    reports: GetReportsAvailableQueryResult,
+  ): Promise<MeDto> => {
     return {
       steam_id: it.steam_id,
       mmr: it.mmr,
@@ -47,10 +56,10 @@ export class PlayerMapper {
         bannedUntil: status.bannedUntil,
         status: status.status as any,
       },
-      reportsAvailable: reports.available
+      team: (team && (await this.teamMapper.mapTeam(team))) || undefined,
+      reportsAvailable: reports.available,
     };
-
-  }
+  };
 
   public mapPlayerSummary = async (
     it: GameserverPlayerSummaryDto,
@@ -62,7 +71,7 @@ export class PlayerMapper {
       roles: await this.userRepository.roles(it.steam_id),
       id: numSteamId(it.steam_id),
       rank: it.rank,
-      unrankedGamesLeft: it.newbieUnrankedGamesLeft
+      unrankedGamesLeft: it.newbieUnrankedGamesLeft,
     };
   };
 
@@ -74,7 +83,9 @@ export class PlayerMapper {
     };
   };
 
-  public mapPlayerInParty = async (pid: PlayerId): Promise<PlayerInPartyDto> => {
+  public mapPlayerInParty = async (
+    pid: PlayerId,
+  ): Promise<PlayerInPartyDto> => {
     return {
       steam_id: pid.value,
       name: await this.userRepository.name(pid.value),

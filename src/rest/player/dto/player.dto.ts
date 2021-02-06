@@ -1,6 +1,7 @@
 import { UserConnection } from '../../../gateway/shared-types/user-connection';
 import { Role } from '../../../gateway/shared-types/roles';
 import { BanStatusDto } from '../../admin/dto/admin.dto';
+import { TeamDto } from '../../tournament/dto/team.dto';
 
 export class LeaderboardEntryDto {
   steam_id: string;
@@ -23,6 +24,7 @@ export class MeDto {
   unrankedGamesLeft: number;
   banStatus: BanStatusDto;
   reportsAvailable: number;
+  team?: TeamDto
 }
 
 export class PlayerSummaryDto {

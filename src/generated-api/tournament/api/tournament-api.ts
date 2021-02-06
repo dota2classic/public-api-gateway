@@ -25,6 +25,8 @@ import { TournamentCompactTeamDto } from '../models';
 // @ts-ignore
 import { TournamentCreateTournamentDto } from '../models';
 // @ts-ignore
+import { TournamentFullTournamentDto } from '../models';
+// @ts-ignore
 import { TournamentTournamentDto } from '../models';
 /**
  * TournamentApi - axios parameter creator
@@ -32,6 +34,41 @@ import { TournamentTournamentDto } from '../models';
  */
 export const TournamentApiAxiosParamCreator = function (configuration?: Configuration) {
     return {
+        /**
+         * 
+         * @param {number} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        tournamentControllerCancelTournament: async (id: number, options: any = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            if (id === null || id === undefined) {
+                throw new RequiredError('id','Required parameter id was null or undefined when calling tournamentControllerCancelTournament.');
+            }
+            const localVarPath = `/tournament/cancel/{id}`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            const localVarUrlObj = globalImportUrl.parse(localVarPath, true);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            localVarUrlObj.query = {...localVarUrlObj.query, ...localVarQueryParameter, ...options.query};
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: globalImportUrl.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
         /**
          * 
          * @param {TournamentCreateTournamentDto} tournamentCreateTournamentDto 
@@ -177,6 +214,47 @@ export const TournamentApiAxiosParamCreator = function (configuration?: Configur
         },
         /**
          * 
+         * @param {number} id 
+         * @param {string} steamId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        tournamentControllerLeaveTournamentPlayer: async (id: number, steamId: string, options: any = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            if (id === null || id === undefined) {
+                throw new RequiredError('id','Required parameter id was null or undefined when calling tournamentControllerLeaveTournamentPlayer.');
+            }
+            // verify required parameter 'steamId' is not null or undefined
+            if (steamId === null || steamId === undefined) {
+                throw new RequiredError('steamId','Required parameter steamId was null or undefined when calling tournamentControllerLeaveTournamentPlayer.');
+            }
+            const localVarPath = `/tournament/{id}/leave_tournament_solo/{steam_id}`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)))
+                .replace(`{${"steam_id"}}`, encodeURIComponent(String(steamId)));
+            const localVarUrlObj = globalImportUrl.parse(localVarPath, true);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            localVarUrlObj.query = {...localVarUrlObj.query, ...localVarQueryParameter, ...options.query};
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: globalImportUrl.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -292,6 +370,41 @@ export const TournamentApiAxiosParamCreator = function (configuration?: Configur
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
+        tournamentControllerStartTournament: async (id: number, options: any = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            if (id === null || id === undefined) {
+                throw new RequiredError('id','Required parameter id was null or undefined when calling tournamentControllerStartTournament.');
+            }
+            const localVarPath = `/tournament/create/{id}`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            const localVarUrlObj = globalImportUrl.parse(localVarPath, true);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            localVarUrlObj.query = {...localVarUrlObj.query, ...localVarQueryParameter, ...options.query};
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: globalImportUrl.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {number} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
         tournamentControllerTournamentTeams: async (id: number, options: any = {}): Promise<RequestArgs> => {
             // verify required parameter 'id' is not null or undefined
             if (id === null || id === undefined) {
@@ -332,11 +445,24 @@ export const TournamentApiFp = function(configuration?: Configuration) {
     return {
         /**
          * 
+         * @param {number} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async tournamentControllerCancelTournament(id: number, options?: any): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<TournamentFullTournamentDto>> {
+            const localVarAxiosArgs = await TournamentApiAxiosParamCreator(configuration).tournamentControllerCancelTournament(id, options);
+            return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
+                const axiosRequestArgs = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
+                return axios.request(axiosRequestArgs);
+            };
+        },
+        /**
+         * 
          * @param {TournamentCreateTournamentDto} tournamentCreateTournamentDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async tournamentControllerCreateTournament(tournamentCreateTournamentDto: TournamentCreateTournamentDto, options?: any): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<TournamentTournamentDto>> {
+        async tournamentControllerCreateTournament(tournamentCreateTournamentDto: TournamentCreateTournamentDto, options?: any): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<TournamentFullTournamentDto>> {
             const localVarAxiosArgs = await TournamentApiAxiosParamCreator(configuration).tournamentControllerCreateTournament(tournamentCreateTournamentDto, options);
             return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
                 const axiosRequestArgs = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
@@ -375,8 +501,22 @@ export const TournamentApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async tournamentControllerGetTournament(id: number, options?: any): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<TournamentTournamentDto>> {
+        async tournamentControllerGetTournament(id: number, options?: any): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<TournamentFullTournamentDto>> {
             const localVarAxiosArgs = await TournamentApiAxiosParamCreator(configuration).tournamentControllerGetTournament(id, options);
+            return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
+                const axiosRequestArgs = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
+                return axios.request(axiosRequestArgs);
+            };
+        },
+        /**
+         * 
+         * @param {number} id 
+         * @param {string} steamId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async tournamentControllerLeaveTournamentPlayer(id: number, steamId: string, options?: any): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await TournamentApiAxiosParamCreator(configuration).tournamentControllerLeaveTournamentPlayer(id, steamId, options);
             return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
                 const axiosRequestArgs = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
                 return axios.request(axiosRequestArgs);
@@ -428,6 +568,19 @@ export const TournamentApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
+        async tournamentControllerStartTournament(id: number, options?: any): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<TournamentFullTournamentDto>> {
+            const localVarAxiosArgs = await TournamentApiAxiosParamCreator(configuration).tournamentControllerStartTournament(id, options);
+            return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
+                const axiosRequestArgs = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
+                return axios.request(axiosRequestArgs);
+            };
+        },
+        /**
+         * 
+         * @param {number} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
         async tournamentControllerTournamentTeams(id: number, options?: any): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<TournamentCompactTeamDto>>> {
             const localVarAxiosArgs = await TournamentApiAxiosParamCreator(configuration).tournamentControllerTournamentTeams(id, options);
             return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
@@ -446,11 +599,20 @@ export const TournamentApiFactory = function (configuration?: Configuration, bas
     return {
         /**
          * 
+         * @param {number} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        tournamentControllerCancelTournament(id: number, options?: any): AxiosPromise<TournamentFullTournamentDto> {
+            return TournamentApiFp(configuration).tournamentControllerCancelTournament(id, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @param {TournamentCreateTournamentDto} tournamentCreateTournamentDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        tournamentControllerCreateTournament(tournamentCreateTournamentDto: TournamentCreateTournamentDto, options?: any): AxiosPromise<TournamentTournamentDto> {
+        tournamentControllerCreateTournament(tournamentCreateTournamentDto: TournamentCreateTournamentDto, options?: any): AxiosPromise<TournamentFullTournamentDto> {
             return TournamentApiFp(configuration).tournamentControllerCreateTournament(tournamentCreateTournamentDto, options).then((request) => request(axios, basePath));
         },
         /**
@@ -477,8 +639,18 @@ export const TournamentApiFactory = function (configuration?: Configuration, bas
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        tournamentControllerGetTournament(id: number, options?: any): AxiosPromise<TournamentTournamentDto> {
+        tournamentControllerGetTournament(id: number, options?: any): AxiosPromise<TournamentFullTournamentDto> {
             return TournamentApiFp(configuration).tournamentControllerGetTournament(id, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @param {number} id 
+         * @param {string} steamId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        tournamentControllerLeaveTournamentPlayer(id: number, steamId: string, options?: any): AxiosPromise<void> {
+            return TournamentApiFp(configuration).tournamentControllerLeaveTournamentPlayer(id, steamId, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -514,6 +686,15 @@ export const TournamentApiFactory = function (configuration?: Configuration, bas
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
+        tournamentControllerStartTournament(id: number, options?: any): AxiosPromise<TournamentFullTournamentDto> {
+            return TournamentApiFp(configuration).tournamentControllerStartTournament(id, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @param {number} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
         tournamentControllerTournamentTeams(id: number, options?: any): AxiosPromise<Array<TournamentCompactTeamDto>> {
             return TournamentApiFp(configuration).tournamentControllerTournamentTeams(id, options).then((request) => request(axios, basePath));
         },
@@ -527,6 +708,17 @@ export const TournamentApiFactory = function (configuration?: Configuration, bas
  * @extends {BaseAPI}
  */
 export class TournamentApi extends BaseAPI {
+    /**
+     * 
+     * @param {number} id 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof TournamentApi
+     */
+    public tournamentControllerCancelTournament(id: number, options?: any) {
+        return TournamentApiFp(this.configuration).tournamentControllerCancelTournament(id, options).then((request) => request(this.axios, this.basePath));
+    }
+
     /**
      * 
      * @param {TournamentCreateTournamentDto} tournamentCreateTournamentDto 
@@ -573,6 +765,18 @@ export class TournamentApi extends BaseAPI {
 
     /**
      * 
+     * @param {number} id 
+     * @param {string} steamId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof TournamentApi
+     */
+    public tournamentControllerLeaveTournamentPlayer(id: number, steamId: string, options?: any) {
+        return TournamentApiFp(this.configuration).tournamentControllerLeaveTournamentPlayer(id, steamId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof TournamentApi
@@ -603,6 +807,17 @@ export class TournamentApi extends BaseAPI {
      */
     public tournamentControllerRegisterTeam(id: number, teamId: string, options?: any) {
         return TournamentApiFp(this.configuration).tournamentControllerRegisterTeam(id, teamId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {number} id 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof TournamentApi
+     */
+    public tournamentControllerStartTournament(id: number, options?: any) {
+        return TournamentApiFp(this.configuration).tournamentControllerStartTournament(id, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
