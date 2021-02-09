@@ -3,18 +3,13 @@ import { ApiTags } from '@nestjs/swagger';
 import { TeamApi, TournamentApi } from '../../generated-api/tournament';
 import { TOURNAMENT_APIURL } from '../../utils/env';
 import { TournamentMapper } from '../admin/mapper/tournament.mapper';
-import {
-  FullTournamentDto,
-  TournamentDto,
-} from '../admin/dto/admin-tournament.dto';
+import { FullTournamentDto, TournamentDto } from '../admin/dto/admin-tournament.dto';
 import { BracketDto } from './dto/tournament.dto';
 import { CompactTeamDto } from './dto/team.dto';
-import {
-  CurrentUser,
-  CurrentUserDto,
-} from '../../utils/decorator/current-user';
+import { CurrentUser, CurrentUserDto } from '../../utils/decorator/current-user';
 import { WithOptionalUser } from '../../utils/decorator/with-optional-user';
 import { WithUser } from '../../utils/decorator/with-user';
+import { TournamentTournamentDtoStatusEnum } from '../../generated-api/tournament/models';
 
 @Controller('tournament')
 @ApiTags('tournament')
@@ -48,7 +43,7 @@ export class TournamentController {
   @Get('list')
   public async listTournaments(): Promise<TournamentDto[]> {
     const res = await this.ms.tournamentControllerListTournaments();
-    return res.data.map(this.mapper.mapTournament);
+    return res.data.filter(t => t.status !== TournamentTournamentDtoStatusEnum.CANCELLED).map(this.mapper.mapTournament);
   }
 
   @Get(`/bracket/:id`)

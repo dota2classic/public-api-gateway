@@ -9,17 +9,14 @@ import {
   TournamentSeedItemDto,
   TournamentTeamDto,
   TournamentTournamentDto,
+  TournamentTournamentMatchDto,
 } from '../../../generated-api/tournament/models';
-import { FullTournamentDto, TournamentDto } from '../dto/admin-tournament.dto';
+import { FullTournamentDto, TournamentDto, TournamentMatchDto } from '../dto/admin-tournament.dto';
 import { CompactTeamDto, TeamDto } from '../../tournament/dto/team.dto';
 import { UserRepository } from '../../../cache/user/user.repository';
-import {
-  BracketDto,
-  BracketRoundDto,
-  RoundType,
-  SeedItemDto,
-} from '../../tournament/dto/tournament.dto';
+import { BracketDto, BracketRoundDto, RoundType, SeedItemDto } from '../../tournament/dto/tournament.dto';
 import { CurrentUserDto } from '../../../utils/decorator/current-user';
+import { PlayerPreviewDto } from '../../player/dto/player.dto';
 
 @Injectable()
 export class TournamentMapper {
@@ -55,7 +52,6 @@ export class TournamentMapper {
       );
     }
 
-
     return {
       name: dto.name,
       entryType: dto.entryType as any,
@@ -71,7 +67,7 @@ export class TournamentMapper {
         })),
       ),
       isLocked: isLocked,
-      isParticipating: isParticipating
+      isParticipating: isParticipating,
     };
   };
 
@@ -92,6 +88,11 @@ export class TournamentMapper {
     };
   };
 
+  private mapPlayerPreview = async (
+    steam_id: string,
+  ): Promise<PlayerPreviewDto> => {
+    return this.userRepository.resolve(steam_id).then(t => t?.asPreview());
+  };
   private mapSeed = async (
     team: TournamentSeedItemDto,
   ): Promise<SeedItemDto | null> => {
@@ -99,24 +100,25 @@ export class TournamentMapper {
       return null;
     } else if (team?.team) {
       return {
+        isTeam: true,
         team: await this.mapTeam(team.team),
         result: team.result,
       };
     } else if (team.steam_id) {
       return {
-        playerName: await this.userRepository.name(team.steam_id),
-        steam_id: team.steam_id,
+        isTeam: false,
+        profile: await this.mapPlayerPreview(team.steam_id),
         result: team.result,
       };
     } else if (team.tbd) {
       // its tbd 4sure
       return {
-        steam_id: null,
+        isTeam: false,
         tbd: true,
       };
     } else {
       return {
-        steam_id: null,
+        isTeam: false,
         tbd: true,
       };
     }
@@ -170,6 +172,20 @@ export class TournamentMapper {
       id: dto.id,
       imageUrl: dto.imageUrl,
       creator: dto.creator,
+    };
+  };
+
+  public mapTournamentMatch = async (
+    dto: TournamentTournamentMatchDto,
+  ): Promise<TournamentMatchDto> => {
+    return {
+      id: dto.id,
+      status: dto.status as any,
+      scheduledDate: dto.scheduledDate,
+      externalMatchId: dto.externalMatchId,
+      teamOffset: dto.teamOffset,
+      opponent1: dto.opponent1 && (await this.mapSeed(dto.opponent1)),
+      opponent2: dto.opponent2 && (await this.mapSeed(dto.opponent2)),
     };
   };
 }

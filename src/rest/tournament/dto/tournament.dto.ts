@@ -1,5 +1,6 @@
 import { TeamDto } from './team.dto';
 import { BracketEntryType, BracketType } from '../../../gateway/shared-types/tournament';
+import { PlayerPreviewDto } from '../../player/dto/player.dto';
 
 
 export enum RoundType {
@@ -7,9 +8,9 @@ export enum RoundType {
   FINAL = 'FINAL'
 }
 export class SeedItemDto {
-  public readonly steam_id?: string;
-  public readonly playerName?: string;
+  public readonly profile?: PlayerPreviewDto
   public readonly team?: TeamDto
+  public readonly isTeam: boolean;
   public readonly result?: string;
   public readonly tbd?: boolean;
 }
