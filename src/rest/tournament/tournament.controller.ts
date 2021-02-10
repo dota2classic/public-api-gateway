@@ -3,7 +3,7 @@ import { ApiTags } from '@nestjs/swagger';
 import { TeamApi, TournamentApi } from '../../generated-api/tournament';
 import { TOURNAMENT_APIURL } from '../../utils/env';
 import { TournamentMapper } from '../admin/mapper/tournament.mapper';
-import { FullTournamentDto, TournamentDto } from '../admin/dto/admin-tournament.dto';
+import { FullTournamentDto, TournamentDto, TournamentMatchDto } from '../admin/dto/admin-tournament.dto';
 import { BracketDto } from './dto/tournament.dto';
 import { CompactTeamDto } from './dto/team.dto';
 import { CurrentUser, CurrentUserDto } from '../../utils/decorator/current-user';
@@ -63,6 +63,22 @@ export class TournamentController {
         Promise.all(teams.data.map(t => this.mapper.mapTeamCompact(t))),
       );
   }
+
+
+
+
+
+  @Get('tournament_match/:id')
+  @WithOptionalUser()
+  public async tournamentMatch(
+    @Param('id') id: number,
+  ): Promise<TournamentMatchDto> {
+    return this.ms
+      .tournamentControllerGetTournamentMatch(id)
+      .then(t => t.data)
+      .then(this.mapper.mapTournamentMatch);
+  }
+
 
   @Get(`/:id`)
   @WithOptionalUser()
