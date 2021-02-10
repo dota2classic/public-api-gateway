@@ -13,6 +13,7 @@
 
 
 import { TournamentTournamentParticipantDto } from './tournament-tournament-participant-dto';
+import { TournamentTournamentStandingDto } from './tournament-tournament-standing-dto';
 
 /**
  * 
@@ -62,6 +63,12 @@ export interface TournamentFullTournamentDto {
      * @memberof TournamentFullTournamentDto
      */
     participants: Array<TournamentTournamentParticipantDto>;
+    /**
+     * 
+     * @type {Array<TournamentTournamentStandingDto>}
+     * @memberof TournamentFullTournamentDto
+     */
+    standings?: Array<TournamentTournamentStandingDto>;
 }
 
 /**

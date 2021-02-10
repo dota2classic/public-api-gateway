@@ -16,3 +16,4 @@ export * from './tournament-team-member-dto';
 export * from './tournament-tournament-dto';
 export * from './tournament-tournament-match-dto';
 export * from './tournament-tournament-participant-dto';
+export * from './tournament-tournament-standing-dto';

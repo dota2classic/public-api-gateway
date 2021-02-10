@@ -66,6 +66,14 @@ export class TournamentMapper {
           team: p.team && (await this.mapTeam(p.team)),
         })),
       ),
+      standings: await Promise.all(
+        dto.standings.map(async p => ({
+          profile:
+            p.steam_id && (await this.userRepository.resolve(p.steam_id)),
+          team: p.team && (await this.mapTeam(p.team)),
+          position: p.position
+        })),
+      ),
       isLocked: isLocked,
       isParticipating: isParticipating,
     };

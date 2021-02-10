@@ -35,6 +35,13 @@ export class TournamentParticipantDto {
   team?: TeamDto;
 }
 
+
+export class TournamentStandingDto {
+  profile?: PlayerPreviewDto;
+  team?: TeamDto;
+  position: number;
+}
+
 export class FullTournamentDto {
   public readonly name: string;
   public readonly entryType: BracketEntryType;
@@ -45,6 +52,7 @@ export class FullTournamentDto {
   public readonly isLocked: boolean;
   public readonly isParticipating: boolean;
   public readonly participants: TournamentParticipantDto[];
+  public readonly standings?: TournamentStandingDto[];
   // here we might want to add field whether we can assign or not
 }
 
