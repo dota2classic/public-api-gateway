@@ -9,6 +9,9 @@ export class CreateTournamentDto {
   public readonly startDate: number;
   public readonly imageUrl: string;
   public readonly strategy: BracketType;
+  public readonly bestOfRound: number;
+  public readonly bestOfFinal: number;
+  public readonly bestOfGrandFinal: number;
 }
 
 export class StartTournamentDto {

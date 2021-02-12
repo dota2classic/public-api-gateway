@@ -49,6 +49,24 @@ export interface TournamentCreateTournamentDto {
      * @memberof TournamentCreateTournamentDto
      */
     strategy: TournamentCreateTournamentDtoStrategyEnum;
+    /**
+     * 
+     * @type {number}
+     * @memberof TournamentCreateTournamentDto
+     */
+    roundBestOf: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof TournamentCreateTournamentDto
+     */
+    finalBestOf: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof TournamentCreateTournamentDto
+     */
+    grandFinalBestOf: number;
 }
 
 /**

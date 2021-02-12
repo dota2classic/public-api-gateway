@@ -41,6 +41,9 @@ export class AdminTournamentController {
       startDate: dto.startDate,
       imageUrl: dto.imageUrl,
       strategy: dto.strategy as any,
+      finalBestOf: dto.bestOfFinal,
+      roundBestOf: dto.bestOfRound,
+      grandFinalBestOf: dto.bestOfGrandFinal,
     });
 
     return this.mapper.mapTournament(res.data as any);
