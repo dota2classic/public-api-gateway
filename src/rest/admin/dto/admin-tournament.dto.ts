@@ -1,12 +1,7 @@
 import { BracketEntryType, BracketType } from '../../../gateway/shared-types/tournament';
-import {
-  TournamentSeedItemDto,
-  TournamentTournamentDtoStatusEnum,
-  TournamentTournamentMatchDtoStatusEnum,
-} from '../../../generated-api/tournament/models';
+import { TournamentTournamentDtoStatusEnum } from '../../../generated-api/tournament/models';
 import { TeamDto } from '../../tournament/dto/team.dto';
 import { PlayerPreviewDto } from '../../player/dto/player.dto';
-import { SeedItemDto } from '../../tournament/dto/tournament.dto';
 
 export class CreateTournamentDto {
   public readonly name: string;
@@ -35,7 +30,6 @@ export class TournamentParticipantDto {
   team?: TeamDto;
 }
 
-
 export class TournamentStandingDto {
   profile?: PlayerPreviewDto;
   team?: TeamDto;
@@ -56,16 +50,14 @@ export class FullTournamentDto {
   // here we might want to add field whether we can assign or not
 }
 
-export class TournamentMatchDto {
-  id: number;
-  status: MatchStatus;
+export class TournamentMatchGameDto {
+  gameId: number;
+  bracketMatchId: number;
+  matchId?: number;
   scheduledDate: number;
-  externalMatchId: number;
   teamOffset: number;
-  opponent1?: SeedItemDto;
-  opponent2?: SeedItemDto;
+  number: number;
 }
-
 
 export enum MatchStatus {
   /** The two matches leading to this one are not completed yet. */
@@ -82,16 +74,17 @@ export enum MatchStatus {
   Archived = 'Archived',
 }
 
-
-
 export class ScheduleTournamentMatchDto {
-  scheduledDate: number
+  gameId: number;
+  scheduledDate: number;
 }
 
 export class ForfeitDto {
+  gameId: number;
   forfeitId: string;
 }
 
 export class SetWinnerDto {
+  gameId: number;
   winnerId: string;
 }

@@ -3,13 +3,14 @@ import { ApiTags } from '@nestjs/swagger';
 import { TeamApi, TournamentApi } from '../../generated-api/tournament';
 import { TOURNAMENT_APIURL } from '../../utils/env';
 import { TournamentMapper } from '../admin/mapper/tournament.mapper';
-import { FullTournamentDto, TournamentDto, TournamentMatchDto } from '../admin/dto/admin-tournament.dto';
-import { BracketDto } from './dto/tournament.dto';
+import { FullTournamentDto, TournamentDto } from '../admin/dto/admin-tournament.dto';
 import { CompactTeamDto } from './dto/team.dto';
 import { CurrentUser, CurrentUserDto } from '../../utils/decorator/current-user';
 import { WithOptionalUser } from '../../utils/decorator/with-optional-user';
 import { WithUser } from '../../utils/decorator/with-user';
 import { TournamentTournamentDtoStatusEnum } from '../../generated-api/tournament/models';
+import { TournamentBracketInfoDto, TournamentBracketMatchDto } from './dto/bracket.dto';
+import { BracketMapper } from '../admin/bracket.mapper';
 
 @Controller('tournament')
 @ApiTags('tournament')
@@ -17,7 +18,7 @@ export class TournamentController {
   private readonly ms: TournamentApi;
   private readonly ts: TeamApi;
 
-  constructor(private readonly mapper: TournamentMapper) {
+  constructor(private readonly mapper: TournamentMapper, private readonly bracketMapper: BracketMapper) {
     this.ms = new TournamentApi(undefined, `http://${TOURNAMENT_APIURL}`);
     this.ts = new TeamApi(undefined, `http://${TOURNAMENT_APIURL}`);
   }
@@ -46,11 +47,11 @@ export class TournamentController {
     return res.data.filter(t => t.status !== TournamentTournamentDtoStatusEnum.CANCELLED).map(this.mapper.mapTournament);
   }
 
-  @Get(`/bracket/:id`)
-  public async getBracket(@Param('id') id: number): Promise<BracketDto> {
+  @Get(`/bracket_new/:id`)
+  public async getBracketNew(@Param('id') id: number): Promise<TournamentBracketInfoDto> {
     return this.ms
-      .tournamentControllerGetBracket(id)
-      .then(d => this.mapper.mapBracket(d.data));
+      .tournamentControllerGetBracket2(id)
+      .then(d => this.bracketMapper.mapBracket(d.data));
   }
 
   @Get(`/teams/:id`)
@@ -72,12 +73,13 @@ export class TournamentController {
   @WithOptionalUser()
   public async tournamentMatch(
     @Param('id') id: number,
-  ): Promise<TournamentMatchDto> {
+  ): Promise<TournamentBracketMatchDto> {
     return this.ms
       .tournamentControllerGetTournamentMatch(id)
       .then(t => t.data)
-      .then(this.mapper.mapTournamentMatch);
+      .then(this.bracketMapper.mapMatch);
   }
+
 
 
   @Get(`/:id`)

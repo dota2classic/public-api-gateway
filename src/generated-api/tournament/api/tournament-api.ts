@@ -21,6 +21,8 @@ import { BASE_PATH, COLLECTION_FORMATS, RequestArgs, BaseAPI, RequiredError } fr
 // @ts-ignore
 import { TournamentBracketDto } from '../models';
 // @ts-ignore
+import { TournamentBracketMatchDto } from '../models';
+// @ts-ignore
 import { TournamentCompactTeamDto } from '../models';
 // @ts-ignore
 import { TournamentCreateTournamentDto } from '../models';
@@ -33,9 +35,9 @@ import { TournamentScheduleTournamentMatchDto } from '../models';
 // @ts-ignore
 import { TournamentSetMatchResultDto } from '../models';
 // @ts-ignore
-import { TournamentTournamentDto } from '../models';
+import { TournamentTournamentBracketInfoDto } from '../models';
 // @ts-ignore
-import { TournamentTournamentMatchDto } from '../models';
+import { TournamentTournamentDto } from '../models';
 /**
  * TournamentApi - axios parameter creator
  * @export
@@ -651,7 +653,7 @@ export const TournamentApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async tournamentControllerForfeit(id: number, tournamentForfeitDto: TournamentForfeitDto, options?: any): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<TournamentTournamentMatchDto>> {
+        async tournamentControllerForfeit(id: number, tournamentForfeitDto: TournamentForfeitDto, options?: any): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<TournamentBracketMatchDto>> {
             const localVarAxiosArgs = await TournamentApiAxiosParamCreator(configuration).tournamentControllerForfeit(id, tournamentForfeitDto, options);
             return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
                 const axiosRequestArgs = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
@@ -677,7 +679,7 @@ export const TournamentApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async tournamentControllerGetBracket2(id: number, options?: any): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<object>> {
+        async tournamentControllerGetBracket2(id: number, options?: any): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<TournamentTournamentBracketInfoDto>> {
             const localVarAxiosArgs = await TournamentApiAxiosParamCreator(configuration).tournamentControllerGetBracket2(id, options);
             return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
                 const axiosRequestArgs = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
@@ -703,7 +705,7 @@ export const TournamentApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async tournamentControllerGetTournamentMatch(id: number, options?: any): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<TournamentTournamentMatchDto>> {
+        async tournamentControllerGetTournamentMatch(id: number, options?: any): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<TournamentBracketMatchDto>> {
             const localVarAxiosArgs = await TournamentApiAxiosParamCreator(configuration).tournamentControllerGetTournamentMatch(id, options);
             return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
                 const axiosRequestArgs = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
@@ -771,7 +773,7 @@ export const TournamentApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async tournamentControllerScheduleTournamentMatch(id: number, tournamentScheduleTournamentMatchDto: TournamentScheduleTournamentMatchDto, options?: any): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<TournamentTournamentMatchDto>> {
+        async tournamentControllerScheduleTournamentMatch(id: number, tournamentScheduleTournamentMatchDto: TournamentScheduleTournamentMatchDto, options?: any): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<TournamentBracketMatchDto>> {
             const localVarAxiosArgs = await TournamentApiAxiosParamCreator(configuration).tournamentControllerScheduleTournamentMatch(id, tournamentScheduleTournamentMatchDto, options);
             return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
                 const axiosRequestArgs = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
@@ -785,7 +787,7 @@ export const TournamentApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async tournamentControllerSetMatchWinner(id: number, tournamentSetMatchResultDto: TournamentSetMatchResultDto, options?: any): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<TournamentTournamentMatchDto>> {
+        async tournamentControllerSetMatchWinner(id: number, tournamentSetMatchResultDto: TournamentSetMatchResultDto, options?: any): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<TournamentBracketMatchDto>> {
             const localVarAxiosArgs = await TournamentApiAxiosParamCreator(configuration).tournamentControllerSetMatchWinner(id, tournamentSetMatchResultDto, options);
             return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
                 const axiosRequestArgs = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
@@ -852,7 +854,7 @@ export const TournamentApiFactory = function (configuration?: Configuration, bas
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        tournamentControllerForfeit(id: number, tournamentForfeitDto: TournamentForfeitDto, options?: any): AxiosPromise<TournamentTournamentMatchDto> {
+        tournamentControllerForfeit(id: number, tournamentForfeitDto: TournamentForfeitDto, options?: any): AxiosPromise<TournamentBracketMatchDto> {
             return TournamentApiFp(configuration).tournamentControllerForfeit(id, tournamentForfeitDto, options).then((request) => request(axios, basePath));
         },
         /**
@@ -870,7 +872,7 @@ export const TournamentApiFactory = function (configuration?: Configuration, bas
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        tournamentControllerGetBracket2(id: number, options?: any): AxiosPromise<object> {
+        tournamentControllerGetBracket2(id: number, options?: any): AxiosPromise<TournamentTournamentBracketInfoDto> {
             return TournamentApiFp(configuration).tournamentControllerGetBracket2(id, options).then((request) => request(axios, basePath));
         },
         /**
@@ -888,7 +890,7 @@ export const TournamentApiFactory = function (configuration?: Configuration, bas
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        tournamentControllerGetTournamentMatch(id: number, options?: any): AxiosPromise<TournamentTournamentMatchDto> {
+        tournamentControllerGetTournamentMatch(id: number, options?: any): AxiosPromise<TournamentBracketMatchDto> {
             return TournamentApiFp(configuration).tournamentControllerGetTournamentMatch(id, options).then((request) => request(axios, basePath));
         },
         /**
@@ -936,7 +938,7 @@ export const TournamentApiFactory = function (configuration?: Configuration, bas
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        tournamentControllerScheduleTournamentMatch(id: number, tournamentScheduleTournamentMatchDto: TournamentScheduleTournamentMatchDto, options?: any): AxiosPromise<TournamentTournamentMatchDto> {
+        tournamentControllerScheduleTournamentMatch(id: number, tournamentScheduleTournamentMatchDto: TournamentScheduleTournamentMatchDto, options?: any): AxiosPromise<TournamentBracketMatchDto> {
             return TournamentApiFp(configuration).tournamentControllerScheduleTournamentMatch(id, tournamentScheduleTournamentMatchDto, options).then((request) => request(axios, basePath));
         },
         /**
@@ -946,7 +948,7 @@ export const TournamentApiFactory = function (configuration?: Configuration, bas
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        tournamentControllerSetMatchWinner(id: number, tournamentSetMatchResultDto: TournamentSetMatchResultDto, options?: any): AxiosPromise<TournamentTournamentMatchDto> {
+        tournamentControllerSetMatchWinner(id: number, tournamentSetMatchResultDto: TournamentSetMatchResultDto, options?: any): AxiosPromise<TournamentBracketMatchDto> {
             return TournamentApiFp(configuration).tournamentControllerSetMatchWinner(id, tournamentSetMatchResultDto, options).then((request) => request(axios, basePath));
         },
         /**

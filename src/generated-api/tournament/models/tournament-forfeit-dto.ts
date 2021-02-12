@@ -21,6 +21,12 @@
 export interface TournamentForfeitDto {
     /**
      * 
+     * @type {number}
+     * @memberof TournamentForfeitDto
+     */
+    gameId: number;
+    /**
+     * 
      * @type {string}
      * @memberof TournamentForfeitDto
      */

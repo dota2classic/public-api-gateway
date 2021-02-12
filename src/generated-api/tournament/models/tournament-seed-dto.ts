@@ -12,6 +12,7 @@
  */
 
 
+import { TournamentMatchGameDto } from './tournament-match-game-dto';
 import { TournamentSeedItemDto } from './tournament-seed-item-dto';
 
 /**
@@ -28,16 +29,10 @@ export interface TournamentSeedDto {
     teams: Array<TournamentSeedItemDto>;
     /**
      * 
-     * @type {string}
+     * @type {Array<TournamentMatchGameDto>}
      * @memberof TournamentSeedDto
      */
-    date: string;
-    /**
-     * 
-     * @type {number}
-     * @memberof TournamentSeedDto
-     */
-    matchId?: number;
+    games: Array<TournamentMatchGameDto>;
     /**
      * 
      * @type {number}

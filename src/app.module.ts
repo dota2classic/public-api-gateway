@@ -62,6 +62,7 @@ import { TournamentMapper } from './rest/admin/mapper/tournament.mapper';
 import { TournamentController } from './rest/tournament/tournament.controller';
 import { TeamController } from './rest/tournament/team.controller';
 import { MulterModule } from '@nestjs/platform-express';
+import { BracketMapper } from './rest/admin/bracket.mapper';
 
 const host = REDIS_URL()
   .replace('redis://', '')
@@ -134,6 +135,7 @@ export function qCache<T, B>() {
   ],
   providers: [
     TournamentMapper,
+    BracketMapper,
     HttpCacheInterceptor,
     outerQuery(GetAllQuery, 'QueryCore', qCache()),
     outerQuery(GetUserInfoQuery, 'QueryCore', qCache()),

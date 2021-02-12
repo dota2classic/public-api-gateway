@@ -16,21 +16,27 @@
 /**
  * 
  * @export
- * @interface TournamentScheduleTournamentMatchDto
+ * @interface TournamentGroupEntity
  */
-export interface TournamentScheduleTournamentMatchDto {
+export interface TournamentGroupEntity {
     /**
      * 
      * @type {number}
-     * @memberof TournamentScheduleTournamentMatchDto
+     * @memberof TournamentGroupEntity
      */
-    gameId: number;
+    id: number;
     /**
      * 
      * @type {number}
-     * @memberof TournamentScheduleTournamentMatchDto
+     * @memberof TournamentGroupEntity
      */
-    scheduledDate: number;
+    stage_id: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof TournamentGroupEntity
+     */
+    number: number;
 }
 
 

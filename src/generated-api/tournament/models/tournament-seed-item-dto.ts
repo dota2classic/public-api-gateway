@@ -44,6 +44,12 @@ export interface TournamentSeedItemDto {
      * @memberof TournamentSeedItemDto
      */
     tbd?: boolean;
+    /**
+     * 
+     * @type {number}
+     * @memberof TournamentSeedItemDto
+     */
+    score?: number;
 }
 
 

@@ -21,6 +21,12 @@
 export interface TournamentSetMatchResultDto {
     /**
      * 
+     * @type {number}
+     * @memberof TournamentSetMatchResultDto
+     */
+    gameId: number;
+    /**
+     * 
      * @type {string}
      * @memberof TournamentSetMatchResultDto
      */
