@@ -51,6 +51,12 @@ export interface TournamentBracketMatchGameDto {
     teamOffset: number;
     /**
      * 
+     * @type {boolean}
+     * @memberof TournamentBracketMatchGameDto
+     */
+    finished: boolean;
+    /**
+     * 
      * @type {number}
      * @memberof TournamentBracketMatchGameDto
      */

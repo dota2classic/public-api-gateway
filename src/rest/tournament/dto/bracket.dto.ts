@@ -58,6 +58,7 @@ export class TournamentBracketMatchGameDto {
   id: number;
   bm_id: number;
   number: number;
+  finished: boolean;
   externalMatchId?: number;
   teamOffset: number;
   scheduledDate: number;

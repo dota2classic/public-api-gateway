@@ -20,7 +20,7 @@ export class BracketMapper {
 
   private mapParticipant = async (
     part: TournamentTournamentBracketParticipantDto,
-  ): Promise<TournamentBracketParticipantDto> => {
+  ): Promise<TournamentBracketParticipantDto | undefined> => {
     if (part.steam_id) {
       // profile
       return {
@@ -35,10 +35,7 @@ export class BracketMapper {
         team: await this.mapper.mapTeam(part.team),
       };
     } else {
-     return {
-       id: part.id,
-       tournament_id: part.tournament_id
-     }
+     return undefined;
     }
   };
 
@@ -57,12 +54,12 @@ export class BracketMapper {
       opponent1: t.opponent1 && {
         ...t.opponent1,
         result: t.opponent1.result as any,
-        participant: await this.mapParticipant(t.opponent1.participant)
+        participant: (await this.mapParticipant(t.opponent1.participant)) || undefined
       },
       opponent2: t.opponent2 && {
         ...t.opponent2,
         result: t.opponent2.result as any,
-        participant: await this.mapParticipant(t.opponent2.participant)
+        participant: (await this.mapParticipant(t.opponent2.participant)) || undefined
       },
       games: t.games,
     };
