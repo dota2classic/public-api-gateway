@@ -2,7 +2,6 @@ import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import {
   CreateTournamentDto,
-  ForfeitDto,
   ScheduleTournamentMatchDto,
   SetWinnerDto,
   StartTournamentDto,
@@ -93,20 +92,6 @@ export class AdminTournamentController {
   ): Promise<TournamentBracketMatchDto> {
     return this.ms
       .tournamentControllerGetTournamentMatch(id)
-      .then(t => t.data)
-      .then(this.bracketMapper.mapMatch);
-  }
-
-  @Post(`/tournament_match/:id/forfeit`)
-  public async forfeit(
-    @Param('id') id: number,
-    @Body() scheduleDto: ForfeitDto,
-  ): Promise<TournamentBracketMatchDto> {
-    return this.ms
-      .tournamentControllerForfeit(id, {
-        forfeitId: scheduleDto.forfeitId,
-        gameId: scheduleDto.gameId,
-      })
       .then(t => t.data)
       .then(this.bracketMapper.mapMatch);
   }

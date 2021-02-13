@@ -27,3 +27,16 @@ export class CompactTeamDto {
   public readonly tag: string;
   public readonly creator: string;
 }
+
+
+export class InviteToTeamDto {
+  invited: string;
+}
+
+export class TeamInvitationDto {
+  team: CompactTeamDto;
+  inviteId: number;
+}
+export class SubmitInviteDto {
+  accept: boolean;
+}

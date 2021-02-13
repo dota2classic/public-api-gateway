@@ -1,6 +1,11 @@
 import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { CreateTeamDto, TeamDto } from './dto/team.dto';
+import {
+  CreateTeamDto,
+  SubmitInviteDto,
+  TeamDto,
+  TeamInvitationDto,
+} from './dto/team.dto';
 import { TournamentMapper } from '../admin/mapper/tournament.mapper';
 import { TeamApi } from '../../generated-api/tournament';
 import { TOURNAMENT_APIURL } from '../../utils/env';
@@ -58,5 +63,40 @@ export class TeamController {
   public async getTeam(@Param('id') id: string): Promise<TeamDto> {
     const team = await this.ms.teamControllerGetTeam(id);
     return this.mapper.mapTeam(team.data);
+  }
+
+  @Post(`invite_to_team/:steam_id`)
+  @WithUser()
+  public async inviteToTeam(
+    @Param('steam_id') id: string,
+    @CurrentUser() user: CurrentUserDto,
+  ) {
+    await this.ms.teamControllerInviteToTeam({
+      inviter: user.steam_id,
+      invited: id,
+    });
+  }
+
+
+  @Post('submit_invite/:id')
+  @WithUser()
+  public async submitInvite(
+    @Param('id') id: number,
+    @CurrentUser() user: CurrentUserDto,
+    @Body() dto: SubmitInviteDto,
+  ) {
+    await this.ms.teamControllerSubmitInvite(id, {
+      accept: dto.accept,
+    });
+  }
+
+  @Get(`view_invites`)
+  @WithUser()
+  public async getInvites(
+    @CurrentUser() user: CurrentUserDto,
+  ): Promise<TeamInvitationDto[]> {
+    return this.ms
+      .teamControllerGetTeamInvites(user.steam_id)
+      .then(t => Promise.all(t.data.map(this.mapper.mapTeamInvite)));
   }
 }

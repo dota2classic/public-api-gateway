@@ -41,6 +41,25 @@ export class TournamentController {
     await this.ms.tournamentControllerLeaveTournamentPlayer(id, user.steam_id);
   }
 
+
+  @Post('join_as_team/:id')
+  @WithUser()
+  public async joinTournamentAsTeam(
+    @Param('id') id: number,
+    @CurrentUser() user: CurrentUserDto,
+  ) {
+    await this.ms.tournamentControllerRegisterTeam(id, user.steam_id);
+  }
+
+  @Post('leave_as_team/:id')
+  @WithUser()
+  public async leaveTournamentAsTeam(
+    @Param('id') id: number,
+    @CurrentUser() user: CurrentUserDto,
+  ) {
+    await this.ms.tournamentControllerLeaveTournamentTeam(id, user.steam_id);
+  }
+
   @Get('list')
   public async listTournaments(): Promise<TournamentDto[]> {
     const res = await this.ms.tournamentControllerListTournaments();

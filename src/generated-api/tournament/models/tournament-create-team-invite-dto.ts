@@ -31,12 +31,6 @@ export interface TournamentCreateTeamInviteDto {
      * @memberof TournamentCreateTeamInviteDto
      */
     invited: string;
-    /**
-     * 
-     * @type {string}
-     * @memberof TournamentCreateTeamInviteDto
-     */
-    teamId: string;
 }
 
 

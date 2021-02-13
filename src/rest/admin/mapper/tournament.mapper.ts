@@ -3,15 +3,17 @@ import {
   TournamentCompactTeamDto,
   TournamentFullTournamentDto,
   TournamentFullTournamentDtoEntryTypeEnum,
-  TournamentFullTournamentDtoStatusEnum, TournamentTeamDto, TournamentTournamentDto,
+  TournamentFullTournamentDtoStatusEnum,
+  TournamentTeamDto,
+  TournamentTeamInvitationDto,
+  TournamentTournamentDto,
 } from '../../../generated-api/tournament/models';
+import { FullTournamentDto, TournamentDto } from '../dto/admin-tournament.dto';
 import {
-  FullTournamentDto,
-  TournamentDto,
-
-
-} from '../dto/admin-tournament.dto';
-import { CompactTeamDto, TeamDto } from '../../tournament/dto/team.dto';
+  CompactTeamDto,
+  TeamDto,
+  TeamInvitationDto,
+} from '../../tournament/dto/team.dto';
 import { UserRepository } from '../../../cache/user/user.repository';
 import { CurrentUserDto } from '../../../utils/decorator/current-user';
 import { PlayerPreviewDto } from '../../player/dto/player.dto';
@@ -97,16 +99,11 @@ export class TournamentMapper {
     };
   };
 
-  mapPlayerPreview = async (
-    steam_id: string,
-  ): Promise<PlayerPreviewDto> => {
+  mapPlayerPreview = async (steam_id: string): Promise<PlayerPreviewDto> => {
     return this.userRepository.resolve(steam_id).then(t => t?.asPreview());
   };
 
-
-  public mapTeamCompact = async (
-    dto: TournamentCompactTeamDto,
-  ): Promise<CompactTeamDto> => {
+  public mapTeamCompact = (dto: TournamentCompactTeamDto): CompactTeamDto => {
     return {
       name: dto.name,
       tag: dto.tag,
@@ -116,5 +113,12 @@ export class TournamentMapper {
     };
   };
 
-
+  public mapTeamInvite = (
+    dto: TournamentTeamInvitationDto,
+  ): TeamInvitationDto => {
+    return {
+      team: this.mapTeamCompact(dto.team),
+      inviteId: dto.inviteId,
+    };
+  };
 }
