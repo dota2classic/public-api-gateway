@@ -52,6 +52,12 @@ export interface TournamentTeamDto {
     creator: string;
     /**
      * 
+     * @type {boolean}
+     * @memberof TournamentTeamDto
+     */
+    locked: boolean;
+    /**
+     * 
      * @type {Array<TournamentTeamMemberDto>}
      * @memberof TournamentTeamDto
      */

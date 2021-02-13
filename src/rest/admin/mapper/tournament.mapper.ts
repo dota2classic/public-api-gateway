@@ -87,6 +87,7 @@ export class TournamentMapper {
       name: dto.name,
       tag: dto.tag,
       id: dto.id,
+      locked: dto.locked,
       imageUrl: dto.imageUrl,
       creator: dto.creator,
       members: await Promise.all(
@@ -108,6 +109,7 @@ export class TournamentMapper {
       name: dto.name,
       tag: dto.tag,
       id: dto.id,
+      locked: dto.locked,
       imageUrl: dto.imageUrl,
       creator: dto.creator,
     };

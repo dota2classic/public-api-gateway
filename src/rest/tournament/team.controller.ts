@@ -77,6 +77,25 @@ export class TeamController {
     });
   }
 
+  @Post(`kick_from_team/:steam_id`)
+  @WithUser()
+  public async kickFromTeam(
+    @Param('steam_id') id: string,
+    @CurrentUser() user: CurrentUserDto,
+  ) {
+    await this.ms.teamControllerKickFromTeam({
+      kickedSteamId: id,
+      requesterSteamId: user.steam_id,
+    });
+  }
+
+  @Post(`leave_team`)
+  @WithUser()
+  public async leaveTeam(@CurrentUser() user: CurrentUserDto) {
+    await this.ms.teamControllerLeaveTeam({
+      steamId: user.steam_id,
+    });
+  }
 
   @Post('submit_invite/:id')
   @WithUser()

@@ -49,6 +49,12 @@ export interface TournamentCompactTeamDto {
      * @memberof TournamentCompactTeamDto
      */
     creator: string;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof TournamentCompactTeamDto
+     */
+    locked: boolean;
 }
 
 

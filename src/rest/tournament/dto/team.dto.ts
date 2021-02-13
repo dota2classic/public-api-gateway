@@ -10,6 +10,7 @@ export class TeamDto {
   public readonly tag: string;
   public readonly members: TeamMemberDto[];
   public readonly creator: string;
+  public readonly locked: boolean;
 }
 
 export class CreateTeamDto {
@@ -26,6 +27,7 @@ export class CompactTeamDto {
   public readonly imageUrl: string;
   public readonly tag: string;
   public readonly creator: string;
+  public readonly locked: boolean;
 }
 
 

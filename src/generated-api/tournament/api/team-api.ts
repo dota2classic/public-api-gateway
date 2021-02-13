@@ -23,6 +23,10 @@ import { TournamentCreateTeamDto } from '../models';
 // @ts-ignore
 import { TournamentCreateTeamInviteDto } from '../models';
 // @ts-ignore
+import { TournamentKickFromTeamDto } from '../models';
+// @ts-ignore
+import { TournamentLeaveTeamDto } from '../models';
+// @ts-ignore
 import { TournamentSubmitInvitationDto } from '../models';
 // @ts-ignore
 import { TournamentTeamDto } from '../models';
@@ -254,6 +258,82 @@ export const TeamApiAxiosParamCreator = function (configuration?: Configuration)
         },
         /**
          * 
+         * @param {TournamentKickFromTeamDto} tournamentKickFromTeamDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        teamControllerKickFromTeam: async (tournamentKickFromTeamDto: TournamentKickFromTeamDto, options: any = {}): Promise<RequestArgs> => {
+            // verify required parameter 'tournamentKickFromTeamDto' is not null or undefined
+            if (tournamentKickFromTeamDto === null || tournamentKickFromTeamDto === undefined) {
+                throw new RequiredError('tournamentKickFromTeamDto','Required parameter tournamentKickFromTeamDto was null or undefined when calling teamControllerKickFromTeam.');
+            }
+            const localVarPath = `/team/kick_from_team`;
+            const localVarUrlObj = globalImportUrl.parse(localVarPath, true);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            localVarUrlObj.query = {...localVarUrlObj.query, ...localVarQueryParameter, ...options.query};
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            const needsSerialization = (typeof tournamentKickFromTeamDto !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            localVarRequestOptions.data =  needsSerialization ? JSON.stringify(tournamentKickFromTeamDto !== undefined ? tournamentKickFromTeamDto : {}) : (tournamentKickFromTeamDto || "");
+
+            return {
+                url: globalImportUrl.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {TournamentLeaveTeamDto} tournamentLeaveTeamDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        teamControllerLeaveTeam: async (tournamentLeaveTeamDto: TournamentLeaveTeamDto, options: any = {}): Promise<RequestArgs> => {
+            // verify required parameter 'tournamentLeaveTeamDto' is not null or undefined
+            if (tournamentLeaveTeamDto === null || tournamentLeaveTeamDto === undefined) {
+                throw new RequiredError('tournamentLeaveTeamDto','Required parameter tournamentLeaveTeamDto was null or undefined when calling teamControllerLeaveTeam.');
+            }
+            const localVarPath = `/team/leave_team`;
+            const localVarUrlObj = globalImportUrl.parse(localVarPath, true);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            localVarUrlObj.query = {...localVarUrlObj.query, ...localVarQueryParameter, ...options.query};
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            const needsSerialization = (typeof tournamentLeaveTeamDto !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            localVarRequestOptions.data =  needsSerialization ? JSON.stringify(tournamentLeaveTeamDto !== undefined ? tournamentLeaveTeamDto : {}) : (tournamentLeaveTeamDto || "");
+
+            return {
+                url: globalImportUrl.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -414,6 +494,32 @@ export const TeamApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @param {TournamentKickFromTeamDto} tournamentKickFromTeamDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async teamControllerKickFromTeam(tournamentKickFromTeamDto: TournamentKickFromTeamDto, options?: any): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<TournamentTeamDto>> {
+            const localVarAxiosArgs = await TeamApiAxiosParamCreator(configuration).teamControllerKickFromTeam(tournamentKickFromTeamDto, options);
+            return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
+                const axiosRequestArgs = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
+                return axios.request(axiosRequestArgs);
+            };
+        },
+        /**
+         * 
+         * @param {TournamentLeaveTeamDto} tournamentLeaveTeamDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async teamControllerLeaveTeam(tournamentLeaveTeamDto: TournamentLeaveTeamDto, options?: any): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<TournamentTeamDto>> {
+            const localVarAxiosArgs = await TeamApiAxiosParamCreator(configuration).teamControllerLeaveTeam(tournamentLeaveTeamDto, options);
+            return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
+                const axiosRequestArgs = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
+                return axios.request(axiosRequestArgs);
+            };
+        },
+        /**
+         * 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -500,6 +606,24 @@ export const TeamApiFactory = function (configuration?: Configuration, basePath?
          */
         teamControllerInviteToTeam(tournamentCreateTeamInviteDto: TournamentCreateTeamInviteDto, options?: any): AxiosPromise<TournamentTeamDto> {
             return TeamApiFp(configuration).teamControllerInviteToTeam(tournamentCreateTeamInviteDto, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @param {TournamentKickFromTeamDto} tournamentKickFromTeamDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        teamControllerKickFromTeam(tournamentKickFromTeamDto: TournamentKickFromTeamDto, options?: any): AxiosPromise<TournamentTeamDto> {
+            return TeamApiFp(configuration).teamControllerKickFromTeam(tournamentKickFromTeamDto, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @param {TournamentLeaveTeamDto} tournamentLeaveTeamDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        teamControllerLeaveTeam(tournamentLeaveTeamDto: TournamentLeaveTeamDto, options?: any): AxiosPromise<TournamentTeamDto> {
+            return TeamApiFp(configuration).teamControllerLeaveTeam(tournamentLeaveTeamDto, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -593,6 +717,28 @@ export class TeamApi extends BaseAPI {
      */
     public teamControllerInviteToTeam(tournamentCreateTeamInviteDto: TournamentCreateTeamInviteDto, options?: any) {
         return TeamApiFp(this.configuration).teamControllerInviteToTeam(tournamentCreateTeamInviteDto, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {TournamentKickFromTeamDto} tournamentKickFromTeamDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof TeamApi
+     */
+    public teamControllerKickFromTeam(tournamentKickFromTeamDto: TournamentKickFromTeamDto, options?: any) {
+        return TeamApiFp(this.configuration).teamControllerKickFromTeam(tournamentKickFromTeamDto, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {TournamentLeaveTeamDto} tournamentLeaveTeamDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof TeamApi
+     */
+    public teamControllerLeaveTeam(tournamentLeaveTeamDto: TournamentLeaveTeamDto, options?: any) {
+        return TeamApiFp(this.configuration).teamControllerLeaveTeam(tournamentLeaveTeamDto, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

@@ -9,6 +9,8 @@ export * from './tournament-create-team-invite-dto';
 export * from './tournament-create-tournament-dto';
 export * from './tournament-full-tournament-dto';
 export * from './tournament-group-entity';
+export * from './tournament-kick-from-team-dto';
+export * from './tournament-leave-team-dto';
 export * from './tournament-match-game-dto';
 export * from './tournament-participant-result-dto';
 export * from './tournament-round-entity';
