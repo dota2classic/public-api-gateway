@@ -25,6 +25,7 @@ export class TournamentDto {
   public readonly status: TournamentTournamentDtoStatusEnum;
   public readonly startDate: number;
   public readonly imageUrl: string;
+  public readonly description: string;
   // here we might want to add field whether we can assign or not
 }
 
@@ -50,6 +51,7 @@ export class FullTournamentDto {
   public readonly isParticipating: boolean;
   public readonly participants: TournamentParticipantDto[];
   public readonly standings?: TournamentStandingDto[];
+  public readonly description: string;
   // here we might want to add field whether we can assign or not
 }
 

@@ -69,6 +69,12 @@ export interface TournamentFullTournamentDto {
      * @memberof TournamentFullTournamentDto
      */
     standings?: Array<TournamentTournamentStandingDto>;
+    /**
+     * 
+     * @type {string}
+     * @memberof TournamentFullTournamentDto
+     */
+    description: string;
 }
 
 /**

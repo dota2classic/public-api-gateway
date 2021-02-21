@@ -29,6 +29,7 @@ export class TournamentMapper {
       startDate: dto.startDate,
       status: dto.status,
       imageUrl: dto.imageUrl,
+      description: dto.description,
     };
   };
 
@@ -57,6 +58,7 @@ export class TournamentMapper {
       entryType: dto.entryType as any,
       id: dto.id,
       startDate: dto.startDate,
+      description: dto.description,
       status: dto.status as any,
       imageUrl: dto.imageUrl,
       participants: await Promise.all(

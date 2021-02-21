@@ -55,6 +55,12 @@ export interface TournamentTournamentDto {
      * @memberof TournamentTournamentDto
      */
     imageUrl: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof TournamentTournamentDto
+     */
+    description: string;
 }
 
 /**
