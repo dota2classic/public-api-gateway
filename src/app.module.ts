@@ -63,6 +63,8 @@ import { TournamentController } from './rest/tournament/tournament.controller';
 import { TeamController } from './rest/tournament/team.controller';
 import { MulterModule } from '@nestjs/platform-express';
 import { BracketMapper } from './rest/admin/bracket.mapper';
+import { ScheduleModule } from '@nestjs/schedule';
+import { MainService } from './main.service';
 
 const host = REDIS_URL()
   .replace('redis://', '')
@@ -85,6 +87,7 @@ export function qCache<T, B>() {
       environment: isDev ? 'dev' : 'production',
       logLevel: 2, //based on sentry.io loglevel //
     }),
+    ScheduleModule.forRoot(),
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, './upload'),
       serveRoot: '/static/',
@@ -137,6 +140,7 @@ export function qCache<T, B>() {
     TournamentMapper,
     BracketMapper,
     HttpCacheInterceptor,
+    MainService,
     outerQuery(GetAllQuery, 'QueryCore', qCache()),
     outerQuery(GetUserInfoQuery, 'QueryCore', qCache()),
     outerQuery(GetPartyQuery, 'QueryCore', qCache()),
