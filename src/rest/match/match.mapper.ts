@@ -9,6 +9,7 @@ import { MatchDto, MatchPageDto, PlayerInMatchDto } from './dto/match.dto';
 import { PlayerId } from '../../gateway/shared-types/player-id';
 import { MATCH_REPORT_TIMEOUT } from '../../gateway/shared-types/timings';
 import { GetReportsAvailableQueryResult } from '../../gateway/queries/GetReportsAvailable/get-reports-available-query.result';
+import { measure, measureN } from '../../utils/decorator/measure';
 
 export interface PlayerMappableResource
   extends GetReportsAvailableQueryResult {}
@@ -44,13 +45,14 @@ export class MatchMapper {
     };
   };
 
+
   public mapMatchPage = async (
     it: GameserverMatchPageDto,
     mapFor?: PlayerMappableResource,
   ): Promise<MatchPageDto> => {
-    return {
+    return measureN(async () => ({
       ...it,
       data: await Promise.all(it.data.map(t => this.mapMatch(t, mapFor))),
-    };
+    }), "mapping");
   };
 }

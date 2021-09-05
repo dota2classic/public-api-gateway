@@ -53,6 +53,7 @@ export class MatchController {
     required: false,
   })
   @Get('/all')
+  @measure("MatchPage")
   async matches(
     @Query('page') page: number,
     @Query('per_page') perPage: number = 25,

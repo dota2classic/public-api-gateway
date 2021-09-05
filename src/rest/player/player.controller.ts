@@ -41,6 +41,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { backUrl } from '../../utils/utils';
 import { TeamApi } from '../../generated-api/tournament';
+import { measure } from '../../utils/decorator/measure';
 
 
 @Controller('player')
@@ -148,6 +149,7 @@ export class PlayerController {
   @Get('/leaderboard')
   // every half and hour
   @CacheTTL(60 * 30)
+  @measure("Leaderboard")
   async leaderboard(
     @Query('version') version: Dota2Version = Dota2Version.Dota_681,
   ): Promise<LeaderboardEntryDto[]> {

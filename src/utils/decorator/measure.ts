@@ -1,5 +1,8 @@
 import { performance } from 'perf_hooks';
+import { Logger } from '@nestjs/common';
 
+
+const logger = new Logger('Performance')
 
 export function measureN<T>(callback: () => T, msg: string = ""): T{
   const start = performance.now();
@@ -7,16 +10,16 @@ export function measureN<T>(callback: () => T, msg: string = ""): T{
   if (result instanceof Promise) {
     result.then(() => {
       const finish = performance.now();
-      console.log(`Promise execution time: ${finish - start} milliseconds, ` + msg);
+      logger.verbose(`Promise execution time: ${finish - start} milliseconds, ` + msg);
     });
   } else {
     const finish = performance.now();
-    console.log(`Execution time: ${finish - start} milliseconds, ` + msg) ;
+    logger.verbose(`Execution time: ${finish - start} milliseconds, ` + msg) ;
   }
 
   return result;
 }
-export const measure = (
+export const measure = (msg: string) => (
   target: Object,
   propertyKey: string,
   descriptor: PropertyDescriptor,
@@ -29,11 +32,11 @@ export const measure = (
     if (result instanceof Promise) {
       result.then(() => {
         const finish = performance.now();
-        console.log(`Promise execution time: ${finish - start} milliseconds`);
+        logger.verbose(`Promise execution time: ${finish - start} milliseconds [${msg}]`);
       });
     } else {
       const finish = performance.now();
-      console.log(`Execution time: ${finish - start} milliseconds`);
+      logger.verbose(`Execution time: ${finish - start} milliseconds [${msg}]`);
     }
 
     return result;
