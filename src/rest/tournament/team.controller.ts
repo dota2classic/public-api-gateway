@@ -2,6 +2,7 @@ import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import {
   CreateTeamDto,
+  EditTeamDto,
   SubmitInviteDto,
   TeamDto,
   TeamInvitationDto,
@@ -33,7 +34,6 @@ export class TeamController {
   }
 
   @Post(`create_team`)
-  @OldGuard()
   @WithUser()
   public async createTeam(
     @CurrentUser() user: CurrentUserDto,
@@ -45,6 +45,17 @@ export class TeamController {
       tag: dto.tag,
       creator: user.steam_id,
     });
+
+    return this.mapper.mapTeam(res.data);
+  }
+
+  @Post(`edit_team`)
+  @WithUser()
+  public async editTeam(
+    @CurrentUser() user: CurrentUserDto,
+    @Body() dto: EditTeamDto,
+  ): Promise<TeamDto> {
+    const res = await this.ms.teamControllerEditTeam(dto.id, dto);
 
     return this.mapper.mapTeam(res.data);
   }

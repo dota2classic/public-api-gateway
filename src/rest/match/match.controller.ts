@@ -23,6 +23,7 @@ import { HttpCacheInterceptor } from '../../utils/cache-key-track';
 import { QueryBus } from '@nestjs/cqrs';
 import { GetReportsAvailableQuery } from '../../gateway/queries/GetReportsAvailable/get-reports-available.query';
 import { GetReportsAvailableQueryResult } from '../../gateway/queries/GetReportsAvailable/get-reports-available-query.result';
+import { measure } from '../../utils/decorator/measure';
 
 @Controller('match')
 @ApiTags('match')
@@ -35,6 +36,8 @@ export class MatchController {
   ) {
     this.ms = new MatchApi(undefined, `http://${GAMESERVER_APIURL}`);
   }
+
+
 
   @UseInterceptors(HttpCacheInterceptor)
   @ApiQuery({

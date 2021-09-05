@@ -21,6 +21,7 @@ export class BracketMapper {
   private mapParticipant = async (
     part: TournamentTournamentBracketParticipantDto,
   ): Promise<TournamentBracketParticipantDto | undefined> => {
+    if(!part) return undefined
     if (part.steam_id) {
       // profile
       return {

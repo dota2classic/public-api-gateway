@@ -2,6 +2,7 @@ import { BracketEntryType, BracketType } from '../../../gateway/shared-types/tou
 import { TournamentTournamentDtoStatusEnum } from '../../../generated-api/tournament/models';
 import { TeamDto } from '../../tournament/dto/team.dto';
 import { PlayerPreviewDto } from '../../player/dto/player.dto';
+import { Dota2Version } from '../../../gateway/shared-types/dota2version';
 
 export class CreateTournamentDto {
   public readonly name: string;
@@ -12,6 +13,7 @@ export class CreateTournamentDto {
   public readonly bestOfRound: number;
   public readonly bestOfFinal: number;
   public readonly bestOfGrandFinal: number;
+  public readonly version: Dota2Version;
 }
 
 export class StartTournamentDto {
@@ -26,6 +28,7 @@ export class TournamentDto {
   public readonly startDate: number;
   public readonly imageUrl: string;
   public readonly description: string;
+  public readonly version: Dota2Version;
   // here we might want to add field whether we can assign or not
 }
 
@@ -37,7 +40,7 @@ export class TournamentParticipantDto {
 export class TournamentStandingDto {
   profile?: PlayerPreviewDto;
   team?: TeamDto;
-  position: number;
+  position: string;
 }
 
 export class FullTournamentDto {
@@ -49,6 +52,8 @@ export class FullTournamentDto {
   public readonly imageUrl: string;
   public readonly isLocked: boolean;
   public readonly isParticipating: boolean;
+  public readonly version: Dota2Version;
+
   public readonly participants: TournamentParticipantDto[];
   public readonly standings?: TournamentStandingDto[];
   public readonly description: string;

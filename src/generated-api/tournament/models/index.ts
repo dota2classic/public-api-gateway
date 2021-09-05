@@ -7,6 +7,7 @@ export * from './tournament-compact-team-dto';
 export * from './tournament-create-team-dto';
 export * from './tournament-create-team-invite-dto';
 export * from './tournament-create-tournament-dto';
+export * from './tournament-edit-team-dto';
 export * from './tournament-full-tournament-dto';
 export * from './tournament-group-entity';
 export * from './tournament-kick-from-team-dto';

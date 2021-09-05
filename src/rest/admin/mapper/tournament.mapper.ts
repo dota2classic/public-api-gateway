@@ -22,11 +22,13 @@ import { PlayerPreviewDto } from '../../player/dto/player.dto';
 export class TournamentMapper {
   constructor(private readonly userRepository: UserRepository) {}
   public mapTournament = (dto: TournamentTournamentDto): TournamentDto => {
+    console.log(dto)
     return {
       name: dto.name,
       entryType: dto.entryType as any,
       id: dto.id,
       startDate: dto.startDate,
+      version: dto.version as any,
       status: dto.status,
       imageUrl: dto.imageUrl,
       description: dto.description,
@@ -60,6 +62,7 @@ export class TournamentMapper {
       startDate: dto.startDate,
       description: dto.description,
       status: dto.status as any,
+      version: dto.version as any,
       imageUrl: dto.imageUrl,
       participants: await Promise.all(
         dto.participants.map(async p => ({

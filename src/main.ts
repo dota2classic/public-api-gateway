@@ -10,6 +10,9 @@ import * as request from 'supertest';
 import { inspect } from "util";
 import { Subscriber } from 'rxjs';
 import { CommandBus, EventBus, QueryBus } from '@nestjs/cqrs';
+import { GetAllQuery } from './gateway/queries/GetAll/get-all.query';
+import { GetAllQueryResult } from './gateway/queries/GetAll/get-all-query.result';
+import { UserModel } from './cache/user/user.model';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -57,6 +60,13 @@ async function bootstrap() {
   const elogger = new Logger('EventLogger');
   const qlogger = new Logger('QueryLogger');
 
+
+  const res = await qbus.execute<GetAllQuery, GetAllQueryResult>(new GetAllQuery())
+
+  res.entries.forEach(a => {
+    app.get<UserRepository>(UserRepository).save(a.id.value, new UserModel(a.id.value, a.name, a.avatar, a.roles))
+  })
+
   // ebus._subscribe(
   //   new Subscriber<any>(e => {
   //
@@ -79,6 +89,7 @@ async function bootstrap() {
   //     qlogger.log(e.__proto__.constructor.name);
   //   }),
   // );
+
 
   console.log("Started api gateway")
 }

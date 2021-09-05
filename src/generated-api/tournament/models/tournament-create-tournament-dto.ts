@@ -51,6 +51,12 @@ export interface TournamentCreateTournamentDto {
     strategy: TournamentCreateTournamentDtoStrategyEnum;
     /**
      * 
+     * @type {string}
+     * @memberof TournamentCreateTournamentDto
+     */
+    version: string;
+    /**
+     * 
      * @type {number}
      * @memberof TournamentCreateTournamentDto
      */

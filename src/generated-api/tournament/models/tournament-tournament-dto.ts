@@ -45,6 +45,12 @@ export interface TournamentTournamentDto {
     status: TournamentTournamentDtoStatusEnum;
     /**
      * 
+     * @type {string}
+     * @memberof TournamentTournamentDto
+     */
+    version: TournamentTournamentDtoVersionEnum;
+    /**
+     * 
      * @type {number}
      * @memberof TournamentTournamentDto
      */
@@ -80,6 +86,14 @@ export enum TournamentTournamentDtoStatusEnum {
     ONGOING = 'ONGOING',
     FINISHED = 'FINISHED',
     CANCELLED = 'CANCELLED'
+}
+/**
+    * @export
+    * @enum {string}
+    */
+export enum TournamentTournamentDtoVersionEnum {
+    _681 = 'Dota_681',
+    _684 = 'Dota_684'
 }
 
 

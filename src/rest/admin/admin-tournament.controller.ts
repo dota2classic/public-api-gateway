@@ -42,6 +42,7 @@ export class AdminTournamentController {
       strategy: dto.strategy as any,
       finalBestOf: dto.bestOfFinal,
       roundBestOf: dto.bestOfRound,
+      version: dto.version as any,
       grandFinalBestOf: dto.bestOfGrandFinal,
     });
 

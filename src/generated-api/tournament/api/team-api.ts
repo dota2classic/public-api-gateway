@@ -23,6 +23,8 @@ import { TournamentCreateTeamDto } from '../models';
 // @ts-ignore
 import { TournamentCreateTeamInviteDto } from '../models';
 // @ts-ignore
+import { TournamentEditTeamDto } from '../models';
+// @ts-ignore
 import { TournamentKickFromTeamDto } from '../models';
 // @ts-ignore
 import { TournamentLeaveTeamDto } from '../models';
@@ -72,6 +74,50 @@ export const TeamApiAxiosParamCreator = function (configuration?: Configuration)
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
             const needsSerialization = (typeof tournamentCreateTeamDto !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
             localVarRequestOptions.data =  needsSerialization ? JSON.stringify(tournamentCreateTeamDto !== undefined ? tournamentCreateTeamDto : {}) : (tournamentCreateTeamDto || "");
+
+            return {
+                url: globalImportUrl.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {string} id 
+         * @param {TournamentEditTeamDto} tournamentEditTeamDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        teamControllerEditTeam: async (id: string, tournamentEditTeamDto: TournamentEditTeamDto, options: any = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            if (id === null || id === undefined) {
+                throw new RequiredError('id','Required parameter id was null or undefined when calling teamControllerEditTeam.');
+            }
+            // verify required parameter 'tournamentEditTeamDto' is not null or undefined
+            if (tournamentEditTeamDto === null || tournamentEditTeamDto === undefined) {
+                throw new RequiredError('tournamentEditTeamDto','Required parameter tournamentEditTeamDto was null or undefined when calling teamControllerEditTeam.');
+            }
+            const localVarPath = `/team/edit/{id}`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            const localVarUrlObj = globalImportUrl.parse(localVarPath, true);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            localVarUrlObj.query = {...localVarUrlObj.query, ...localVarQueryParameter, ...options.query};
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            const needsSerialization = (typeof tournamentEditTeamDto !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            localVarRequestOptions.data =  needsSerialization ? JSON.stringify(tournamentEditTeamDto !== undefined ? tournamentEditTeamDto : {}) : (tournamentEditTeamDto || "");
 
             return {
                 url: globalImportUrl.format(localVarUrlObj),
@@ -430,6 +476,20 @@ export const TeamApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @param {string} id 
+         * @param {TournamentEditTeamDto} tournamentEditTeamDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async teamControllerEditTeam(id: string, tournamentEditTeamDto: TournamentEditTeamDto, options?: any): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<TournamentTeamDto>> {
+            const localVarAxiosArgs = await TeamApiAxiosParamCreator(configuration).teamControllerEditTeam(id, tournamentEditTeamDto, options);
+            return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
+                const axiosRequestArgs = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
+                return axios.request(axiosRequestArgs);
+            };
+        },
+        /**
+         * 
+         * @param {string} id 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -565,6 +625,16 @@ export const TeamApiFactory = function (configuration?: Configuration, basePath?
         /**
          * 
          * @param {string} id 
+         * @param {TournamentEditTeamDto} tournamentEditTeamDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        teamControllerEditTeam(id: string, tournamentEditTeamDto: TournamentEditTeamDto, options?: any): AxiosPromise<TournamentTeamDto> {
+            return TeamApiFp(configuration).teamControllerEditTeam(id, tournamentEditTeamDto, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @param {string} id 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -662,6 +732,18 @@ export class TeamApi extends BaseAPI {
      */
     public teamControllerCreateTeam(tournamentCreateTeamDto: TournamentCreateTeamDto, options?: any) {
         return TeamApiFp(this.configuration).teamControllerCreateTeam(tournamentCreateTeamDto, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {string} id 
+     * @param {TournamentEditTeamDto} tournamentEditTeamDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof TeamApi
+     */
+    public teamControllerEditTeam(id: string, tournamentEditTeamDto: TournamentEditTeamDto, options?: any) {
+        return TeamApiFp(this.configuration).teamControllerEditTeam(id, tournamentEditTeamDto, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

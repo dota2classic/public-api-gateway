@@ -20,6 +20,14 @@ export class CreateTeamDto {
 }
 
 
+export class EditTeamDto {
+  public readonly id: string
+  public readonly name?: string
+  public readonly tag?: string
+  public readonly imageUrl?: string
+}
+
+
 
 export class CompactTeamDto {
   public readonly id: string;

@@ -17,6 +17,7 @@ export class LeaderboardEntryDto {
 export class MeDto {
   steam_id: string;
   name: string;
+  avatar: string;
   id: string;
   mmr: number;
   roles: Role[];

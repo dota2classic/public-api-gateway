@@ -30,19 +30,22 @@ export class UserRepository extends RuntimeRepository<UserModel, 'id'> {
         }
         else return undefined;
       });
+
+
+
   }
 
   public async name(id: UserModel['id']): Promise<string> {
-    return this.resolve(id).then(t => t?.name || id);
+    return this.get(id).then(t => t?.name || id);
   }
 
   public async roles(id: UserModel['id']): Promise<Role[]> {
-    return this.resolve(id)
+    return this.get(id)
       .then(t => t.roles)
       .catch(() => []);
   }
 
   public async avatar(id: UserModel['id']): Promise<string> {
-    return this.resolve(id).then(t => t.avatar);
+    return this.get(id).then(t => t.avatar);
   }
 }

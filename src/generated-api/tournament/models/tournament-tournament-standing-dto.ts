@@ -34,10 +34,10 @@ export interface TournamentTournamentStandingDto {
     team?: TournamentTeamDto;
     /**
      * 
-     * @type {number}
+     * @type {string}
      * @memberof TournamentTournamentStandingDto
      */
-    position: number;
+    position: string;
 }
 
 
