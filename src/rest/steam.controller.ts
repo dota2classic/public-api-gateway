@@ -7,7 +7,6 @@ import { TOKEN_KEY } from '../utils/env';
 import { ApiExcludeEndpoint } from '@nestjs/swagger';
 import { UserRepository } from '../cache/user/user.repository';
 import { Role } from '../gateway/shared-types/roles';
-import { EventBus } from '@nestjs/cqrs';
 import { UserLoggedInEvent } from '../gateway/events/user/user-logged-in.event';
 import { PlayerId } from '../gateway/shared-types/player-id';
 import { ClientProxy } from '@nestjs/microservices';
@@ -30,7 +29,6 @@ export class SteamController {
   @UseGuards(AuthGuard('steam'))
   async steamAuthRequest(@Req() req, @Res() res) {
     const steam32id = steam64to32(req.user!!._json.steamid);
-
 
 
     this.rq.emit(UserLoggedInEvent.name, new UserLoggedInEvent(
