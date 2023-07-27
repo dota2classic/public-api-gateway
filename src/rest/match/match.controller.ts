@@ -42,18 +42,20 @@ export class MatchController {
   @UseInterceptors(HttpCacheInterceptor)
   @ApiQuery({
     name: 'page',
+    type: 'number',
     required: true,
   })
   @ApiQuery({
     name: 'per_page',
+    type: 'number',
     required: false,
   })
   @ApiQuery({
     name: 'mode',
+    type: 'number',
     required: false,
   })
   @Get('/all')
-  @measure("MatchPage")
   async matches(
     @Query('page') page: number,
     @Query('per_page') perPage: number = 25,
@@ -106,7 +108,6 @@ export class MatchController {
       const u =
         pid && (await this.qbus.execute<GetReportsAvailableQuery, GetReportsAvailableQueryResult>(new GetReportsAvailableQuery(pid)));
 
-      console.log(u)
       return this.mapper.mapMatch(
         await this.ms.matchControllerGetMatch(id).then(t => t.data),
         u,

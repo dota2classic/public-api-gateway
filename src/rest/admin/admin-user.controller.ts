@@ -4,7 +4,7 @@ import { EventBus, QueryBus } from '@nestjs/cqrs';
 import { InfoApi } from 'src/generated-api/gameserver/api/info-api';
 import { ApiTags } from '@nestjs/swagger';
 import {
-  BanHammerDto,
+  BanHammerDto, UpdateModeDTO,
   UpdateRolesDto,
   UserBanSummaryDto,
   UserRoleSummaryDto,
@@ -19,6 +19,9 @@ import { GetPlayerInfoQuery } from '../../gateway/queries/GetPlayerInfo/get-play
 import { GetPlayerInfoQueryResult } from '../../gateway/queries/GetPlayerInfo/get-player-info-query.result';
 import { Dota2Version } from '../../gateway/shared-types/dota2version';
 import { PlayerBanHammeredEvent } from '../../gateway/events/bans/player-ban-hammered.event';
+import { MatchmakingModeStatusEntity } from '../../entity/matchmaking-mode-status.entity';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 
 @Controller('admin/users')
 @ApiTags('admin')
@@ -29,7 +32,34 @@ export class AdminUserController {
     private readonly qBus: QueryBus,
     private readonly urep: UserRepository,
     private readonly ebus: EventBus,
+    @InjectRepository(MatchmakingModeStatusEntity)
+    private readonly matchmakingModeStatusEntityRepository: Repository<MatchmakingModeStatusEntity>,
   ) {}
+
+
+
+
+  @ModeratorGuard()
+  @WithUser()
+  @Post('updateGameMode')
+  public async updateGameMode(@Body() b: UpdateModeDTO): Promise<MatchmakingModeStatusEntity[]> {
+    let status = await this.matchmakingModeStatusEntityRepository.findOne({
+      version: b.version,
+      mode: b.mode,
+    });
+
+    if (!status) {
+      status = new MatchmakingModeStatusEntity();
+      status.version = b.version;
+      status.mode = b.mode;
+    }
+
+    status.enabled = b.enabled;
+
+    await this.matchmakingModeStatusEntityRepository.save(status);
+
+    return this.matchmakingModeStatusEntityRepository.find()
+  }
 
   @ModeratorGuard()
   @WithUser()

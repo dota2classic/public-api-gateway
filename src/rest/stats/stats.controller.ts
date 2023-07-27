@@ -6,7 +6,10 @@ import { MeDto } from '../player/dto/player.dto';
 import { Dota2Version } from '../../gateway/shared-types/dota2version';
 import { InfoApi, PlayerApi } from '../../generated-api/gameserver';
 import { GAMESERVER_APIURL } from '../../utils/env';
-import { CurrentOnlineDto } from './dto/stats.dto';
+import { CurrentOnlineDto, MatchmakingInfo } from './dto/stats.dto';
+import { MatchmakingModeStatusEntity } from '../../entity/matchmaking-mode-status.entity';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 
 @Controller('stats')
 @ApiTags('stats')
@@ -14,8 +17,17 @@ export class StatsController {
   private readonly ms: InfoApi;
 
 
-  constructor() {
+  constructor(
+    @InjectRepository(MatchmakingModeStatusEntity)
+    private readonly matchmakingModeStatusEntityRepository: Repository<MatchmakingModeStatusEntity>,
+  ) {
     this.ms = new InfoApi(undefined, `http://${GAMESERVER_APIURL}`);
+  }
+
+
+  @Get('/matchmaking')
+  async getMatchmakingInfo(): Promise<MatchmakingInfo[]>{
+    return this.matchmakingModeStatusEntityRepository.find()
   }
 
   @Get('/online')

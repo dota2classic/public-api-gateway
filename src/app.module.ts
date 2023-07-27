@@ -43,20 +43,12 @@ import { MatchFinishedHandler } from './cache/event-handler/match-finished.handl
 import { LiveMatchService } from './cache/live-match.service';
 import { LiveMatchController } from './rest/match/live-match.controller';
 import { GetPlayerInfoQuery } from './gateway/queries/GetPlayerInfo/get-player-info.query';
-import { GetAllQueryResult } from './gateway/queries/GetAll/get-all-query.result';
-import { GetUserInfoQueryResult } from './gateway/queries/GetUserInfo/get-user-info-query.result';
-import { GetPartyQueryResult } from './gateway/queries/GetParty/get-party-query.result';
-import { GetAllConnectionsQueryResult } from './gateway/queries/GetAllConnections/get-all-connections-query.result';
-import { GetConnectionsQueryResult } from './gateway/queries/GetConnections/get-connections-query.result';
-import { GetRoleSubscriptionsQueryResult } from './gateway/queries/user/GetRoleSubscriptions/get-role-subscriptions-query.result';
-import { GetPlayerInfoQueryResult } from './gateway/queries/GetPlayerInfo/get-player-info-query.result';
 import { StatsController } from './rest/stats/stats.controller';
 import { QueryCache } from 'd2c-rcaches';
 import * as redisStore from 'cache-manager-redis-store';
 import { MetaController } from './rest/meta/meta.controller';
 import { HttpCacheInterceptor } from './utils/cache-key-track';
 import { GetReportsAvailableQuery } from './gateway/queries/GetReportsAvailable/get-reports-available.query';
-import { GetReportsAvailableQueryResult } from './gateway/queries/GetReportsAvailable/get-reports-available-query.result';
 import { AdminTournamentController } from './rest/admin/admin-tournament.controller';
 import { TournamentMapper } from './rest/admin/mapper/tournament.mapper';
 import { TournamentController } from './rest/tournament/tournament.controller';
@@ -65,6 +57,8 @@ import { MulterModule } from '@nestjs/platform-express';
 import { BracketMapper } from './rest/admin/bracket.mapper';
 import { ScheduleModule } from '@nestjs/schedule';
 import { MainService } from './main.service';
+import { Entities, prodDbConfig } from './db.config';
+import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 
 const host = REDIS_URL()
   .replace('redis://', '')
@@ -80,13 +74,10 @@ export function qCache<T, B>() {
 
 @Module({
   imports: [
-    SentryModule.forRoot({
-      dsn:
-        'https://a35837c6229e4ba89afaec487df6e21c@o435989.ingest.sentry.io/5529680',
-      debug: false,
-      environment: isDev ? 'dev' : 'production',
-      logLevel: 2, //based on sentry.io loglevel //
-    }),
+    TypeOrmModule.forRoot(
+      (isDev ? prodDbConfig : prodDbConfig) as TypeOrmModuleOptions,
+    ),
+    TypeOrmModule.forFeature(Entities),
     ScheduleModule.forRoot(),
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, './upload'),
@@ -137,6 +128,8 @@ export function qCache<T, B>() {
     TeamController
   ],
   providers: [
+
+
     TournamentMapper,
     BracketMapper,
     HttpCacheInterceptor,

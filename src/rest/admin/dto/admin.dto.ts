@@ -1,8 +1,6 @@
 import { Dota2Version } from '../../../gateway/shared-types/dota2version';
-import { PlayerId } from '../../../gateway/shared-types/player-id';
 import { MatchmakingMode } from '../../../gateway/shared-types/matchmaking-mode';
 import { Role } from '../../../gateway/shared-types/roles';
-import { BanStatus } from '../../../gateway/queries/GetPlayerInfo/get-player-info-query.result';
 import { BanReason } from '../../../gateway/shared-types/ban';
 
 export class MatchInfoDto {
@@ -33,11 +31,14 @@ export class GameSessionDto {
 export class UpdateRolesDto {
   steam_id: string;
   role: Role;
-  end_time: number
+  end_time: number;
 }
 
-
-
+export class UpdateModeDTO {
+  mode: MatchmakingMode;
+  version: Dota2Version;
+  enabled: boolean;
+}
 
 export class RoleSubscriptionEntryDto {
   end_time: number;
@@ -45,13 +46,11 @@ export class RoleSubscriptionEntryDto {
   steam_id: string;
 }
 
-
 export class UserRoleSummaryDto {
   public readonly steam_id: string;
   public readonly name: string;
   public readonly entries: RoleSubscriptionEntryDto[];
 }
-
 
 export class BanStatusDto {
   public readonly isBanned: boolean;
@@ -61,7 +60,7 @@ export class BanStatusDto {
 
 export class UserBanSummaryDto {
   public readonly steam_id: string;
-  public readonly banStatus: BanStatusDto
+  public readonly banStatus: BanStatusDto;
 }
 
 export class BanHammerDto {

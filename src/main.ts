@@ -1,18 +1,11 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { UserRepository } from './cache/user/user.repository';
 import * as cookieParser from 'cookie-parser';
 import { CACHE_MANAGER, Logger } from '@nestjs/common';
 import { REDIS_PASSWORD, REDIS_URL } from './utils/env';
 import { Transport } from '@nestjs/microservices';
-import * as request from 'supertest';
-import { inspect } from "util";
-import { Subscriber } from 'rxjs';
 import { CommandBus, EventBus, QueryBus } from '@nestjs/cqrs';
-import { GetAllQuery } from './gateway/queries/GetAll/get-all.query';
-import { GetAllQueryResult } from './gateway/queries/GetAll/get-all-query.result';
-import { UserModel } from './cache/user/user.model';
 import { MainService } from './main.service';
 
 async function bootstrap() {
