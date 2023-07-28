@@ -41,12 +41,7 @@ import * as redisStore from 'cache-manager-redis-store';
 import { MetaController } from './rest/meta/meta.controller';
 import { HttpCacheInterceptor } from './utils/cache-key-track';
 import { GetReportsAvailableQuery } from './gateway/queries/GetReportsAvailable/get-reports-available.query';
-import { AdminTournamentController } from './rest/admin/admin-tournament.controller';
-import { TournamentMapper } from './rest/admin/mapper/tournament.mapper';
-import { TournamentController } from './rest/tournament/tournament.controller';
-import { TeamController } from './rest/tournament/team.controller';
 import { MulterModule } from '@nestjs/platform-express';
-import { BracketMapper } from './rest/admin/bracket.mapper';
 import { ScheduleModule } from '@nestjs/schedule';
 import { MainService } from './main.service';
 import { Entities, prodDbConfig } from './db.config';
@@ -115,15 +110,8 @@ export function qCache<T, B>() {
     StatsController,
     SteamController,
     DiscordController,
-    AdminTournamentController,
-    TournamentController,
-    TeamController
   ],
   providers: [
-
-
-    TournamentMapper,
-    BracketMapper,
     HttpCacheInterceptor,
     MainService,
     outerQuery(GetAllQuery, 'QueryCore', qCache()),

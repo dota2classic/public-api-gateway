@@ -10,17 +10,15 @@ import { numSteamId } from '../../utils/steamIds';
 import { GetPartyQueryResult } from '../../gateway/queries/GetParty/get-party-query.result';
 import { PartyDto, PlayerInPartyDto } from './dto/party.dto';
 import { PlayerId } from '../../gateway/shared-types/player-id';
-import { BanStatus } from '../../gateway/queries/GetPlayerInfo/get-player-info-query.result';
-import { BanReason } from '../../gateway/shared-types/ban';
-import { GetReportsAvailableQueryResult } from '../../gateway/queries/GetReportsAvailable/get-reports-available-query.result';
+import {
+  GetReportsAvailableQueryResult,
+} from '../../gateway/queries/GetReportsAvailable/get-reports-available-query.result';
 import { TournamentTeamDto } from '../../generated-api/tournament/models';
-import { TournamentMapper } from '../admin/mapper/tournament.mapper';
 
 @Injectable()
 export class PlayerMapper {
   constructor(
-    private readonly userRepository: UserRepository,
-    private readonly teamMapper: TournamentMapper,
+    private readonly userRepository: UserRepository
   ) {}
 
   public mapLeaderboardEntry = async (
@@ -57,7 +55,6 @@ export class PlayerMapper {
         bannedUntil: status.bannedUntil,
         status: status.status as any,
       },
-      team: (team && (await this.teamMapper.mapTeam(team))) || undefined,
       reportsAvailable: reports.available,
     };
   };

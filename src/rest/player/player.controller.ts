@@ -14,7 +14,7 @@ import {
 import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Dota2Version } from '../../gateway/shared-types/dota2version';
 import { PlayerApi } from '../../generated-api/gameserver';
-import { GAMESERVER_APIURL, TOURNAMENT_APIURL } from '../../utils/env';
+import { GAMESERVER_APIURL } from '../../utils/env';
 import { PlayerMapper } from './player.mapper';
 import { LeaderboardEntryDto, MeDto, MyProfileDto, PlayerPreviewDto, PlayerSummaryDto } from './dto/player.dto';
 import { CurrentUser, CurrentUserDto } from '../../utils/decorator/current-user';
@@ -39,14 +39,13 @@ import {
 import { extname } from 'path';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
-import { TeamApi } from '../../generated-api/tournament';
 
 
 @Controller('player')
 @ApiTags('player')
 export class PlayerController {
   private ms: PlayerApi;
-  private ts: TeamApi;
+  // private ts: TeamApi;
 
   constructor(
     private readonly mapper: PlayerMapper,
@@ -58,8 +57,6 @@ export class PlayerController {
     private readonly ebus: EventBus,
   ) {
     this.ms = new PlayerApi(undefined, `http://${GAMESERVER_APIURL}`);
-    this.ts = new TeamApi(undefined, `http://${TOURNAMENT_APIURL}`);
-
   }
 
 
@@ -110,9 +107,7 @@ export class PlayerController {
         GetReportsAvailableQueryResult
       >(new GetReportsAvailableQuery(pid)));
 
-    const team = await this.ts.teamControllerGetTeamOf(user.steam_id).then(t => t.data);
-
-    return this.mapper.mapMe(rawData.data, res.data, team, u);
+    return this.mapper.mapMe(rawData.data, res.data, undefined, u);
   }
 
   @Get('/connections')
