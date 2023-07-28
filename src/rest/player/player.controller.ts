@@ -27,21 +27,19 @@ import { PlayerId } from '../../gateway/shared-types/player-id';
 import { UserRepository } from '../../cache/user/user.repository';
 import { WithUser } from '../../utils/decorator/with-user';
 import { UserConnectionRepository } from '../../cache/user-connection/user-connection.repository';
-import { Client } from 'discord.js';
-import { UserConnection } from '../../gateway/shared-types/user-connection';
 import { UserMightExistEvent } from '../../gateway/events/user/user-might-exist.event';
 import { ClientProxy } from '@nestjs/microservices';
 import { HeroStatsDto, PlayerGeneralStatsDto } from './dto/hero.dto';
 import { HttpCacheInterceptor } from '../../utils/cache-key-track';
 import { ReportDto } from './dto/report.dto';
 import { GetReportsAvailableQuery } from '../../gateway/queries/GetReportsAvailable/get-reports-available.query';
-import { GetReportsAvailableQueryResult } from '../../gateway/queries/GetReportsAvailable/get-reports-available-query.result';
+import {
+  GetReportsAvailableQueryResult,
+} from '../../gateway/queries/GetReportsAvailable/get-reports-available-query.result';
 import { extname } from 'path';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
-import { backUrl } from '../../utils/utils';
 import { TeamApi } from '../../generated-api/tournament';
-import { measure } from '../../utils/decorator/measure';
 
 
 @Controller('player')
@@ -55,7 +53,6 @@ export class PlayerController {
     private readonly qbus: QueryBus,
     private readonly userRepository: UserRepository,
     private readonly userConnectionRep: UserConnectionRepository,
-    @Inject('DiscordClient') private readonly client: Client,
     @Inject('QueryCore') private readonly redisEventQueue: ClientProxy,
 
     private readonly ebus: EventBus,
@@ -123,25 +120,7 @@ export class PlayerController {
   async connections(
     @CurrentUser() user: CurrentUserDto,
   ): Promise<MyProfileDto> {
-    const connections = await this.userConnectionRep.resolve(user.steam_id);
-
-    if (!connections) return {};
-
-    const externalUser = this.client.users.resolve(connections.externalId);
-
-    if (!externalUser)
-      return {
-        error: true,
-      };
-
-    return {
-      discord: {
-        connection: UserConnection.DISCORD,
-        avatar: externalUser.avatarURL(),
-        name: externalUser.username,
-        id: externalUser.id,
-      },
-    };
+    return {}
   }
 
   @UseInterceptors(HttpCacheInterceptor)

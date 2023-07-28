@@ -1,16 +1,10 @@
-import { CacheModule, Logger, Module } from '@nestjs/common';
+import { CacheModule, Module } from '@nestjs/common';
 import { MatchController } from './rest/match/match.controller';
 import { SteamController } from './rest/steam.controller';
 import SteamStrategy from './rest/strategy/steam.strategy';
 import { JwtModule } from '@nestjs/jwt';
 import { ClientsModule, Transport } from '@nestjs/microservices';
-import {
-  DISCORD_API_TOKEN,
-  isDev,
-  JWT_SECRET,
-  REDIS_PASSWORD,
-  REDIS_URL,
-} from './utils/env';
+import { isDev, JWT_SECRET, REDIS_PASSWORD, REDIS_URL } from './utils/env';
 import { outerQuery } from './gateway/util/outerQuery';
 import { GetAllQuery } from './gateway/queries/GetAll/get-all.query';
 import { GetUserInfoQuery } from './gateway/queries/GetUserInfo/get-user-info.query';
@@ -32,11 +26,9 @@ import { DiscordStrategy } from './rest/strategy/discord.strategy';
 import { UserConnectionRepository } from './cache/user-connection/user-connection.repository';
 import { GetAllConnectionsQuery } from './gateway/queries/GetAllConnections/get-all-connections.query';
 import { GetConnectionsQuery } from './gateway/queries/GetConnections/get-connections.query';
-import { Client } from 'discord.js';
 import { join } from 'path';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { GetRoleSubscriptionsQuery } from './gateway/queries/user/GetRoleSubscriptions/get-role-subscriptions.query';
-import { SentryModule } from '@ntegral/nestjs-sentry';
 import { LiveMatchUpdateHandler } from './cache/event-handler/live-match-update.handler';
 import { GameSessionFinishedEvent } from './gateway/events/game-session-finished.event';
 import { MatchFinishedHandler } from './cache/event-handler/match-finished.handler';
@@ -142,31 +134,6 @@ export function qCache<T, B>() {
     outerQuery(GetReportsAvailableQuery, 'QueryCore', qCache()),
     outerQuery(GetRoleSubscriptionsQuery, 'QueryCore', qCache()),
     outerQuery(GetPlayerInfoQuery, 'QueryCore', qCache()),
-
-    {
-      provide: 'DiscordClient',
-      useFactory: async () => {
-        const client = new Client();
-
-        const logger = new Logger(Client.name);
-
-        await client.login(DISCORD_API_TOKEN());
-
-        let resolve: () => void;
-        const readyPromise = new Promise(r => {
-          resolve = r;
-        });
-
-        client.on('ready', async () => {
-          logger.log('Bot ready and operating.');
-          resolve();
-        });
-
-        await readyPromise;
-
-        return client;
-      },
-    },
 
     SteamStrategy,
     JwtStrategy,
