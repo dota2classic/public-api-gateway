@@ -2,6 +2,7 @@ import { PassportStrategy } from '@nestjs/passport';
 import { Strategy as SteamStrategyT } from 'passport-steam';
 import { Injectable } from '@nestjs/common';
 import { backUrl } from '../../utils/utils';
+import { STEAM_KEY } from '../../utils/env';
 
 @Injectable()
 export default class SteamStrategy extends PassportStrategy(SteamStrategyT) {
@@ -10,7 +11,7 @@ export default class SteamStrategy extends PassportStrategy(SteamStrategyT) {
       returnURL: `${backUrl}/v1/auth/steam/callback`,
       // returnURL: `${frontUrl}/steam_callback`,
       realm: `${backUrl}/`,
-      apiKey: '5944065088CFEF1A24F74BE1C4C1E7AE',
+      apiKey: STEAM_KEY,
     });
   }
 

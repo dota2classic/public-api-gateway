@@ -13,6 +13,8 @@ export const profile = process.env.PROFILE;
 export const isProd = profile === 'prod';
 export const isDev = !isProd;
 
+export const STEAM_KEY = process.env.STEAM_KEY || "tmp"
+
 export const GAMESERVER_APIURL = process.env.GS_URL || 'localhost:5003';
 export const TOURNAMENT_APIURL = process.env.TOURNAMENT_URL || 'localhost:6100';
 export const JWT_SECRET = process.env.PRIVATE_JWT_KEY || 'tmp';
