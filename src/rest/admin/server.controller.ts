@@ -1,24 +1,14 @@
 import { Body, Controller, Get, Inject, Post } from '@nestjs/common';
-import {
-  EventAdminDto,
-  GameServerDto,
-  GameSessionDto,
-  StopServerDto,
-} from './dto/admin.dto';
+import { EventAdminDto, GameServerDto, GameSessionDto, StopServerDto } from './dto/admin.dto';
 import { ClientProxy } from '@nestjs/microservices';
-import {
-  AdminGuard,
-  ModeratorGuard,
-  WithUser,
-} from '../../utils/decorator/with-user';
+import { AdminGuard, ModeratorGuard, WithUser } from '../../utils/decorator/with-user';
 import { EventBus, QueryBus } from '@nestjs/cqrs';
 import { GAMESERVER_APIURL } from '../../utils/env';
 import { InfoApi } from 'src/generated-api/gameserver/api/info-api';
 import { AdminMapper } from './admin.mapper';
 import { ApiTags } from '@nestjs/swagger';
 import { KillServerRequestedEvent } from '../../gateway/events/gs/kill-server-requested.event';
-import { construct } from '../../gateway/util/construct';
-import { LiveMatchUpdateEvent } from '../../gateway/events/gs/live-match-update.event';
+import { timeout } from 'rxjs/operators';
 
 @Controller('servers')
 @ApiTags('admin')
@@ -66,7 +56,17 @@ export class ServerController {
   @WithUser()
   @Post('/debug_event')
   async debugEvent(@Body() b: EventAdminDto) {
+    console.log(b)
     await this.rq.emit(b.name, b.body).toPromise();
     console.log('Emitted');
+  }
+
+  @AdminGuard()
+  @WithUser()
+  @Post('/debug_command')
+  async debugCommand(@Body() b: EventAdminDto) {
+    return await this.rq.send(b.name, b.body)
+      .pipe(timeout(1000))
+      .toPromise();
   }
 }

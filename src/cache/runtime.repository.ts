@@ -16,7 +16,7 @@ export abstract class RuntimeRepository<
 > {
   protected cache = new Map<Key, T>();
 
-  abstract async resolve(id: Key): Promise<T | undefined>;
+  abstract resolve(id: Key): Promise<T | undefined>;
 
   get = async (id: Key): Promise<T | null> => {
     const cached = this.cache.get(id);

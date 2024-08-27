@@ -5,7 +5,7 @@ export const extractSteam32 = (steam32: string) =>
   steam32.substring(1, steam32.length - 1).split(':')[2];
 export const steam32to64 = (steam32: string): string => {
   const converted = new BigNumber(
-    steam32.substring(1, steam32.length - 1).split(':')[2],
+    steam32
   );
 
   const steam64 = magic.plus(converted);
@@ -18,7 +18,7 @@ export const steam64to32 = (steam64s: string): string => {
 
   const steam32 = steam64.minus(magic);
 
-  return `[U:1:${steam32}]`;
+  return `${steam32}`;
 };
 
 export const numSteamId = (steam32: string): string => {
