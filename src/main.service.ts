@@ -25,8 +25,10 @@ export class MainService {
       [Dota2Version.Dota_684, Dota2Version.Dota_681].map(async version => {
         let existing = await this.matchmakingModeStatusEntityRepository.findOne(
           {
-            version,
-            mode,
+            where: {
+              version,
+              mode,
+            }
           },
         );
 

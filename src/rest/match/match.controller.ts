@@ -1,12 +1,5 @@
-import {
-  CacheTTL,
-  Controller,
-  Get,
-  NotFoundException,
-  Param,
-  Query,
-  UseInterceptors,
-} from '@nestjs/common';
+import { Controller, Get, NotFoundException, Param, Query, UseInterceptors } from '@nestjs/common';
+import { CacheTTL } from '@nestjs/cache-manager';
 import { ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { MatchmakingMode } from '../../gateway/shared-types/matchmaking-mode';
 import { MatchApi } from '../../generated-api/gameserver';
@@ -14,16 +7,14 @@ import { GAMESERVER_APIURL } from '../../utils/env';
 import { MatchDto, MatchPageDto } from './dto/match.dto';
 import { MatchMapper } from './match.mapper';
 import { WithOptionalUser } from '../../utils/decorator/with-optional-user';
-import {
-  CurrentUser,
-  CurrentUserDto,
-} from '../../utils/decorator/current-user';
+import { CurrentUser, CurrentUserDto } from '../../utils/decorator/current-user';
 import { PlayerId } from '../../gateway/shared-types/player-id';
 import { HttpCacheInterceptor } from '../../utils/cache-key-track';
 import { QueryBus } from '@nestjs/cqrs';
 import { GetReportsAvailableQuery } from '../../gateway/queries/GetReportsAvailable/get-reports-available.query';
-import { GetReportsAvailableQueryResult } from '../../gateway/queries/GetReportsAvailable/get-reports-available-query.result';
-import { measure } from '../../utils/decorator/measure';
+import {
+  GetReportsAvailableQueryResult,
+} from '../../gateway/queries/GetReportsAvailable/get-reports-available-query.result';
 
 @Controller('match')
 @ApiTags('match')

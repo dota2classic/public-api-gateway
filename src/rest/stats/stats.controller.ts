@@ -1,15 +1,14 @@
-import { CacheTTL, Controller, Get } from '@nestjs/common';
+import { Controller, Get } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { WithUser } from '../../utils/decorator/with-user';
 import { CurrentUser } from '../../utils/decorator/current-user';
-import { MeDto } from '../player/dto/player.dto';
-import { Dota2Version } from '../../gateway/shared-types/dota2version';
-import { InfoApi, PlayerApi } from '../../generated-api/gameserver';
+import { InfoApi } from '../../generated-api/gameserver';
 import { GAMESERVER_APIURL } from '../../utils/env';
 import { CurrentOnlineDto, MatchmakingInfo } from './dto/stats.dto';
 import { MatchmakingModeStatusEntity } from '../../entity/matchmaking-mode-status.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { CacheTTL } from '@nestjs/cache-manager';
 
 @Controller('stats')
 @ApiTags('stats')

@@ -1,10 +1,10 @@
-import { CacheModule, Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { MatchController } from './rest/match/match.controller';
 import { SteamController } from './rest/steam.controller';
 import SteamStrategy from './rest/strategy/steam.strategy';
 import { JwtModule } from '@nestjs/jwt';
 import { ClientsModule, Transport } from '@nestjs/microservices';
-import { isDev, JWT_SECRET, REDIS_PASSWORD, REDIS_URL } from './utils/env';
+import { isDev, JWT_SECRET, REDIS_HOST, REDIS_PASSWORD, REDIS_URL } from './utils/env';
 import { outerQuery } from './gateway/util/outerQuery';
 import { GetAllQuery } from './gateway/queries/GetAll/get-all.query';
 import { GetUserInfoQuery } from './gateway/queries/GetUserInfo/get-user-info.query';
@@ -36,7 +36,6 @@ import { LiveMatchService } from './cache/live-match.service';
 import { LiveMatchController } from './rest/match/live-match.controller';
 import { GetPlayerInfoQuery } from './gateway/queries/GetPlayerInfo/get-player-info.query';
 import { StatsController } from './rest/stats/stats.controller';
-import { QueryCache } from 'd2c-rcaches';
 import * as redisStore from 'cache-manager-redis-store';
 import { MetaController } from './rest/meta/meta.controller';
 import { HttpCacheInterceptor } from './utils/cache-key-track';
@@ -46,10 +45,9 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { MainService } from './main.service';
 import { Entities, prodDbConfig } from './db.config';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
+import { CacheModule } from '@nestjs/cache-manager';
+import { QueryCache } from './rcache';
 
-const host = REDIS_URL()
-  .replace('redis://', '')
-  .split(':')[0];
 
 export function qCache<T, B>() {
   return new QueryCache<T, B>({
@@ -81,8 +79,9 @@ export function qCache<T, B>() {
     CacheModule.register({
       ttl: 60,
       store: redisStore,
-      host: host,
       port: 6379,
+      url: REDIS_URL(),
+      host: REDIS_HOST(),
       auth_pass: REDIS_PASSWORD(),
     }),
     ClientsModule.register([
@@ -91,7 +90,7 @@ export function qCache<T, B>() {
         transport: Transport.REDIS,
         options: {
           password: REDIS_PASSWORD(),
-          url: REDIS_URL(),
+          host: REDIS_HOST(),
           retryAttempts: Infinity,
           retryDelay: 5000,
         },

@@ -1,19 +1,18 @@
 import { Body, Controller, Get, Inject, Param, Post } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { EventBus, QueryBus } from '@nestjs/cqrs';
-import { InfoApi } from 'src/generated-api/gameserver/api/info-api';
+import { InfoApi } from '../../generated-api/gameserver';
 import { ApiTags } from '@nestjs/swagger';
-import {
-  BanHammerDto, UpdateModeDTO,
-  UpdateRolesDto,
-  UserBanSummaryDto,
-  UserRoleSummaryDto,
-} from './dto/admin.dto';
+import { BanHammerDto, UpdateModeDTO, UpdateRolesDto, UserBanSummaryDto, UserRoleSummaryDto } from './dto/admin.dto';
 import { UserRolesUpdatedEvent } from '../../gateway/events/user/user-roles-updated.event';
 import { PlayerId } from '../../gateway/shared-types/player-id';
 import { ModeratorGuard, WithUser } from '../../utils/decorator/with-user';
-import { GetRoleSubscriptionsQuery } from '../../gateway/queries/user/GetRoleSubscriptions/get-role-subscriptions.query';
-import { GetRoleSubscriptionsQueryResult } from '../../gateway/queries/user/GetRoleSubscriptions/get-role-subscriptions-query.result';
+import {
+  GetRoleSubscriptionsQuery,
+} from '../../gateway/queries/user/GetRoleSubscriptions/get-role-subscriptions.query';
+import {
+  GetRoleSubscriptionsQueryResult,
+} from '../../gateway/queries/user/GetRoleSubscriptions/get-role-subscriptions-query.result';
 import { UserRepository } from '../../cache/user/user.repository';
 import { GetPlayerInfoQuery } from '../../gateway/queries/GetPlayerInfo/get-player-info.query';
 import { GetPlayerInfoQueryResult } from '../../gateway/queries/GetPlayerInfo/get-player-info-query.result';
@@ -44,8 +43,10 @@ export class AdminUserController {
   @Post('updateGameMode')
   public async updateGameMode(@Body() b: UpdateModeDTO): Promise<MatchmakingModeStatusEntity[]> {
     let status = await this.matchmakingModeStatusEntityRepository.findOne({
-      version: b.version,
-      mode: b.mode,
+      where: {
+        version: b.version,
+        mode: b.mode,
+      }
     });
 
     if (!status) {

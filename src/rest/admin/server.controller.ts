@@ -4,7 +4,7 @@ import { ClientProxy } from '@nestjs/microservices';
 import { AdminGuard, ModeratorGuard, WithUser } from '../../utils/decorator/with-user';
 import { EventBus, QueryBus } from '@nestjs/cqrs';
 import { GAMESERVER_APIURL } from '../../utils/env';
-import { InfoApi } from 'src/generated-api/gameserver/api/info-api';
+import { InfoApi } from '../../generated-api/gameserver/api/info-api';
 import { AdminMapper } from './admin.mapper';
 import { ApiTags } from '@nestjs/swagger';
 import { KillServerRequestedEvent } from '../../gateway/events/gs/kill-server-requested.event';

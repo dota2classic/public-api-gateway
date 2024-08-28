@@ -1,9 +1,10 @@
-import { CacheInterceptor, CacheTTL, Controller, Get, UseInterceptors } from '@nestjs/common';
+import { Controller, Get, UseInterceptors } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { HeroSummaryDto } from './dto/meta.dto';
 import { MetaApi } from '../../generated-api/gameserver';
 import { GAMESERVER_APIURL } from '../../utils/env';
 import { HttpCacheInterceptor } from '../../utils/cache-key-track';
+import { CacheTTL } from '@nestjs/cache-manager';
 
 @Controller('meta')
 @ApiTags('meta')
