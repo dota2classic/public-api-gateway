@@ -2,7 +2,7 @@ import { Controller, Get, Inject, Req, Res, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { frontUrl } from '../utils/utils';
 import { JwtService } from '@nestjs/jwt';
-import { numSteamId, steam64to32 } from '../utils/steamIds';
+import { steam64to32 } from '../utils/steamIds';
 import { TOKEN_KEY } from '../utils/env';
 import { ApiExcludeEndpoint } from '@nestjs/swagger';
 import { UserRepository } from '../cache/user/user.repository';
@@ -22,12 +22,13 @@ export class SteamController {
   @Get()
   @ApiExcludeEndpoint()
   @UseGuards(AuthGuard('steam'))
-  async discordAuth(@Req() req) {}
+  async steamAuth(@Req() req) {}
 
   @Get('callback')
   @ApiExcludeEndpoint()
   @UseGuards(AuthGuard('steam'))
   async steamAuthRequest(@Req() req, @Res() res) {
+    console.log('Callback success')
     const steam32id = steam64to32(req.user!!._json.steamid);
 
 
@@ -38,7 +39,6 @@ export class SteamController {
     ))
 
     const existingUser = await this.userRepository.resolve(steam32id);
-    const numericalId = numSteamId(steam32id);
 
 
     if (existingUser) {
@@ -47,12 +47,12 @@ export class SteamController {
 
 
       // ok here we might need to create a user pepega
-      res.cookie(TOKEN_KEY, token).redirect(`${frontUrl}/player/${numericalId}`);
+      res.cookie(TOKEN_KEY, token).redirect(`${frontUrl}/player/${steam32id}`);
     } else {
       const token = this.jwtService.sign({ sub: steam32id, roles: [Role.PLAYER] });
 
       // ok here we might need to create a user pepega
-      res.cookie(TOKEN_KEY, token).redirect(`${frontUrl}/player/${numericalId}`);
+      res.cookie(TOKEN_KEY, token).redirect(`${frontUrl}/player/${steam32id}`);
     }
   }
 }

@@ -22,5 +22,8 @@ export const steam64to32 = (steam64s: string): string => {
 };
 
 export const numSteamId = (steam32: string): string => {
-  return steam32.substring(5, steam32.length - 1);
+  if(steam32.startsWith('[U:')) {
+    return steam32.substring(5, steam32.length - 1);
+  }
+  return steam32;
 };

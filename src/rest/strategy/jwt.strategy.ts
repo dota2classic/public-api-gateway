@@ -18,8 +18,13 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: any): Promise<CurrentUserDto> {
+    let steam_id = payload.sub;
+    // This is fix for deprecated user ids([U:1:xxxx] format)
+    if(typeof steam_id === 'string' && steam_id.startsWith('[U:')){
+      steam_id = steam_id.slice(5, steam_id.length - 1);
+    }
     return {
-      steam_id: payload.sub,
+      steam_id: steam_id,
       roles: payload.roles,
     };
   }

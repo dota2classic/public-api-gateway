@@ -14,7 +14,12 @@ export class CookieUserGuard implements CanActivate {
     const request = ctx.switchToHttp().getRequest();
 
     const token = request.cookies['dota2classic_auth_token'];
-    const some: any = this.jwtService.decode(token);
+    let some: any = this.jwtService.decode(token);
+
+    // This is fix for deprecated user ids([U:1:xxxx] format)
+    if(typeof some === 'string' && some.startsWith('[U:')){
+      some = some.slice(5, some.length - 1);
+    }
 
     request.cookieUserId = some?.sub;
     // If you want to allow the request even if auth fails, always return true
