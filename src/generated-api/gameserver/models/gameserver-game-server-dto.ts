@@ -38,7 +38,8 @@ export interface GameserverGameServerDto {
     * @enum {string}
     */
 export enum GameserverGameServerDtoVersionEnum {
-    Dota681 = 'Dota_681'
+    _681 = 'Dota_681',
+    _684 = 'Dota_684'
 }
 
 

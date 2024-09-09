@@ -1,7 +1,6 @@
 import { Body, Controller, Get, Inject, Post } from '@nestjs/common';
 import { EventAdminDto, GameServerDto, GameSessionDto, StopServerDto } from './dto/admin.dto';
 import { ClientProxy } from '@nestjs/microservices';
-import { AdminGuard, ModeratorGuard, WithUser } from '../../utils/decorator/with-user';
 import { EventBus, QueryBus } from '@nestjs/cqrs';
 import { GAMESERVER_APIURL } from '../../utils/env';
 import { InfoApi } from '../../generated-api/gameserver/api/info-api';
@@ -23,8 +22,8 @@ export class ServerController {
     this.ms = new InfoApi(undefined, `http://${GAMESERVER_APIURL}`);
   }
 
-  @ModeratorGuard()
-  @WithUser()
+  // @ModeratorGuard()
+  // @WithUser()
   @Get('/server_pool')
   async serverPool(): Promise<GameServerDto[]> {
     return this.ms
@@ -32,8 +31,8 @@ export class ServerController {
       .then(t => t.data.map(this.mapper.mapGameServer));
   }
 
-  @AdminGuard()
-  @WithUser()
+  // @AdminGuard()
+  // @WithUser()
   @Post(`/stop_server`)
   async stopServer(@Body() url: StopServerDto) {
     console.log('sad kek');
@@ -43,8 +42,8 @@ export class ServerController {
     );
   }
 
-  @ModeratorGuard()
-  @WithUser()
+  // @ModeratorGuard()
+  // @WithUser()
   @Get('/live_sessions')
   async liveSessions(): Promise<GameSessionDto[]> {
     const res = await this.ms.infoControllerGameSessions();
@@ -52,8 +51,8 @@ export class ServerController {
     return Promise.all(res.data.map(async t => this.mapper.mapGameSession(t)));
   }
 
-  @AdminGuard()
-  @WithUser()
+  // @AdminGuard()
+  // @WithUser()
   @Post('/debug_event')
   async debugEvent(@Body() b: EventAdminDto) {
     console.log(b)
@@ -61,8 +60,8 @@ export class ServerController {
     console.log('Emitted');
   }
 
-  @AdminGuard()
-  @WithUser()
+  // @AdminGuard()
+  // @WithUser()
   @Post('/debug_command')
   async debugCommand(@Body() b: EventAdminDto) {
     return await this.rq.send(b.name, b.body)

@@ -24,7 +24,7 @@ export interface GameserverHeroStatsDto {
      * @type {string}
      * @memberof GameserverHeroStatsDto
      */
-    playerSteamId: string;
+    playerId: string;
     /**
      * 
      * @type {number}

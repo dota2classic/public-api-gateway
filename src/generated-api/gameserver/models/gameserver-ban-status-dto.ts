@@ -39,7 +39,7 @@ export interface GameserverBanStatusDto {
     bannedUntil: number;
     /**
      * 
-     * @type {string}
+     * @type {number}
      * @memberof GameserverBanStatusDto
      */
     status: GameserverBanStatusDtoStatusEnum;
@@ -50,9 +50,10 @@ export interface GameserverBanStatusDto {
     * @enum {string}
     */
 export enum GameserverBanStatusDtoStatusEnum {
-    GAMEDECLINE = 'GAME_DECLINE',
-    LOADFAILURE = 'LOAD_FAILURE',
-    INFINITEBAN = 'INFINITE_BAN'
+    NUMBER_0 = 0,
+    NUMBER_1 = 1,
+    NUMBER_2 = 2,
+    NUMBER_3 = 3
 }
 
 

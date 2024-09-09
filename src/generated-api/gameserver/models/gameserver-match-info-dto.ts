@@ -21,7 +21,7 @@
 export interface GameserverMatchInfoDto {
     /**
      * 
-     * @type {string}
+     * @type {number}
      * @memberof GameserverMatchInfoDto
      */
     mode: GameserverMatchInfoDtoModeEnum;
@@ -62,22 +62,25 @@ export interface GameserverMatchInfoDto {
     * @enum {string}
     */
 export enum GameserverMatchInfoDtoModeEnum {
-    RANKED = 'RANKED',
-    UNRANKED = 'UNRANKED',
-    SOLOMID = 'SOLOMID',
-    DIRETIDE = 'DIRETIDE',
-    GREEVILING = 'GREEVILING',
-    ABILITYDRAFT = 'ABILITY_DRAFT',
-    TOURNAMENT = 'TOURNAMENT',
-    BOTS = 'BOTS',
-    HIGHROOM = 'HIGHROOM'
+    NUMBER_0 = 0,
+    NUMBER_1 = 1,
+    NUMBER_2 = 2,
+    NUMBER_3 = 3,
+    NUMBER_4 = 4,
+    NUMBER_5 = 5,
+    NUMBER_6 = 6,
+    NUMBER_7 = 7,
+    NUMBER_8 = 8,
+    NUMBER_9 = 9,
+    NUMBER_10 = 10
 }
 /**
     * @export
     * @enum {string}
     */
 export enum GameserverMatchInfoDtoVersionEnum {
-    Dota681 = 'Dota_681'
+    _681 = 'Dota_681',
+    _684 = 'Dota_684'
 }
 
 

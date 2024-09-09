@@ -2,7 +2,6 @@ import { Controller } from '@nestjs/common';
 import { EventPattern } from '@nestjs/microservices';
 import { UserCreatedEvent } from './gateway/events/user/user-created.event';
 import { Constructor, EventBus } from '@nestjs/cqrs';
-import { UserUpdatedEvent } from './gateway/events/user/user-updated.event';
 import { LiveMatchUpdateEvent } from './gateway/events/gs/live-match-update.event';
 import { MatchFinishedEvent } from './gateway/events/match-finished.event';
 
@@ -35,4 +34,9 @@ export class EventController {
   async MatchFinishedEvent(data: MatchFinishedEvent) {
     this.event(MatchFinishedEvent, data);
   }
+  // @EventPattern(ServerActualizationRequestedEvent.name)
+  // async ServerActualizationRequestedEvent(data: ServerActualizationRequestedEvent) {
+  //   this.event(ServerActualizationRequestedEvent, data);
+  // }
+
 }

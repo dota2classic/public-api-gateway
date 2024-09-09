@@ -87,10 +87,40 @@ export interface GameserverPlayerInMatchDto {
     denies: number;
     /**
      * 
-     * @type {Array<string>}
+     * @type {number}
      * @memberof GameserverPlayerInMatchDto
      */
-    items: Array<string>;
+    item0: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof GameserverPlayerInMatchDto
+     */
+    item1: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof GameserverPlayerInMatchDto
+     */
+    item2: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof GameserverPlayerInMatchDto
+     */
+    item3: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof GameserverPlayerInMatchDto
+     */
+    item4: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof GameserverPlayerInMatchDto
+     */
+    item5: number;
     /**
      * 
      * @type {boolean}

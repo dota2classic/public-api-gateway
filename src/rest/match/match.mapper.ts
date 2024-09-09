@@ -6,10 +6,11 @@ import {
   GameserverPlayerInMatchDto,
 } from '../../generated-api/gameserver/models';
 import { MatchDto, MatchPageDto, PlayerInMatchDto } from './dto/match.dto';
-import { PlayerId } from '../../gateway/shared-types/player-id';
 import { MATCH_REPORT_TIMEOUT } from '../../gateway/shared-types/timings';
-import { GetReportsAvailableQueryResult } from '../../gateway/queries/GetReportsAvailable/get-reports-available-query.result';
-import { measure, measureN } from '../../utils/decorator/measure';
+import {
+  GetReportsAvailableQueryResult,
+} from '../../gateway/queries/GetReportsAvailable/get-reports-available-query.result';
+import { measureN } from '../../utils/decorator/measure';
 
 export interface PlayerMappableResource
   extends GetReportsAvailableQueryResult {}
@@ -38,7 +39,11 @@ export class MatchMapper {
       timeDiff <= MATCH_REPORT_TIMEOUT &&
       mapFor.available > 0;
     return {
-      ...it,
+      id: it.id,
+      mode: it.mode,
+      winner: it.winner,
+      duration: it.duration,
+      timestamp: it.timestamp,
       reportable: isReportable,
       radiant: await Promise.all(it.radiant.map(this.mapPlayerInMatch)),
       dire: await Promise.all(it.dire.map(this.mapPlayerInMatch)),

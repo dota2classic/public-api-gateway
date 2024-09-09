@@ -65,6 +65,7 @@ export class PlayerMapper {
     return {
       steam_id: it.steam_id,
       mmr: it.mmr,
+      avatar: await this.userRepository.avatar(it.steam_id),
       name: await this.userRepository.name(it.steam_id),
       roles: await this.userRepository.roles(it.steam_id),
       id: numSteamId(it.steam_id),

@@ -28,10 +28,16 @@ export interface GameserverMatchDto {
     id: number;
     /**
      * 
-     * @type {string}
+     * @type {number}
      * @memberof GameserverMatchDto
      */
     mode: GameserverMatchDtoModeEnum;
+    /**
+     * 
+     * @type {number}
+     * @memberof GameserverMatchDto
+     */
+    game_mode: GameserverMatchDtoGameModeEnum;
     /**
      * 
      * @type {Array<GameserverPlayerInMatchDto>}
@@ -69,15 +75,40 @@ export interface GameserverMatchDto {
     * @enum {string}
     */
 export enum GameserverMatchDtoModeEnum {
-    RANKED = 'RANKED',
-    UNRANKED = 'UNRANKED',
-    SOLOMID = 'SOLOMID',
-    DIRETIDE = 'DIRETIDE',
-    GREEVILING = 'GREEVILING',
-    ABILITYDRAFT = 'ABILITY_DRAFT',
-    TOURNAMENT = 'TOURNAMENT',
-    BOTS = 'BOTS',
-    HIGHROOM = 'HIGHROOM'
+    NUMBER_0 = 0,
+    NUMBER_1 = 1,
+    NUMBER_2 = 2,
+    NUMBER_3 = 3,
+    NUMBER_4 = 4,
+    NUMBER_5 = 5,
+    NUMBER_6 = 6,
+    NUMBER_7 = 7,
+    NUMBER_8 = 8,
+    NUMBER_9 = 9,
+    NUMBER_10 = 10
+}
+/**
+    * @export
+    * @enum {string}
+    */
+export enum GameserverMatchDtoGameModeEnum {
+    NUMBER_1 = 1,
+    NUMBER_2 = 2,
+    NUMBER_3 = 3,
+    NUMBER_4 = 4,
+    NUMBER_5 = 5,
+    NUMBER_6 = 6,
+    NUMBER_7 = 7,
+    NUMBER_8 = 8,
+    NUMBER_9 = 9,
+    NUMBER_10 = 10,
+    NUMBER_11 = 11,
+    NUMBER_12 = 12,
+    NUMBER_13 = 13,
+    NUMBER_17 = 17,
+    NUMBER_18 = 18,
+    NUMBER_21 = 21,
+    NUMBER_22 = 22
 }
 
 
