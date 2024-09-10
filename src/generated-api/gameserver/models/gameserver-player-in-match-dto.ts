@@ -90,6 +90,12 @@ export interface GameserverPlayerInMatchDto {
      * @type {number}
      * @memberof GameserverPlayerInMatchDto
      */
+    gold: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof GameserverPlayerInMatchDto
+     */
     item0: number;
     /**
      * 

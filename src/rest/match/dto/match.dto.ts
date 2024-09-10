@@ -14,6 +14,7 @@ export class PlayerInMatchDto {
   xpm: number;
   last_hits: number;
   denies: number;
+  gold: number;
 
 
   item0: number;
