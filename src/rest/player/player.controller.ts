@@ -16,8 +16,17 @@ import { Dota2Version } from '../../gateway/shared-types/dota2version';
 import { PlayerApi } from '../../generated-api/gameserver';
 import { GAMESERVER_APIURL } from '../../utils/env';
 import { PlayerMapper } from './player.mapper';
-import { LeaderboardEntryDto, MeDto, MyProfileDto, PlayerPreviewDto, PlayerSummaryDto } from './dto/player.dto';
-import { CurrentUser, CurrentUserDto } from '../../utils/decorator/current-user';
+import {
+  LeaderboardEntryDto,
+  MeDto,
+  MyProfileDto,
+  PlayerPreviewDto,
+  PlayerSummaryDto,
+} from './dto/player.dto';
+import {
+  CurrentUser,
+  CurrentUserDto,
+} from '../../utils/decorator/current-user';
 import { AuthGuard } from '@nestjs/passport';
 import { EventBus, QueryBus } from '@nestjs/cqrs';
 import { GetPartyQuery } from '../../gateway/queries/GetParty/get-party.query';
@@ -29,17 +38,14 @@ import { WithUser } from '../../utils/decorator/with-user';
 import { UserConnectionRepository } from '../../cache/user-connection/user-connection.repository';
 import { UserMightExistEvent } from '../../gateway/events/user/user-might-exist.event';
 import { ClientProxy } from '@nestjs/microservices';
-import { HeroStatsDto, PlayerGeneralStatsDto } from './dto/hero.dto';
+import { HeroStatsDto } from './dto/hero.dto';
 import { HttpCacheInterceptor } from '../../utils/cache-key-track';
 import { ReportDto } from './dto/report.dto';
 import { GetReportsAvailableQuery } from '../../gateway/queries/GetReportsAvailable/get-reports-available.query';
-import {
-  GetReportsAvailableQueryResult,
-} from '../../gateway/queries/GetReportsAvailable/get-reports-available-query.result';
+import { GetReportsAvailableQueryResult } from '../../gateway/queries/GetReportsAvailable/get-reports-available-query.result';
 import { extname } from 'path';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
-
 
 @Controller('player')
 @ApiTags('player')
@@ -58,7 +64,6 @@ export class PlayerController {
   ) {
     this.ms = new PlayerApi(undefined, `http://${GAMESERVER_APIURL}`);
   }
-
 
   @Post('upload')
   @WithUser()
@@ -79,14 +84,12 @@ export class PlayerController {
     }),
   )
   public async uploadImage(@UploadedFile() file) {
-
     // console.log(`upload hehe`, file)
     //.split('.').slice(0, -1).join('.');
     // img.path = file.filename;
     // await rep.save(img);
-    return  file.filename;
+    return file.filename;
   }
-
 
   @Get('/me')
   @WithUser()
@@ -115,7 +118,7 @@ export class PlayerController {
   async connections(
     @CurrentUser() user: CurrentUserDto,
   ): Promise<MyProfileDto> {
-    return {}
+    return {};
   }
 
   @UseInterceptors(HttpCacheInterceptor)
@@ -160,18 +163,6 @@ export class PlayerController {
   @Get('/summary/hero/:id')
   async heroSummary(@Param('id') steam_id: string): Promise<HeroStatsDto[]> {
     const d = await this.ms.playerControllerPlayerHeroSummary(
-      Dota2Version.Dota_681,
-      steam_id,
-    );
-    return d.data;
-  }
-
-  @UseInterceptors(HttpCacheInterceptor)
-  @Get('/summary/general/:id')
-  async generalSummary(
-    @Param('id') steam_id: string,
-  ): Promise<PlayerGeneralStatsDto> {
-    const d = await this.ms.playerControllerPlayerGeneralSummary(
       Dota2Version.Dota_681,
       steam_id,
     );

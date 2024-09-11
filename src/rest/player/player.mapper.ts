@@ -10,16 +10,12 @@ import { numSteamId } from '../../utils/steamIds';
 import { GetPartyQueryResult } from '../../gateway/queries/GetParty/get-party-query.result';
 import { PartyDto, PlayerInPartyDto } from './dto/party.dto';
 import { PlayerId } from '../../gateway/shared-types/player-id';
-import {
-  GetReportsAvailableQueryResult,
-} from '../../gateway/queries/GetReportsAvailable/get-reports-available-query.result';
+import { GetReportsAvailableQueryResult } from '../../gateway/queries/GetReportsAvailable/get-reports-available-query.result';
 import { TournamentTeamDto } from '../../generated-api/tournament/models';
 
 @Injectable()
 export class PlayerMapper {
-  constructor(
-    private readonly userRepository: UserRepository
-  ) {}
+  constructor(private readonly userRepository: UserRepository) {}
 
   public mapLeaderboardEntry = async (
     it: GameserverLeaderboardEntryDto,
@@ -29,8 +25,15 @@ export class PlayerMapper {
       steam_id: it.steam_id,
       mmr: it.mmr,
       name: await this.userRepository.name(it.steam_id),
-      roles: await this.userRepository.roles(it.steam_id),
+      avatar: await this.userRepository.avatar(it.steam_id),
       id: numSteamId(it.steam_id),
+
+      games: it.games,
+      kills: it.kills,
+      deaths: it.deaths,
+      assists: it.assists,
+      wins: it.wins,
+      play_time: it.play_time,
       rank,
     };
   };
@@ -67,10 +70,13 @@ export class PlayerMapper {
       mmr: it.mmr,
       avatar: await this.userRepository.avatar(it.steam_id),
       name: await this.userRepository.name(it.steam_id),
-      roles: await this.userRepository.roles(it.steam_id),
       id: numSteamId(it.steam_id),
       rank: it.rank,
       unrankedGamesLeft: it.newbieUnrankedGamesLeft,
+      wins: it.wins,
+      loss: it.loss,
+      games_played: it.games_played,
+      games_played_all: it.games_played_all,
     };
   };
 

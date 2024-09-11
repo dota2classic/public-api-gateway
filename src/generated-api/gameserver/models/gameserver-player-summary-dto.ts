@@ -43,6 +43,30 @@ export interface GameserverPlayerSummaryDto {
      * @memberof GameserverPlayerSummaryDto
      */
     newbieUnrankedGamesLeft: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof GameserverPlayerSummaryDto
+     */
+    games_played: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof GameserverPlayerSummaryDto
+     */
+    games_played_all: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof GameserverPlayerSummaryDto
+     */
+    wins: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof GameserverPlayerSummaryDto
+     */
+    loss: number;
 }
 
 

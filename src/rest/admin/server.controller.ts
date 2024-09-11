@@ -1,5 +1,10 @@
 import { Body, Controller, Get, Inject, Post } from '@nestjs/common';
-import { EventAdminDto, GameServerDto, GameSessionDto, StopServerDto } from './dto/admin.dto';
+import {
+  EventAdminDto,
+  GameServerDto,
+  GameSessionDto,
+  StopServerDto,
+} from './dto/admin.dto';
 import { ClientProxy } from '@nestjs/microservices';
 import { EventBus, QueryBus } from '@nestjs/cqrs';
 import { GAMESERVER_APIURL } from '../../utils/env';
@@ -55,16 +60,15 @@ export class ServerController {
   // @WithUser()
   @Post('/debug_event')
   async debugEvent(@Body() b: EventAdminDto) {
-    console.log(b)
     await this.rq.emit(b.name, b.body).toPromise();
-    console.log('Emitted');
   }
 
   // @AdminGuard()
   // @WithUser()
   @Post('/debug_command')
   async debugCommand(@Body() b: EventAdminDto) {
-    return await this.rq.send(b.name, b.body)
+    return await this.rq
+      .send(b.name, b.body)
       .pipe(timeout(1000))
       .toPromise();
   }

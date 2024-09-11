@@ -23,6 +23,9 @@ export class LiveMatchService {
   }
 
   public pushEvent(event: LiveMatchDto) {
+    console.log(
+      `Pushing event ${event.matchId} ${this.isMatchComplete(event.matchId)}`,
+    );
     if (this.isMatchComplete(event.matchId)) return;
 
     if (!this.cache.has(event.matchId)) {
@@ -49,7 +52,9 @@ export class LiveMatchService {
   }
 
   public list(): LiveMatchDto[] {
-    return [...this.entityCache.values()].filter(t => !this.isMatchComplete(t.matchId));
+    return [...this.entityCache.values()].filter(
+      t => !this.isMatchComplete(t.matchId),
+    );
   }
 
   public streamMatch(id: number): Observable<LiveMatchDto> {

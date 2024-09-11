@@ -3,7 +3,8 @@ export abstract class ITimedEntity {
 }
 
 // seconds
-const CACHE_TIME = 60 * 60;
+// const CACHE_TIME = 60 * 60;
+const CACHE_TIME = 60;
 
 export const secDiff = (d: Date, d2: Date) => {
   return Math.abs((d.getTime() - d2.getTime()) / 1000);

@@ -23,6 +23,7 @@ export const JWT_SECRET = process.env.PRIVATE_JWT_KEY || 'tmp';
 
 const tmp = parseInt(process.env.LIVE_MATCH_DELAY);
 export const LIVE_MATCH_DELAY = Number.isNaN(tmp) ? 60_000 : tmp;
+console.log(LIVE_MATCH_DELAY)
 export const TOKEN_KEY = 'dota2classic_auth_token';
 
 

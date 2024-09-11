@@ -5,10 +5,20 @@ import { BanStatusDto } from '../../admin/dto/admin.dto';
 export class LeaderboardEntryDto {
   steam_id: string;
   name: string;
+  avatar: string;
+
   id: string;
   mmr: number;
   rank: number;
-  roles: Role[];
+
+  games: number;
+  wins: number;
+
+  kills: number;
+  deaths: number;
+  assists: number;
+
+  play_time: number;
 }
 
 
@@ -32,9 +42,15 @@ export class PlayerSummaryDto {
   avatar: string;
   id: string;
   mmr: number;
-  roles: Role[];
   rank: number;
   unrankedGamesLeft: number;
+
+  games_played: number;
+  games_played_all: number;
+  wins: number;
+  loss: number;
+
+  // asdfsa
 }
 export class ConnectionDto {
   connection: UserConnection;

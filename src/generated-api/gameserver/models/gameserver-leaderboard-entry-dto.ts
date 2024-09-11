@@ -31,6 +31,42 @@ export interface GameserverLeaderboardEntryDto {
      * @memberof GameserverLeaderboardEntryDto
      */
     mmr: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof GameserverLeaderboardEntryDto
+     */
+    games: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof GameserverLeaderboardEntryDto
+     */
+    wins: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof GameserverLeaderboardEntryDto
+     */
+    kills: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof GameserverLeaderboardEntryDto
+     */
+    deaths: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof GameserverLeaderboardEntryDto
+     */
+    assists: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof GameserverLeaderboardEntryDto
+     */
+    play_time: number;
 }
 
 

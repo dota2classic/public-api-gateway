@@ -4,7 +4,13 @@ import { SteamController } from './rest/steam.controller';
 import SteamStrategy from './rest/strategy/steam.strategy';
 import { JwtModule } from '@nestjs/jwt';
 import { ClientsModule, Transport } from '@nestjs/microservices';
-import { isDev, JWT_SECRET, REDIS_HOST, REDIS_PASSWORD, REDIS_URL } from './utils/env';
+import {
+  isDev,
+  JWT_SECRET,
+  REDIS_HOST,
+  REDIS_PASSWORD,
+  REDIS_URL,
+} from './utils/env';
 import { outerQuery } from './gateway/util/outerQuery';
 import { GetAllQuery } from './gateway/queries/GetAll/get-all.query';
 import { GetUserInfoQuery } from './gateway/queries/GetUserInfo/get-user-info.query';
@@ -47,7 +53,7 @@ import { Entities, prodDbConfig } from './db.config';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { CacheModule } from '@nestjs/cache-manager';
 import { QueryCache } from './rcache';
-
+import { MetaMapper } from './rest/meta/meta.mapper';
 
 export function qCache<T, B>() {
   return new QueryCache<T, B>({
@@ -129,6 +135,7 @@ export function qCache<T, B>() {
 
     MatchMapper,
     PlayerMapper,
+    MetaMapper,
     AdminMapper,
 
     UserRepository,

@@ -57,6 +57,30 @@ export interface GameserverHeroSummaryDto {
     assists: number;
     /**
      * 
+     * @type {number}
+     * @memberof GameserverHeroSummaryDto
+     */
+    gpm: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof GameserverHeroSummaryDto
+     */
+    xpm: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof GameserverHeroSummaryDto
+     */
+    last_hits: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof GameserverHeroSummaryDto
+     */
+    denies: number;
+    /**
+     * 
      * @type {string}
      * @memberof GameserverHeroSummaryDto
      */

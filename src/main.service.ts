@@ -28,7 +28,7 @@ export class MainService {
             where: {
               version,
               mode,
-            }
+            },
           },
         );
 

@@ -13,11 +13,23 @@ export class LiveMatchUpdateHandler
 
   async handle(event: LiveMatchUpdateEvent) {
     this.ls.pushEvent({
-      ...event,
-      heroes: await Promise.all(event.heroes.map(async h => ({
-        ...h,
-        name: h.bot ? '' : await this.uRep.name(h.steam_id),
-      }))),
+      matchId: event.matchId,
+      matchmakingMode: event.matchmaking_mode,
+      gameMode: event.game_mode,
+      duration: event.duration,
+      server: event.server,
+      timestamp: event.timestamp,
+      heroes: await Promise.all(
+        event.heroes.map(async h => ({
+          ...h,
+          name: h.bot ? '' : await this.uRep.name(h.steam_id),
+        })),
+      ),
     });
   }
 }
+
+// await Promise.all(event.heroes.map(async h => ({
+//   ...h,
+//   name: h.bot ? '' : await this.uRep.name(h.steam_id),
+// })))

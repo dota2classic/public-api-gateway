@@ -6,7 +6,7 @@ import {
   LiveMatchSseDto,
   MessageObjectDto,
 } from './dto/match.dto';
-import { Observable } from 'rxjs';
+import { Observable, scan } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 function wrapSse<A>() {
@@ -32,6 +32,7 @@ export class LiveMatchController {
   liveMatch(
     @Param('id', ParseIntPipe) id: number,
   ): Observable<LiveMatchSseDto> {
+    this.ls.streamMatch(id).pipe(scan(a => console.log(a)))
     return this.ls.streamMatch(id).pipe(map(a => ({ data: a })));
   }
 }
