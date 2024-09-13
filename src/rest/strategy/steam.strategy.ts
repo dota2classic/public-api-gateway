@@ -8,16 +8,10 @@ import { STEAM_KEY } from '../../utils/env';
 export default class SteamStrategy extends PassportStrategy(SteamStrategyT) {
   constructor() {
     super({
-      returnURL: `${backUrl}/api/v1/auth/steam/callback`,
+      returnURL: `${backUrl}/v1/auth/steam/callback`,
       realm: `${backUrl}/`,
       apiKey: STEAM_KEY,
     });
-
-    console.log({
-      returnURL: `${backUrl}/api/v1/auth/steam/callback`,
-      realm: `${backUrl}/`,
-      apiKey: STEAM_KEY,
-    })
   }
 
   async validate(

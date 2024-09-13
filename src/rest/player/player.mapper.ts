@@ -19,7 +19,6 @@ export class PlayerMapper {
 
   public mapLeaderboardEntry = async (
     it: GameserverLeaderboardEntryDto,
-    rank: number,
   ): Promise<LeaderboardEntryDto> => {
     return {
       steam_id: it.steam_id,
@@ -34,7 +33,7 @@ export class PlayerMapper {
       assists: it.assists,
       wins: it.wins,
       play_time: it.play_time,
-      rank,
+      rank: it.rank,
     };
   };
 
@@ -74,9 +73,8 @@ export class PlayerMapper {
       rank: it.rank,
       unrankedGamesLeft: it.newbieUnrankedGamesLeft,
       wins: it.wins,
-      loss: it.loss,
-      games_played: it.games_played,
-      games_played_all: it.games_played_all,
+      loss: it.games - it.wins,
+      games_played: it.games,
     };
   };
 

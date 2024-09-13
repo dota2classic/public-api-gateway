@@ -24,7 +24,13 @@ export interface GameserverPlayerSummaryDto {
      * @type {number}
      * @memberof GameserverPlayerSummaryDto
      */
-    mmr: number;
+    newbieUnrankedGamesLeft: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof GameserverPlayerSummaryDto
+     */
+    rank: number | null;
     /**
      * 
      * @type {string}
@@ -36,25 +42,13 @@ export interface GameserverPlayerSummaryDto {
      * @type {number}
      * @memberof GameserverPlayerSummaryDto
      */
-    rank: number;
+    mmr: number;
     /**
      * 
      * @type {number}
      * @memberof GameserverPlayerSummaryDto
      */
-    newbieUnrankedGamesLeft: number;
-    /**
-     * 
-     * @type {number}
-     * @memberof GameserverPlayerSummaryDto
-     */
-    games_played: number;
-    /**
-     * 
-     * @type {number}
-     * @memberof GameserverPlayerSummaryDto
-     */
-    games_played_all: number;
+    games: number;
     /**
      * 
      * @type {number}
@@ -66,7 +60,25 @@ export interface GameserverPlayerSummaryDto {
      * @type {number}
      * @memberof GameserverPlayerSummaryDto
      */
-    loss: number;
+    kills: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof GameserverPlayerSummaryDto
+     */
+    deaths: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof GameserverPlayerSummaryDto
+     */
+    assists: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof GameserverPlayerSummaryDto
+     */
+    play_time: number;
 }
 
 

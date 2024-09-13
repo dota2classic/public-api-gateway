@@ -28,31 +28,38 @@ export class SteamController {
   @ApiExcludeEndpoint()
   @UseGuards(AuthGuard('steam'))
   async steamAuthRequest(@Req() req, @Res() res) {
-    console.log('Callback success')
+    console.log('Callback success');
     const steam32id = steam64to32(req.user!!._json.steamid);
 
-
-    this.rq.emit(UserLoggedInEvent.name, new UserLoggedInEvent(
-      new PlayerId(steam32id),
-      req.user!!._json.personaname,
-      req.user!!._json.avatarfull,
-    ))
+    this.rq.emit(
+      UserLoggedInEvent.name,
+      new UserLoggedInEvent(
+        new PlayerId(steam32id),
+        req.user!!._json.personaname,
+        req.user!!._json.avatarfull,
+      ),
+    );
 
     const existingUser = await this.userRepository.resolve(steam32id);
 
-
     if (existingUser) {
-      const token = this.jwtService.sign({ sub: steam32id, roles: existingUser.roles });
-
-
+      const token = this.jwtService.sign({
+        sub: steam32id,
+        roles: existingUser.roles,
+        name: req.user!!._json.personaname || existingUser?.name,
+        avatar: req.user!!._json.avatarfull || existingUser?.avatar,
+      });
 
       // ok here we might need to create a user pepega
-      res.cookie(TOKEN_KEY, token).redirect(`${frontUrl}/player/${steam32id}`);
+      res.cookie(TOKEN_KEY, token).redirect(`${frontUrl}/players/${steam32id}`);
     } else {
-      const token = this.jwtService.sign({ sub: steam32id, roles: [Role.PLAYER] });
+      const token = this.jwtService.sign({
+        sub: steam32id,
+        roles: [Role.PLAYER],
+      });
 
       // ok here we might need to create a user pepega
-      res.cookie(TOKEN_KEY, token).redirect(`${frontUrl}/player/${steam32id}`);
+      res.cookie(TOKEN_KEY, token).redirect(`${frontUrl}/players/${steam32id}`);
     }
   }
 }

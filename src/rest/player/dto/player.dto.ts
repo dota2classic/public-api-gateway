@@ -8,8 +8,8 @@ export class LeaderboardEntryDto {
   avatar: string;
 
   id: string;
-  mmr: number;
-  rank: number;
+  mmr?: number;
+  rank?: number;
 
   games: number;
   wins: number;
@@ -41,12 +41,11 @@ export class PlayerSummaryDto {
   name: string;
   avatar: string;
   id: string;
-  mmr: number;
-  rank: number;
+  mmr?: number;
+  rank?: number;
   unrankedGamesLeft: number;
 
   games_played: number;
-  games_played_all: number;
   wins: number;
   loss: number;
 

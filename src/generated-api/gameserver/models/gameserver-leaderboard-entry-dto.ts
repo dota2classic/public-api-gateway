@@ -21,6 +21,12 @@
 export interface GameserverLeaderboardEntryDto {
     /**
      * 
+     * @type {number}
+     * @memberof GameserverLeaderboardEntryDto
+     */
+    rank: number | null;
+    /**
+     * 
      * @type {string}
      * @memberof GameserverLeaderboardEntryDto
      */
