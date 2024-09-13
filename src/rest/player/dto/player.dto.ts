@@ -22,6 +22,18 @@ export class LeaderboardEntryDto {
 }
 
 
+export class PlayerTeammateDto {
+  public readonly steam_id: string;
+  public readonly name: string;
+  public readonly avatar: string;
+
+  public readonly games: number;
+  public readonly wins: number;
+  public readonly losses: number;
+  public readonly winrate: number;
+  public readonly rank: number;
+}
+
 
 export class MeDto {
   steam_id: string;

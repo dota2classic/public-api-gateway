@@ -25,9 +25,11 @@ export class HeroPlayerDto {
   name: string;
   avatar: string;
   steam_id: string;
-  kda: number;
   games: number;
   wins: number;
   score: number;
+  kills: number;
+  deaths: number;
+  assists: number;
 
 }

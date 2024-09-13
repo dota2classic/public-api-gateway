@@ -15,7 +15,9 @@ export class MetaMapper {
       avatar: await this.userRepository.avatar(it.steam_id),
       steam_id: it.steam_id,
       score: it.score,
-      kda: it.kda,
+      kills: it.kills,
+      deaths: it.deaths,
+      assists: it.assists,
       wins: it.wins,
       games: it.games,
     };

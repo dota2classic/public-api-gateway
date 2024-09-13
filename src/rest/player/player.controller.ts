@@ -22,6 +22,7 @@ import {
   MyProfileDto,
   PlayerPreviewDto,
   PlayerSummaryDto,
+  PlayerTeammateDto,
 } from './dto/player.dto';
 import {
   CurrentUser,
@@ -131,6 +132,12 @@ export class PlayerController {
   ): Promise<LeaderboardEntryDto[]> {
     const rawData = await this.ms.playerControllerLeaderboard(version);
     return Promise.all(rawData.data.map(this.mapper.mapLeaderboardEntry));
+  }
+
+  @Get('/:id/teammates')
+  async teammates(@Param('id') steam_id: string): Promise<PlayerTeammateDto[]> {
+    const rawData = await this.ms.playerControllerPlayerTeammates(steam_id);
+    return Promise.all(rawData.data.map(this.mapper.mapTeammate));
   }
 
   @Get('/summary/:id')

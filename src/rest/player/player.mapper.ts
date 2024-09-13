@@ -3,9 +3,15 @@ import {
   GameserverBanStatusDto,
   GameserverLeaderboardEntryDto,
   GameserverPlayerSummaryDto,
+  GameserverPlayerTeammateDto,
 } from '../../generated-api/gameserver/models';
 import { UserRepository } from '../../cache/user/user.repository';
-import { LeaderboardEntryDto, MeDto, PlayerSummaryDto } from './dto/player.dto';
+import {
+  LeaderboardEntryDto,
+  MeDto,
+  PlayerSummaryDto,
+  PlayerTeammateDto,
+} from './dto/player.dto';
 import { numSteamId } from '../../utils/steamIds';
 import { GetPartyQueryResult } from '../../gateway/queries/GetParty/get-party-query.result';
 import { PartyDto, PlayerInPartyDto } from './dto/party.dto';
@@ -17,6 +23,19 @@ import { TournamentTeamDto } from '../../generated-api/tournament/models';
 export class PlayerMapper {
   constructor(private readonly userRepository: UserRepository) {}
 
+  public mapTeammate = async (
+    it: GameserverPlayerTeammateDto,
+  ): Promise<PlayerTeammateDto> => ({
+    steam_id: it.steam_id,
+    name: await this.userRepository.name(it.steam_id),
+    avatar: await this.userRepository.avatar(it.steam_id),
+
+    games: it.games,
+    wins: it.wins,
+    losses: it.losses,
+    winrate: it.winrate,
+    rank: it.rank,
+  });
   public mapLeaderboardEntry = async (
     it: GameserverLeaderboardEntryDto,
   ): Promise<LeaderboardEntryDto> => {
