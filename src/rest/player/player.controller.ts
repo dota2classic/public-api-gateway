@@ -22,7 +22,7 @@ import {
   MyProfileDto,
   PlayerPreviewDto,
   PlayerSummaryDto,
-  PlayerTeammateDto,
+  PlayerTeammatePageDto,
 } from './dto/player.dto';
 import {
   CurrentUser,
@@ -134,10 +134,31 @@ export class PlayerController {
     return Promise.all(rawData.data.map(this.mapper.mapLeaderboardEntry));
   }
 
+  @ApiQuery({
+    name: 'page',
+    required: true,
+  })
+  @ApiQuery({
+    name: 'per_page',
+    required: false,
+  })
   @Get('/:id/teammates')
-  async teammates(@Param('id') steam_id: string): Promise<PlayerTeammateDto[]> {
-    const rawData = await this.ms.playerControllerPlayerTeammates(steam_id);
-    return Promise.all(rawData.data.map(this.mapper.mapTeammate));
+  async teammates(
+    @Param('id') steam_id: string,
+    @Query('page') page: number,
+    @Query('per_page') perPage: number = 25,
+  ): Promise<PlayerTeammatePageDto> {
+    const rawData = await this.ms.playerControllerPlayerTeammates(
+      steam_id,
+      page,
+      perPage,
+    );
+    return {
+      data: await Promise.all(rawData.data.data.map(this.mapper.mapTeammate)),
+      page: rawData.data.page,
+      perPage: rawData.data.perPage,
+      pages: rawData.data.pages,
+    };
   }
 
   @Get('/summary/:id')

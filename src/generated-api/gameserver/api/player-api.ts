@@ -31,7 +31,7 @@ import {
   GameserverLeaderboardEntryDto,
   GameserverPlayerHeroPerformance,
   GameserverPlayerSummaryDto,
-  GameserverPlayerTeammateDto,
+  GameserverPlayerTeammatePage,
   GameserverReportPlayerDto,
 } from '../models';
 
@@ -231,13 +231,19 @@ export const PlayerApiAxiosParamCreator = function (configuration?: Configuratio
         /**
          *
          * @param {string} id
+         * @param {number} page
+         * @param {number} [perPage]
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        playerControllerPlayerTeammates: async (id: string, options: any = {}): Promise<RequestArgs> => {
+        playerControllerPlayerTeammates: async (id: string, page: number, perPage?: number, options: any = {}): Promise<RequestArgs> => {
             // verify required parameter 'id' is not null or undefined
             if (id === null || id === undefined) {
                 throw new RequiredError('id','Required parameter id was null or undefined when calling playerControllerPlayerTeammates.');
+            }
+            // verify required parameter 'page' is not null or undefined
+            if (page === null || page === undefined) {
+                throw new RequiredError('page','Required parameter page was null or undefined when calling playerControllerPlayerTeammates.');
             }
             const localVarPath = `/player/{id}/teammates`
                 .replace(`{${"id"}}`, encodeURIComponent(String(id)));
@@ -249,6 +255,14 @@ export const PlayerApiAxiosParamCreator = function (configuration?: Configuratio
             const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
+
+            if (page !== undefined) {
+                localVarQueryParameter['page'] = page;
+            }
+
+            if (perPage !== undefined) {
+                localVarQueryParameter['per_page'] = perPage;
+            }
 
 
 
@@ -380,11 +394,13 @@ export const PlayerApiFp = function(configuration?: Configuration) {
         /**
          *
          * @param {string} id
+         * @param {number} page
+         * @param {number} [perPage]
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async playerControllerPlayerTeammates(id: string, options?: any): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<GameserverPlayerTeammateDto>>> {
-            const localVarAxiosArgs = await PlayerApiAxiosParamCreator(configuration).playerControllerPlayerTeammates(id, options);
+        async playerControllerPlayerTeammates(id: string, page: number, perPage?: number, options?: any): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GameserverPlayerTeammatePage>> {
+            const localVarAxiosArgs = await PlayerApiAxiosParamCreator(configuration).playerControllerPlayerTeammates(id, page, perPage, options);
             return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
                 const axiosRequestArgs = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
                 return axios.request(axiosRequestArgs);
@@ -462,11 +478,13 @@ export const PlayerApiFactory = function (configuration?: Configuration, basePat
         /**
          *
          * @param {string} id
+         * @param {number} page
+         * @param {number} [perPage]
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        playerControllerPlayerTeammates(id: string, options?: any): AxiosPromise<Array<GameserverPlayerTeammateDto>> {
-            return PlayerApiFp(configuration).playerControllerPlayerTeammates(id, options).then((request) => request(axios, basePath));
+        playerControllerPlayerTeammates(id: string, page: number, perPage?: number, options?: any): AxiosPromise<GameserverPlayerTeammatePage> {
+            return PlayerApiFp(configuration).playerControllerPlayerTeammates(id, page, perPage, options).then((request) => request(axios, basePath));
         },
         /**
          *
@@ -547,12 +565,14 @@ export class PlayerApi extends BaseAPI {
     /**
      *
      * @param {string} id
+     * @param {number} page
+     * @param {number} [perPage]
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof PlayerApi
      */
-    public playerControllerPlayerTeammates(id: string, options?: any) {
-        return PlayerApiFp(this.configuration).playerControllerPlayerTeammates(id, options).then((request) => request(this.axios, this.basePath));
+    public playerControllerPlayerTeammates(id: string, page: number, perPage?: number, options?: any) {
+        return PlayerApiFp(this.configuration).playerControllerPlayerTeammates(id, page, perPage, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

@@ -12,4 +12,5 @@ export * from './gameserver-player-hero-performance';
 export * from './gameserver-player-in-match-dto';
 export * from './gameserver-player-summary-dto';
 export * from './gameserver-player-teammate-dto';
+export * from './gameserver-player-teammate-page';
 export * from './gameserver-report-player-dto';

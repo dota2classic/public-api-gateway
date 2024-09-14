@@ -79,3 +79,11 @@ export class PlayerPreviewDto {
   id: string;
   avatar: string;
 }
+
+
+export class PlayerTeammatePageDto {
+  data: PlayerTeammateDto[];
+  page: number;
+  pages: number;
+  perPage: number;
+}
