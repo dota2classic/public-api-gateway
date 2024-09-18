@@ -85,6 +85,12 @@ export interface GameserverHeroSummaryDto {
      * @memberof GameserverHeroSummaryDto
      */
     hero: string;
+    /**
+     * 
+     * @type {number}
+     * @memberof GameserverHeroSummaryDto
+     */
+    pickrate: number;
 }
 
 
