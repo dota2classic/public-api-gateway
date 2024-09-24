@@ -37,7 +37,6 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { GetRoleSubscriptionsQuery } from './gateway/queries/user/GetRoleSubscriptions/get-role-subscriptions.query';
 import { LiveMatchUpdateHandler } from './cache/event-handler/live-match-update.handler';
 import { GameSessionFinishedEvent } from './gateway/events/game-session-finished.event';
-import { MatchFinishedHandler } from './cache/event-handler/match-finished.handler';
 import { LiveMatchService } from './cache/live-match.service';
 import { LiveMatchController } from './rest/match/live-match.controller';
 import { GetPlayerInfoQuery } from './gateway/queries/GetPlayerInfo/get-player-info.query';
@@ -54,6 +53,7 @@ import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { CacheModule } from '@nestjs/cache-manager';
 import { QueryCache } from './rcache';
 import { MetaMapper } from './rest/meta/meta.mapper';
+import { GameResultsHandler } from './cache/event-handler/game-results.handler';
 
 export function qCache<T, B>() {
   return new QueryCache<T, B>({
@@ -144,7 +144,7 @@ export function qCache<T, B>() {
     UserUpdatedHandler,
     LiveMatchUpdateHandler,
     GameSessionFinishedEvent,
-    MatchFinishedHandler,
+    GameResultsHandler
   ],
 })
 export class AppModule {}
