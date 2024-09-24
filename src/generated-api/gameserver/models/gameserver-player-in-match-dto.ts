@@ -78,6 +78,24 @@ export interface GameserverPlayerInMatchDto {
      * @type {number}
      * @memberof GameserverPlayerInMatchDto
      */
+    hero_damage: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof GameserverPlayerInMatchDto
+     */
+    hero_healing: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof GameserverPlayerInMatchDto
+     */
+    tower_damage: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof GameserverPlayerInMatchDto
+     */
     last_hits: number;
     /**
      * 

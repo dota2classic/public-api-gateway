@@ -13,6 +13,9 @@ export class PlayerInMatchDto {
   assists: number;
   gpm: number;
   xpm: number;
+  hero_healing: number;
+  hero_damage: number;
+  tower_damage: number;
   last_hits: number;
   denies: number;
   gold: number;
