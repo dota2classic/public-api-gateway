@@ -26,13 +26,13 @@ import { BASE_PATH, BaseAPI, COLLECTION_FORMATS, RequestArgs, RequiredError } fr
 // @ts-ignore
 // @ts-ignore
 import {
-  GameserverBanStatusDto,
-  GameserverHeroStatsDto,
-  GameserverLeaderboardEntryDto,
-  GameserverPlayerHeroPerformance,
-  GameserverPlayerSummaryDto,
-  GameserverPlayerTeammatePage,
-  GameserverReportPlayerDto,
+    GameserverBanStatusDto,
+    GameserverHeroStatsDto,
+    GameserverLeaderboardEntryDto,
+    GameserverPlayerHeroPerformance,
+    GameserverPlayerSummaryDto,
+    GameserverPlayerTeammatePage,
+    GameserverReportPlayerDto,
 } from '../models';
 
 /**

@@ -56,8 +56,10 @@ export class PlayerSummaryDto {
   mmr?: number;
   rank?: number;
   unrankedGamesLeft: number;
+  playedAnyGame: boolean;
 
   games_played: number;
+
   wins: number;
   loss: number;
 

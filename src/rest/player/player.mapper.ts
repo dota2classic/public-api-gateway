@@ -91,6 +91,7 @@ export class PlayerMapper {
       id: numSteamId(it.steam_id),
       rank: it.rank,
       unrankedGamesLeft: it.newbieUnrankedGamesLeft,
+      playedAnyGame: it.playedAnyGame,
       wins: it.wins,
       loss: it.games - it.wins,
       games_played: it.games,

@@ -27,6 +27,12 @@ export interface GameserverPlayerSummaryDto {
     newbieUnrankedGamesLeft: number;
     /**
      * 
+     * @type {boolean}
+     * @memberof GameserverPlayerSummaryDto
+     */
+    playedAnyGame: boolean;
+    /**
+     * 
      * @type {number}
      * @memberof GameserverPlayerSummaryDto
      */
