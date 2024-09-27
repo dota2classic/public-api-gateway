@@ -30,17 +30,9 @@ export class PlayerInMatchDto {
   abandoned: boolean;
 }
 
-export enum FakeEnum {
-  Enum_labe = 'helloworl',
-  asdfasfsa = 'burn',
-}
 
 export class MatchDto {
   id: number;
-
-
-  @ApiProperty({ enum: FakeEnum, enumName: 'FakeEnum' })
-  fakeEnum?: FakeEnum;
 
   @ApiProperty({ enum: MatchmakingMode, enumName: 'MatchmakingMode' })
   mode: MatchmakingMode;
@@ -99,7 +91,10 @@ export class PlayerInfo {
 
 export class LiveMatchDto {
   matchId: number;
+  @ApiProperty({ enum: MatchmakingMode, enumName: 'MatchmakingMode' })
   matchmakingMode: MatchmakingMode;
+
+  @ApiProperty({ enum: Dota_GameMode, enumName: 'Dota_GameMode' })
   gameMode: Dota_GameMode;
   duration: number;
   server: string;

@@ -71,6 +71,26 @@ export class PlayerApi extends runtime.BaseAPI {
 
     /**
      */
+    private async playerControllerBanInfoRaw(requestParameters: PlayerControllerBanInfoRequest): Promise<runtime.ApiResponse<GameserverBanStatusDto>> {
+        this.playerControllerBanInfoValidation(requestParameters);
+        const context = this.playerControllerBanInfoContext(requestParameters);
+        const response = await this.request(context);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => GameserverBanStatusDtoFromJSON(jsonValue));
+    }
+
+
+
+    /**
+     */
+    private playerControllerBanInfoValidation(requestParameters: PlayerControllerBanInfoRequest) {
+        if (requestParameters.id === null || requestParameters.id === undefined) {
+            throw new runtime.RequiredError('id','Required parameter requestParameters.id was null or undefined when calling playerControllerBanInfo.');
+        }
+    }
+
+    /**
+     */
     playerControllerBanInfoContext(requestParameters: PlayerControllerBanInfoRequest): runtime.RequestOpts {
         const queryParameters: any = {};
 
@@ -89,6 +109,26 @@ export class PlayerApi extends runtime.BaseAPI {
     playerControllerBanInfo = async (id: string): Promise<GameserverBanStatusDto> => {
         const response = await this.playerControllerBanInfoRaw({ id: id });
         return await response.value();
+    }
+
+    /**
+     */
+    private async playerControllerGetHeroPlayersRaw(requestParameters: PlayerControllerGetHeroPlayersRequest): Promise<runtime.ApiResponse<Array<GameserverPlayerHeroPerformance>>> {
+        this.playerControllerGetHeroPlayersValidation(requestParameters);
+        const context = this.playerControllerGetHeroPlayersContext(requestParameters);
+        const response = await this.request(context);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(GameserverPlayerHeroPerformanceFromJSON));
+    }
+
+
+
+    /**
+     */
+    private playerControllerGetHeroPlayersValidation(requestParameters: PlayerControllerGetHeroPlayersRequest) {
+        if (requestParameters.hero === null || requestParameters.hero === undefined) {
+            throw new runtime.RequiredError('hero','Required parameter requestParameters.hero was null or undefined when calling playerControllerGetHeroPlayers.');
+        }
     }
 
     /**
@@ -115,6 +155,26 @@ export class PlayerApi extends runtime.BaseAPI {
 
     /**
      */
+    private async playerControllerLeaderboardRaw(requestParameters: PlayerControllerLeaderboardRequest): Promise<runtime.ApiResponse<Array<GameserverLeaderboardEntryDto>>> {
+        this.playerControllerLeaderboardValidation(requestParameters);
+        const context = this.playerControllerLeaderboardContext(requestParameters);
+        const response = await this.request(context);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(GameserverLeaderboardEntryDtoFromJSON));
+    }
+
+
+
+    /**
+     */
+    private playerControllerLeaderboardValidation(requestParameters: PlayerControllerLeaderboardRequest) {
+        if (requestParameters.version === null || requestParameters.version === undefined) {
+            throw new runtime.RequiredError('version','Required parameter requestParameters.version was null or undefined when calling playerControllerLeaderboard.');
+        }
+    }
+
+    /**
+     */
     playerControllerLeaderboardContext(requestParameters: PlayerControllerLeaderboardRequest): runtime.RequestOpts {
         const queryParameters: any = {};
 
@@ -133,6 +193,29 @@ export class PlayerApi extends runtime.BaseAPI {
     playerControllerLeaderboard = async (version: string): Promise<Array<GameserverLeaderboardEntryDto>> => {
         const response = await this.playerControllerLeaderboardRaw({ version: version });
         return await response.value();
+    }
+
+    /**
+     */
+    private async playerControllerPlayerHeroSummaryRaw(requestParameters: PlayerControllerPlayerHeroSummaryRequest): Promise<runtime.ApiResponse<Array<GameserverHeroStatsDto>>> {
+        this.playerControllerPlayerHeroSummaryValidation(requestParameters);
+        const context = this.playerControllerPlayerHeroSummaryContext(requestParameters);
+        const response = await this.request(context);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(GameserverHeroStatsDtoFromJSON));
+    }
+
+
+
+    /**
+     */
+    private playerControllerPlayerHeroSummaryValidation(requestParameters: PlayerControllerPlayerHeroSummaryRequest) {
+        if (requestParameters.version === null || requestParameters.version === undefined) {
+            throw new runtime.RequiredError('version','Required parameter requestParameters.version was null or undefined when calling playerControllerPlayerHeroSummary.');
+        }
+        if (requestParameters.id === null || requestParameters.id === undefined) {
+            throw new runtime.RequiredError('id','Required parameter requestParameters.id was null or undefined when calling playerControllerPlayerHeroSummary.');
+        }
     }
 
     /**
@@ -159,6 +242,29 @@ export class PlayerApi extends runtime.BaseAPI {
 
     /**
      */
+    private async playerControllerPlayerSummaryRaw(requestParameters: PlayerControllerPlayerSummaryRequest): Promise<runtime.ApiResponse<GameserverPlayerSummaryDto>> {
+        this.playerControllerPlayerSummaryValidation(requestParameters);
+        const context = this.playerControllerPlayerSummaryContext(requestParameters);
+        const response = await this.request(context);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => GameserverPlayerSummaryDtoFromJSON(jsonValue));
+    }
+
+
+
+    /**
+     */
+    private playerControllerPlayerSummaryValidation(requestParameters: PlayerControllerPlayerSummaryRequest) {
+        if (requestParameters.version === null || requestParameters.version === undefined) {
+            throw new runtime.RequiredError('version','Required parameter requestParameters.version was null or undefined when calling playerControllerPlayerSummary.');
+        }
+        if (requestParameters.id === null || requestParameters.id === undefined) {
+            throw new runtime.RequiredError('id','Required parameter requestParameters.id was null or undefined when calling playerControllerPlayerSummary.');
+        }
+    }
+
+    /**
+     */
     playerControllerPlayerSummaryContext(requestParameters: PlayerControllerPlayerSummaryRequest): runtime.RequestOpts {
         const queryParameters: any = {};
 
@@ -177,6 +283,29 @@ export class PlayerApi extends runtime.BaseAPI {
     playerControllerPlayerSummary = async (version: string, id: string): Promise<GameserverPlayerSummaryDto> => {
         const response = await this.playerControllerPlayerSummaryRaw({ version: version, id: id });
         return await response.value();
+    }
+
+    /**
+     */
+    private async playerControllerPlayerTeammatesRaw(requestParameters: PlayerControllerPlayerTeammatesRequest): Promise<runtime.ApiResponse<GameserverPlayerTeammatePage>> {
+        this.playerControllerPlayerTeammatesValidation(requestParameters);
+        const context = this.playerControllerPlayerTeammatesContext(requestParameters);
+        const response = await this.request(context);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => GameserverPlayerTeammatePageFromJSON(jsonValue));
+    }
+
+
+
+    /**
+     */
+    private playerControllerPlayerTeammatesValidation(requestParameters: PlayerControllerPlayerTeammatesRequest) {
+        if (requestParameters.id === null || requestParameters.id === undefined) {
+            throw new runtime.RequiredError('id','Required parameter requestParameters.id was null or undefined when calling playerControllerPlayerTeammates.');
+        }
+        if (requestParameters.page === null || requestParameters.page === undefined) {
+            throw new runtime.RequiredError('page','Required parameter requestParameters.page was null or undefined when calling playerControllerPlayerTeammates.');
+        }
     }
 
     /**
@@ -211,6 +340,26 @@ export class PlayerApi extends runtime.BaseAPI {
 
     /**
      */
+    private async playerControllerReportPlayerRaw(requestParameters: PlayerControllerReportPlayerRequest): Promise<runtime.ApiResponse<void>> {
+        this.playerControllerReportPlayerValidation(requestParameters);
+        const context = this.playerControllerReportPlayerContext(requestParameters);
+        const response = await this.request(context);
+
+        return new runtime.VoidApiResponse(response);
+    }
+
+
+
+    /**
+     */
+    private playerControllerReportPlayerValidation(requestParameters: PlayerControllerReportPlayerRequest) {
+        if (requestParameters.gameserverReportPlayerDto === null || requestParameters.gameserverReportPlayerDto === undefined) {
+            throw new runtime.RequiredError('gameserverReportPlayerDto','Required parameter requestParameters.gameserverReportPlayerDto was null or undefined when calling playerControllerReportPlayer.');
+        }
+    }
+
+    /**
+     */
     playerControllerReportPlayerContext(requestParameters: PlayerControllerReportPlayerRequest): runtime.RequestOpts {
         const queryParameters: any = {};
 
@@ -231,141 +380,6 @@ export class PlayerApi extends runtime.BaseAPI {
      */
     playerControllerReportPlayer = async (gameserverReportPlayerDto: GameserverReportPlayerDto): Promise<void> => {
         await this.playerControllerReportPlayerRaw({ gameserverReportPlayerDto: gameserverReportPlayerDto });
-    }
-
-    /**
-     */
-    private async playerControllerBanInfoRaw(requestParameters: PlayerControllerBanInfoRequest): Promise<runtime.ApiResponse<GameserverBanStatusDto>> {
-        this.playerControllerBanInfoValidation(requestParameters);
-        const context = this.playerControllerBanInfoContext(requestParameters);
-        const response = await this.request(context);
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => GameserverBanStatusDtoFromJSON(jsonValue));
-    }
-
-    /**
-     */
-    private playerControllerBanInfoValidation(requestParameters: PlayerControllerBanInfoRequest) {
-        if (requestParameters.id === null || requestParameters.id === undefined) {
-            throw new runtime.RequiredError('id','Required parameter requestParameters.id was null or undefined when calling playerControllerBanInfo.');
-        }
-    }
-
-    /**
-     */
-    private async playerControllerGetHeroPlayersRaw(requestParameters: PlayerControllerGetHeroPlayersRequest): Promise<runtime.ApiResponse<Array<GameserverPlayerHeroPerformance>>> {
-        this.playerControllerGetHeroPlayersValidation(requestParameters);
-        const context = this.playerControllerGetHeroPlayersContext(requestParameters);
-        const response = await this.request(context);
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(GameserverPlayerHeroPerformanceFromJSON));
-    }
-
-    /**
-     */
-    private playerControllerGetHeroPlayersValidation(requestParameters: PlayerControllerGetHeroPlayersRequest) {
-        if (requestParameters.hero === null || requestParameters.hero === undefined) {
-            throw new runtime.RequiredError('hero','Required parameter requestParameters.hero was null or undefined when calling playerControllerGetHeroPlayers.');
-        }
-    }
-
-    /**
-     */
-    private async playerControllerLeaderboardRaw(requestParameters: PlayerControllerLeaderboardRequest): Promise<runtime.ApiResponse<Array<GameserverLeaderboardEntryDto>>> {
-        this.playerControllerLeaderboardValidation(requestParameters);
-        const context = this.playerControllerLeaderboardContext(requestParameters);
-        const response = await this.request(context);
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(GameserverLeaderboardEntryDtoFromJSON));
-    }
-
-    /**
-     */
-    private playerControllerLeaderboardValidation(requestParameters: PlayerControllerLeaderboardRequest) {
-        if (requestParameters.version === null || requestParameters.version === undefined) {
-            throw new runtime.RequiredError('version','Required parameter requestParameters.version was null or undefined when calling playerControllerLeaderboard.');
-        }
-    }
-
-    /**
-     */
-    private async playerControllerPlayerHeroSummaryRaw(requestParameters: PlayerControllerPlayerHeroSummaryRequest): Promise<runtime.ApiResponse<Array<GameserverHeroStatsDto>>> {
-        this.playerControllerPlayerHeroSummaryValidation(requestParameters);
-        const context = this.playerControllerPlayerHeroSummaryContext(requestParameters);
-        const response = await this.request(context);
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(GameserverHeroStatsDtoFromJSON));
-    }
-
-    /**
-     */
-    private playerControllerPlayerHeroSummaryValidation(requestParameters: PlayerControllerPlayerHeroSummaryRequest) {
-        if (requestParameters.version === null || requestParameters.version === undefined) {
-            throw new runtime.RequiredError('version','Required parameter requestParameters.version was null or undefined when calling playerControllerPlayerHeroSummary.');
-        }
-        if (requestParameters.id === null || requestParameters.id === undefined) {
-            throw new runtime.RequiredError('id','Required parameter requestParameters.id was null or undefined when calling playerControllerPlayerHeroSummary.');
-        }
-    }
-
-    /**
-     */
-    private async playerControllerPlayerSummaryRaw(requestParameters: PlayerControllerPlayerSummaryRequest): Promise<runtime.ApiResponse<GameserverPlayerSummaryDto>> {
-        this.playerControllerPlayerSummaryValidation(requestParameters);
-        const context = this.playerControllerPlayerSummaryContext(requestParameters);
-        const response = await this.request(context);
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => GameserverPlayerSummaryDtoFromJSON(jsonValue));
-    }
-
-    /**
-     */
-    private playerControllerPlayerSummaryValidation(requestParameters: PlayerControllerPlayerSummaryRequest) {
-        if (requestParameters.version === null || requestParameters.version === undefined) {
-            throw new runtime.RequiredError('version','Required parameter requestParameters.version was null or undefined when calling playerControllerPlayerSummary.');
-        }
-        if (requestParameters.id === null || requestParameters.id === undefined) {
-            throw new runtime.RequiredError('id','Required parameter requestParameters.id was null or undefined when calling playerControllerPlayerSummary.');
-        }
-    }
-
-    /**
-     */
-    private async playerControllerPlayerTeammatesRaw(requestParameters: PlayerControllerPlayerTeammatesRequest): Promise<runtime.ApiResponse<GameserverPlayerTeammatePage>> {
-        this.playerControllerPlayerTeammatesValidation(requestParameters);
-        const context = this.playerControllerPlayerTeammatesContext(requestParameters);
-        const response = await this.request(context);
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => GameserverPlayerTeammatePageFromJSON(jsonValue));
-    }
-
-    /**
-     */
-    private playerControllerPlayerTeammatesValidation(requestParameters: PlayerControllerPlayerTeammatesRequest) {
-        if (requestParameters.id === null || requestParameters.id === undefined) {
-            throw new runtime.RequiredError('id','Required parameter requestParameters.id was null or undefined when calling playerControllerPlayerTeammates.');
-        }
-        if (requestParameters.page === null || requestParameters.page === undefined) {
-            throw new runtime.RequiredError('page','Required parameter requestParameters.page was null or undefined when calling playerControllerPlayerTeammates.');
-        }
-    }
-
-    /**
-     */
-    private async playerControllerReportPlayerRaw(requestParameters: PlayerControllerReportPlayerRequest): Promise<runtime.ApiResponse<void>> {
-        this.playerControllerReportPlayerValidation(requestParameters);
-        const context = this.playerControllerReportPlayerContext(requestParameters);
-        const response = await this.request(context);
-
-        return new runtime.VoidApiResponse(response);
-    }
-
-    /**
-     */
-    private playerControllerReportPlayerValidation(requestParameters: PlayerControllerReportPlayerRequest) {
-        if (requestParameters.gameserverReportPlayerDto === null || requestParameters.gameserverReportPlayerDto === undefined) {
-            throw new runtime.RequiredError('gameserverReportPlayerDto','Required parameter requestParameters.gameserverReportPlayerDto was null or undefined when calling playerControllerReportPlayer.');
-        }
     }
 
 }

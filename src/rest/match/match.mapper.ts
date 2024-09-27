@@ -38,7 +38,7 @@ export class MatchMapper {
       mapFor.available > 0;
     return {
       id: it.id,
-      mode: it.mode as any,
+      mode: it.mode,
       winner: it.winner,
       duration: it.duration,
       timestamp: it.timestamp,

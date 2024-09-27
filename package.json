@@ -21,7 +21,7 @@
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "docker": "docker build . -t dota2classic/matchmaking:api-gateway && docker push dota2classic/matchmaking:api-gateway",
     "docker:local": "docker build . -t dota2classic/matchmaking:api-gateway",
-    "apigen:gameserver": "openapi-generator  generate --model-name-prefix Gameserver --import-mappings MatchmakingMode=\"@/const/enums/MatchmakingMode\" --skip-validate-spec -i http://localhost:5003/api-json -g typescript-fetch -t ./.openapi-generator/typescript-fetch-swr -o ./generated --additional-properties useSingleRequestParameter=false && rm -rf src/generated-api/gameserver && cp -r ./generated src/generated-api/gameserver && rm -rf ./generated && node scripts/after-codegen.js gameserver",
+    "apigen:gameserver": "openapi-generator  generate --model-name-prefix Gameserver --import-mappings MatchmakingMode=1 --import-mappings Dota_GameMode=2 --skip-validate-spec -i http://localhost:5003/api-json -g typescript-fetch -t ./.openapi-generator/typescript-fetch-swr -o ./generated --additional-properties useSingleRequestParameter=false && rm -rf src/generated-api/gameserver && cp -r ./generated src/generated-api/gameserver && rm -rf ./generated && node scripts/after-codegen.js gameserver",
     "apigen:tournament": "openapi-generator generate --skip-validate-spec -i http://localhost:6100/api-json -g typescript-axios -o ./generated --config tournament-openapi-generate.json && rm -rf src/generated-api/tournament && cp -r ./generated src/generated-api/tournament && rm -rf ./generated"
   },
   "dependencies": {

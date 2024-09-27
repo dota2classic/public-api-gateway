@@ -20,19 +20,19 @@ import { MatchmakingMode as M2 } from '../../gateway/shared-types/matchmaking-mo
  * @export
  * @enum {string}
  */
-// export type MatchmakingMode =
+// export type GameserverMatchmakingMode =
 
-export { M2 as MatchmakingMode };
+export { M2 as GameserverMatchmakingMode };
 
-export function MatchmakingModeFromJSON(json: any): M2 {
-  return MatchmakingModeFromJSONTyped(json, false);
+export function GameserverMatchmakingModeFromJSON(json: any): M2 {
+  return GameserverMatchmakingModeFromJSONTyped(json, false);
 }
 
-export function MatchmakingModeFromJSONTyped(json: any, ignoreDiscriminator: boolean): M2 {
+export function GameserverMatchmakingModeFromJSONTyped(json: any, ignoreDiscriminator: boolean): M2 {
   return json as M2;
 }
 
-export function MatchmakingModeToJSON(value?: M2 | null): any {
+export function GameserverMatchmakingModeToJSON(value?: M2 | null): any {
   return value as any;
 }
 

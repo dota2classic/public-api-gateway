@@ -2,6 +2,7 @@ import { Dota2Version } from '../../../gateway/shared-types/dota2version';
 import { MatchmakingMode } from '../../../gateway/shared-types/matchmaking-mode';
 import { Role } from '../../../gateway/shared-types/roles';
 import { BanReason } from '../../../gateway/shared-types/ban';
+import { ApiProperty } from '@nestjs/swagger';
 
 export class MatchInfoDto {
   mode: MatchmakingMode;
@@ -35,7 +36,9 @@ export class UpdateRolesDto {
 }
 
 export class UpdateModeDTO {
+  @ApiProperty({ enum: MatchmakingMode, enumName: 'MatchmakingMode' })
   mode: MatchmakingMode;
+  @ApiProperty({ enum: Dota2Version, enumName: 'Dota2Version' })
   version: Dota2Version;
   enabled: boolean;
 }
@@ -55,6 +58,7 @@ export class UserRoleSummaryDto {
 export class BanStatusDto {
   public readonly isBanned: boolean;
   public readonly bannedUntil: number;
+  @ApiProperty({ enum: BanReason, enumName: 'BanReason' })
   public readonly status: BanReason;
 }
 

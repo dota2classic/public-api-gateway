@@ -12,7 +12,18 @@
  * Do not edit the class manually.
  */
 
-import { GameserverPlayerInMatchDto, GameserverPlayerInMatchDtoFromJSON, GameserverPlayerInMatchDtoToJSON } from './';
+import {
+  GameserverDotaGameMode,
+  GameserverDotaGameModeFromJSON,
+  GameserverDotaGameModeFromJSONTyped,
+  GameserverDotaGameModeToJSON,
+  GameserverMatchmakingMode,
+  GameserverMatchmakingModeFromJSON,
+  GameserverMatchmakingModeToJSON,
+  GameserverPlayerInMatchDto,
+  GameserverPlayerInMatchDtoFromJSON,
+  GameserverPlayerInMatchDtoToJSON,
+} from './';
 
 /**
  *
@@ -22,22 +33,22 @@ import { GameserverPlayerInMatchDto, GameserverPlayerInMatchDtoFromJSON, Gameser
 export class GameserverMatchDto {
     /**
      *
+     * @type {GameserverMatchmakingMode}
+     * @memberof GameserverMatchDto
+     */
+    mode: GameserverMatchmakingMode;
+    /**
+     *
+     * @type {GameserverDotaGameMode}
+     * @memberof GameserverMatchDto
+     */
+    game_mode: GameserverDotaGameMode;
+    /**
+     *
      * @type {number}
      * @memberof GameserverMatchDto
      */
     id: number;
-    /**
-     *
-     * @type {number}
-     * @memberof GameserverMatchDto
-     */
-    mode: GameserverMatchDtoModeEnum;
-    /**
-     *
-     * @type {number}
-     * @memberof GameserverMatchDto
-     */
-    game_mode: GameserverMatchDtoGameModeEnum;
     /**
      *
      * @type {Array<GameserverPlayerInMatchDto>}
@@ -80,9 +91,9 @@ export function GameserverMatchDtoFromJSONTyped(json: any, ignoreDiscriminator: 
     }
     return {
 
+        'mode': GameserverMatchmakingModeFromJSON(json['mode']),
+        'game_mode': GameserverDotaGameModeFromJSON(json['game_mode']),
         'id': json['id'],
-        'mode': json['mode'],
-        'game_mode': json['game_mode'],
         'radiant': ((json['radiant'] as Array<any>).map(GameserverPlayerInMatchDtoFromJSON)),
         'dire': ((json['dire'] as Array<any>).map(GameserverPlayerInMatchDtoFromJSON)),
         'winner': json['winner'],
@@ -100,56 +111,15 @@ export function GameserverMatchDtoToJSON(value?: GameserverMatchDto | null): any
     }
     return {
 
+        'mode': GameserverMatchmakingModeToJSON(value.mode),
+        'game_mode': GameserverDotaGameModeToJSON(value.game_mode),
         'id': value.id,
-        'mode': value.mode,
-        'game_mode': value.game_mode,
         'radiant': ((value.radiant as Array<any>).map(GameserverPlayerInMatchDtoToJSON)),
         'dire': ((value.dire as Array<any>).map(GameserverPlayerInMatchDtoToJSON)),
         'winner': value.winner,
         'duration': value.duration,
         'timestamp': value.timestamp,
     };
-}
-
-/**
-* @export
-* @enum {string}
-*/
-export enum GameserverMatchDtoModeEnum {
-    NUMBER_0 = 0,
-    NUMBER_1 = 1,
-    NUMBER_2 = 2,
-    NUMBER_3 = 3,
-    NUMBER_4 = 4,
-    NUMBER_5 = 5,
-    NUMBER_6 = 6,
-    NUMBER_7 = 7,
-    NUMBER_8 = 8,
-    NUMBER_9 = 9,
-    NUMBER_10 = 10
-}
-/**
-* @export
-* @enum {string}
-*/
-export enum GameserverMatchDtoGameModeEnum {
-    NUMBER_1 = 1,
-    NUMBER_2 = 2,
-    NUMBER_3 = 3,
-    NUMBER_4 = 4,
-    NUMBER_5 = 5,
-    NUMBER_6 = 6,
-    NUMBER_7 = 7,
-    NUMBER_8 = 8,
-    NUMBER_9 = 9,
-    NUMBER_10 = 10,
-    NUMBER_11 = 11,
-    NUMBER_12 = 12,
-    NUMBER_13 = 13,
-    NUMBER_17 = 17,
-    NUMBER_18 = 18,
-    NUMBER_21 = 21,
-    NUMBER_22 = 22
 }
 
 

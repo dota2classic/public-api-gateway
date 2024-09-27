@@ -16,16 +16,33 @@
 import * as runtime from '../runtime';
 
 import {
-    GameserverGameServerDto,
-    GameserverGameServerDtoFromJSON,
-    GameserverGameSessionDto,
-    GameserverGameSessionDtoFromJSON,
+  GameserverGameServerDto,
+  GameserverGameServerDtoFromJSON,
+  GameserverGameSessionDto,
+  GameserverGameSessionDtoFromJSON,
 } from '../models';
 
 /**
  *
  */
 export class InfoApi extends runtime.BaseAPI {
+
+    /**
+     */
+    private async infoControllerGameServersRaw(): Promise<runtime.ApiResponse<Array<GameserverGameServerDto>>> {
+        this.infoControllerGameServersValidation();
+        const context = this.infoControllerGameServersContext();
+        const response = await this.request(context);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(GameserverGameServerDtoFromJSON));
+    }
+
+
+
+    /**
+     */
+    private infoControllerGameServersValidation() {
+    }
 
     /**
      */
@@ -47,6 +64,23 @@ export class InfoApi extends runtime.BaseAPI {
     infoControllerGameServers = async (): Promise<Array<GameserverGameServerDto>> => {
         const response = await this.infoControllerGameServersRaw();
         return await response.value();
+    }
+
+    /**
+     */
+    private async infoControllerGameSessionsRaw(): Promise<runtime.ApiResponse<Array<GameserverGameSessionDto>>> {
+        this.infoControllerGameSessionsValidation();
+        const context = this.infoControllerGameSessionsContext();
+        const response = await this.request(context);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(GameserverGameSessionDtoFromJSON));
+    }
+
+
+
+    /**
+     */
+    private infoControllerGameSessionsValidation() {
     }
 
     /**
@@ -73,6 +107,23 @@ export class InfoApi extends runtime.BaseAPI {
 
     /**
      */
+    private async infoControllerGetCurrentOnlineRaw(): Promise<runtime.ApiResponse<number>> {
+        this.infoControllerGetCurrentOnlineValidation();
+        const context = this.infoControllerGetCurrentOnlineContext();
+        const response = await this.request(context);
+
+        return new runtime.TextApiResponse(response) as any;
+    }
+
+
+
+    /**
+     */
+    private infoControllerGetCurrentOnlineValidation() {
+    }
+
+    /**
+     */
     infoControllerGetCurrentOnlineContext(): runtime.RequestOpts {
         const queryParameters: any = {};
 
@@ -91,51 +142,6 @@ export class InfoApi extends runtime.BaseAPI {
     infoControllerGetCurrentOnline = async (): Promise<number> => {
         const response = await this.infoControllerGetCurrentOnlineRaw();
         return await response.value();
-    }
-
-    /**
-     */
-    private async infoControllerGameServersRaw(): Promise<runtime.ApiResponse<Array<GameserverGameServerDto>>> {
-        this.infoControllerGameServersValidation();
-        const context = this.infoControllerGameServersContext();
-        const response = await this.request(context);
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(GameserverGameServerDtoFromJSON));
-    }
-
-    /**
-     */
-    private infoControllerGameServersValidation() {
-    }
-
-    /**
-     */
-    private async infoControllerGameSessionsRaw(): Promise<runtime.ApiResponse<Array<GameserverGameSessionDto>>> {
-        this.infoControllerGameSessionsValidation();
-        const context = this.infoControllerGameSessionsContext();
-        const response = await this.request(context);
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(GameserverGameSessionDtoFromJSON));
-    }
-
-    /**
-     */
-    private infoControllerGameSessionsValidation() {
-    }
-
-    /**
-     */
-    private async infoControllerGetCurrentOnlineRaw(): Promise<runtime.ApiResponse<number>> {
-        this.infoControllerGetCurrentOnlineValidation();
-        const context = this.infoControllerGetCurrentOnlineContext();
-        const response = await this.request(context);
-
-        return new runtime.TextApiResponse(response) as any;
-    }
-
-    /**
-     */
-    private infoControllerGetCurrentOnlineValidation() {
     }
 
 }

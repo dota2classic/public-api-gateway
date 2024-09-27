@@ -53,6 +53,26 @@ export class MatchApi extends runtime.BaseAPI {
 
     /**
      */
+    private async matchControllerGetMatchRaw(requestParameters: MatchControllerGetMatchRequest): Promise<runtime.ApiResponse<GameserverMatchDto>> {
+        this.matchControllerGetMatchValidation(requestParameters);
+        const context = this.matchControllerGetMatchContext(requestParameters);
+        const response = await this.request(context);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => GameserverMatchDtoFromJSON(jsonValue));
+    }
+
+
+
+    /**
+     */
+    private matchControllerGetMatchValidation(requestParameters: MatchControllerGetMatchRequest) {
+        if (requestParameters.id === null || requestParameters.id === undefined) {
+            throw new runtime.RequiredError('id','Required parameter requestParameters.id was null or undefined when calling matchControllerGetMatch.');
+        }
+    }
+
+    /**
+     */
     matchControllerGetMatchContext(requestParameters: MatchControllerGetMatchRequest): runtime.RequestOpts {
         const queryParameters: any = {};
 
@@ -71,6 +91,29 @@ export class MatchApi extends runtime.BaseAPI {
     matchControllerGetMatch = async (id: number): Promise<GameserverMatchDto> => {
         const response = await this.matchControllerGetMatchRaw({ id: id });
         return await response.value();
+    }
+
+    /**
+     */
+    private async matchControllerHeroMatchesRaw(requestParameters: MatchControllerHeroMatchesRequest): Promise<runtime.ApiResponse<GameserverMatchPageDto>> {
+        this.matchControllerHeroMatchesValidation(requestParameters);
+        const context = this.matchControllerHeroMatchesContext(requestParameters);
+        const response = await this.request(context);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => GameserverMatchPageDtoFromJSON(jsonValue));
+    }
+
+
+
+    /**
+     */
+    private matchControllerHeroMatchesValidation(requestParameters: MatchControllerHeroMatchesRequest) {
+        if (requestParameters.page === null || requestParameters.page === undefined) {
+            throw new runtime.RequiredError('page','Required parameter requestParameters.page was null or undefined when calling matchControllerHeroMatches.');
+        }
+        if (requestParameters.hero === null || requestParameters.hero === undefined) {
+            throw new runtime.RequiredError('hero','Required parameter requestParameters.hero was null or undefined when calling matchControllerHeroMatches.');
+        }
     }
 
     /**
@@ -109,6 +152,26 @@ export class MatchApi extends runtime.BaseAPI {
 
     /**
      */
+    private async matchControllerMatchesRaw(requestParameters: MatchControllerMatchesRequest): Promise<runtime.ApiResponse<GameserverMatchPageDto>> {
+        this.matchControllerMatchesValidation(requestParameters);
+        const context = this.matchControllerMatchesContext(requestParameters);
+        const response = await this.request(context);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => GameserverMatchPageDtoFromJSON(jsonValue));
+    }
+
+
+
+    /**
+     */
+    private matchControllerMatchesValidation(requestParameters: MatchControllerMatchesRequest) {
+        if (requestParameters.page === null || requestParameters.page === undefined) {
+            throw new runtime.RequiredError('page','Required parameter requestParameters.page was null or undefined when calling matchControllerMatches.');
+        }
+    }
+
+    /**
+     */
     matchControllerMatchesContext(requestParameters: MatchControllerMatchesRequest): runtime.RequestOpts {
         const queryParameters: any = {};
 
@@ -139,6 +202,29 @@ export class MatchApi extends runtime.BaseAPI {
     matchControllerMatches = async (page: number, perPage?: number, mode?: number): Promise<GameserverMatchPageDto> => {
         const response = await this.matchControllerMatchesRaw({ page: page, perPage: perPage, mode: mode });
         return await response.value();
+    }
+
+    /**
+     */
+    private async matchControllerPlayerMatchesRaw(requestParameters: MatchControllerPlayerMatchesRequest): Promise<runtime.ApiResponse<GameserverMatchPageDto>> {
+        this.matchControllerPlayerMatchesValidation(requestParameters);
+        const context = this.matchControllerPlayerMatchesContext(requestParameters);
+        const response = await this.request(context);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => GameserverMatchPageDtoFromJSON(jsonValue));
+    }
+
+
+
+    /**
+     */
+    private matchControllerPlayerMatchesValidation(requestParameters: MatchControllerPlayerMatchesRequest) {
+        if (requestParameters.id === null || requestParameters.id === undefined) {
+            throw new runtime.RequiredError('id','Required parameter requestParameters.id was null or undefined when calling matchControllerPlayerMatches.');
+        }
+        if (requestParameters.page === null || requestParameters.page === undefined) {
+            throw new runtime.RequiredError('page','Required parameter requestParameters.page was null or undefined when calling matchControllerPlayerMatches.');
+        }
     }
 
     /**
@@ -177,84 +263,6 @@ export class MatchApi extends runtime.BaseAPI {
     matchControllerPlayerMatches = async (id: string, page: number, perPage?: number, mode?: number, hero?: string): Promise<GameserverMatchPageDto> => {
         const response = await this.matchControllerPlayerMatchesRaw({ id: id, page: page, perPage: perPage, mode: mode, hero: hero });
         return await response.value();
-    }
-
-    /**
-     */
-    private async matchControllerGetMatchRaw(requestParameters: MatchControllerGetMatchRequest): Promise<runtime.ApiResponse<GameserverMatchDto>> {
-        this.matchControllerGetMatchValidation(requestParameters);
-        const context = this.matchControllerGetMatchContext(requestParameters);
-        const response = await this.request(context);
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => GameserverMatchDtoFromJSON(jsonValue));
-    }
-
-    /**
-     */
-    private matchControllerGetMatchValidation(requestParameters: MatchControllerGetMatchRequest) {
-        if (requestParameters.id === null || requestParameters.id === undefined) {
-            throw new runtime.RequiredError('id','Required parameter requestParameters.id was null or undefined when calling matchControllerGetMatch.');
-        }
-    }
-
-    /**
-     */
-    private async matchControllerHeroMatchesRaw(requestParameters: MatchControllerHeroMatchesRequest): Promise<runtime.ApiResponse<GameserverMatchPageDto>> {
-        this.matchControllerHeroMatchesValidation(requestParameters);
-        const context = this.matchControllerHeroMatchesContext(requestParameters);
-        const response = await this.request(context);
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => GameserverMatchPageDtoFromJSON(jsonValue));
-    }
-
-    /**
-     */
-    private matchControllerHeroMatchesValidation(requestParameters: MatchControllerHeroMatchesRequest) {
-        if (requestParameters.page === null || requestParameters.page === undefined) {
-            throw new runtime.RequiredError('page','Required parameter requestParameters.page was null or undefined when calling matchControllerHeroMatches.');
-        }
-        if (requestParameters.hero === null || requestParameters.hero === undefined) {
-            throw new runtime.RequiredError('hero','Required parameter requestParameters.hero was null or undefined when calling matchControllerHeroMatches.');
-        }
-    }
-
-    /**
-     */
-    private async matchControllerMatchesRaw(requestParameters: MatchControllerMatchesRequest): Promise<runtime.ApiResponse<GameserverMatchPageDto>> {
-        this.matchControllerMatchesValidation(requestParameters);
-        const context = this.matchControllerMatchesContext(requestParameters);
-        const response = await this.request(context);
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => GameserverMatchPageDtoFromJSON(jsonValue));
-    }
-
-    /**
-     */
-    private matchControllerMatchesValidation(requestParameters: MatchControllerMatchesRequest) {
-        if (requestParameters.page === null || requestParameters.page === undefined) {
-            throw new runtime.RequiredError('page','Required parameter requestParameters.page was null or undefined when calling matchControllerMatches.');
-        }
-    }
-
-    /**
-     */
-    private async matchControllerPlayerMatchesRaw(requestParameters: MatchControllerPlayerMatchesRequest): Promise<runtime.ApiResponse<GameserverMatchPageDto>> {
-        this.matchControllerPlayerMatchesValidation(requestParameters);
-        const context = this.matchControllerPlayerMatchesContext(requestParameters);
-        const response = await this.request(context);
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => GameserverMatchPageDtoFromJSON(jsonValue));
-    }
-
-    /**
-     */
-    private matchControllerPlayerMatchesValidation(requestParameters: MatchControllerPlayerMatchesRequest) {
-        if (requestParameters.id === null || requestParameters.id === undefined) {
-            throw new runtime.RequiredError('id','Required parameter requestParameters.id was null or undefined when calling matchControllerPlayerMatches.');
-        }
-        if (requestParameters.page === null || requestParameters.page === undefined) {
-            throw new runtime.RequiredError('page','Required parameter requestParameters.page was null or undefined when calling matchControllerPlayerMatches.');
-        }
     }
 
 }
