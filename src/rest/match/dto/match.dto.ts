@@ -1,6 +1,6 @@
-import { GameserverMatchDtoModeEnum } from '../../../generated-api/gameserver/models';
 import { MatchmakingMode } from '../../../gateway/shared-types/matchmaking-mode';
 import { Dota_GameMode } from '../../../gateway/shared-types/dota-game-mode';
+import { ApiProperty } from '@nestjs/swagger';
 
 export class PlayerInMatchDto {
   steam_id: string;
@@ -30,10 +30,20 @@ export class PlayerInMatchDto {
   abandoned: boolean;
 }
 
+export enum FakeEnum {
+  Enum_labe = 'helloworl',
+  asdfasfsa = 'burn',
+}
+
 export class MatchDto {
   id: number;
 
-  mode: GameserverMatchDtoModeEnum;
+
+  @ApiProperty({ enum: FakeEnum, enumName: 'FakeEnum' })
+  fakeEnum?: FakeEnum;
+
+  @ApiProperty({ enum: MatchmakingMode, enumName: 'MatchmakingMode' })
+  mode: MatchmakingMode;
 
   radiant: Array<PlayerInMatchDto>;
 

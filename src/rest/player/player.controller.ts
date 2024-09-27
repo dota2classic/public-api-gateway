@@ -13,7 +13,7 @@ import {
 import { CacheTTL } from '@nestjs/cache-manager';
 import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Dota2Version } from '../../gateway/shared-types/dota2version';
-import { PlayerApi } from '../../generated-api/gameserver';
+import { Configuration, PlayerApi } from '../../generated-api/gameserver';
 import { GAMESERVER_APIURL } from '../../utils/env';
 import { PlayerMapper } from './player.mapper';
 import {
@@ -63,7 +63,9 @@ export class PlayerController {
 
     private readonly ebus: EventBus,
   ) {
-    this.ms = new PlayerApi(undefined, `http://${GAMESERVER_APIURL}`);
+    this.ms = new PlayerApi(
+      new Configuration({ basePath: `http://${GAMESERVER_APIURL}` }),
+    );
   }
 
   @Post('upload')
@@ -111,7 +113,7 @@ export class PlayerController {
         GetReportsAvailableQueryResult
       >(new GetReportsAvailableQuery(pid)));
 
-    return this.mapper.mapMe(rawData.data, res.data, undefined, u);
+    return this.mapper.mapMe(rawData, res, undefined, u);
   }
 
   @Get('/connections')
@@ -131,7 +133,7 @@ export class PlayerController {
     @Query('version') version: Dota2Version = Dota2Version.Dota_681,
   ): Promise<LeaderboardEntryDto[]> {
     const rawData = await this.ms.playerControllerLeaderboard(version);
-    return Promise.all(rawData.data.map(this.mapper.mapLeaderboardEntry));
+    return Promise.all(rawData.map(this.mapper.mapLeaderboardEntry));
   }
 
   @ApiQuery({
@@ -154,10 +156,10 @@ export class PlayerController {
       perPage,
     );
     return {
-      data: await Promise.all(rawData.data.data.map(this.mapper.mapTeammate)),
-      page: rawData.data.page,
-      perPage: rawData.data.perPage,
-      pages: rawData.data.pages,
+      data: await Promise.all(rawData.data.map(this.mapper.mapTeammate)),
+      page: rawData.page,
+      perPage: rawData.perPage,
+      pages: rawData.pages,
     };
   }
 
@@ -174,7 +176,7 @@ export class PlayerController {
       UserMightExistEvent.name,
       new UserMightExistEvent(new PlayerId(steam_id)),
     );
-    return this.mapper.mapPlayerSummary(rawData.data);
+    return this.mapper.mapPlayerSummary(rawData);
   }
 
   @Get('/party')
@@ -190,11 +192,10 @@ export class PlayerController {
   @UseInterceptors(HttpCacheInterceptor)
   @Get('/summary/hero/:id')
   async heroSummary(@Param('id') steam_id: string): Promise<HeroStatsDto[]> {
-    const d = await this.ms.playerControllerPlayerHeroSummary(
+    return this.ms.playerControllerPlayerHeroSummary(
       Dota2Version.Dota_681,
       steam_id,
     );
-    return d.data;
   }
 
   @Get('/search')

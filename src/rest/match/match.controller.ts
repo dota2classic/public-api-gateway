@@ -1,20 +1,28 @@
-import { Controller, Get, NotFoundException, Param, Query, UseInterceptors } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  NotFoundException,
+  Param,
+  Query,
+  UseInterceptors,
+} from '@nestjs/common';
 import { CacheTTL } from '@nestjs/cache-manager';
 import { ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { MatchmakingMode } from '../../gateway/shared-types/matchmaking-mode';
-import { MatchApi } from '../../generated-api/gameserver';
+import { Configuration, MatchApi } from '../../generated-api/gameserver';
 import { GAMESERVER_APIURL } from '../../utils/env';
 import { MatchDto, MatchPageDto } from './dto/match.dto';
 import { MatchMapper } from './match.mapper';
 import { WithOptionalUser } from '../../utils/decorator/with-optional-user';
-import { CurrentUser, CurrentUserDto } from '../../utils/decorator/current-user';
+import {
+  CurrentUser,
+  CurrentUserDto,
+} from '../../utils/decorator/current-user';
 import { PlayerId } from '../../gateway/shared-types/player-id';
 import { HttpCacheInterceptor } from '../../utils/cache-key-track';
 import { QueryBus } from '@nestjs/cqrs';
 import { GetReportsAvailableQuery } from '../../gateway/queries/GetReportsAvailable/get-reports-available.query';
-import {
-  GetReportsAvailableQueryResult,
-} from '../../gateway/queries/GetReportsAvailable/get-reports-available-query.result';
+import { GetReportsAvailableQueryResult } from '../../gateway/queries/GetReportsAvailable/get-reports-available-query.result';
 
 @Controller('match')
 @ApiTags('match')
@@ -25,10 +33,10 @@ export class MatchController {
     private readonly mapper: MatchMapper,
     private readonly qbus: QueryBus,
   ) {
-    this.ms = new MatchApi(undefined, `http://${GAMESERVER_APIURL}`);
+    this.ms = new MatchApi(
+      new Configuration({ basePath: `http://${GAMESERVER_APIURL}` }),
+    );
   }
-
-
 
   @UseInterceptors(HttpCacheInterceptor)
   @ApiQuery({
@@ -54,7 +62,7 @@ export class MatchController {
   ): Promise<MatchPageDto> {
     return this.ms
       .matchControllerMatches(page, perPage, mode)
-      .then(t => this.mapper.mapMatchPage(t.data));
+      .then(this.mapper.mapMatchPage);
   }
 
   @UseInterceptors(HttpCacheInterceptor)
@@ -78,7 +86,7 @@ export class MatchController {
   ): Promise<MatchPageDto> {
     return this.ms
       .matchControllerHeroMatches(page, hero, perPage)
-      .then(t => this.mapper.mapMatchPage(t.data));
+      .then(this.mapper.mapMatchPage);
   }
 
   @UseInterceptors(HttpCacheInterceptor)
@@ -97,12 +105,13 @@ export class MatchController {
       const pid = (user && new PlayerId(user.steam_id)) || undefined;
 
       const u =
-        pid && (await this.qbus.execute<GetReportsAvailableQuery, GetReportsAvailableQueryResult>(new GetReportsAvailableQuery(pid)));
+        pid &&
+        (await this.qbus.execute<
+          GetReportsAvailableQuery,
+          GetReportsAvailableQueryResult
+        >(new GetReportsAvailableQuery(pid)));
 
-      return this.mapper.mapMatch(
-        await this.ms.matchControllerGetMatch(id).then(t => t.data),
-        u,
-      );
+      return this.mapper.mapMatch(await this.ms.matchControllerGetMatch(id), u);
     } catch (e) {
       throw new NotFoundException();
     }
@@ -138,8 +147,17 @@ export class MatchController {
     @Query('mode') mode?: MatchmakingMode,
     @Query('hero') hero?: string,
   ): Promise<MatchPageDto> {
-    return this.ms
-      .matchControllerPlayerMatches(steam_id, page, perPage, mode, hero)
-      .then(t => this.mapper.mapMatchPage(t.data));
+    return (
+      this.ms
+        // @ts-ignore
+        .matchControllerPlayerMatches(
+          steam_id,
+          page,
+          perPage,
+          mode as any,
+          hero,
+        )
+        .then(t => this.mapper.mapMatchPage(t))
+    );
   }
 }

@@ -16,7 +16,9 @@ async function bootstrap() {
     .addBearerAuth()
     .build();
 
-  const document = SwaggerModule.createDocument(app, options);
+  const document = SwaggerModule.createDocument(app, options, {
+    deepScanRoutes: true,
+  });
   SwaggerModule.setup('api', app, document);
 
   app.connectMicroservice({

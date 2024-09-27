@@ -8,11 +8,11 @@ import {
 import { ClientProxy } from '@nestjs/microservices';
 import { EventBus, QueryBus } from '@nestjs/cqrs';
 import { GAMESERVER_APIURL } from '../../utils/env';
-import { InfoApi } from '../../generated-api/gameserver/api/info-api';
 import { AdminMapper } from './admin.mapper';
 import { ApiTags } from '@nestjs/swagger';
 import { KillServerRequestedEvent } from '../../gateway/events/gs/kill-server-requested.event';
 import { timeout } from 'rxjs/operators';
+import { Configuration, InfoApi } from '../../generated-api/gameserver';
 
 @Controller('servers')
 @ApiTags('admin')
@@ -24,7 +24,9 @@ export class ServerController {
     private readonly mapper: AdminMapper,
     private readonly ebus: EventBus,
   ) {
-    this.ms = new InfoApi(undefined, `http://${GAMESERVER_APIURL}`);
+    this.ms = new InfoApi(
+      new Configuration({ basePath: `http://${GAMESERVER_APIURL}` }),
+    );
   }
 
   // @ModeratorGuard()
@@ -33,7 +35,7 @@ export class ServerController {
   async serverPool(): Promise<GameServerDto[]> {
     return this.ms
       .infoControllerGameServers()
-      .then(t => t.data.map(this.mapper.mapGameServer));
+      .then(t => t.map(this.mapper.mapGameServer));
   }
 
   // @AdminGuard()
@@ -53,7 +55,7 @@ export class ServerController {
   async liveSessions(): Promise<GameSessionDto[]> {
     const res = await this.ms.infoControllerGameSessions();
 
-    return Promise.all(res.data.map(async t => this.mapper.mapGameSession(t)));
+    return Promise.all(res.map(async t => this.mapper.mapGameSession(t)));
   }
 
   // @AdminGuard()

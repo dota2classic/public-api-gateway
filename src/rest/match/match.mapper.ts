@@ -7,9 +7,7 @@ import {
 } from '../../generated-api/gameserver/models';
 import { MatchDto, MatchPageDto, PlayerInMatchDto } from './dto/match.dto';
 import { MATCH_REPORT_TIMEOUT } from '../../gateway/shared-types/timings';
-import {
-  GetReportsAvailableQueryResult,
-} from '../../gateway/queries/GetReportsAvailable/get-reports-available-query.result';
+import { GetReportsAvailableQueryResult } from '../../gateway/queries/GetReportsAvailable/get-reports-available-query.result';
 import { measureN } from '../../utils/decorator/measure';
 
 export interface PlayerMappableResource
@@ -40,7 +38,7 @@ export class MatchMapper {
       mapFor.available > 0;
     return {
       id: it.id,
-      mode: it.mode,
+      mode: it.mode as any,
       winner: it.winner,
       duration: it.duration,
       timestamp: it.timestamp,
