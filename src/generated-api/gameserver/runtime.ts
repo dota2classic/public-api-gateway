@@ -149,7 +149,7 @@ export class Configuration {
     }
 
     get fetchApi(): FetchAPI {
-        return this.configuration.fetchApi || window.fetch.bind(window);
+        return this.configuration.fetchApi || fetch;
     }
 
     get middleware(): Middleware[] {
