@@ -9,7 +9,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
-import { catchError, filter, from, Observable, withLatestFrom } from 'rxjs';
+import { filter, from, Observable, withLatestFrom } from 'rxjs';
 import { EventBus } from '@nestjs/cqrs';
 import { MessageCreatedEvent } from '../../gateway/events/message-created.event';
 import { asyncMap } from 'rxjs-async-map';
@@ -148,11 +148,6 @@ export class ForumController {
         };
         return { data: m };
       }, 1),
-      // @ts-ignore
-      catchError(val => {
-        console.log('i caught', val);
-        throw 'fd';
-      }),
     );
   }
 
@@ -171,7 +166,10 @@ export class ForumController {
       // make sure match exists
       await this.matchApi.matchControllerGetMatch(Number(content.id));
     } else if (content.threadType === ThreadType.PROFILE) {
-      await this.playerApi.playerControllerPlayerSummary('', content.id);
+      await this.playerApi.playerControllerPlayerSummary(
+        'Dota_684',
+        content.id,
+      );
     }
 
     return this.api
