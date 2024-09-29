@@ -1,6 +1,12 @@
 import { Controller, Get, Param, UseInterceptors } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { HeroItemDto, HeroPlayerDto, HeroSummaryDto } from './dto/meta.dto';
+import {
+  HeroItemDto,
+  HeroPlayerDto,
+  HeroSummaryDto,
+  ItemDto,
+  ItemHeroDto,
+} from './dto/meta.dto';
 import {
   Configuration,
   MetaApi,
@@ -36,6 +42,16 @@ export class MetaController {
   @Get('hero/:hero')
   public async hero(@Param('hero') hero: string): Promise<HeroItemDto[]> {
     return this.ms.metaControllerHeroData(hero).then(it => it);
+  }
+
+  @Get('item/:item')
+  public async item(@Param('item') item: number): Promise<ItemHeroDto[]> {
+    return this.ms.metaControllerItemData(item).then(it => it);
+  }
+
+  @Get('items')
+  public async items(): Promise<ItemDto[]> {
+    return this.ms.metaControllerItems();
   }
 
   @CacheTTL(1000)

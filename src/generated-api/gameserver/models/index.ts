@@ -4,6 +4,8 @@ export * from './GameserverGameSessionDto';
 export * from './GameserverHeroItemDto';
 export * from './GameserverHeroStatsDto';
 export * from './GameserverHeroSummaryDto';
+export * from './GameserverItemDto';
+export * from './GameserverItemHeroDto';
 export * from './GameserverLeaderboardEntryDto';
 export * from './GameserverMatchDto';
 export * from './GameserverMatchInfoDto';

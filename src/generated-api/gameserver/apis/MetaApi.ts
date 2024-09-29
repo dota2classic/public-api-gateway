@@ -20,10 +20,18 @@ import {
   GameserverHeroItemDtoFromJSON,
   GameserverHeroSummaryDto,
   GameserverHeroSummaryDtoFromJSON,
+  GameserverItemDto,
+  GameserverItemDtoFromJSON,
+  GameserverItemHeroDto,
+  GameserverItemHeroDtoFromJSON,
 } from '../models';
 
 export interface MetaControllerHeroDataRequest {
   hero: string;
+}
+
+export interface MetaControllerItemDataRequest {
+    item: number;
 }
 
 /**
@@ -110,6 +118,83 @@ export class MetaApi extends runtime.BaseAPI {
     metaControllerHeroes = async (): Promise<Array<GameserverHeroSummaryDto>> => {
         const response = await this.metaControllerHeroesRaw();
         return await response.value();
+    }
+
+    /**
+     */
+    metaControllerItemDataContext(requestParameters: MetaControllerItemDataRequest): runtime.RequestOpts {
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        return {
+            path: `/meta/items/{item}`.replace(`{${"item"}}`, encodeURIComponent(String(requestParameters.item))),
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        };
+    }
+
+    /**
+     */
+    metaControllerItemData = async (item: number): Promise<Array<GameserverItemHeroDto>> => {
+        const response = await this.metaControllerItemDataRaw({ item: item });
+        return await response.value();
+    }
+
+    /**
+     */
+    metaControllerItemsContext(): runtime.RequestOpts {
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        return {
+            path: `/meta/items`,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        };
+    }
+
+    /**
+     */
+    metaControllerItems = async (): Promise<Array<GameserverItemDto>> => {
+        const response = await this.metaControllerItemsRaw();
+        return await response.value();
+    }
+
+    /**
+     */
+    private async metaControllerItemDataRaw(requestParameters: MetaControllerItemDataRequest): Promise<runtime.ApiResponse<Array<GameserverItemHeroDto>>> {
+        this.metaControllerItemDataValidation(requestParameters);
+        const context = this.metaControllerItemDataContext(requestParameters);
+        const response = await this.request(context);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(GameserverItemHeroDtoFromJSON));
+    }
+
+    /**
+     */
+    private metaControllerItemDataValidation(requestParameters: MetaControllerItemDataRequest) {
+        if (requestParameters.item === null || requestParameters.item === undefined) {
+            throw new runtime.RequiredError('item','Required parameter requestParameters.item was null or undefined when calling metaControllerItemData.');
+        }
+    }
+
+    /**
+     */
+    private async metaControllerItemsRaw(): Promise<runtime.ApiResponse<Array<GameserverItemDto>>> {
+        this.metaControllerItemsValidation();
+        const context = this.metaControllerItemsContext();
+        const response = await this.request(context);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(GameserverItemDtoFromJSON));
+    }
+
+    /**
+     */
+    private metaControllerItemsValidation() {
     }
 
 }

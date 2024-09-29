@@ -19,6 +19,7 @@ export const isDev = !isProd;
 export const STEAM_KEY = process.env.STEAM_KEY || "tmp"
 
 export const GAMESERVER_APIURL = process.env.GS_URL || 'localhost:5003';
+export const FORUM_APIURL = process.env.FORUM_URL || 'localhost:6009';
 export const JWT_SECRET = process.env.PRIVATE_JWT_KEY || 'tmp';
 
 const tmp = parseInt(process.env.LIVE_MATCH_DELAY);

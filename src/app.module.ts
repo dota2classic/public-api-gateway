@@ -54,6 +54,8 @@ import { CacheModule } from '@nestjs/cache-manager';
 import { QueryCache } from './rcache';
 import { MetaMapper } from './rest/meta/meta.mapper';
 import { GameResultsHandler } from './cache/event-handler/game-results.handler';
+import { ForumController } from './rest/forum/forum.controller';
+import { ThrottlerModule } from '@nestjs/throttler';
 
 export function qCache<T, B>() {
   return new QueryCache<T, B>({
@@ -68,6 +70,10 @@ export function qCache<T, B>() {
     TypeOrmModule.forRoot(
       (isDev ? prodDbConfig : prodDbConfig) as TypeOrmModuleOptions,
     ),
+    ThrottlerModule.forRoot([{
+      ttl: 60_000, // 1 minute
+      limit: 10 // 10 msgs
+    }]),
     TypeOrmModule.forFeature(Entities),
     ScheduleModule.forRoot(),
     ServeStaticModule.forRoot({
@@ -115,6 +121,7 @@ export function qCache<T, B>() {
     StatsController,
     SteamController,
     DiscordController,
+    ForumController
   ],
   providers: [
     HttpCacheInterceptor,
