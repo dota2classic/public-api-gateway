@@ -9,7 +9,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
-import { filter, from, Observable, withLatestFrom } from 'rxjs';
+import { filter, Observable } from 'rxjs';
 import { EventBus } from '@nestjs/cqrs';
 import { MessageCreatedEvent } from '../../gateway/events/message-created.event';
 import { asyncMap } from 'rxjs-async-map';
@@ -24,7 +24,6 @@ import {
   Configuration,
   ForumApi,
   ForumMessageDTO,
-  ForumThreadDTO,
 } from '../../generated-api/forum';
 import { FORUM_APIURL, GAMESERVER_APIURL } from '../../utils/env';
 import { NullableIntPipe } from '../../utils/pipes';
@@ -34,7 +33,6 @@ import {
   CurrentUserDto,
 } from '../../utils/decorator/current-user';
 import { CustomThrottlerGuard } from '../strategy/custom-throttler.guard';
-import { map } from 'rxjs/operators';
 import {
   Configuration as C2,
   MatchApi,
@@ -93,10 +91,7 @@ export class ForumController {
     if (!t) throw Error('Illegal argument');
     const threadType = _threadType as ThreadType;
     const id = `${threadType}_${_id}`;
-    console.log('get mssages', id);
     const msgs = await this.api.forumControllerMessages(id, after, limit);
-
-    console.log(msgs);
     return Promise.all(msgs.map(this.mapApiMessage));
   }
 
@@ -117,22 +112,13 @@ export class ForumController {
     if (!t) throw Error('Illegal argument');
     const threadType = _threadType as ThreadType;
 
-    console.log('SSE:', id, threadType);
-    const thread = from(
-      this.api.forumControllerGetThreadForKey({
-        externalKey: `${threadType}_${id}`,
-      }),
-    );
+    const externalThreadId = `${threadType}_${id}`;
 
     return this.ebus.pipe(
       filter(it => it instanceof MessageCreatedEvent),
-      withLatestFrom(thread),
-      filter(([mce, fte]: [MessageCreatedEvent, ForumThreadDTO]) => {
-        console.log('Compare', mce, fte);
-        return mce.threadId === fte.id;
+      filter((mce: MessageCreatedEvent) => {
+        return mce.externalThreadId === externalThreadId;
       }),
-      map(([mce, fte]) => mce),
-
       asyncMap(async (mce: MessageCreatedEvent) => {
         console.log(mce.createdAt);
         const m: ThreadMessageDTO = {
