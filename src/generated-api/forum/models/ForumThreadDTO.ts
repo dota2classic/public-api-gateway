@@ -12,12 +12,27 @@
  * Do not edit the class manually.
  */
 
+import {
+  ForumMessageDTO,
+  ForumMessageDTOFromJSON,
+  ForumMessageDTOToJSON,
+  ForumThreadType,
+  ForumThreadTypeFromJSON,
+  ForumThreadTypeToJSON,
+} from './';
+
 /**
  *
  * @export
  * @interface ForumThreadDTO
  */
 export class ForumThreadDTO {
+    /**
+     *
+     * @type {ForumThreadType}
+     * @memberof ForumThreadDTO
+     */
+    threadType: ForumThreadType;
     /**
      *
      * @type {string}
@@ -29,7 +44,43 @@ export class ForumThreadDTO {
      * @type {string}
      * @memberof ForumThreadDTO
      */
-    external_id: string;
+    externalId: string;
+    /**
+     *
+     * @type {string}
+     * @memberof ForumThreadDTO
+     */
+    title: string;
+    /**
+     *
+     * @type {number}
+     * @memberof ForumThreadDTO
+     */
+    views: number;
+    /**
+     *
+     * @type {number}
+     * @memberof ForumThreadDTO
+     */
+    messageCount: number;
+    /**
+     *
+     * @type {number}
+     * @memberof ForumThreadDTO
+     */
+    newMessageCount: number;
+    /**
+     *
+     * @type {string}
+     * @memberof ForumThreadDTO
+     */
+    originalPoster: string;
+    /**
+     *
+     * @type {ForumMessageDTO}
+     * @memberof ForumThreadDTO
+     */
+    lastMessage: ForumMessageDTO;
 }
 
 export function ForumThreadDTOFromJSON(json: any): ForumThreadDTO {
@@ -42,8 +93,15 @@ export function ForumThreadDTOFromJSONTyped(json: any, ignoreDiscriminator: bool
     }
     return {
 
+        'threadType': ForumThreadTypeFromJSON(json['threadType']),
         'id': json['id'],
-        'external_id': json['external_id'],
+        'externalId': json['externalId'],
+        'title': json['title'],
+        'views': json['views'],
+        'messageCount': json['messageCount'],
+        'newMessageCount': json['newMessageCount'],
+        'originalPoster': json['originalPoster'],
+        'lastMessage': ForumMessageDTOFromJSON(json['lastMessage']),
     };
 }
 
@@ -56,8 +114,15 @@ export function ForumThreadDTOToJSON(value?: ForumThreadDTO | null): any {
     }
     return {
 
+        'threadType': ForumThreadTypeToJSON(value.threadType),
         'id': value.id,
-        'external_id': value.external_id,
+        'externalId': value.externalId,
+        'title': value.title,
+        'views': value.views,
+        'messageCount': value.messageCount,
+        'newMessageCount': value.newMessageCount,
+        'originalPoster': value.originalPoster,
+        'lastMessage': ForumMessageDTOToJSON(value.lastMessage),
     };
 }
 

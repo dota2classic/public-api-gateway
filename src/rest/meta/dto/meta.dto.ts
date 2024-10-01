@@ -1,3 +1,5 @@
+import { UserDTO } from '../../shared.dto';
+
 export class HeroSummaryDto {
   games: number;
   wins: number;
@@ -39,9 +41,7 @@ export class ItemDto {
 
 
 export class HeroPlayerDto {
-  name: string;
-  avatar: string;
-  steam_id: string;
+  user: UserDTO;
   games: number;
   wins: number;
   score: number;

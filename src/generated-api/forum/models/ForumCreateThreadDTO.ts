@@ -12,6 +12,16 @@
  * Do not edit the class manually.
  */
 
+import { exists } from '../runtime';
+import {
+  ForumCreateMessageDTO,
+  ForumCreateMessageDTOFromJSON,
+  ForumCreateMessageDTOToJSON,
+  ForumThreadType,
+  ForumThreadTypeFromJSON,
+  ForumThreadTypeToJSON,
+} from './';
+
 /**
  *
  * @export
@@ -20,10 +30,28 @@
 export class ForumCreateThreadDTO {
     /**
      *
+     * @type {ForumThreadType}
+     * @memberof ForumCreateThreadDTO
+     */
+    threadType: ForumThreadType;
+    /**
+     *
      * @type {string}
      * @memberof ForumCreateThreadDTO
      */
-    externalKey: string;
+    externalId: string;
+    /**
+     *
+     * @type {string}
+     * @memberof ForumCreateThreadDTO
+     */
+    title: string;
+    /**
+     *
+     * @type {ForumCreateMessageDTO}
+     * @memberof ForumCreateThreadDTO
+     */
+    opMessage?: ForumCreateMessageDTO;
 }
 
 export function ForumCreateThreadDTOFromJSON(json: any): ForumCreateThreadDTO {
@@ -36,7 +64,10 @@ export function ForumCreateThreadDTOFromJSONTyped(json: any, ignoreDiscriminator
     }
     return {
 
-        'externalKey': json['externalKey'],
+        'threadType': ForumThreadTypeFromJSON(json['threadType']),
+        'externalId': json['externalId'],
+        'title': json['title'],
+        'opMessage': !exists(json, 'opMessage') ? undefined : ForumCreateMessageDTOFromJSON(json['opMessage']),
     };
 }
 
@@ -49,7 +80,10 @@ export function ForumCreateThreadDTOToJSON(value?: ForumCreateThreadDTO | null):
     }
     return {
 
-        'externalKey': value.externalKey,
+        'threadType': ForumThreadTypeToJSON(value.threadType),
+        'externalId': value.externalId,
+        'title': value.title,
+        'opMessage': ForumCreateMessageDTOToJSON(value.opMessage),
     };
 }
 

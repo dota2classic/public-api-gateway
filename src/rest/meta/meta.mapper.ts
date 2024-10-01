@@ -11,9 +11,7 @@ export class MetaMapper {
     it: GameserverPlayerHeroPerformance,
   ): Promise<HeroPlayerDto> => {
     return {
-      name: await this.userRepository.name(it.steam_id),
-      avatar: await this.userRepository.avatar(it.steam_id),
-      steam_id: it.steam_id,
+      user: await this.userRepository.userDto(it.steam_id),
       score: it.score,
       kills: it.kills,
       deaths: it.deaths,

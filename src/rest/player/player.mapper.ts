@@ -14,10 +14,11 @@ import {
 } from './dto/player.dto';
 import { numSteamId } from '../../utils/steamIds';
 import { GetPartyQueryResult } from '../../gateway/queries/GetParty/get-party-query.result';
-import { PartyDto, PlayerInPartyDto } from './dto/party.dto';
+import { PartyDto } from './dto/party.dto';
 import { PlayerId } from '../../gateway/shared-types/player-id';
 import { GetReportsAvailableQueryResult } from '../../gateway/queries/GetReportsAvailable/get-reports-available-query.result';
 import { TournamentTeamDto } from '../../generated-api/tournament/models';
+import { UserDTO } from '../shared.dto';
 
 @Injectable()
 export class PlayerMapper {
@@ -26,9 +27,7 @@ export class PlayerMapper {
   public mapTeammate = async (
     it: GameserverPlayerTeammateDto,
   ): Promise<PlayerTeammateDto> => ({
-    steam_id: it.steam_id,
-    name: await this.userRepository.name(it.steam_id),
-    avatar: await this.userRepository.avatar(it.steam_id),
+    user: await this.userRepository.userDto(it.steam_id),
 
     games: it.games,
     wins: it.wins,
@@ -40,11 +39,9 @@ export class PlayerMapper {
     it: GameserverLeaderboardEntryDto,
   ): Promise<LeaderboardEntryDto> => {
     return {
-      steam_id: it.steam_id,
       mmr: it.mmr,
-      name: await this.userRepository.name(it.steam_id),
-      avatar: await this.userRepository.avatar(it.steam_id),
       id: numSteamId(it.steam_id),
+      user: await this.userRepository.userDto(it.steam_id),
 
       games: it.games,
       kills: it.kills,
@@ -63,10 +60,8 @@ export class PlayerMapper {
     reports: GetReportsAvailableQueryResult,
   ): Promise<MeDto> => {
     return {
-      steam_id: it.steam_id,
       mmr: it.mmr,
-      avatar: await this.userRepository.avatar(it.steam_id),
-      name: await this.userRepository.name(it.steam_id),
+      user: await this.userRepository.userDto(it.steam_id),
       roles: await this.userRepository.roles(it.steam_id),
       id: numSteamId(it.steam_id),
       rank: it.rank,
@@ -84,10 +79,8 @@ export class PlayerMapper {
     it: GameserverPlayerSummaryDto,
   ): Promise<PlayerSummaryDto> => {
     return {
-      steam_id: it.steam_id,
+      user: await this.userRepository.userDto(it.steam_id),
       mmr: it.mmr,
-      avatar: await this.userRepository.avatar(it.steam_id),
-      name: await this.userRepository.name(it.steam_id),
       id: numSteamId(it.steam_id),
       rank: it.rank,
       unrankedGamesLeft: it.newbieUnrankedGamesLeft,
@@ -106,13 +99,7 @@ export class PlayerMapper {
     };
   };
 
-  public mapPlayerInParty = async (
-    pid: PlayerId,
-  ): Promise<PlayerInPartyDto> => {
-    return {
-      steam_id: pid.value,
-      name: await this.userRepository.name(pid.value),
-      avatar: await this.userRepository.avatar(pid.value),
-    };
+  public mapPlayerInParty = async (pid: PlayerId): Promise<UserDTO> => {
+    return this.userRepository.userDto(pid.value);
   };
 }

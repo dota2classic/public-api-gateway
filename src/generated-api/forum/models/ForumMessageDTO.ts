@@ -29,12 +29,6 @@ export class ForumMessageDTO {
      * @type {string}
      * @memberof ForumMessageDTO
      */
-    externalThreadId: string;
-    /**
-     *
-     * @type {string}
-     * @memberof ForumMessageDTO
-     */
     id: string;
     /**
      *
@@ -73,7 +67,6 @@ export function ForumMessageDTOFromJSONTyped(json: any, ignoreDiscriminator: boo
     return {
 
         'threadId': json['threadId'],
-        'externalThreadId': json['externalThreadId'],
         'id': json['id'],
         'content': json['content'],
         'author': json['author'],
@@ -92,7 +85,6 @@ export function ForumMessageDTOToJSON(value?: ForumMessageDTO | null): any {
     return {
 
         'threadId': value.threadId,
-        'externalThreadId': value.externalThreadId,
         'id': value.id,
         'content': value.content,
         'author': value.author,

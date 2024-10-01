@@ -1,11 +1,7 @@
-export class PlayerInPartyDto {
-  steam_id: string;
-  avatar: string;
-  name: string;
-}
+import { UserDTO } from '../../shared.dto';
 
 export class PartyDto {
   id: string;
-  leader: PlayerInPartyDto;
-  players: PlayerInPartyDto[];
+  leader: UserDTO;
+  players: UserDTO[];
 }

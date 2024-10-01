@@ -16,14 +16,17 @@ import { asyncMap } from 'rxjs-async-map';
 import { UserRepository } from '../../cache/user/user.repository';
 import {
   CreateMessageDTO,
+  CreateThreadDTO,
+  ThreadDTO,
   ThreadMessageDTO,
   ThreadMessageSseDto,
-  ThreadType,
+  ThreadPageDTO,
 } from './forum.dto';
 import {
   Configuration,
   ForumApi,
   ForumMessageDTO,
+  ForumThreadDTO,
 } from '../../generated-api/forum';
 import { FORUM_APIURL, GAMESERVER_APIURL } from '../../utils/env';
 import { NullableIntPipe } from '../../utils/pipes';
@@ -38,6 +41,8 @@ import {
   MatchApi,
   PlayerApi,
 } from '../../generated-api/gameserver';
+import { ThreadType } from '../../gateway/shared-types/thread-type';
+import { randomUUID } from 'crypto';
 
 @Controller('forum')
 @ApiTags('forum')
@@ -95,6 +100,29 @@ export class ForumController {
     return Promise.all(msgs.map(this.mapApiMessage));
   }
 
+  @ApiQuery({
+    name: 'page',
+    required: true,
+  })
+  @ApiQuery({
+    name: 'perPage',
+    required: false,
+  })
+  @Get('threads')
+  async threads(
+    @Query('page', NullableIntPipe) page: number,
+    @Query('perPage', NullableIntPipe) perPage: number = 25,
+  ): Promise<ThreadPageDTO> {
+    const threads = await this.api.forumControllerThreads(page, perPage);
+
+    return {
+      data: await Promise.all(threads.data.map(this.mapThread)),
+      page: threads.page,
+      perPage: threads.perPage,
+      pages: threads.pages,
+    };
+  }
+
   @ApiParam({
     name: 'id',
     required: true,
@@ -104,6 +132,21 @@ export class ForumController {
     required: true,
   })
   @Sse('thread/:id/:threadType')
+  getThread(@Param('id') id: string, @Param('threadType') _threadType: string) {
+    return this.api
+      .forumControllerGetThread(`${_threadType}_${id}`)
+      .then(this.mapThread);
+  }
+
+  @ApiParam({
+    name: 'id',
+    required: true,
+  })
+  @ApiParam({
+    name: 'threadType',
+    required: true,
+  })
+  @Sse('thread/:id/:threadType/sse')
   thread(
     @Param('id') id: string,
     @Param('threadType') _threadType: string,
@@ -116,15 +159,10 @@ export class ForumController {
 
     return this.ebus.pipe(
       filter(it => it instanceof MessageCreatedEvent),
-      filter((mce: MessageCreatedEvent) => {
-        return mce.externalThreadId === externalThreadId;
-      }),
+      filter((mce: MessageCreatedEvent) => mce.threadId === externalThreadId),
       asyncMap(async (mce: MessageCreatedEvent) => {
-        console.log(mce.createdAt);
         const m: ThreadMessageDTO = {
-          avatar: await this.urepo.avatar(mce.authorId),
-          name: await this.urepo.name(mce.authorId),
-          steamId: mce.authorId,
+          author: await this.urepo.userDto(mce.authorId),
 
           content: mce.content,
           createdAt: mce.createdAt,
@@ -144,42 +182,79 @@ export class ForumController {
     @Body() content: CreateMessageDTO,
     @CurrentUser() user: CurrentUserDto,
   ): Promise<ThreadMessageDTO> {
-    console.log('post msg', content);
-    const id = `${content.threadType}_${content.id}`;
-
     // GetOrCreate thread
     if (content.threadType === ThreadType.MATCH) {
       // make sure match exists
       await this.matchApi.matchControllerGetMatch(Number(content.id));
-    } else if (content.threadType === ThreadType.PROFILE) {
+    } else if (content.threadType === ThreadType.PLAYER) {
       await this.playerApi.playerControllerPlayerSummary(
         'Dota_684',
         content.id,
       );
     }
 
+    const thread = await this.api.forumControllerGetThreadForKey({
+      threadType: content.threadType,
+      externalId: content.id,
+      title: `${content.threadType === ThreadType.MATCH ? 'Матч' : 'Профиль'} ${
+        content.id
+      }`,
+    });
+
     return this.api
-      .forumControllerPostMessage(id, {
+      .forumControllerPostMessage(thread.id, {
         author: user.steam_id,
         content: content.content,
       })
-      .then(r => {
-        console.log(r);
-        return this.mapApiMessage(r);
-      });
+      .then(this.mapApiMessage);
+  }
+
+  @Post('thread')
+  @UseGuards(CustomThrottlerGuard)
+  @WithUser()
+  async createThread(
+    @Body() content: CreateThreadDTO,
+    @CurrentUser() user: CurrentUserDto,
+  ): Promise<ThreadDTO> {
+    return this.api
+      .forumControllerGetThreadForKey({
+        threadType: ThreadType.FORUM,
+        externalId: randomUUID(),
+        title: content.title,
+        opMessage: {
+          content: content.content,
+          author: user.steam_id,
+        },
+      })
+      .then(this.mapThread);
   }
 
   private mapApiMessage = async (
-    msg: ForumMessageDTO,
-  ): Promise<ThreadMessageDTO> => ({
-    messageId: msg.id,
-    threadId: msg.threadId,
-    content: msg.content,
-    createdAt: msg.createdAt,
+    msg?: ForumMessageDTO,
+  ): Promise<ThreadMessageDTO | undefined> => {
+    if (!msg) return undefined;
+    return {
+      messageId: msg.id,
+      threadId: msg.threadId,
+      content: msg.content,
+      createdAt: msg.createdAt,
+      index: msg.index,
 
-    avatar: await this.urepo.avatar(msg.author),
-    name: await this.urepo.name(msg.author),
-    steamId: msg.author,
-    index: msg.index,
+      author: await this.urepo.userDto(msg.author),
+    };
+  };
+
+  private mapThread = async (thread: ForumThreadDTO): Promise<ThreadDTO> => ({
+    id: thread.id,
+    externalId: thread.externalId,
+    threadType: thread.threadType,
+    title: thread.title,
+
+    views: thread.views,
+    messageCount: thread.messageCount,
+    newMessageCount: thread.newMessageCount,
+
+    originalPoster: await this.urepo.userDto(thread.originalPoster),
+    lastMessage: await this.mapApiMessage(thread.lastMessage),
   });
 }

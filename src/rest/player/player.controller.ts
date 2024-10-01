@@ -20,7 +20,6 @@ import {
   LeaderboardEntryDto,
   MeDto,
   MyProfileDto,
-  PlayerPreviewDto,
   PlayerSummaryDto,
   PlayerTeammatePageDto,
 } from './dto/player.dto';
@@ -47,6 +46,7 @@ import { GetReportsAvailableQueryResult } from '../../gateway/queries/GetReports
 import { extname } from 'path';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
+import { UserDTO } from '../shared.dto';
 
 @Controller('player')
 @ApiTags('player')
@@ -202,11 +202,12 @@ export class PlayerController {
   async search(
     @Query('name') name: string,
     @CurrentUser() user: D2CUser,
-  ): Promise<PlayerPreviewDto[]> {
+  ): Promise<UserDTO[]> {
     //TODO!!! WE NEED TO MAKE THIS GOOD NOT BAD :wicked:
     return (await this.userRepository.all())
       .filter(t => t.name.toLowerCase().includes(name.toLowerCase()))
-      .slice(0, 100);
+      .slice(0, 100)
+      .map(it => ({ steamId: it.id, name: it.name, avatar: it.avatar }));
   }
 
   @Post('/report')

@@ -1,11 +1,10 @@
 import { UserConnection } from '../../../gateway/shared-types/user-connection';
 import { Role } from '../../../gateway/shared-types/roles';
 import { BanStatusDto } from '../../admin/dto/admin.dto';
+import { UserDTO } from '../../shared.dto';
 
 export class LeaderboardEntryDto {
-  steam_id: string;
-  name: string;
-  avatar: string;
+  user: UserDTO;
 
   id: string;
   mmr?: number;
@@ -23,9 +22,7 @@ export class LeaderboardEntryDto {
 
 
 export class PlayerTeammateDto {
-  public readonly steam_id: string;
-  public readonly name: string;
-  public readonly avatar: string;
+  readonly user: UserDTO
 
   public readonly games: number;
   public readonly wins: number;
@@ -36,9 +33,8 @@ export class PlayerTeammateDto {
 
 
 export class MeDto {
-  steam_id: string;
-  name: string;
-  avatar: string;
+  user: UserDTO;
+
   id: string;
   mmr: number;
   roles: Role[];
@@ -49,9 +45,8 @@ export class MeDto {
 }
 
 export class PlayerSummaryDto {
-  steam_id: string;
-  name: string;
-  avatar: string;
+  user: UserDTO;
+
   id: string;
   mmr?: number;
   rank?: number;
