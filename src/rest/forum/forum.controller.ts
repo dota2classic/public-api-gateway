@@ -131,7 +131,7 @@ export class ForumController {
     name: 'threadType',
     required: true,
   })
-  @Sse('thread/:id/:threadType')
+  @Get('thread/:id/:threadType')
   getThread(@Param('id') id: string, @Param('threadType') _threadType: string) {
     return this.api
       .forumControllerGetThread(`${_threadType}_${id}`)
