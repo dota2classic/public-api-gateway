@@ -56,6 +56,7 @@ import { MetaMapper } from './rest/meta/meta.mapper';
 import { GameResultsHandler } from './cache/event-handler/game-results.handler';
 import { ForumController } from './rest/forum/forum.controller';
 import { ThrottlerModule } from '@nestjs/throttler';
+import { GetQueueStateQuery } from './gateway/queries/QueueState/get-queue-state.query';
 
 export function qCache<T, B>() {
   return new QueryCache<T, B>({
@@ -126,6 +127,7 @@ export function qCache<T, B>() {
   providers: [
     HttpCacheInterceptor,
     MainService,
+    outerQuery(GetQueueStateQuery, 'QueryCore', qCache()),
     outerQuery(GetAllQuery, 'QueryCore', qCache()),
     outerQuery(GetUserInfoQuery, 'QueryCore', qCache()),
     outerQuery(GetPartyQuery, 'QueryCore', qCache()),

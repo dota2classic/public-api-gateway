@@ -3,13 +3,16 @@ import { MatchmakingMode } from '../../../gateway/shared-types/matchmaking-mode'
 import { Role } from '../../../gateway/shared-types/roles';
 import { BanReason } from '../../../gateway/shared-types/ban';
 import { ApiProperty } from '@nestjs/swagger';
+import { UserDTO } from '../../shared.dto';
 
 export class MatchInfoDto {
+  @ApiProperty({ enum: MatchmakingMode, enumName: 'MatchmakingMode' })
   mode: MatchmakingMode;
   roomId: string;
-  radiant: string[];
-  dire: string[];
+  radiant: UserDTO[];
+  dire: UserDTO[];
   averageMMR: number;
+  @ApiProperty({ enum: Dota2Version, enumName: 'Dota2Version' })
   version: Dota2Version;
 }
 
@@ -20,6 +23,7 @@ export class EventAdminDto {
 
 export class GameServerDto {
   url: string;
+  @ApiProperty({ enum: Dota2Version, enumName: 'Dota2Version'})
   version: Dota2Version;
 }
 
@@ -31,6 +35,7 @@ export class GameSessionDto {
 
 export class UpdateRolesDto {
   steam_id: string;
+  @ApiProperty({ enum: Role, enumName: 'Role' })
   role: Role;
   end_time: number;
 }
@@ -45,6 +50,7 @@ export class UpdateModeDTO {
 
 export class RoleSubscriptionEntryDto {
   end_time: number;
+  @ApiProperty({ enum: Role, enumName: 'Role' })
   role: Role;
   steam_id: string;
 }
@@ -73,4 +79,18 @@ export class BanHammerDto {
 
 export class StopServerDto {
   public readonly url: string;
+}
+
+
+export class QueueEntryDTO {
+  partyId: string;
+  players: UserDTO[]
+}
+
+
+export class QueueStateDTO {
+  @ApiProperty({ enum: MatchmakingMode, enumName: 'MatchmakingMode' })
+  mode: MatchmakingMode
+
+  entries: QueueEntryDTO[];
 }

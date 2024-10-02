@@ -2,6 +2,7 @@ import { UserConnection } from '../../../gateway/shared-types/user-connection';
 import { Role } from '../../../gateway/shared-types/roles';
 import { BanStatusDto } from '../../admin/dto/admin.dto';
 import { UserDTO } from '../../shared.dto';
+import { ApiProperty } from '@nestjs/swagger';
 
 export class LeaderboardEntryDto {
   user: UserDTO;
@@ -20,9 +21,8 @@ export class LeaderboardEntryDto {
   play_time: number;
 }
 
-
 export class PlayerTeammateDto {
-  readonly user: UserDTO
+  readonly user: UserDTO;
 
   public readonly games: number;
   public readonly wins: number;
@@ -31,12 +31,12 @@ export class PlayerTeammateDto {
   public readonly rank: number;
 }
 
-
 export class MeDto {
   user: UserDTO;
 
   id: string;
   mmr: number;
+  @ApiProperty({ enum: Role, enumName: 'Role' })
   roles: Role[];
   rank: number;
   unrankedGamesLeft: number;
@@ -76,7 +76,6 @@ export class PlayerPreviewDto {
   id: string;
   avatar: string;
 }
-
 
 export class PlayerTeammatePageDto {
   data: PlayerTeammateDto[];

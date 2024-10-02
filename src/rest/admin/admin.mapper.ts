@@ -20,10 +20,10 @@ export class AdminMapper {
     it: GameserverGameSessionDto,
   ): Promise<GameSessionDto> => {
     const radiant = await Promise.all(
-      it.info.radiant.map(async t => await this.userRep.name(t)),
+      it.info.radiant.map(async t => await this.userRep.userDto(t)),
     );
     const dire = await Promise.all(
-      it.info.dire.map(async t => await this.userRep.name(t)),
+      it.info.dire.map(async t => await this.userRep.userDto(t)),
     );
 
     return {
