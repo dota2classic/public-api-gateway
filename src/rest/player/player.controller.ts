@@ -47,6 +47,7 @@ import { extname } from 'path';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { UserDTO } from '../shared.dto';
+import { AchievementDto } from './dto/achievement.dto';
 
 @Controller('player')
 @ApiTags('player')
@@ -163,7 +164,14 @@ export class PlayerController {
     };
   }
 
-  @Get('/summary/:id')
+  @Get('/:id/achievements')
+  async achievements(@Param('id') steam_id: string): Promise<AchievementDto[]> {
+    const rawData = await this.ms.playerControllerPlayerAchievements(steam_id);
+
+    return Promise.all(rawData.map(this.mapper.mapAchievement));
+  }
+
+  @Get('/:id/summary')
   async playerSummary(
     @Param('id') steam_id: string,
   ): Promise<PlayerSummaryDto> {

@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import {
+  GameserverAchievementDto,
   GameserverBanStatusDto,
   GameserverLeaderboardEntryDto,
   GameserverPlayerSummaryDto,
@@ -19,10 +20,15 @@ import { PlayerId } from '../../gateway/shared-types/player-id';
 import { GetReportsAvailableQueryResult } from '../../gateway/queries/GetReportsAvailable/get-reports-available-query.result';
 import { TournamentTeamDto } from '../../generated-api/tournament/models';
 import { UserDTO } from '../shared.dto';
+import { AchievementDto } from './dto/achievement.dto';
+import { MatchMapper } from '../match/match.mapper';
 
 @Injectable()
 export class PlayerMapper {
-  constructor(private readonly userRepository: UserRepository) {}
+  constructor(
+    private readonly userRepository: UserRepository,
+    private readonly matchMapper: MatchMapper,
+  ) {}
 
   public mapTeammate = async (
     it: GameserverPlayerTeammateDto,
@@ -101,5 +107,20 @@ export class PlayerMapper {
 
   public mapPlayerInParty = async (pid: PlayerId): Promise<UserDTO> => {
     return this.userRepository.userDto(pid.value);
+  };
+
+  public mapAchievement = async (
+    ach: GameserverAchievementDto,
+  ): Promise<AchievementDto> => {
+    return {
+      key: ach.key,
+      user: await this.userRepository.userDto(ach.steamId),
+
+      isComplete: ach.isComplete,
+      progress: ach.progress,
+      maxProgress: ach.maxProgress,
+
+      match: ach.match ? await this.matchMapper.mapMatch(ach.match) : undefined,
+    };
   };
 }
