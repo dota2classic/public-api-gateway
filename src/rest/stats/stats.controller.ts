@@ -1,7 +1,5 @@
 import { Controller, Get } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { WithUser } from '../../utils/decorator/with-user';
-import { CurrentUser } from '../../utils/decorator/current-user';
 import { Configuration, InfoApi } from '../../generated-api/gameserver';
 import { GAMESERVER_APIURL } from '../../utils/env';
 import { CurrentOnlineDto, MatchmakingInfo } from './dto/stats.dto';
@@ -32,9 +30,8 @@ export class StatsController {
   }
 
   @Get('/online')
-  @WithUser()
   @CacheTTL(10)
-  async online(@CurrentUser() user): Promise<CurrentOnlineDto> {
+  async online(): Promise<CurrentOnlineDto> {
     const online = await this.ms.infoControllerGetCurrentOnline();
     const sessions = await this.ms.infoControllerGameSessions();
     const servers = await this.ms.infoControllerGameServers();
