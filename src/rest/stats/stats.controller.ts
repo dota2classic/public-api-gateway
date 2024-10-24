@@ -32,9 +32,11 @@ export class StatsController {
   @Get('/online')
   @CacheTTL(10)
   async online(): Promise<CurrentOnlineDto> {
-    const online = await this.ms.infoControllerGetCurrentOnline();
-    const sessions = await this.ms.infoControllerGameSessions();
-    const servers = await this.ms.infoControllerGameServers();
+    const [online, sessions, servers] = await Promise.all<any>([
+      this.ms.infoControllerGetCurrentOnline(),
+      this.ms.infoControllerGameSessions(),
+      this.ms.infoControllerGameServers(),
+    ]);
 
     return {
       inGame: online,
