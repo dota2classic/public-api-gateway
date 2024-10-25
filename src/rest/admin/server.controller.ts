@@ -15,10 +15,18 @@ import { KillServerRequestedEvent } from '../../gateway/events/gs/kill-server-re
 import { timeout } from 'rxjs/operators';
 import { Configuration, InfoApi } from '../../generated-api/gameserver';
 import { GetQueueStateQuery } from '../../gateway/queries/QueueState/get-queue-state.query';
-import { MatchmakingMode, MatchmakingModes } from '../../gateway/shared-types/matchmaking-mode';
+import {
+  MatchmakingMode,
+  MatchmakingModes,
+} from '../../gateway/shared-types/matchmaking-mode';
 import { Dota2Version } from '../../gateway/shared-types/dota2version';
 import { GetQueueStateQueryResult } from '../../gateway/queries/QueueState/get-queue-state-query.result';
 import { UserRepository } from '../../cache/user/user.repository';
+import {
+  AdminGuard,
+  ModeratorGuard,
+  WithUser,
+} from '../../utils/decorator/with-user';
 
 @Controller('servers')
 @ApiTags('admin')
@@ -64,8 +72,8 @@ export class ServerController {
     );
   }
 
-  // @ModeratorGuard()
-  // @WithUser()
+  @ModeratorGuard()
+  @WithUser()
   @Get('/server_pool')
   async serverPool(): Promise<GameServerDto[]> {
     return this.ms
@@ -73,8 +81,8 @@ export class ServerController {
       .then(t => t.map(this.mapper.mapGameServer));
   }
 
-  // @AdminGuard()
-  // @WithUser()
+  @AdminGuard()
+  @WithUser()
   @Post(`/stop_server`)
   async stopServer(@Body() url: StopServerDto) {
     console.log('sad kek');
@@ -84,8 +92,8 @@ export class ServerController {
     );
   }
 
-  // @ModeratorGuard()
-  // @WithUser()
+  @ModeratorGuard()
+  @WithUser()
   @Get('/live_sessions')
   async liveSessions(): Promise<GameSessionDto[]> {
     const res = await this.ms.infoControllerGameSessions();
@@ -93,15 +101,15 @@ export class ServerController {
     return Promise.all(res.map(async t => this.mapper.mapGameSession(t)));
   }
 
-  // @AdminGuard()
-  // @WithUser()
+  @AdminGuard()
+  @WithUser()
   @Post('/debug_event')
   async debugEvent(@Body() b: EventAdminDto) {
     await this.rq.emit(b.name, b.body).toPromise();
   }
 
-  // @AdminGuard()
-  // @WithUser()
+  @AdminGuard()
+  @WithUser()
   @Post('/debug_command')
   async debugCommand(@Body() b: EventAdminDto) {
     return await this.rq

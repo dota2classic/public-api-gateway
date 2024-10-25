@@ -29,8 +29,12 @@ import {
   ForumThreadType,
 } from '../models';
 
-export interface ForumControllerGetThreadRequest {
+export interface ForumControllerDeleteMessageRequest {
   id: string;
+}
+
+export interface ForumControllerGetThreadRequest {
+    id: string;
 }
 
 export interface ForumControllerGetThreadForKeyRequest {
@@ -58,6 +62,50 @@ export interface ForumControllerThreadsRequest {
  *
  */
 export class ForumApi extends runtime.BaseAPI {
+
+    /**
+     */
+    forumControllerDeleteMessageContext(requestParameters: ForumControllerDeleteMessageRequest): runtime.RequestOpts {
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        return {
+            path: `/forum/message/{id}`.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters.id))),
+            method: 'DELETE',
+            headers: headerParameters,
+            query: queryParameters,
+        };
+    }
+
+    /**
+     */
+    forumControllerDeleteMessage = async (id: string): Promise<ForumMessageDTO> => {
+        const response = await this.forumControllerDeleteMessageRaw({ id: id });
+        return await response.value();
+    }
+
+    /**
+     */
+    forumControllerHealthcheckContext(): runtime.RequestOpts {
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        return {
+            path: `/forum/healthcheck`,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        };
+    }
+
+    /**
+     */
+    forumControllerHealthcheck = async (): Promise<string> => {
+        const response = await this.forumControllerHealthcheckRaw();
+        return await response.value();
+    }
 
     /**
      */
@@ -144,6 +192,39 @@ export class ForumApi extends runtime.BaseAPI {
     forumControllerGetThreadForKey = async (forumCreateThreadDTO: ForumCreateThreadDTO): Promise<ForumThreadDTO> => {
         const response = await this.forumControllerGetThreadForKeyRaw({ forumCreateThreadDTO: forumCreateThreadDTO });
         return await response.value();
+    }
+
+    /**
+     */
+    private async forumControllerDeleteMessageRaw(requestParameters: ForumControllerDeleteMessageRequest): Promise<runtime.ApiResponse<ForumMessageDTO>> {
+        this.forumControllerDeleteMessageValidation(requestParameters);
+        const context = this.forumControllerDeleteMessageContext(requestParameters);
+        const response = await this.request(context);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => ForumMessageDTOFromJSON(jsonValue));
+    }
+
+    /**
+     */
+    private forumControllerDeleteMessageValidation(requestParameters: ForumControllerDeleteMessageRequest) {
+        if (requestParameters.id === null || requestParameters.id === undefined) {
+            throw new runtime.RequiredError('id','Required parameter requestParameters.id was null or undefined when calling forumControllerDeleteMessage.');
+        }
+    }
+
+    /**
+     */
+    private async forumControllerHealthcheckRaw(): Promise<runtime.ApiResponse<string>> {
+        this.forumControllerHealthcheckValidation();
+        const context = this.forumControllerHealthcheckContext();
+        const response = await this.request(context);
+
+        return new runtime.TextApiResponse(response) as any;
+    }
+
+    /**
+     */
+    private forumControllerHealthcheckValidation() {
     }
 
     /**
@@ -246,6 +327,26 @@ export class ForumApi extends runtime.BaseAPI {
 
     /**
      */
+    private async forumControllerThreadsRaw(requestParameters: ForumControllerThreadsRequest): Promise<runtime.ApiResponse<ForumThreadPageDto>> {
+        this.forumControllerThreadsValidation(requestParameters);
+        const context = this.forumControllerThreadsContext(requestParameters);
+        const response = await this.request(context);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => ForumThreadPageDtoFromJSON(jsonValue));
+    }
+
+
+
+    /**
+     */
+    private forumControllerThreadsValidation(requestParameters: ForumControllerThreadsRequest) {
+        if (requestParameters.page === null || requestParameters.page === undefined) {
+            throw new runtime.RequiredError('page','Required parameter requestParameters.page was null or undefined when calling forumControllerThreads.');
+        }
+    }
+
+    /**
+     */
     forumControllerThreadsContext(requestParameters: ForumControllerThreadsRequest): runtime.RequestOpts {
         const queryParameters: any = {};
 
@@ -276,24 +377,6 @@ export class ForumApi extends runtime.BaseAPI {
     forumControllerThreads = async (page: number, perPage?: number, threadType?: ForumThreadType): Promise<ForumThreadPageDto> => {
         const response = await this.forumControllerThreadsRaw({ page: page, perPage: perPage, threadType: threadType });
         return await response.value();
-    }
-
-    /**
-     */
-    private async forumControllerThreadsRaw(requestParameters: ForumControllerThreadsRequest): Promise<runtime.ApiResponse<ForumThreadPageDto>> {
-        this.forumControllerThreadsValidation(requestParameters);
-        const context = this.forumControllerThreadsContext(requestParameters);
-        const response = await this.request(context);
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => ForumThreadPageDtoFromJSON(jsonValue));
-    }
-
-    /**
-     */
-    private forumControllerThreadsValidation(requestParameters: ForumControllerThreadsRequest) {
-        if (requestParameters.page === null || requestParameters.page === undefined) {
-            throw new runtime.RequiredError('page','Required parameter requestParameters.page was null or undefined when calling forumControllerThreads.');
-        }
     }
 
 }

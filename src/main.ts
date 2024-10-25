@@ -4,6 +4,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as cookieParser from 'cookie-parser';
 import { REDIS_HOST, REDIS_PASSWORD, REDIS_URL } from './utils/env';
 import { Transport } from '@nestjs/microservices';
+import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -31,6 +32,8 @@ async function bootstrap() {
       password: REDIS_PASSWORD(),
     },
   });
+
+  app.useGlobalPipes(new ValidationPipe());
   app.use(cookieParser());
 
   app.enableCors({

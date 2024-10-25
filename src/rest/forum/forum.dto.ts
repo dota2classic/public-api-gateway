@@ -3,6 +3,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Page } from '../../gateway/shared-types/page';
 import { UserDTO } from '../shared.dto';
 import { ThreadType } from '../../gateway/shared-types/thread-type';
+import { MinLength } from 'class-validator';
 
 export class ThreadMessageDTO {
   author: UserDTO;
@@ -11,6 +12,7 @@ export class ThreadMessageDTO {
   messageId: string;
   content: string;
   createdAt: string;
+  deleted: boolean;
   index: number;
 }
 
@@ -41,6 +43,8 @@ export class ThreadMessageSseDto extends MessageObjectDto<ThreadMessageDTO> {
 }
 
 export class CreateMessageDTO {
+
+  @MinLength(5)
   content: string;
 
   id: string;
@@ -49,8 +53,12 @@ export class CreateMessageDTO {
   threadType: ThreadType;
 }
 
+
+
 export class CreateThreadDTO {
+  @MinLength(5)
   title: string;
 
+  @MinLength(5)
   content: string;
 }

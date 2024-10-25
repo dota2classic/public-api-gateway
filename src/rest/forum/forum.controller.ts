@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Post,
@@ -30,7 +31,7 @@ import {
 } from '../../generated-api/forum';
 import { FORUM_APIURL, GAMESERVER_APIURL } from '../../utils/env';
 import { NullableIntPipe } from '../../utils/pipes';
-import { WithUser } from '../../utils/decorator/with-user';
+import { AdminGuard, WithUser } from '../../utils/decorator/with-user';
 import {
   CurrentUser,
   CurrentUserDto,
@@ -43,6 +44,7 @@ import {
 } from '../../generated-api/gameserver';
 import { ThreadType } from '../../gateway/shared-types/thread-type';
 import { randomUUID } from 'crypto';
+import { MessageUpdatedEvent } from '../../gateway/events/message-updated.event';
 
 @Controller('forum')
 @ApiTags('forum')
@@ -158,15 +160,23 @@ export class ForumController {
     const externalThreadId = `${threadType}_${id}`;
 
     return this.ebus.pipe(
-      filter(it => it instanceof MessageCreatedEvent),
-      filter((mce: MessageCreatedEvent) => mce.threadId === externalThreadId),
-      asyncMap(async (mce: MessageCreatedEvent) => {
+      filter(
+        it =>
+          it instanceof MessageCreatedEvent ||
+          it instanceof MessageUpdatedEvent,
+      ),
+      filter(
+        (mce: MessageCreatedEvent | MessageUpdatedEvent) =>
+          mce.threadId === externalThreadId,
+      ),
+      asyncMap(async (mce: MessageCreatedEvent | MessageUpdatedEvent) => {
         const m: ThreadMessageDTO = {
           author: await this.urepo.userDto(mce.authorId),
 
           content: mce.content,
           createdAt: mce.createdAt,
           threadId: mce.threadId,
+          deleted: 'deleted' in mce ? mce.deleted : false,
           messageId: mce.messageId,
           index: mce.messageIndex,
         };
@@ -229,6 +239,14 @@ export class ForumController {
       .then(this.mapThread);
   }
 
+  @Delete('thread/message/:id')
+  @AdminGuard()
+  @WithUser()
+  async deleteMessage(@Param('id') id: string): Promise<ThreadMessageDTO> {
+    // Delete msg
+    return this.api.forumControllerDeleteMessage(id).then(this.mapApiMessage);
+  }
+
   private mapApiMessage = async (
     msg?: ForumMessageDTO,
   ): Promise<ThreadMessageDTO | undefined> => {
@@ -239,6 +257,7 @@ export class ForumController {
       content: msg.content,
       createdAt: msg.createdAt,
       index: msg.index,
+      deleted: msg.deleted,
 
       author: await this.urepo.userDto(msg.author),
     };
