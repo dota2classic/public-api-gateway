@@ -28,7 +28,7 @@ export class ThreadDTO {
   readonly views: number;
 
   readonly originalPoster: UserDTO;
-  readonly lastMessage: ThreadMessageDTO;
+  readonly lastMessage?: ThreadMessageDTO;
 }
 
 export class ThreadPageDTO extends Page<ThreadDTO> {

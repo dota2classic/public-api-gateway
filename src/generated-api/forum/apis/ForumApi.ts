@@ -65,28 +65,6 @@ export class ForumApi extends runtime.BaseAPI {
 
     /**
      */
-    forumControllerDeleteMessageContext(requestParameters: ForumControllerDeleteMessageRequest): runtime.RequestOpts {
-        const queryParameters: any = {};
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-        return {
-            path: `/forum/message/{id}`.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters.id))),
-            method: 'DELETE',
-            headers: headerParameters,
-            query: queryParameters,
-        };
-    }
-
-    /**
-     */
-    forumControllerDeleteMessage = async (id: string): Promise<ForumMessageDTO> => {
-        const response = await this.forumControllerDeleteMessageRaw({ id: id });
-        return await response.value();
-    }
-
-    /**
-     */
     forumControllerHealthcheckContext(): runtime.RequestOpts {
         const queryParameters: any = {};
 
@@ -104,6 +82,28 @@ export class ForumApi extends runtime.BaseAPI {
      */
     forumControllerHealthcheck = async (): Promise<string> => {
         const response = await this.forumControllerHealthcheckRaw();
+        return await response.value();
+    }
+
+    /**
+     */
+    forumControllerDeleteMessageContext(requestParameters: ForumControllerDeleteMessageRequest): runtime.RequestOpts {
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        return {
+            path: `/forum/message/{id}`.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters.id))),
+            method: 'DELETE',
+            headers: headerParameters,
+            query: queryParameters,
+        };
+    }
+
+    /**
+     */
+    forumControllerDeleteMessage = async (id: string): Promise<ForumMessageDTO> => {
+        const response = await this.forumControllerDeleteMessageRaw({ id: id });
         return await response.value();
     }
 
@@ -196,6 +196,23 @@ export class ForumApi extends runtime.BaseAPI {
 
     /**
      */
+    private async forumControllerHealthcheckRaw(): Promise<runtime.ApiResponse<string>> {
+        this.forumControllerHealthcheckValidation();
+        const context = this.forumControllerHealthcheckContext();
+        const response = await this.request(context);
+
+        return new runtime.TextApiResponse(response) as any;
+    }
+
+
+
+    /**
+     */
+    private forumControllerHealthcheckValidation() {
+    }
+
+    /**
+     */
     private async forumControllerDeleteMessageRaw(requestParameters: ForumControllerDeleteMessageRequest): Promise<runtime.ApiResponse<ForumMessageDTO>> {
         this.forumControllerDeleteMessageValidation(requestParameters);
         const context = this.forumControllerDeleteMessageContext(requestParameters);
@@ -210,21 +227,6 @@ export class ForumApi extends runtime.BaseAPI {
         if (requestParameters.id === null || requestParameters.id === undefined) {
             throw new runtime.RequiredError('id','Required parameter requestParameters.id was null or undefined when calling forumControllerDeleteMessage.');
         }
-    }
-
-    /**
-     */
-    private async forumControllerHealthcheckRaw(): Promise<runtime.ApiResponse<string>> {
-        this.forumControllerHealthcheckValidation();
-        const context = this.forumControllerHealthcheckContext();
-        const response = await this.request(context);
-
-        return new runtime.TextApiResponse(response) as any;
-    }
-
-    /**
-     */
-    private forumControllerHealthcheckValidation() {
     }
 
     /**

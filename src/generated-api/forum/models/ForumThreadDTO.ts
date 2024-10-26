@@ -12,13 +12,14 @@
  * Do not edit the class manually.
  */
 
+import { exists } from '../runtime';
 import {
-  ForumMessageDTO,
-  ForumMessageDTOFromJSON,
-  ForumMessageDTOToJSON,
-  ForumThreadType,
-  ForumThreadTypeFromJSON,
-  ForumThreadTypeToJSON,
+    ForumMessageDTO,
+    ForumMessageDTOFromJSON,
+    ForumMessageDTOToJSON,
+    ForumThreadType,
+    ForumThreadTypeFromJSON,
+    ForumThreadTypeToJSON,
 } from './';
 
 /**
@@ -80,7 +81,7 @@ export class ForumThreadDTO {
      * @type {ForumMessageDTO}
      * @memberof ForumThreadDTO
      */
-    lastMessage: ForumMessageDTO;
+    lastMessage?: ForumMessageDTO;
 }
 
 export function ForumThreadDTOFromJSON(json: any): ForumThreadDTO {
@@ -101,7 +102,7 @@ export function ForumThreadDTOFromJSONTyped(json: any, ignoreDiscriminator: bool
         'messageCount': json['messageCount'],
         'newMessageCount': json['newMessageCount'],
         'originalPoster': json['originalPoster'],
-        'lastMessage': ForumMessageDTOFromJSON(json['lastMessage']),
+        'lastMessage': !exists(json, 'lastMessage') ? undefined : ForumMessageDTOFromJSON(json['lastMessage']),
     };
 }
 

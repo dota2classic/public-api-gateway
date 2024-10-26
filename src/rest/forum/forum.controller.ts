@@ -274,6 +274,7 @@ export class ForumController {
     newMessageCount: thread.newMessageCount,
 
     originalPoster: await this.urepo.userDto(thread.originalPoster),
-    lastMessage: await this.mapApiMessage(thread.lastMessage),
+    lastMessage:
+      thread.lastMessage && (await this.mapApiMessage(thread.lastMessage)),
   });
 }
