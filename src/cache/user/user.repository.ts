@@ -49,12 +49,14 @@ export class UserRepository extends RuntimeRepository<UserModel, 'id'> {
         steamId,
         name: '',
         avatar: '',
+        avatarSmall: '',
       };
     }
     return {
       steamId,
       name: u.name,
       avatar: u.avatar,
+      avatarSmall: (u.avatar || '').replace('_full', '_medium'),
     };
   }
 }

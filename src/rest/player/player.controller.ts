@@ -215,7 +215,12 @@ export class PlayerController {
     return (await this.userRepository.all())
       .filter(t => t.name.toLowerCase().includes(name.toLowerCase()))
       .slice(0, 100)
-      .map(it => ({ steamId: it.id, name: it.name, avatar: it.avatar }));
+      .map(it => ({
+        steamId: it.id,
+        name: it.name,
+        avatar: it.avatar,
+        avatarSmall: it.avatar && it.avatar.replace('_full', '_medium'),
+      }));
   }
 
   @Post('/report')
