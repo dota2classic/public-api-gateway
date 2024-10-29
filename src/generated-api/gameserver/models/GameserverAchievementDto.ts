@@ -14,12 +14,12 @@
 
 import { exists } from '../runtime';
 import {
-    GameserverAchievementKey,
-    GameserverAchievementKeyFromJSON,
-    GameserverAchievementKeyToJSON,
-    GameserverMatchDto,
-    GameserverMatchDtoFromJSON,
-    GameserverMatchDtoToJSON,
+  GameserverAchievementKey,
+  GameserverAchievementKeyFromJSON,
+  GameserverAchievementKeyToJSON,
+  GameserverMatchDto,
+  GameserverMatchDtoFromJSON,
+  GameserverMatchDtoToJSON,
 } from './';
 
 /**

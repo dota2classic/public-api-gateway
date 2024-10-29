@@ -3,9 +3,15 @@ import { UserRepository } from '../../cache/user/user.repository';
 import {
   GameserverMatchDto,
   GameserverMatchPageDto,
+  GameserverMmrChangeDto,
   GameserverPlayerInMatchDto,
 } from '../../generated-api/gameserver/models';
-import { MatchDto, MatchPageDto, PlayerInMatchDto } from './dto/match.dto';
+import {
+  MatchDto,
+  MatchPageDto,
+  MmrChangeDto,
+  PlayerInMatchDto,
+} from './dto/match.dto';
 import { MATCH_REPORT_TIMEOUT } from '../../gateway/shared-types/timings';
 import { GetReportsAvailableQueryResult } from '../../gateway/queries/GetReportsAvailable/get-reports-available-query.result';
 import { measureN } from '../../utils/decorator/measure';
@@ -16,12 +22,21 @@ export interface PlayerMappableResource
 export class MatchMapper {
   constructor(private readonly userRepository: UserRepository) {}
 
+  public mapMmr = (it: GameserverMmrChangeDto): MmrChangeDto => ({
+    mmr_before: it.mmr_before,
+    mmr_after: it.mmr_after,
+    change: it.change,
+    is_hidden_mmr: it.is_hidden,
+  });
+
   public mapPlayerInMatch = async (
     it: GameserverPlayerInMatchDto,
   ): Promise<PlayerInMatchDto> => {
+    const { steam_id, ...dto } = it;
     return {
-      ...it,
-      name: await this.userRepository.name(it.steam_id),
+      ...dto,
+      user: await this.userRepository.userDto(it.steam_id),
+      mmr: it.mmr && this.mapMmr(it.mmr),
     };
   };
 
@@ -48,14 +63,16 @@ export class MatchMapper {
     };
   };
 
-
   public mapMatchPage = async (
     it: GameserverMatchPageDto,
     mapFor?: PlayerMappableResource,
   ): Promise<MatchPageDto> => {
-    return measureN(async () => ({
-      ...it,
-      data: await Promise.all(it.data.map(t => this.mapMatch(t, mapFor))),
-    }), "mapping");
+    return measureN(
+      async () => ({
+        ...it,
+        data: await Promise.all(it.data.map(t => this.mapMatch(t, mapFor))),
+      }),
+      'mapping',
+    );
   };
 }

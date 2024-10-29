@@ -11,6 +11,7 @@ export * from './GameserverLeaderboardEntryDto';
 export * from './GameserverMatchDto';
 export * from './GameserverMatchInfoDto';
 export * from './GameserverMatchPageDto';
+export * from './GameserverMmrChangeDto';
 export * from './GameserverPlayerHeroPerformance';
 export * from './GameserverPlayerInMatchDto';
 export * from './GameserverPlayerSummaryDto';

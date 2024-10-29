@@ -1,10 +1,18 @@
 import { MatchmakingMode } from '../../../gateway/shared-types/matchmaking-mode';
 import { Dota_GameMode } from '../../../gateway/shared-types/dota-game-mode';
 import { ApiProperty } from '@nestjs/swagger';
+import { UserDTO } from '../../shared.dto';
+
+export class MmrChangeDto {
+  mmr_before: number;
+  mmr_after: number;
+  change: number;
+  is_hidden_mmr: boolean;
+}
 
 export class PlayerInMatchDto {
-  steam_id: string;
-  name: string;
+  user: UserDTO;
+
   team: number;
   hero: string;
   level: number;
@@ -28,6 +36,8 @@ export class PlayerInMatchDto {
   item5: number;
 
   abandoned: boolean;
+
+  mmr?: MmrChangeDto;
 }
 
 
