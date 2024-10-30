@@ -10,6 +10,7 @@ export enum SortOrder {
   DESC = 'DESC',
 }
 
+
 export class ThreadMessageDTO {
   author: UserDTO;
 

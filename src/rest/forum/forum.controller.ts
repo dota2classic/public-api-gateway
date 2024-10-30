@@ -77,7 +77,9 @@ export class ForumController {
   })
   @ApiParam({
     name: 'threadType',
-    required: true,
+    required: false,
+    enum: ThreadType,
+    enumName: 'ThreadType',
   })
   @ApiQuery({
     name: 'after',
@@ -98,14 +100,11 @@ export class ForumController {
   @Get('thread/:id/:threadType/messages')
   async getMessages(
     @Param('id') _id: string,
-    @Param('threadType') _threadType: string,
+    @Param('threadType') threadType: ThreadType,
     @Query('after', NullableIntPipe) after?: number,
     @Query('limit', NullableIntPipe) limit: number = 10,
     @Query('order') order: SortOrder = SortOrder.ASC,
   ): Promise<ThreadMessageDTO[]> {
-    const t = Object.values(ThreadType).find(t => t === _threadType);
-    if (!t) throw Error('Illegal argument');
-    const threadType = _threadType as ThreadType;
     const id = `${threadType}_${_id}`;
     const msgs = await this.api.forumControllerMessages(
       id,
@@ -124,12 +123,24 @@ export class ForumController {
     name: 'perPage',
     required: false,
   })
+  @ApiQuery({
+    name: 'threadType',
+    required: false,
+    enum: ThreadType,
+    enumName: 'ThreadType',
+  })
   @Get('threads')
   async threads(
     @Query('page', NullableIntPipe) page: number,
     @Query('perPage', NullableIntPipe) perPage: number = 25,
+    @Query('threadType') threadType?: ThreadType,
   ): Promise<ThreadPageDTO> {
-    const threads = await this.api.forumControllerThreads(page, perPage);
+    console.log(threadType);
+    const threads = await this.api.forumControllerThreads(
+      page,
+      perPage,
+      threadType,
+    );
 
     return {
       data: await Promise.all(threads.data.map(this.mapThread)),
@@ -145,12 +156,17 @@ export class ForumController {
   })
   @ApiParam({
     name: 'threadType',
-    required: true,
+    required: false,
+    enum: ThreadType,
+    enumName: 'ThreadType',
   })
   @Get('thread/:id/:threadType')
-  getThread(@Param('id') id: string, @Param('threadType') _threadType: string) {
+  getThread(
+    @Param('id') id: string,
+    @Param('threadType') threadType: ThreadType,
+  ) {
     return this.api
-      .forumControllerGetThread(`${_threadType}_${id}`)
+      .forumControllerGetThread(`${threadType}_${id}`)
       .then(this.mapThread);
   }
 
@@ -160,17 +176,15 @@ export class ForumController {
   })
   @ApiParam({
     name: 'threadType',
-    required: true,
+    required: false,
+    enum: ThreadType,
+    enumName: 'ThreadType',
   })
   @Sse('thread/:id/:threadType/sse')
   thread(
     @Param('id') id: string,
-    @Param('threadType') _threadType: string,
+    @Param('threadType') threadType: ThreadType,
   ): Observable<ThreadMessageSseDto> {
-    const t = Object.values(ThreadType).find(t => t === _threadType);
-    if (!t) throw Error('Illegal argument');
-    const threadType = _threadType as ThreadType;
-
     const externalThreadId = `${threadType}_${id}`;
 
     return this.ebus.pipe(
