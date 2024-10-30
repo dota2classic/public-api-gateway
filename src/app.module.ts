@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { MatchController } from './rest/match/match.controller';
 import { SteamController } from './rest/steam.controller';
 import SteamStrategy from './rest/strategy/steam.strategy';
@@ -57,6 +57,13 @@ import { GameResultsHandler } from './cache/event-handler/game-results.handler';
 import { ForumController } from './rest/forum/forum.controller';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { GetQueueStateQuery } from './gateway/queries/QueueState/get-queue-state.query';
+import {
+  makeCounterProvider,
+  PrometheusModule,
+} from '@willsoto/nestjs-prometheus';
+import { CustomMetricsMiddleware } from './middleware/custom-metrics.middleware';
+import { PrometheusGuardedController } from './rest/prometheus-guarded.controller';
+import { BasicStrategy } from './rest/strategy/prometheus-basic-auth.strategy';
 
 export function qCache<T, B>() {
   return new QueryCache<T, B>({
@@ -68,6 +75,11 @@ export function qCache<T, B>() {
 
 @Module({
   imports: [
+    PrometheusModule.register({
+      path: '/metrics',
+      controller: PrometheusGuardedController
+
+    }),
     TypeOrmModule.forRoot(
       (isDev ? prodDbConfig : prodDbConfig) as TypeOrmModuleOptions,
     ),
@@ -122,7 +134,8 @@ export function qCache<T, B>() {
     StatsController,
     SteamController,
     DiscordController,
-    ForumController
+    ForumController,
+    PrometheusGuardedController
   ],
   providers: [
     HttpCacheInterceptor,
@@ -140,6 +153,7 @@ export function qCache<T, B>() {
     SteamStrategy,
     JwtStrategy,
     DiscordStrategy,
+    BasicStrategy,
     LiveMatchService,
 
     MatchMapper,
@@ -153,7 +167,20 @@ export function qCache<T, B>() {
     UserUpdatedHandler,
     LiveMatchUpdateHandler,
     GameSessionFinishedEvent,
-    GameResultsHandler
+    GameResultsHandler,
+
+
+    // grafana
+    makeCounterProvider({
+      name: 'my_app_requests',
+      help: 'The number of requests processed by the application',
+      labelNames: ['status'],
+    }),
   ],
 })
-export class AppModule {}
+export class AppModule implements NestModule  {
+  configure(consumer: MiddlewareConsumer) {
+    //forRoutes('yourRootapi')
+    consumer.apply(CustomMetricsMiddleware).forRoutes('match', 'live', 'player', 'admin', 'meta', 'stats', 'forum');
+  }
+}
