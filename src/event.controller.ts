@@ -5,6 +5,7 @@ import { Constructor, EventBus } from '@nestjs/cqrs';
 import { LiveMatchUpdateEvent } from './gateway/events/gs/live-match-update.event';
 import { GameResultsEvent } from './gateway/events/gs/game-results.event';
 import { MessageCreatedEvent } from './gateway/events/message-created.event';
+import { MatchFinishedEvent } from './gateway/events/match-finished.event';
 
 @Controller()
 export class EventController {
@@ -39,5 +40,10 @@ export class EventController {
   @EventPattern(MessageCreatedEvent.name)
   async MessageCreatedEvent(data: MessageCreatedEvent) {
     this.event(MessageCreatedEvent, data);
+  }
+
+  @EventPattern(MatchFinishedEvent.name)
+  async MatchFinishedEvent(data: MatchFinishedEvent) {
+    this.event(MatchFinishedEvent, data);
   }
 }
