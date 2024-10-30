@@ -5,6 +5,11 @@ import { UserDTO } from '../shared.dto';
 import { ThreadType } from '../../gateway/shared-types/thread-type';
 import { MinLength } from 'class-validator';
 
+export enum SortOrder {
+  ASC = 'ASC',
+  DESC = 'DESC',
+}
+
 export class ThreadMessageDTO {
   author: UserDTO;
 

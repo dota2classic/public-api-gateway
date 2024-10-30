@@ -22,6 +22,7 @@ import {
   ForumCreateThreadDTOToJSON,
   ForumMessageDTO,
   ForumMessageDTOFromJSON,
+  ForumSortOrder,
   ForumThreadDTO,
   ForumThreadDTOFromJSON,
   ForumThreadPageDto,
@@ -45,6 +46,7 @@ export interface ForumControllerMessagesRequest {
     id: string;
     after?: number;
     limit?: number;
+    order?: ForumSortOrder;
 }
 
 export interface ForumControllerPostMessageRequest {
@@ -213,20 +215,36 @@ export class ForumApi extends runtime.BaseAPI {
 
     /**
      */
-    private async forumControllerDeleteMessageRaw(requestParameters: ForumControllerDeleteMessageRequest): Promise<runtime.ApiResponse<ForumMessageDTO>> {
-        this.forumControllerDeleteMessageValidation(requestParameters);
-        const context = this.forumControllerDeleteMessageContext(requestParameters);
-        const response = await this.request(context);
+    forumControllerMessagesContext(requestParameters: ForumControllerMessagesRequest): runtime.RequestOpts {
+        const queryParameters: any = {};
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => ForumMessageDTOFromJSON(jsonValue));
+        if (requestParameters.after !== undefined) {
+            queryParameters['after'] = requestParameters.after;
+        }
+
+        if (requestParameters.limit !== undefined) {
+            queryParameters['limit'] = requestParameters.limit;
+        }
+
+        if (requestParameters.order !== undefined) {
+            queryParameters['order'] = requestParameters.order;
+        }
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        return {
+            path: `/forum/thread/{id}/messages`.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters.id))),
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        };
     }
 
     /**
      */
-    private forumControllerDeleteMessageValidation(requestParameters: ForumControllerDeleteMessageRequest) {
-        if (requestParameters.id === null || requestParameters.id === undefined) {
-            throw new runtime.RequiredError('id','Required parameter requestParameters.id was null or undefined when calling forumControllerDeleteMessage.');
-        }
+    forumControllerMessages = async (id: string, after?: number, limit?: number, order?: ForumSortOrder): Promise<Array<ForumMessageDTO>> => {
+        const response = await this.forumControllerMessagesRaw({ id: id, after: after, limit: limit, order: order });
+        return await response.value();
     }
 
     /**
@@ -251,32 +269,20 @@ export class ForumApi extends runtime.BaseAPI {
 
     /**
      */
-    forumControllerMessagesContext(requestParameters: ForumControllerMessagesRequest): runtime.RequestOpts {
-        const queryParameters: any = {};
+    private async forumControllerDeleteMessageRaw(requestParameters: ForumControllerDeleteMessageRequest): Promise<runtime.ApiResponse<ForumMessageDTO>> {
+        this.forumControllerDeleteMessageValidation(requestParameters);
+        const context = this.forumControllerDeleteMessageContext(requestParameters);
+        const response = await this.request(context);
 
-        if (requestParameters.after !== undefined) {
-            queryParameters['after'] = requestParameters.after;
-        }
-
-        if (requestParameters.limit !== undefined) {
-            queryParameters['limit'] = requestParameters.limit;
-        }
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-        return {
-            path: `/forum/thread/{id}/messages`.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters.id))),
-            method: 'GET',
-            headers: headerParameters,
-            query: queryParameters,
-        };
+        return new runtime.JSONApiResponse(response, (jsonValue) => ForumMessageDTOFromJSON(jsonValue));
     }
 
     /**
      */
-    forumControllerMessages = async (id: string, after?: number, limit?: number): Promise<Array<ForumMessageDTO>> => {
-        const response = await this.forumControllerMessagesRaw({ id: id, after: after, limit: limit });
-        return await response.value();
+    private forumControllerDeleteMessageValidation(requestParameters: ForumControllerDeleteMessageRequest) {
+        if (requestParameters.id === null || requestParameters.id === undefined) {
+            throw new runtime.RequiredError('id','Required parameter requestParameters.id was null or undefined when calling forumControllerDeleteMessage.');
+        }
     }
 
     /**

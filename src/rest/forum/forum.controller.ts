@@ -18,6 +18,7 @@ import { UserRepository } from '../../cache/user/user.repository';
 import {
   CreateMessageDTO,
   CreateThreadDTO,
+  SortOrder,
   ThreadDTO,
   ThreadMessageDTO,
   ThreadMessageSseDto,
@@ -27,6 +28,7 @@ import {
   Configuration,
   ForumApi,
   ForumMessageDTO,
+  ForumSortOrder,
   ForumThreadDTO,
 } from '../../generated-api/forum';
 import { FORUM_APIURL, GAMESERVER_APIURL } from '../../utils/env';
@@ -87,18 +89,30 @@ export class ForumController {
     type: 'number',
     required: false,
   })
+  @ApiQuery({
+    name: 'order',
+    enum: SortOrder,
+    enumName: 'SortOrder',
+    required: false,
+  })
   @Get('thread/:id/:threadType/messages')
   async getMessages(
     @Param('id') _id: string,
     @Param('threadType') _threadType: string,
     @Query('after', NullableIntPipe) after?: number,
     @Query('limit', NullableIntPipe) limit: number = 10,
+    @Query('order') order: SortOrder = SortOrder.ASC,
   ): Promise<ThreadMessageDTO[]> {
     const t = Object.values(ThreadType).find(t => t === _threadType);
     if (!t) throw Error('Illegal argument');
     const threadType = _threadType as ThreadType;
     const id = `${threadType}_${_id}`;
-    const msgs = await this.api.forumControllerMessages(id, after, limit);
+    const msgs = await this.api.forumControllerMessages(
+      id,
+      after,
+      limit,
+      (order as unknown) as ForumSortOrder,
+    );
     return Promise.all(msgs.map(this.mapApiMessage));
   }
 
