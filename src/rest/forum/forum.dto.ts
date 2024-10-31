@@ -32,6 +32,7 @@ export class ThreadDTO {
   readonly messageCount: number;
   readonly newMessageCount: number;
   readonly views: number;
+  readonly pinned: boolean;
 
   readonly originalPoster: UserDTO;
   readonly lastMessage?: ThreadMessageDTO;
@@ -67,4 +68,8 @@ export class CreateThreadDTO {
 
   @MinLength(5)
   content: string;
+}
+
+export class UpdateThreadDTO {
+  pinned: boolean;
 }

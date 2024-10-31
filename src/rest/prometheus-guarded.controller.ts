@@ -13,8 +13,8 @@ export class PrometheusGuardedController extends PrometheusController {
     return super.index(response);
   }
 
-  // @Get('unguarded')
-  // index2(@Res({ passthrough: true }) response: Response) {
-  //   return super.index(response);
-  // }
+  @Get('unguarded')
+  index2(@Res({ passthrough: true }) response: Response) {
+    return super.index(response);
+  }
 }

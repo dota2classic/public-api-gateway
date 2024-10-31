@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Param,
+  Patch,
   Post,
   Query,
   Sse,
@@ -23,13 +24,12 @@ import {
   ThreadMessageDTO,
   ThreadMessageSseDto,
   ThreadPageDTO,
+  UpdateThreadDTO,
 } from './forum.dto';
 import {
   Configuration,
   ForumApi,
-  ForumMessageDTO,
   ForumSortOrder,
-  ForumThreadDTO,
 } from '../../generated-api/forum';
 import { FORUM_APIURL, GAMESERVER_APIURL } from '../../utils/env';
 import { NullableIntPipe } from '../../utils/pipes';
@@ -47,6 +47,7 @@ import {
 import { ThreadType } from '../../gateway/shared-types/thread-type';
 import { randomUUID } from 'crypto';
 import { MessageUpdatedEvent } from '../../gateway/events/message-updated.event';
+import { ForumMapper } from './forum.mapper';
 
 @Controller('forum')
 @ApiTags('forum')
@@ -57,6 +58,7 @@ export class ForumController {
 
   constructor(
     private readonly ebus: EventBus,
+    private readonly mapper: ForumMapper,
     private readonly urepo: UserRepository,
   ) {
     this.api = new ForumApi(
@@ -112,7 +114,7 @@ export class ForumController {
       limit,
       (order as unknown) as ForumSortOrder,
     );
-    return Promise.all(msgs.map(this.mapApiMessage));
+    return Promise.all(msgs.map(this.mapper.mapApiMessage));
   }
 
   @ApiQuery({
@@ -135,7 +137,6 @@ export class ForumController {
     @Query('perPage', NullableIntPipe) perPage: number = 25,
     @Query('threadType') threadType?: ThreadType,
   ): Promise<ThreadPageDTO> {
-    console.log(threadType);
     const threads = await this.api.forumControllerThreads(
       page,
       perPage,
@@ -143,7 +144,7 @@ export class ForumController {
     );
 
     return {
-      data: await Promise.all(threads.data.map(this.mapThread)),
+      data: await Promise.all(threads.data.map(this.mapper.mapThread)),
       page: threads.page,
       perPage: threads.perPage,
       pages: threads.pages,
@@ -167,7 +168,7 @@ export class ForumController {
   ) {
     return this.api
       .forumControllerGetThread(`${threadType}_${id}`)
-      .then(this.mapThread);
+      .then(this.mapper.mapThread);
   }
 
   @ApiParam({
@@ -244,7 +245,7 @@ export class ForumController {
         author: user.steam_id,
         content: content.content,
       })
-      .then(this.mapApiMessage);
+      .then(this.mapper.mapApiMessage);
   }
 
   @Post('thread')
@@ -264,45 +265,27 @@ export class ForumController {
           author: user.steam_id,
         },
       })
-      .then(this.mapThread);
+      .then(this.mapper.mapThread);
   }
 
   @Delete('thread/message/:id')
   @AdminGuard()
   @WithUser()
   async deleteMessage(@Param('id') id: string): Promise<ThreadMessageDTO> {
-    // Delete msg
-    return this.api.forumControllerDeleteMessage(id).then(this.mapApiMessage);
+    return this.api
+      .forumControllerDeleteMessage(id)
+      .then(this.mapper.mapApiMessage);
   }
 
-  private mapApiMessage = async (
-    msg?: ForumMessageDTO,
-  ): Promise<ThreadMessageDTO | undefined> => {
-    if (!msg) return undefined;
-    return {
-      messageId: msg.id,
-      threadId: msg.threadId,
-      content: msg.content,
-      createdAt: msg.createdAt,
-      index: msg.index,
-      deleted: msg.deleted,
-
-      author: await this.urepo.userDto(msg.author),
-    };
-  };
-
-  private mapThread = async (thread: ForumThreadDTO): Promise<ThreadDTO> => ({
-    id: thread.id,
-    externalId: thread.externalId,
-    threadType: thread.threadType,
-    title: thread.title,
-
-    views: thread.views,
-    messageCount: thread.messageCount,
-    newMessageCount: thread.newMessageCount,
-
-    originalPoster: await this.urepo.userDto(thread.originalPoster),
-    lastMessage:
-      thread.lastMessage && (await this.mapApiMessage(thread.lastMessage)),
-  });
+  @Patch('thread/:id')
+  @AdminGuard()
+  @WithUser()
+  async updateThread(
+    @Param('id') id: string,
+    @Body() dto: UpdateThreadDTO,
+  ): Promise<ThreadDTO> {
+    return this.api
+      .forumControllerUpdateThread(id, dto)
+      .then(this.mapper.mapThread);
+  }
 }
