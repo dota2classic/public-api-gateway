@@ -61,6 +61,7 @@ import { ForumMapper } from './rest/forum/forum.mapper';
 import { AuthController } from './rest/auth/auth.controller';
 import { AuthService } from './rest/auth/auth.service';
 import { MatchFinishedHandler } from './cache/event-handler/match-finished.handler';
+import { NotificationController } from './rest/notification/notification.controller';
 
 export function qCache<T, B>() {
   return new QueryCache<T, B>({
@@ -132,7 +133,8 @@ export function qCache<T, B>() {
     DiscordController,
     ForumController,
     PrometheusGuardedController,
-    AuthController
+    AuthController,
+    NotificationController
   ],
   providers: [
     HttpCacheInterceptor,

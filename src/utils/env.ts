@@ -6,7 +6,8 @@ export const REDIS_URL = () => process.env.REDIS_URL || 'redis://localhost:6379'
 export const REDIS_HOST = () => process.env.REDIS_HOST || 'redis'
 export const REDIS_PASSWORD = () => process.env.REDIS_PASSWORD || undefined;
 
-export const DISCORD_API_TOKEN = () => process.env.DISCORD_API_TOKEN;
+export const VAPID_PRIVATE_KEY = () => process.env.VAPID_PRIVATE_KEY;
+export const VAPID_PUBLIC_KEY = () => process.env.VAPID_PUBLIC_KEY;
 
 export const PROMETHEUS_USER = () => process.env.PROMETHEUS_USER;
 export const PROMETHEUS_PASSWORD = () => process.env.PROMETHEUS_PASSWORD;
