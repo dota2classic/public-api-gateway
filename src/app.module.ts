@@ -65,6 +65,7 @@ import { CustomMetricsMiddleware } from './middleware/custom-metrics.middleware'
 import { PrometheusGuardedController } from './rest/prometheus-guarded.controller';
 import { BasicStrategy } from './rest/strategy/prometheus-basic-auth.strategy';
 import { ForumMapper } from './rest/forum/forum.mapper';
+import { NotificationController } from './rest/notification/notification.controller';
 
 export function qCache<T, B>() {
   return new QueryCache<T, B>({
@@ -136,7 +137,8 @@ export function qCache<T, B>() {
     SteamController,
     DiscordController,
     ForumController,
-    PrometheusGuardedController
+    PrometheusGuardedController,
+    NotificationController
   ],
   providers: [
     HttpCacheInterceptor,
