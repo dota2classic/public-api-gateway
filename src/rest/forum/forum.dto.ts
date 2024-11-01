@@ -22,6 +22,16 @@ export class ThreadMessageDTO {
   index: number;
 }
 
+
+
+export class ThreadMessagePageDTO extends Page<ThreadMessageDTO> {
+  readonly data: ThreadMessageDTO[];
+  readonly page: number;
+  readonly perPage: number;
+  readonly pages: number;
+}
+
+
 export class ThreadDTO {
   readonly id: string;
   readonly externalId: string;

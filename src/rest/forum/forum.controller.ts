@@ -14,6 +14,7 @@ import { ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { filter, Observable } from 'rxjs';
 import { EventBus } from '@nestjs/cqrs';
 import { MessageCreatedEvent } from '../../gateway/events/message-created.event';
+import { makePage } from '../../gateway/util/make-page';
 import { asyncMap } from 'rxjs-async-map';
 import { UserRepository } from '../../cache/user/user.repository';
 import {
@@ -22,6 +23,7 @@ import {
   SortOrder,
   ThreadDTO,
   ThreadMessageDTO,
+  ThreadMessagePageDTO,
   ThreadMessageSseDto,
   ThreadPageDTO,
   UpdateThreadDTO,
@@ -115,6 +117,46 @@ export class ForumController {
       (order as unknown) as ForumSortOrder,
     );
     return Promise.all(msgs.map(this.mapper.mapApiMessage));
+  }
+
+  @ApiParam({
+    name: 'id',
+    required: true,
+  })
+  @ApiParam({
+    name: 'threadType',
+    required: false,
+    enum: ThreadType,
+    enumName: 'ThreadType',
+  })
+  @ApiQuery({
+    name: 'page',
+    required: true,
+  })
+  @ApiQuery({
+    name: 'perPage',
+    required: false,
+  })
+  @Get('thread/:id/:threadType/page')
+  async messagesPage(
+    @Param('id') id: string,
+    @Param('threadType') threadType: ThreadType,
+    @Query('page', NullableIntPipe) page: number,
+    @Query('perPage', NullableIntPipe) perPage: number = 15,
+  ): Promise<ThreadMessagePageDTO> {
+    const pg = await this.api.forumControllerMessagesPage(
+      `${threadType}_${id}`,
+      page,
+      perPage,
+    );
+
+    return await makePage(
+      pg.data,
+      pg.pages * pg.perPage,
+      pg.page,
+      pg.perPage,
+      this.mapper.mapApiMessage,
+    );
   }
 
   @ApiQuery({

@@ -8,9 +8,8 @@ export class ForumMapper {
   constructor(private readonly urepo: UserRepository) {}
 
   public mapApiMessage = async (
-    msg?: ForumMessageDTO,
-  ): Promise<ThreadMessageDTO | undefined> => {
-    if (!msg) return undefined;
+    msg: ForumMessageDTO,
+  ): Promise<ThreadMessageDTO> => {
     return {
       messageId: msg.id,
       threadId: msg.threadId,

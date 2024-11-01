@@ -1,6 +1,7 @@
 export * from './ForumCreateMessageDTO';
 export * from './ForumCreateThreadDTO';
 export * from './ForumMessageDTO';
+export * from './ForumMessagePageDTO';
 export * from './ForumSortOrder';
 export * from './ForumThreadDTO';
 export * from './ForumThreadPageDto';
