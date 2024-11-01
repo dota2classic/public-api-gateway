@@ -1,9 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import {
+  GameserverCrimeLogDto,
   GameserverGameServerDto,
   GameserverGameSessionDto,
 } from '../../generated-api/gameserver/models';
-import { GameServerDto, GameSessionDto } from './dto/admin.dto';
+import { CrimeLogDto, GameServerDto, GameSessionDto } from './dto/admin.dto';
 import { Dota2Version } from '../../gateway/shared-types/dota2version';
 import { MatchmakingMode } from '../../gateway/shared-types/matchmaking-mode';
 import { UserRepository } from '../../cache/user/user.repository';
@@ -11,6 +12,17 @@ import { UserRepository } from '../../cache/user/user.repository';
 @Injectable()
 export class AdminMapper {
   constructor(private readonly userRep: UserRepository) {}
+
+  public mapCrimeLog = async (
+    t: GameserverCrimeLogDto,
+  ): Promise<CrimeLogDto> => ({
+    id: t.id,
+    user: await this.userRep.userDto(t.steam_id),
+    handled: t.handled,
+    crime: t.crime,
+    created_at: t.created_at,
+  });
+
   public mapGameServer = (t: GameserverGameServerDto): GameServerDto => ({
     url: t.url,
     version: (t.version as unknown) as Dota2Version,
