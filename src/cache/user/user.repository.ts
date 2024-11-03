@@ -47,7 +47,7 @@ export class UserRepository extends RuntimeRepository<UserModel, 'id'> {
     if (!u) {
       return {
         steamId,
-        name: '',
+        name: 'Username loading',
         avatar: '',
         avatarSmall: '',
       };
