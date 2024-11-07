@@ -11,13 +11,13 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { CacheTTL } from '@nestjs/cache-manager';
-import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Dota2Version } from '../../gateway/shared-types/dota2version';
 import { Configuration, PlayerApi } from '../../generated-api/gameserver';
 import { GAMESERVER_APIURL } from '../../utils/env';
 import { PlayerMapper } from './player.mapper';
 import {
-  LeaderboardEntryDto,
+  LeaderboardEntryPageDto,
   MeDto,
   MyProfileDto,
   PlayerSummaryDto,
@@ -48,6 +48,8 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { UserDTO } from '../shared.dto';
 import { AchievementDto } from './dto/achievement.dto';
+import { WithPagination } from '../../utils/decorator/pagination';
+import { NullableIntPipe } from '../../utils/pipes';
 
 @Controller('player')
 @ApiTags('player')
@@ -126,25 +128,26 @@ export class PlayerController {
   }
 
   @UseInterceptors(HttpCacheInterceptor)
-  @ApiQuery({ required: false, type: 'string', name: 'version' })
-  // // every half and hour
   @CacheTTL(60 * 30)
   @Get('/leaderboard')
+  @WithPagination()
   async leaderboard(
-    @Query('version') version: Dota2Version = Dota2Version.Dota_681,
-  ): Promise<LeaderboardEntryDto[]> {
-    const rawData = await this.ms.playerControllerLeaderboard(version);
-    return Promise.all(rawData.map(this.mapper.mapLeaderboardEntry));
+    @Query('page') page: number,
+    @Query('per_page', NullableIntPipe) perPage: number = 25,
+  ): Promise<LeaderboardEntryPageDto> {
+    const rawPage = await this.ms.playerControllerLeaderboard(page, perPage);
+
+    return {
+      data: await Promise.all(
+        rawPage.data.map(this.mapper.mapLeaderboardEntry),
+      ),
+      page: rawPage.page,
+      perPage: rawPage.perPage,
+      pages: rawPage.pages,
+    };
   }
 
-  @ApiQuery({
-    name: 'page',
-    required: true,
-  })
-  @ApiQuery({
-    name: 'per_page',
-    required: false,
-  })
+  @WithPagination()
   @Get('/:id/teammates')
   async teammates(
     @Param('id') steam_id: string,

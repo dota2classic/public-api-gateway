@@ -3,6 +3,7 @@ import { Role } from '../../../gateway/shared-types/roles';
 import { BanStatusDto } from '../../admin/dto/admin.dto';
 import { UserDTO } from '../../shared.dto';
 import { ApiProperty } from '@nestjs/swagger';
+import { Page } from '../../../gateway/shared-types/page';
 
 export class LeaderboardEntryDto {
   user: UserDTO;
@@ -82,4 +83,12 @@ export class PlayerTeammatePageDto {
   page: number;
   pages: number;
   perPage: number;
+}
+
+
+export class LeaderboardEntryPageDto extends Page<LeaderboardEntryDto> {
+  data: LeaderboardEntryDto[]
+  page: number;
+  perPage: number;
+  pages: number;
 }

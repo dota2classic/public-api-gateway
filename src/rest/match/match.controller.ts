@@ -23,6 +23,7 @@ import { HttpCacheInterceptor } from '../../utils/cache-key-track';
 import { QueryBus } from '@nestjs/cqrs';
 import { GetReportsAvailableQuery } from '../../gateway/queries/GetReportsAvailable/get-reports-available.query';
 import { GetReportsAvailableQueryResult } from '../../gateway/queries/GetReportsAvailable/get-reports-available-query.result';
+import { WithPagination } from '../../utils/decorator/pagination';
 
 @Controller('match')
 @ApiTags('match')
@@ -39,16 +40,7 @@ export class MatchController {
   }
 
   @UseInterceptors(HttpCacheInterceptor)
-  @ApiQuery({
-    name: 'page',
-    type: 'number',
-    required: true,
-  })
-  @ApiQuery({
-    name: 'per_page',
-    type: 'number',
-    required: false,
-  })
+  @WithPagination()
   @ApiQuery({
     name: 'mode',
     type: 'number',
@@ -66,14 +58,7 @@ export class MatchController {
   }
 
   @UseInterceptors(HttpCacheInterceptor)
-  @ApiQuery({
-    name: 'page',
-    required: true,
-  })
-  @ApiQuery({
-    name: 'per_page',
-    required: false,
-  })
+  @WithPagination()
   @ApiQuery({
     name: 'hero',
     required: true,
@@ -122,14 +107,7 @@ export class MatchController {
     name: 'id',
     required: true,
   })
-  @ApiQuery({
-    name: 'page',
-    required: true,
-  })
-  @ApiQuery({
-    name: 'per_page',
-    required: false,
-  })
+  @WithPagination()
   @ApiQuery({
     name: 'mode',
     required: false,

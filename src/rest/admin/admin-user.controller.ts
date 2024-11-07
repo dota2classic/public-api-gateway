@@ -36,6 +36,7 @@ import { Repository } from 'typeorm';
 import { NullableIntPipe } from '../../utils/pipes';
 import { GAMESERVER_APIURL } from '../../utils/env';
 import { AdminMapper } from './admin.mapper';
+import { WithPagination } from '../../utils/decorator/pagination';
 
 @Controller('admin/users')
 @ApiTags('admin')
@@ -59,16 +60,7 @@ export class AdminUserController {
 
   @ModeratorGuard()
   @WithUser()
-  @ApiQuery({
-    name: 'page',
-    type: 'number',
-    required: true,
-  })
-  @ApiQuery({
-    name: 'per_page',
-    type: 'number',
-    required: false,
-  })
+  @WithPagination()
   @ApiQuery({
     name: 'steam_id',
     type: 'string',

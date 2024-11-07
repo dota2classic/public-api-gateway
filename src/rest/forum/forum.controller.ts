@@ -50,6 +50,7 @@ import { ThreadType } from '../../gateway/shared-types/thread-type';
 import { randomUUID } from 'crypto';
 import { MessageUpdatedEvent } from '../../gateway/events/message-updated.event';
 import { ForumMapper } from './forum.mapper';
+import { WithPagination } from '../../utils/decorator/pagination';
 
 @Controller('forum')
 @ApiTags('forum')
@@ -129,14 +130,7 @@ export class ForumController {
     enum: ThreadType,
     enumName: 'ThreadType',
   })
-  @ApiQuery({
-    name: 'page',
-    required: true,
-  })
-  @ApiQuery({
-    name: 'perPage',
-    required: false,
-  })
+  @WithPagination()
   @Get('thread/:id/:threadType/page')
   async messagesPage(
     @Param('id') id: string,
@@ -159,14 +153,7 @@ export class ForumController {
     );
   }
 
-  @ApiQuery({
-    name: 'page',
-    required: true,
-  })
-  @ApiQuery({
-    name: 'perPage',
-    required: false,
-  })
+  @WithPagination()
   @ApiQuery({
     name: 'threadType',
     required: false,

@@ -33,6 +33,26 @@ export class CrimeApi extends runtime.BaseAPI {
 
     /**
      */
+    private async crimeControllerCrimeLogRaw(requestParameters: CrimeControllerCrimeLogRequest): Promise<runtime.ApiResponse<GameserverCrimeLogPageDto>> {
+        this.crimeControllerCrimeLogValidation(requestParameters);
+        const context = this.crimeControllerCrimeLogContext(requestParameters);
+        const response = await this.request(context);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => GameserverCrimeLogPageDtoFromJSON(jsonValue));
+    }
+
+
+
+    /**
+     */
+    private crimeControllerCrimeLogValidation(requestParameters: CrimeControllerCrimeLogRequest) {
+        if (requestParameters.page === null || requestParameters.page === undefined) {
+            throw new runtime.RequiredError('page','Required parameter requestParameters.page was null or undefined when calling crimeControllerCrimeLog.');
+        }
+    }
+
+    /**
+     */
     crimeControllerCrimeLogContext(requestParameters: CrimeControllerCrimeLogRequest): runtime.RequestOpts {
         const queryParameters: any = {};
 
@@ -63,24 +83,6 @@ export class CrimeApi extends runtime.BaseAPI {
     crimeControllerCrimeLog = async (page: number, perPage?: number, steamId?: string): Promise<GameserverCrimeLogPageDto> => {
         const response = await this.crimeControllerCrimeLogRaw({ page: page, perPage: perPage, steamId: steamId });
         return await response.value();
-    }
-
-    /**
-     */
-    private async crimeControllerCrimeLogRaw(requestParameters: CrimeControllerCrimeLogRequest): Promise<runtime.ApiResponse<GameserverCrimeLogPageDto>> {
-        this.crimeControllerCrimeLogValidation(requestParameters);
-        const context = this.crimeControllerCrimeLogContext(requestParameters);
-        const response = await this.request(context);
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => GameserverCrimeLogPageDtoFromJSON(jsonValue));
-    }
-
-    /**
-     */
-    private crimeControllerCrimeLogValidation(requestParameters: CrimeControllerCrimeLogRequest) {
-        if (requestParameters.page === null || requestParameters.page === undefined) {
-            throw new runtime.RequiredError('page','Required parameter requestParameters.page was null or undefined when calling crimeControllerCrimeLog.');
-        }
     }
 
 }

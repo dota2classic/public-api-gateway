@@ -10,7 +10,7 @@
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
-    "start:dev": "GS_URL=31.129.56.220:5003 nest start --watch",
+    "start:dev": "GS_URL=62.122.215.162:5003 nest start --watch",
     "start:local": "GS_URL=localhost:5003 nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",

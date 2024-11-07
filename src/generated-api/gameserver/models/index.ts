@@ -10,6 +10,7 @@ export * from './GameserverHeroSummaryDto';
 export * from './GameserverItemDto';
 export * from './GameserverItemHeroDto';
 export * from './GameserverLeaderboardEntryDto';
+export * from './GameserverLeaderboardEntryPageDto';
 export * from './GameserverMatchDto';
 export * from './GameserverMatchInfoDto';
 export * from './GameserverMatchPageDto';
