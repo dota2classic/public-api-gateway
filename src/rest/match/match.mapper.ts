@@ -14,7 +14,6 @@ import {
 } from './dto/match.dto';
 import { MATCH_REPORT_TIMEOUT } from '../../gateway/shared-types/timings';
 import { GetReportsAvailableQueryResult } from '../../gateway/queries/GetReportsAvailable/get-reports-available-query.result';
-import { measureN } from '../../utils/decorator/measure';
 
 export interface PlayerMappableResource
   extends GetReportsAvailableQueryResult {}
@@ -67,12 +66,9 @@ export class MatchMapper {
     it: GameserverMatchPageDto,
     mapFor?: PlayerMappableResource,
   ): Promise<MatchPageDto> => {
-    return measureN(
-      async () => ({
-        ...it,
-        data: await Promise.all(it.data.map(t => this.mapMatch(t, mapFor))),
-      }),
-      'mapping',
-    );
+    return {
+      ...it,
+      data: await Promise.all(it.data.map(t => this.mapMatch(t, mapFor))),
+    }
   };
 }

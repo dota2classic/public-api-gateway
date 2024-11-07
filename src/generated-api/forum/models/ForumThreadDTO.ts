@@ -66,6 +66,12 @@ export class ForumThreadDTO {
     pinned: boolean;
     /**
      *
+     * @type {boolean}
+     * @memberof ForumThreadDTO
+     */
+    adminOnly: boolean;
+    /**
+     *
      * @type {number}
      * @memberof ForumThreadDTO
      */
@@ -106,6 +112,7 @@ export function ForumThreadDTOFromJSONTyped(json: any, ignoreDiscriminator: bool
         'title': json['title'],
         'views': json['views'],
         'pinned': json['pinned'],
+        'adminOnly': json['adminOnly'],
         'messageCount': json['messageCount'],
         'newMessageCount': json['newMessageCount'],
         'originalPoster': json['originalPoster'],
@@ -128,6 +135,7 @@ export function ForumThreadDTOToJSON(value?: ForumThreadDTO | null): any {
         'title': value.title,
         'views': value.views,
         'pinned': value.pinned,
+        'adminOnly': value.adminOnly,
         'messageCount': value.messageCount,
         'newMessageCount': value.newMessageCount,
         'originalPoster': value.originalPoster,

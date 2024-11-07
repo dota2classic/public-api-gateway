@@ -30,6 +30,7 @@ export class ForumMapper {
 
     views: thread.views,
     pinned: thread.pinned,
+    adminOnly: thread.adminOnly,
     messageCount: thread.messageCount,
     newMessageCount: thread.newMessageCount,
 

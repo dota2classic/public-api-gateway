@@ -51,6 +51,7 @@ import { randomUUID } from 'crypto';
 import { MessageUpdatedEvent } from '../../gateway/events/message-updated.event';
 import { ForumMapper } from './forum.mapper';
 import { WithPagination } from '../../utils/decorator/pagination';
+import { Role } from '../../gateway/shared-types/roles';
 
 @Controller('forum')
 @ApiTags('forum')
@@ -269,6 +270,9 @@ export class ForumController {
       }`,
     });
 
+    if (thread.adminOnly && !user.roles.includes(Role.ADMIN)) {
+      return;
+    }
     return this.api
       .forumControllerPostMessage(thread.id, {
         author: user.steam_id,

@@ -86,7 +86,7 @@ export function qCache<T, B>() {
     ),
     ThrottlerModule.forRoot([{
       ttl: 60_000, // 1 minute
-      limit: 10 // 10 msgs
+      limit: 30 // 10 msgs
     }]),
     TypeOrmModule.forFeature(Entities),
     ScheduleModule.forRoot(),

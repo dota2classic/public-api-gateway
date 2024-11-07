@@ -43,6 +43,7 @@ export class ThreadDTO {
   readonly newMessageCount: number;
   readonly views: number;
   readonly pinned: boolean;
+  readonly adminOnly: boolean;
 
   readonly originalPoster: UserDTO;
   readonly lastMessage?: ThreadMessageDTO;
