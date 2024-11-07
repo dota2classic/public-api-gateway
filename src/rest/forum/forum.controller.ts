@@ -136,7 +136,7 @@ export class ForumController {
     @Param('id') id: string,
     @Param('threadType') threadType: ThreadType,
     @Query('page', NullableIntPipe) page: number,
-    @Query('perPage', NullableIntPipe) perPage: number = 15,
+    @Query('per_page', NullableIntPipe) perPage: number = 15,
   ): Promise<ThreadMessagePageDTO> {
     const pg = await this.api.forumControllerMessagesPage(
       `${threadType}_${id}`,
@@ -163,7 +163,7 @@ export class ForumController {
   @Get('threads')
   async threads(
     @Query('page', NullableIntPipe) page: number,
-    @Query('perPage', NullableIntPipe) perPage: number = 25,
+    @Query('per_page', NullableIntPipe) perPage: number = 25,
     @Query('threadType') threadType?: ThreadType,
   ): Promise<ThreadPageDTO> {
     const threads = await this.api.forumControllerThreads(
