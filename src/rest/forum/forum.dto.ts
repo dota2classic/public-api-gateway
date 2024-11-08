@@ -62,7 +62,7 @@ export class ThreadMessageSseDto extends MessageObjectDto<ThreadMessageDTO> {
 
 export class CreateMessageDTO {
 
-  @MinLength(5)
+  @MinLength(1)
   content: string;
 
   id: string;
