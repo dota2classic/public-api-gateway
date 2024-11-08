@@ -222,6 +222,7 @@ export class PlayerController {
         steamId: it.id,
         name: it.name,
         avatar: it.avatar,
+        roles: it.roles,
         avatarSmall: it.avatar && it.avatar.replace('_full', '_medium'),
       }));
   }

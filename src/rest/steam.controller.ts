@@ -1,4 +1,12 @@
-import { Controller, Get, Inject, Req, Res, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Inject,
+  Req,
+  Request,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { frontUrl } from '../utils/utils';
 import { JwtService } from '@nestjs/jwt';
@@ -10,6 +18,7 @@ import { Role } from '../gateway/shared-types/roles';
 import { UserLoggedInEvent } from '../gateway/events/user/user-logged-in.event';
 import { PlayerId } from '../gateway/shared-types/player-id';
 import { ClientProxy } from '@nestjs/microservices';
+import { Response } from 'express';
 
 @Controller('auth/steam')
 export class SteamController {
@@ -27,7 +36,10 @@ export class SteamController {
   @Get('callback')
   @ApiExcludeEndpoint()
   @UseGuards(AuthGuard('steam'))
-  async steamAuthRequest(@Req() req, @Res() res) {
+  async steamAuthRequest(
+    @Req() req: Request & { user?: any },
+    @Res() res: Response,
+  ) {
     console.log('Callback success');
     const steam32id = steam64to32(req.user!!._json.steamid);
 

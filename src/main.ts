@@ -5,6 +5,7 @@ import * as cookieParser from 'cookie-parser';
 import { REDIS_HOST, REDIS_PASSWORD, REDIS_URL } from './utils/env';
 import { Transport } from '@nestjs/microservices';
 import { ValidationPipe } from '@nestjs/common';
+import { MainService } from './main.service';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -45,7 +46,7 @@ async function bootstrap() {
 
   await app.startAllMicroservices();
 
-  // await app.get<MainService>(MainService).actualizeServers();
+  await app.get<MainService>(MainService).actualizeServers();
 
   console.log('Started api gateway');
 }

@@ -50,6 +50,7 @@ export class UserRepository extends RuntimeRepository<UserModel, 'id'> {
         name: 'Username loading',
         avatar: '',
         avatarSmall: '',
+        roles: [],
       };
     }
     return {
@@ -57,6 +58,7 @@ export class UserRepository extends RuntimeRepository<UserModel, 'id'> {
       name: u.name,
       avatar: u.avatar,
       avatarSmall: (u.avatar || '').replace('_full', '_medium'),
+      roles: u.roles,
     };
   }
 }
