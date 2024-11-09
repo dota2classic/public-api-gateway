@@ -4,13 +4,7 @@ import { SteamController } from './rest/steam.controller';
 import SteamStrategy from './rest/strategy/steam.strategy';
 import { JwtModule } from '@nestjs/jwt';
 import { ClientsModule, Transport } from '@nestjs/microservices';
-import {
-  isDev,
-  JWT_SECRET,
-  REDIS_HOST,
-  REDIS_PASSWORD,
-  REDIS_URL,
-} from './utils/env';
+import { JWT_SECRET, REDIS_HOST, REDIS_PASSWORD, REDIS_URL } from './utils/env';
 import { outerQuery } from './gateway/util/outerQuery';
 import { GetAllQuery } from './gateway/queries/GetAll/get-all.query';
 import { GetUserInfoQuery } from './gateway/queries/GetUserInfo/get-user-info.query';
@@ -49,7 +43,7 @@ import { MulterModule } from '@nestjs/platform-express';
 import { ScheduleModule } from '@nestjs/schedule';
 import { MainService } from './main.service';
 import { Entities, prodDbConfig } from './db.config';
-import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { CacheModule } from '@nestjs/cache-manager';
 import { QueryCache } from './rcache';
 import { MetaMapper } from './rest/meta/meta.mapper';
@@ -65,6 +59,8 @@ import { CustomMetricsMiddleware } from './middleware/custom-metrics.middleware'
 import { PrometheusGuardedController } from './rest/prometheus-guarded.controller';
 import { BasicStrategy } from './rest/strategy/prometheus-basic-auth.strategy';
 import { ForumMapper } from './rest/forum/forum.mapper';
+import { AuthController } from './rest/auth/auth.controller';
+import { AuthService } from './rest/auth/auth.service';
 
 export function qCache<T, B>() {
   return new QueryCache<T, B>({
@@ -78,16 +74,15 @@ export function qCache<T, B>() {
   imports: [
     PrometheusModule.register({
       path: '/metrics',
-      controller: PrometheusGuardedController
-
+      controller: PrometheusGuardedController,
     }),
-    TypeOrmModule.forRoot(
-      (isDev ? prodDbConfig : prodDbConfig) as TypeOrmModuleOptions,
-    ),
-    ThrottlerModule.forRoot([{
-      ttl: 60_000, // 1 minute
-      limit: 30 // 10 msgs
-    }]),
+    TypeOrmModule.forRoot(prodDbConfig),
+    ThrottlerModule.forRoot([
+      {
+        ttl: 60_000, // 1 minute
+        limit: 30, // 10 msgs
+      },
+    ]),
     TypeOrmModule.forFeature(Entities),
     ScheduleModule.forRoot(),
     ServeStaticModule.forRoot({
@@ -136,7 +131,8 @@ export function qCache<T, B>() {
     SteamController,
     DiscordController,
     ForumController,
-    PrometheusGuardedController
+    PrometheusGuardedController,
+    AuthController
   ],
   providers: [
     HttpCacheInterceptor,
@@ -157,6 +153,8 @@ export function qCache<T, B>() {
     BasicStrategy,
     LiveMatchService,
 
+    AuthService,
+
     MatchMapper,
     PlayerMapper,
     MetaMapper,
@@ -171,7 +169,6 @@ export function qCache<T, B>() {
     GameSessionFinishedEvent,
     GameResultsHandler,
 
-
     // grafana
     makeCounterProvider({
       name: 'my_app_requests',
@@ -180,9 +177,11 @@ export function qCache<T, B>() {
     }),
   ],
 })
-export class AppModule implements NestModule  {
+export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     //forRoutes('yourRootapi')
-    consumer.apply(CustomMetricsMiddleware).forRoutes('match', 'live', 'player', 'admin', 'meta', 'stats', 'forum');
+    consumer
+      .apply(CustomMetricsMiddleware)
+      .forRoutes('match', 'live', 'player', 'admin', 'meta', 'stats', 'forum');
   }
 }
