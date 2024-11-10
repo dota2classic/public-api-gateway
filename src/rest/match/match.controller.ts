@@ -125,17 +125,8 @@ export class MatchController {
     @Query('mode') mode?: MatchmakingMode,
     @Query('hero') hero?: string,
   ): Promise<MatchPageDto> {
-    return (
-      this.ms
-        // @ts-ignore
-        .matchControllerPlayerMatches(
-          steam_id,
-          page,
-          perPage,
-          mode as any,
-          hero,
-        )
-        .then(t => this.mapper.mapMatchPage(t))
-    );
+    return this.ms
+      .matchControllerPlayerMatches(steam_id, page, perPage, mode, hero)
+      .then(t => this.mapper.mapMatchPage(t));
   }
 }

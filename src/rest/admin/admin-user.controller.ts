@@ -22,7 +22,11 @@ import {
 } from './dto/admin.dto';
 import { UserRolesUpdatedEvent } from '../../gateway/events/user/user-roles-updated.event';
 import { PlayerId } from '../../gateway/shared-types/player-id';
-import { ModeratorGuard, WithUser } from '../../utils/decorator/with-user';
+import {
+  AdminGuard,
+  ModeratorGuard,
+  WithUser,
+} from '../../utils/decorator/with-user';
 import { GetRoleSubscriptionsQuery } from '../../gateway/queries/user/GetRoleSubscriptions/get-role-subscriptions.query';
 import { GetRoleSubscriptionsQueryResult } from '../../gateway/queries/user/GetRoleSubscriptions/get-role-subscriptions-query.result';
 import { UserRepository } from '../../cache/user/user.repository';
@@ -82,7 +86,7 @@ export class AdminUserController {
     };
   }
 
-  @ModeratorGuard()
+  @AdminGuard()
   @WithUser()
   @Post('updateGameMode')
   public async updateGameMode(
@@ -108,7 +112,7 @@ export class AdminUserController {
     return this.matchmakingModeStatusEntityRepository.find();
   }
 
-  @ModeratorGuard()
+  @AdminGuard()
   @WithUser()
   @Post('update_role')
   public async updateRole(@Body() b: UpdateRolesDto) {
@@ -153,7 +157,7 @@ export class AdminUserController {
     };
   }
 
-  @ModeratorGuard()
+  @AdminGuard()
   @WithUser()
   @Post('ban/:id')
   public async banId(@Param('id') id: string, @Body() b: BanHammerDto) {
