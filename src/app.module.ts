@@ -30,7 +30,6 @@ import { join } from 'path';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { GetRoleSubscriptionsQuery } from './gateway/queries/user/GetRoleSubscriptions/get-role-subscriptions.query';
 import { LiveMatchUpdateHandler } from './cache/event-handler/live-match-update.handler';
-import { GameSessionFinishedEvent } from './gateway/events/game-session-finished.event';
 import { LiveMatchService } from './cache/live-match.service';
 import { LiveMatchController } from './rest/match/live-match.controller';
 import { GetPlayerInfoQuery } from './gateway/queries/GetPlayerInfo/get-player-info.query';
@@ -61,6 +60,7 @@ import { BasicStrategy } from './rest/strategy/prometheus-basic-auth.strategy';
 import { ForumMapper } from './rest/forum/forum.mapper';
 import { AuthController } from './rest/auth/auth.controller';
 import { AuthService } from './rest/auth/auth.service';
+import { MatchFinishedHandler } from './cache/event-handler/match-finished.handler';
 
 export function qCache<T, B>() {
   return new QueryCache<T, B>({
@@ -166,8 +166,9 @@ export function qCache<T, B>() {
     UserCreatedHandler,
     UserUpdatedHandler,
     LiveMatchUpdateHandler,
-    GameSessionFinishedEvent,
+
     GameResultsHandler,
+    MatchFinishedHandler,
 
     // grafana
     makeCounterProvider({

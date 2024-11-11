@@ -23,7 +23,7 @@ export class LiveMatchService {
   }
 
   public pushEvent(event: LiveMatchDto) {
-    console.log(
+    this.logger.verbose(
       `Pushing event ${event.matchId} ${this.isMatchComplete(event.matchId)}`,
     );
     if (this.isMatchComplete(event.matchId)) return;

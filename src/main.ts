@@ -4,8 +4,11 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as cookieParser from 'cookie-parser';
 import { REDIS_HOST, REDIS_PASSWORD, REDIS_URL } from './utils/env';
 import { Transport } from '@nestjs/microservices';
-import { ValidationPipe } from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
 import { MainService } from './main.service';
+import { inspect } from 'util';
+import { EventBus } from '@nestjs/cqrs';
+import { LiveMatchUpdateEvent } from './gateway/events/gs/live-match-update.event';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -32,6 +35,13 @@ async function bootstrap() {
       retryDelay: 5000,
       password: REDIS_PASSWORD(),
     },
+  });
+
+  const elogger = new Logger('EventLogger');
+  app.get(EventBus).subscribe(e => {
+    if (e.constructor.name === LiveMatchUpdateEvent.name) return;
+
+    elogger.log(`${inspect(e)}`);
   });
 
   app.useGlobalPipes(new ValidationPipe());
