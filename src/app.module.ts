@@ -62,6 +62,8 @@ import { AuthController } from './rest/auth/auth.controller';
 import { AuthService } from './rest/auth/auth.service';
 import { MatchFinishedHandler } from './cache/event-handler/match-finished.handler';
 import { NotificationController } from './rest/notification/notification.controller';
+import { ReadyCheckStartedHandler } from './cache/event-handler/ready-check-started.handler';
+import { NotificationService } from './rest/notification/notification.service';
 
 export function qCache<T, B>() {
   return new QueryCache<T, B>({
@@ -149,6 +151,7 @@ export function qCache<T, B>() {
     outerQuery(GetRoleSubscriptionsQuery, 'QueryCore', qCache()),
     outerQuery(GetPlayerInfoQuery, 'QueryCore', qCache()),
 
+
     SteamStrategy,
     JwtStrategy,
     DiscordStrategy,
@@ -156,6 +159,7 @@ export function qCache<T, B>() {
     LiveMatchService,
 
     AuthService,
+    NotificationService,
 
     MatchMapper,
     PlayerMapper,
@@ -168,6 +172,7 @@ export function qCache<T, B>() {
     UserCreatedHandler,
     UserUpdatedHandler,
     LiveMatchUpdateHandler,
+    ReadyCheckStartedHandler,
 
     GameResultsHandler,
     MatchFinishedHandler,

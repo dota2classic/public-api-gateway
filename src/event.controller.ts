@@ -6,6 +6,7 @@ import { LiveMatchUpdateEvent } from './gateway/events/gs/live-match-update.even
 import { GameResultsEvent } from './gateway/events/gs/game-results.event';
 import { MessageCreatedEvent } from './gateway/events/message-created.event';
 import { MatchFinishedEvent } from './gateway/events/match-finished.event';
+import { ReadyCheckStartedEvent } from './gateway/events/ready-check-started.event';
 
 @Controller()
 export class EventController {
@@ -26,6 +27,11 @@ export class EventController {
   // async UserUpdatedEvent(data: UserUpdatedEvent) {
   //   this.event(UserUpdatedEvent, data);
   // }
+
+  @EventPattern(ReadyCheckStartedEvent.name)
+  async ReadyCheckStartedEvent(data: ReadyCheckStartedEvent) {
+    this.event(ReadyCheckStartedEvent, data);
+  }
 
   @EventPattern(LiveMatchUpdateEvent.name)
   async LiveMatchUpdateEvent(data: LiveMatchUpdateEvent) {

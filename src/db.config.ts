@@ -1,8 +1,12 @@
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { DB_HOST, DB_PASSWORD, DB_USERNAME } from './utils/env';
 import { MatchmakingModeStatusEntity } from './entity/matchmaking-mode-status.entity';
+import { WebpushSubscriptionEntity } from './entity/webpush-subscription.entity';
 
-export const Entities = [MatchmakingModeStatusEntity];
+export const Entities = [
+  MatchmakingModeStatusEntity,
+  WebpushSubscriptionEntity,
+];
 
 export const prodDbConfig: TypeOrmModuleOptions = {
   type: 'postgres',

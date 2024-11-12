@@ -1,43 +1,42 @@
-import { Body, Controller, Get, Inject, Post } from '@nestjs/common';
-import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
-import * as webpush from 'web-push';
-import { VAPID_PRIVATE_KEY, VAPID_PUBLIC_KEY } from '../../utils/env';
+import { Body, Controller, Delete, Post } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { SubscriptionDto } from './notification.dto';
+import { SubscriptionDto, TagPlayerForQueue } from './notification.dto';
+import { AdminGuard, WithUser } from '../../utils/decorator/with-user';
+import {
+  CurrentUser,
+  CurrentUserDto,
+} from '../../utils/decorator/current-user';
+import { NotificationService } from './notification.service';
 
 @Controller('notification')
 @ApiTags('notification')
 export class NotificationController {
-  private subs: Map<string, SubscriptionDto> = new Map();
+  constructor(private readonly notificationService: NotificationService) {}
 
-  constructor(@Inject(CACHE_MANAGER) private readonly cache: Cache) {
-    webpush.setVapidDetails(
-      'mailto:enchantinggg4@gmail.com',
-      VAPID_PUBLIC_KEY(),
-      VAPID_PRIVATE_KEY(),
-    );
-  }
-
-  @Post('/subscribe')
-  async subscribe(@Body() sub: SubscriptionDto) {
-    // Save subscription to redis timelessly
-    console.log('SAve sub', sub);
-
-    this.subs.set(sub.keys.auth, sub);
-
+  @Delete('/subscribe')
+  @WithUser()
+  async unsubscribe(@CurrentUser() user: CurrentUserDto) {
+    await this.notificationService.unsubscribe(user.steam_id);
     return 200;
   }
 
-  @Get('test')
-  async test() {
-    console.log(this.subs);
+  @Post('/subscribe')
+  @WithUser()
+  async subscribe(
+    @Body() sub: SubscriptionDto,
+    @CurrentUser() user: CurrentUserDto,
+  ) {
+    await this.notificationService.subscribe(user.steam_id, sub);
+    return 200;
+  }
 
-    const prom = Array.from(this.subs.values()).map(subscription => {
-      const pushPayload = JSON.stringify({ hello: 'world' });
-      return webpush.sendNotification(subscription, pushPayload);
-    });
-
-    await Promise.all(prom);
-    return this.subs;
+  @AdminGuard()
+  @WithUser()
+  @Post('suggest_queue')
+  async notifyAboutQueue(@Body() dto: TagPlayerForQueue) {
+    const [payload, subs] = await this.notificationService.createHerePayload(
+      dto.mode,
+    );
+    return this.notificationService.notify(payload, subs);
   }
 }
