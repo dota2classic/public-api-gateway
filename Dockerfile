@@ -6,7 +6,7 @@ WORKDIR /usr/src/app
 COPY package.json bun.lockb ./
 RUN bun install --no-lockfile
 COPY . .
-RUN bun build
+RUN bun run build
 
 FROM base AS production
 
