@@ -15,7 +15,7 @@
 #COPY --from=build /usr/src/app/package.json .
 #COPY --from=build /usr/src/app/bun.lockb .
 #
-#CMD ["bun", "dist/main.js"]
+#CMD ["sh", "-c", "bun", "run", "dist/main.js"]
 
 FROM node:20-alpine3.19 AS base
 
@@ -32,6 +32,5 @@ FROM base AS production
 COPY --from=build /usr/src/app/node_modules ./node_modules
 COPY --from=build /usr/src/app/dist ./dist
 COPY --from=build /usr/src/app/package.json .
-COPY --from=build /usr/src/app/yarn.lock .
 
 CMD ["sh", "-c", "yarn start:prod"]
