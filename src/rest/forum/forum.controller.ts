@@ -256,7 +256,7 @@ export class ForumController {
   ): Promise<ThreadMessageDTO> {
     try {
       return await this.api
-        .forumControllerPostMessage(content.threadId, {
+        .forumControllerPostMessage(`forum_${content.threadId}`, {
           author: user,
           content: content.content,
         })
