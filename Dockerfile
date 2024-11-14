@@ -1,21 +1,18 @@
-FROM  node:20-alpine3.19 AS base
+FROM node:20-alpine3.19 AS base
 
 FROM base AS build
 
 WORKDIR /usr/src/app
-COPY package.json bun.lockb ./
+COPY package.json yarn.lock ./
 RUN yarn install --no-lockfile
 COPY . .
-RUN yarn run build
+RUN yarn build
 
-
-FROM oven/bun:latest AS production
+FROM base AS production
 
 COPY --from=build /usr/src/app/node_modules ./node_modules
 COPY --from=build /usr/src/app/dist ./dist
 COPY --from=build /usr/src/app/package.json .
-COPY --from=build /usr/src/app/bun.lockb .
+COPY --from=build /usr/src/app/yarn.lock .
 
-#CMD ["sh", "-c", "bun", "run", "dist/main.js"]
-#CMD ["ls"]
-ENTRYPOINT [ "bun", "run", "dist/main.js" ]
+CMD ["sh", "-c", "yarn start:prod"]
