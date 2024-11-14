@@ -8,9 +8,12 @@ import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions'
 
 // @ts-ignore
 import { UndiciInstrumentation } from '@opentelemetry/instrumentation-undici';
+import { JAEGER_EXPORT_URL } from './utils/env';
+import { NestInstrumentation } from '@opentelemetry/instrumentation-nestjs-core';
+import { ExpressInstrumentation } from '@opentelemetry/instrumentation-express';
 
 const exporterOptions = {
-  url: 'http://localhost:4317', // grcp
+  url: JAEGER_EXPORT_URL, // grcp
 };
 
 const traceExporter = new OTLPTraceExporter(exporterOptions);
@@ -25,8 +28,8 @@ export const otelSDK = new NodeSDK({
   instrumentations: [
     new HttpInstrumentation(),
     new UndiciInstrumentation(),
-    // new ExpressInstrumentation(),
-    // new NestInstrumentation(),
+    new ExpressInstrumentation(),
+    new NestInstrumentation(),
   ],
   resource: new Resource({
     [SemanticResourceAttributes.SERVICE_NAME]: 'gateway',

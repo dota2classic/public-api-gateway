@@ -34,3 +34,5 @@ export const TOKEN_KEY = 'dota2classic_auth_token';
 
 export const FRONT_URL = process.env.FRONT_URL;
 export const BACK_URL = process.env.BACK_URL;
+
+export const JAEGER_EXPORT_URL = process.env.JAEGER_EXPORT_URL

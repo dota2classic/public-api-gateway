@@ -1,4 +1,4 @@
-// import { otelSDK } from './tracer';
+import { otelSDK } from './tracer';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
@@ -18,7 +18,7 @@ import { GetUserInfoQueryResult } from './gateway/queries/GetUserInfo/get-user-i
 
 async function bootstrap() {
   // Start SDK before nestjs factory create
-  // await otelSDK.start();
+  await otelSDK.start();
 
   const app = await NestFactory.create(AppModule);
   app.setGlobalPrefix('v1');
