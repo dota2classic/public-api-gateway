@@ -10,6 +10,7 @@ import { UndiciInstrumentation } from '@opentelemetry/instrumentation-undici';
 import { JAEGER_EXPORT_URL } from './utils/env';
 import { NestInstrumentation } from '@opentelemetry/instrumentation-nestjs-core';
 import { ExpressInstrumentation } from '@opentelemetry/instrumentation-express';
+import { FetchInstrumentation } from '@onreza/opentelemetry-instrumentation-fetch-bun';
 
 const exporterOptions = {
   url: JAEGER_EXPORT_URL, // grcp
@@ -17,14 +18,14 @@ const exporterOptions = {
 
 const traceExporter = new OTLPTraceExporter(exporterOptions);
 
-
-
 export const otelSDK = new NodeSDK({
   traceExporter,
   // spanProcessor: new SimpleSpanProcessor(consoleSpanExporter),
   instrumentations: [
+    new FetchInstrumentation({
+      propagateTraceHeaderCorsUrls: new RegExp('.*')
+    }),
     new HttpInstrumentation(),
-    new UndiciInstrumentation(),
     new ExpressInstrumentation(),
     new NestInstrumentation(),
   ],
@@ -33,15 +34,13 @@ export const otelSDK = new NodeSDK({
   }),
 });
 
-
 // gracefully shut down the SDK on process exit
 process.on('SIGTERM', () => {
   otelSDK
     .shutdown()
     .then(
       () => console.log('SDK shut down successfully'),
-      (err) => console.log('Error shutting down SDK', err),
+      err => console.log('Error shutting down SDK', err),
     )
     .finally(() => process.exit(0));
 });
-

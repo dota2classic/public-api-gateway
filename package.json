@@ -41,6 +41,8 @@
     "@nestjs/throttler": "^6.2.1",
     "@nestjs/typeorm": "^10.0.2",
     "@ntegral/nestjs-sentry": "^4.0.1",
+    "@onreza/opentelemetry-instrumentation-fetch-bun": "^1.0.2",
+    "@opentelemetry/auto-instrumentations-node": "^0.52.1",
     "@opentelemetry/instrumentation-express": "^0.44.0",
     "@opentelemetry/instrumentation-http": "^0.54.2",
     "@opentelemetry/instrumentation-nestjs-core": "^0.41.0",
