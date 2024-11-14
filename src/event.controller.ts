@@ -2,7 +2,6 @@ import { Controller } from '@nestjs/common';
 import { EventPattern } from '@nestjs/microservices';
 import { UserCreatedEvent } from './gateway/events/user/user-created.event';
 import { Constructor, EventBus } from '@nestjs/cqrs';
-import { LiveMatchUpdateEvent } from './gateway/events/gs/live-match-update.event';
 import { GameResultsEvent } from './gateway/events/gs/game-results.event';
 import { MessageCreatedEvent } from './gateway/events/message-created.event';
 import { MatchFinishedEvent } from './gateway/events/match-finished.event';
@@ -33,10 +32,10 @@ export class EventController {
     this.event(ReadyCheckStartedEvent, data);
   }
 
-  @EventPattern(LiveMatchUpdateEvent.name)
-  async LiveMatchUpdateEvent(data: LiveMatchUpdateEvent) {
-    this.event(LiveMatchUpdateEvent, data);
-  }
+  // @EventPattern(LiveMatchUpdateEvent.name)
+  // async LiveMatchUpdateEvent(data: LiveMatchUpdateEvent) {
+  //   this.event(LiveMatchUpdateEvent, data);
+  // }
 
   @EventPattern(GameResultsEvent.name)
   async GameResultsEvent(data: GameResultsEvent) {

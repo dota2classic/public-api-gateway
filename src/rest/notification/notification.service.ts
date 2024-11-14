@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { SubscriptionDto } from './notification.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { WebpushSubscriptionEntity } from '../../entity/webpush-subscription.entity';
@@ -14,6 +14,7 @@ import { ReadyCheckStartedEvent } from '../../gateway/events/ready-check-started
 
 @Injectable()
 export class NotificationService {
+  private logger = new Logger(NotificationService.name);
   constructor(
     @InjectRepository(WebpushSubscriptionEntity)
     private readonly webpushSubscriptionEntityRepository: Repository<
@@ -53,9 +54,20 @@ export class NotificationService {
   public async notify(payload: any, subs: WebpushSubscriptionEntity[]) {
     const pushPayload = JSON.stringify(payload);
     const prom = subs.map(subscription => {
-      return webpush.sendNotification(subscription.subscription, pushPayload);
+      return webpush
+        .sendNotification(subscription.subscription, pushPayload)
+        .then(() => 1)
+        .catch(e => {
+          this.logger.error(`Error sending push notification: ${e}`);
+          return 0;
+        });
     });
-    return await Promise.all(prom).then(t => t.length);
+    const expected = subs.length;
+    const actual = (await Promise.all(prom)).reduce((a, b) => a + b, 0);
+    return {
+      send: expected,
+      successful: actual,
+    };
   }
 
   public async createHerePayload(

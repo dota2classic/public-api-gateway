@@ -8,6 +8,7 @@ import {
   Patch,
   Post,
   Query,
+  Req,
   Sse,
   UseGuards,
 } from '@nestjs/common';
@@ -164,6 +165,7 @@ export class ForumController {
   })
   @Get('threads')
   async threads(
+    @Req() req: any,
     @Query('page', NullableIntPipe) page: number,
     @Query('per_page', NullableIntPipe) perPage: number = 25,
     @Query('threadType') threadType?: ThreadType,
