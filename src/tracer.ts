@@ -1,4 +1,3 @@
-import { ConsoleSpanExporter } from '@opentelemetry/sdk-trace-base';
 import { NodeSDK } from '@opentelemetry/sdk-node';
 import * as process from 'process';
 import { HttpInstrumentation } from '@opentelemetry/instrumentation-http';
@@ -17,8 +16,6 @@ const exporterOptions = {
 };
 
 const traceExporter = new OTLPTraceExporter(exporterOptions);
-
-const consoleSpanExporter = new ConsoleSpanExporter();
 
 
 
