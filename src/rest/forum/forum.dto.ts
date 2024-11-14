@@ -65,10 +65,7 @@ export class CreateMessageDTO {
   @MinLength(1)
   content: string;
 
-  id: string;
-
-  @ApiProperty({ enum: ThreadType, enumName: 'ThreadType' })
-  threadType: ThreadType;
+  threadId: string;
 }
 
 
@@ -83,4 +80,9 @@ export class CreateThreadDTO {
 
 export class UpdateThreadDTO {
   pinned: boolean;
+}
+
+
+export class UpdateUserDTO {
+  muteUntil?: string;
 }

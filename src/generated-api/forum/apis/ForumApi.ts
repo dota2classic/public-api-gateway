@@ -82,6 +82,32 @@ export class ForumApi extends runtime.BaseAPI {
 
     /**
      */
+    forumControllerGetThreadForKeyContext(requestParameters: ForumControllerGetThreadForKeyRequest): runtime.RequestOpts {
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+        if (this.configuration && this.configuration.accessToken) {
+            const token = this.configuration.accessToken;
+            const tokenString = typeof token === 'function' ? token("bearer", []) : token;
+
+            if (tokenString) {
+                headerParameters["Authorization"] = `Bearer ${tokenString}`;
+            }
+        }
+        return {
+            path: `/forum/thread`,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+            body: ForumCreateThreadDTOToJSON(requestParameters.forumCreateThreadDTO),
+        };
+    }
+
+    /**
+     */
     forumControllerHealthcheckContext(): runtime.RequestOpts {
         const queryParameters: any = {};
 
@@ -93,13 +119,6 @@ export class ForumApi extends runtime.BaseAPI {
             headers: headerParameters,
             query: queryParameters,
         };
-    }
-
-    /**
-     */
-    forumControllerHealthcheck = async (): Promise<string> => {
-        const response = await this.forumControllerHealthcheckRaw();
-        return await response.value();
     }
 
     /**
@@ -188,20 +207,9 @@ export class ForumApi extends runtime.BaseAPI {
 
     /**
      */
-    forumControllerGetThreadForKeyContext(requestParameters: ForumControllerGetThreadForKeyRequest): runtime.RequestOpts {
-        const queryParameters: any = {};
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-        headerParameters['Content-Type'] = 'application/json';
-
-        return {
-            path: `/forum/thread`,
-            method: 'POST',
-            headers: headerParameters,
-            query: queryParameters,
-            body: ForumCreateThreadDTOToJSON(requestParameters.forumCreateThreadDTO),
-        };
+    forumControllerHealthcheck = async (): Promise<string> => {
+        const response = await this.forumControllerHealthcheckRaw();
+        return await response.value();
     }
 
     /**

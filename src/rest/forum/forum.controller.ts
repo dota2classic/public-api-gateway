@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  HttpException,
   Param,
   Patch,
   Post,
@@ -27,6 +28,7 @@ import {
   ThreadMessageSseDto,
   ThreadPageDTO,
   UpdateThreadDTO,
+  UpdateUserDTO,
 } from './forum.dto';
 import {
   Configuration,
@@ -51,7 +53,6 @@ import { randomUUID } from 'crypto';
 import { MessageUpdatedEvent } from '../../gateway/events/message-updated.event';
 import { ForumMapper } from './forum.mapper';
 import { WithPagination } from '../../utils/decorator/pagination';
-import { Role } from '../../gateway/shared-types/roles';
 
 @Controller('forum')
 @ApiTags('forum')
@@ -251,34 +252,16 @@ export class ForumController {
     @Body() content: CreateMessageDTO,
     @CurrentUser() user: CurrentUserDto,
   ): Promise<ThreadMessageDTO> {
-    // GetOrCreate thread
-    if (content.threadType === ThreadType.MATCH) {
-      // make sure match exists
-      await this.matchApi.matchControllerGetMatch(Number(content.id));
-    } else if (content.threadType === ThreadType.PLAYER) {
-      await this.playerApi.playerControllerPlayerSummary(
-        'Dota_684',
-        content.id,
-      );
+    try {
+      return await this.api
+        .forumControllerPostMessage(content.threadId, {
+          author: user,
+          content: content.content,
+        })
+        .then(this.mapper.mapApiMessage);
+    } catch (response) {
+      throw new HttpException('Muted', response.status);
     }
-
-    const thread = await this.api.forumControllerGetThreadForKey({
-      threadType: content.threadType,
-      externalId: content.id,
-      title: `${content.threadType === ThreadType.MATCH ? 'Матч' : 'Профиль'} ${
-        content.id
-      }`,
-    });
-
-    if (thread.adminOnly && !user.roles.includes(Role.ADMIN)) {
-      return;
-    }
-    return this.api
-      .forumControllerPostMessage(thread.id, {
-        author: user.steam_id,
-        content: content.content,
-      })
-      .then(this.mapper.mapApiMessage);
   }
 
   @Post('thread')
@@ -288,17 +271,22 @@ export class ForumController {
     @Body() content: CreateThreadDTO,
     @CurrentUser() user: CurrentUserDto,
   ): Promise<ThreadDTO> {
-    return this.api
-      .forumControllerGetThreadForKey({
-        threadType: ThreadType.FORUM,
-        externalId: randomUUID(),
-        title: content.title,
-        opMessage: {
-          content: content.content,
-          author: user.steam_id,
-        },
-      })
-      .then(this.mapper.mapThread);
+    const thread = await this.api.forumControllerGetThreadForKey({
+      threadType: ThreadType.FORUM,
+      externalId: randomUUID(),
+      title: content.title,
+      op: user.steam_id,
+    });
+    const message = await this.api.forumControllerPostMessage(thread.id, {
+      content: content.content,
+      author: user,
+    });
+
+    return this.mapper.mapThread({
+      ...thread,
+      originalPoster: message.author,
+      lastMessage: message,
+    });
   }
 
   @Delete('thread/message/:id')
@@ -320,5 +308,26 @@ export class ForumController {
     return this.api
       .forumControllerUpdateThread(id, dto)
       .then(this.mapper.mapThread);
+  }
+
+  @Patch('user/:id')
+  @AdminGuard()
+  @WithUser()
+  async updateUser(
+    @Param('id') steamId: string,
+    @Body() dto: UpdateUserDTO,
+  ): Promise<number> {
+    // try {
+    //   const response = await this.api
+    //     .forumControllerUpdateUser(steamId, dto)
+    //     .catch(e => {
+    //       console.error('HEy', e);
+    //     });
+    //
+    //   console.log('eee', response);
+    // } catch (g) {
+    //   console.error('GGG', g);
+    // }
+    return 200;
   }
 }

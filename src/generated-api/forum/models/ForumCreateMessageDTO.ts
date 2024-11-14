@@ -20,10 +20,10 @@
 export class ForumCreateMessageDTO {
     /**
      *
-     * @type {string}
+     * @type {object}
      * @memberof ForumCreateMessageDTO
      */
-    author: string;
+    author: object;
     /**
      *
      * @type {string}
