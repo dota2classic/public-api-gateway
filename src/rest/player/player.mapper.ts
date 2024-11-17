@@ -7,17 +7,14 @@ import {
   GameserverPlayerTeammateDto,
 } from '../../generated-api/gameserver/models';
 import { UserRepository } from '../../cache/user/user.repository';
-import {
-  LeaderboardEntryDto,
-  MeDto,
-  PlayerSummaryDto,
-  PlayerTeammateDto,
-} from './dto/player.dto';
+import { LeaderboardEntryDto, MeDto, PlayerSummaryDto, PlayerTeammateDto } from './dto/player.dto';
 import { numSteamId } from '../../utils/steamIds';
 import { GetPartyQueryResult } from '../../gateway/queries/GetParty/get-party-query.result';
-import { PartyDto } from './dto/party.dto';
+import { PartyDto, PartyMemberDTO } from './dto/party.dto';
 import { PlayerId } from '../../gateway/shared-types/player-id';
-import { GetReportsAvailableQueryResult } from '../../gateway/queries/GetReportsAvailable/get-reports-available-query.result';
+import {
+  GetReportsAvailableQueryResult,
+} from '../../gateway/queries/GetReportsAvailable/get-reports-available-query.result';
 import { TournamentTeamDto } from '../../generated-api/tournament/models';
 import { UserDTO } from '../shared.dto';
 import { AchievementDto } from './dto/achievement.dto';
@@ -97,11 +94,25 @@ export class PlayerMapper {
     };
   };
 
-  public mapParty = async (party: GetPartyQueryResult): Promise<PartyDto> => {
+  public mapParty = async (
+    party: GetPartyQueryResult,
+    banStatuses: GameserverBanStatusDto[],
+  ): Promise<PartyDto> => {
     return {
       id: party.id,
       leader: await this.mapPlayerInParty(party.leader),
-      players: await Promise.all(party.players.map(this.mapPlayerInParty)),
+      players: await Promise.all(party.players.map(async (plr) => {
+        const status =banStatuses.find(t => t.steam_id === plr.value);
+
+        return {
+          banStatus: {
+            isBanned: status.isBanned,
+            bannedUntil: status.bannedUntil,
+            status: status.status as any,
+          },
+          user: await this.mapPlayerInParty(plr)
+        } satisfies PartyMemberDTO
+      })),
     };
   };
 

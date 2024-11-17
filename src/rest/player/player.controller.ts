@@ -197,7 +197,11 @@ export class PlayerController {
     const party = await this.qbus.execute<GetPartyQuery, GetPartyQueryResult>(
       new GetPartyQuery(new PlayerId(user.steam_id)),
     );
-    return this.mapper.mapParty(party);
+
+    const banStatuses = await Promise.all(
+      party.players.map(({ value }) => this.ms.playerControllerBanInfo(value)),
+    );
+    return this.mapper.mapParty(party, banStatuses);
   }
 
   @UseInterceptors(HttpCacheInterceptor)
