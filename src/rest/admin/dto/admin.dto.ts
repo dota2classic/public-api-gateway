@@ -5,6 +5,7 @@ import { BanReason } from '../../../gateway/shared-types/ban';
 import { ApiProperty } from '@nestjs/swagger';
 import { UserDTO } from '../../shared.dto';
 import { Page } from '../../../gateway/shared-types/page';
+import { Timestamp } from '../../../gateway/shared-types/dto-types';
 
 export class MatchInfoDto {
   @ApiProperty({ enum: MatchmakingMode, enumName: 'MatchmakingMode' })
@@ -75,7 +76,10 @@ export class UserBanSummaryDto {
 }
 
 export class BanHammerDto {
-  public readonly endTime: number;
+  public readonly endTime: Timestamp;
+
+  @ApiProperty({ enum: BanReason, enumName: 'BanReason' })
+  public readonly reason: BanReason
 }
 
 export class StopServerDto {

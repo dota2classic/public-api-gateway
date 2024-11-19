@@ -108,13 +108,10 @@ export class PlayerController {
 
     const res = await this.ms.playerControllerBanInfo(user.steam_id);
 
-    const pid = new PlayerId(user.steam_id);
-    const u =
-      pid &&
-      (await this.qbus.execute<
-        GetReportsAvailableQuery,
-        GetReportsAvailableQueryResult
-      >(new GetReportsAvailableQuery(pid)));
+    const u = await this.qbus.execute<
+      GetReportsAvailableQuery,
+      GetReportsAvailableQueryResult
+    >(new GetReportsAvailableQuery(new PlayerId(user.steam_id)));
 
     return this.mapper.mapMe(rawData, res, undefined, u);
   }

@@ -161,10 +161,10 @@ export class AdminUserController {
   @WithUser()
   @Post('ban/:id')
   public async banId(@Param('id') id: string, @Body() b: BanHammerDto) {
-    await this.rq.emit(PlayerBanHammeredEvent.name, {
-      playerId: new PlayerId(id),
-      endTime: b.endTime,
-    });
+    this.rq.emit(
+      PlayerBanHammeredEvent.name,
+      new PlayerBanHammeredEvent(new PlayerId(id), b.endTime, b.reason),
+    );
   }
 
   @ModeratorGuard()
