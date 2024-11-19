@@ -198,7 +198,13 @@ export class PlayerController {
     const banStatuses = await Promise.all(
       party.players.map(({ value }) => this.ms.playerControllerBanInfo(value)),
     );
-    return this.mapper.mapParty(party, banStatuses);
+
+    const summaries = await Promise.all(
+      party.players.map(({ value }) =>
+        this.ms.playerControllerPlayerSummary(Dota2Version.Dota_684, value),
+      ),
+    );
+    return this.mapper.mapParty(party, banStatuses, summaries);
   }
 
   @UseInterceptors(HttpCacheInterceptor)
