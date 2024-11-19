@@ -13,20 +13,23 @@
  * Do not edit the class manually.
  */
 
-import { BanReason } from '../../gateway/shared-types/ban';
+import { BanReason } from "../../gateway/shared-types/ban";
 
 export type GameserverBanReason = BanReason;
-
 
 export function GameserverBanReasonFromJSON(json: any): GameserverBanReason {
   return GameserverBanReasonFromJSONTyped(json, false);
 }
 
-export function GameserverBanReasonFromJSONTyped(json: any, ignoreDiscriminator: boolean): GameserverBanReason {
+export function GameserverBanReasonFromJSONTyped(
+  json: any,
+  ignoreDiscriminator: boolean,
+): GameserverBanReason {
   return json as GameserverBanReason;
 }
 
-export function GameserverBanReasonToJSON(value?: GameserverBanReason | null): any {
+export function GameserverBanReasonToJSON(
+  value?: GameserverBanReason | null,
+): any {
   return value as any;
 }
-

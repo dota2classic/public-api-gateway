@@ -21,63 +21,64 @@ import { ForumThreadType, ForumThreadTypeFromJSON, ForumThreadTypeToJSON } from 
  * @interface ForumCreateThreadDTO
  */
 export class ForumCreateThreadDTO {
-    /**
-     *
-     * @type {ForumThreadType}
-     * @memberof ForumCreateThreadDTO
-     */
-    threadType: ForumThreadType;
-    /**
-     *
-     * @type {string}
-     * @memberof ForumCreateThreadDTO
-     */
-    externalId: string;
-    /**
-     *
-     * @type {string}
-     * @memberof ForumCreateThreadDTO
-     */
-    title: string;
-    /**
-     *
-     * @type {string}
-     * @memberof ForumCreateThreadDTO
-     */
-    op?: string;
+  /**
+   *
+   * @type {ForumThreadType}
+   * @memberof ForumCreateThreadDTO
+   */
+  threadType: ForumThreadType;
+  /**
+   *
+   * @type {string}
+   * @memberof ForumCreateThreadDTO
+   */
+  externalId: string;
+  /**
+   *
+   * @type {string}
+   * @memberof ForumCreateThreadDTO
+   */
+  title: string;
+  /**
+   *
+   * @type {string}
+   * @memberof ForumCreateThreadDTO
+   */
+  op?: string;
 }
 
 export function ForumCreateThreadDTOFromJSON(json: any): ForumCreateThreadDTO {
-    return ForumCreateThreadDTOFromJSONTyped(json, false);
+  return ForumCreateThreadDTOFromJSONTyped(json, false);
 }
 
-export function ForumCreateThreadDTOFromJSONTyped(json: any, ignoreDiscriminator: boolean): ForumCreateThreadDTO {
-    if ((json === undefined) || (json === null)) {
-        return json;
-    }
-    return {
-
-        'threadType': ForumThreadTypeFromJSON(json['threadType']),
-        'externalId': json['externalId'],
-        'title': json['title'],
-        'op': !exists(json, 'op') ? undefined : json['op'],
-    };
+export function ForumCreateThreadDTOFromJSONTyped(
+  json: any,
+  ignoreDiscriminator: boolean,
+): ForumCreateThreadDTO {
+  if (json === undefined || json === null) {
+    return json;
+  }
+  return {
+    threadType: ForumThreadTypeFromJSON(json["threadType"]),
+    externalId: json["externalId"],
+    title: json["title"],
+    op: !exists(json, "op") ? undefined : json["op"],
+  };
 }
 
-export function ForumCreateThreadDTOToJSON(value?: ForumCreateThreadDTO | null): any {
-    if (value === undefined) {
-        return undefined;
-    }
-    if (value === null) {
-        return null;
-    }
-    return {
-
-        'threadType': ForumThreadTypeToJSON(value.threadType),
-        'externalId': value.externalId,
-        'title': value.title,
-        'op': value.op,
-    };
+export function ForumCreateThreadDTOToJSON(
+  value?: ForumCreateThreadDTO | null,
+): any {
+  if (value === undefined) {
+    return undefined;
+  }
+  if (value === null) {
+    return null;
+  }
+  return {
+    threadType: ForumThreadTypeToJSON(value.threadType),
+    externalId: value.externalId,
+    title: value.title,
+    op: value.op,
+  };
 }
-
-

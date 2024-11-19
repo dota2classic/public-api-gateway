@@ -1,7 +1,7 @@
-import { Injectable } from '@nestjs/common';
-import { ForumMessageDTO, ForumThreadDTO } from '../../generated-api/forum';
-import { ThreadDTO, ThreadMessageDTO } from './forum.dto';
-import { UserRepository } from '../../cache/user/user.repository';
+import { Injectable } from "@nestjs/common";
+import { ForumMessageDTO, ForumThreadDTO } from "../../generated-api/forum";
+import { ThreadDTO, ThreadMessageDTO } from "./forum.dto";
+import { UserRepository } from "../../cache/user/user.repository";
 
 @Injectable()
 export class ForumMapper {

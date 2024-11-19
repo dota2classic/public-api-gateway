@@ -1,5 +1,5 @@
-import { ThrottlerGuard } from '@nestjs/throttler';
-import { Injectable } from '@nestjs/common';
+import { ThrottlerGuard } from "@nestjs/throttler";
+import { Injectable } from "@nestjs/common";
 
 @Injectable()
 export class CustomThrottlerGuard extends ThrottlerGuard {

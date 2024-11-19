@@ -13,20 +13,25 @@
  * Do not edit the class manually.
  */
 
-import { Dota_GameMode } from '../../gateway/shared-types/dota-game-mode';
+import { Dota_GameMode } from "../../gateway/shared-types/dota-game-mode";
 
 export type GameserverDotaGameMode = Dota_GameMode;
 
-
-export function GameserverDotaGameModeFromJSON(json: any): GameserverDotaGameMode {
+export function GameserverDotaGameModeFromJSON(
+  json: any,
+): GameserverDotaGameMode {
   return GameserverDotaGameModeFromJSONTyped(json, false);
 }
 
-export function GameserverDotaGameModeFromJSONTyped(json: any, ignoreDiscriminator: boolean): GameserverDotaGameMode {
+export function GameserverDotaGameModeFromJSONTyped(
+  json: any,
+  ignoreDiscriminator: boolean,
+): GameserverDotaGameMode {
   return json as GameserverDotaGameMode;
 }
 
-export function GameserverDotaGameModeToJSON(value?: GameserverDotaGameMode | null): any {
+export function GameserverDotaGameModeToJSON(
+  value?: GameserverDotaGameMode | null,
+): any {
   return value as any;
 }
-

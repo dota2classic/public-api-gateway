@@ -1,6 +1,6 @@
-import { PushSubscription } from 'web-push';
-import { MatchmakingMode } from '../../gateway/shared-types/matchmaking-mode';
-import { ApiProperty } from '@nestjs/swagger';
+import { PushSubscription } from "web-push";
+import { MatchmakingMode } from "../../gateway/shared-types/matchmaking-mode";
+import { ApiProperty } from "@nestjs/swagger";
 
 export class SubscriptionDto implements PushSubscription {
   endpoint: string;
@@ -8,8 +8,7 @@ export class SubscriptionDto implements PushSubscription {
   keys: { p256dh: string; auth: string };
 }
 
-
 export class TagPlayerForQueue {
-  @ApiProperty({ enum: MatchmakingMode, enumName: 'MatchmakingMode' })
+  @ApiProperty({ enum: MatchmakingMode, enumName: "MatchmakingMode" })
   mode: MatchmakingMode;
 }

@@ -11,7 +11,6 @@ export class HeroStatsDto {
   denies: number;
 }
 
-
 export class PlayerGeneralStatsDto {
   steam_id: string;
   games_played: number;

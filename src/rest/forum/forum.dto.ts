@@ -1,15 +1,14 @@
-import { MessageObjectDto } from '../match/dto/match.dto';
-import { ApiProperty } from '@nestjs/swagger';
-import { Page } from '../../gateway/shared-types/page';
-import { UserDTO } from '../shared.dto';
-import { ThreadType } from '../../gateway/shared-types/thread-type';
-import { MinLength } from 'class-validator';
+import { MessageObjectDto } from "../match/dto/match.dto";
+import { ApiProperty } from "@nestjs/swagger";
+import { Page } from "../../gateway/shared-types/page";
+import { UserDTO } from "../shared.dto";
+import { ThreadType } from "../../gateway/shared-types/thread-type";
+import { MinLength } from "class-validator";
 
 export enum SortOrder {
-  ASC = 'ASC',
-  DESC = 'DESC',
+  ASC = "ASC",
+  DESC = "DESC",
 }
-
 
 export class ThreadMessageDTO {
   author: UserDTO;
@@ -22,8 +21,6 @@ export class ThreadMessageDTO {
   index: number;
 }
 
-
-
 export class ThreadMessagePageDTO extends Page<ThreadMessageDTO> {
   readonly data: ThreadMessageDTO[];
   readonly page: number;
@@ -31,11 +28,10 @@ export class ThreadMessagePageDTO extends Page<ThreadMessageDTO> {
   readonly pages: number;
 }
 
-
 export class ThreadDTO {
   readonly id: string;
   readonly externalId: string;
-  @ApiProperty({ enum: ThreadType, enumName: 'ThreadType' })
+  @ApiProperty({ enum: ThreadType, enumName: "ThreadType" })
   readonly threadType: ThreadType;
   readonly title: string;
 
@@ -61,14 +57,11 @@ export class ThreadMessageSseDto extends MessageObjectDto<ThreadMessageDTO> {
 }
 
 export class CreateMessageDTO {
-
   @MinLength(1)
   content: string;
 
   threadId: string;
 }
-
-
 
 export class CreateThreadDTO {
   @MinLength(5)
@@ -81,7 +74,6 @@ export class CreateThreadDTO {
 export class UpdateThreadDTO {
   pinned: boolean;
 }
-
 
 export class UpdateUserDTO {
   muteUntil?: string;

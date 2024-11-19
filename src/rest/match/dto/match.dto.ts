@@ -1,7 +1,7 @@
-import { MatchmakingMode } from '../../../gateway/shared-types/matchmaking-mode';
-import { Dota_GameMode } from '../../../gateway/shared-types/dota-game-mode';
-import { ApiProperty } from '@nestjs/swagger';
-import { UserDTO } from '../../shared.dto';
+import { MatchmakingMode } from "../../../gateway/shared-types/matchmaking-mode";
+import { Dota_GameMode } from "../../../gateway/shared-types/dota-game-mode";
+import { ApiProperty } from "@nestjs/swagger";
+import { UserDTO } from "../../shared.dto";
 
 export class MmrChangeDto {
   mmr_before: number;
@@ -40,11 +40,10 @@ export class PlayerInMatchDto {
   mmr?: MmrChangeDto;
 }
 
-
 export class MatchDto {
   id: number;
 
-  @ApiProperty({ enum: MatchmakingMode, enumName: 'MatchmakingMode' })
+  @ApiProperty({ enum: MatchmakingMode, enumName: "MatchmakingMode" })
   mode: MatchmakingMode;
 
   radiant: Array<PlayerInMatchDto>;
@@ -78,12 +77,12 @@ export class PlayerInfo {
 
   pos_x: number;
   pos_y: number;
-  angle: number
+  angle: number;
 
-  mana: number
-  max_mana: number
-  health: number
-  max_health: number
+  mana: number;
+  max_mana: number;
+  health: number;
+  max_health: number;
 
   item0: number;
   item1: number;
@@ -101,10 +100,10 @@ export class PlayerInfo {
 
 export class LiveMatchDto {
   matchId: number;
-  @ApiProperty({ enum: MatchmakingMode, enumName: 'MatchmakingMode' })
+  @ApiProperty({ enum: MatchmakingMode, enumName: "MatchmakingMode" })
   matchmakingMode: MatchmakingMode;
 
-  @ApiProperty({ enum: Dota_GameMode, enumName: 'Dota_GameMode' })
+  @ApiProperty({ enum: Dota_GameMode, enumName: "Dota_GameMode" })
   gameMode: Dota_GameMode;
   duration: number;
   server: string;

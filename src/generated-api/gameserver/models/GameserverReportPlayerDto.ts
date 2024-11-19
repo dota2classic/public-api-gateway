@@ -18,63 +18,66 @@
  * @interface GameserverReportPlayerDto
  */
 export class GameserverReportPlayerDto {
-    /**
-     *
-     * @type {object}
-     * @memberof GameserverReportPlayerDto
-     */
-    reported: object;
-    /**
-     *
-     * @type {object}
-     * @memberof GameserverReportPlayerDto
-     */
-    reporter: object;
-    /**
-     *
-     * @type {string}
-     * @memberof GameserverReportPlayerDto
-     */
-    text: string;
-    /**
-     *
-     * @type {number}
-     * @memberof GameserverReportPlayerDto
-     */
-    matchId: number;
+  /**
+   *
+   * @type {object}
+   * @memberof GameserverReportPlayerDto
+   */
+  reported: object;
+  /**
+   *
+   * @type {object}
+   * @memberof GameserverReportPlayerDto
+   */
+  reporter: object;
+  /**
+   *
+   * @type {string}
+   * @memberof GameserverReportPlayerDto
+   */
+  text: string;
+  /**
+   *
+   * @type {number}
+   * @memberof GameserverReportPlayerDto
+   */
+  matchId: number;
 }
 
-export function GameserverReportPlayerDtoFromJSON(json: any): GameserverReportPlayerDto {
-    return GameserverReportPlayerDtoFromJSONTyped(json, false);
+export function GameserverReportPlayerDtoFromJSON(
+  json: any,
+): GameserverReportPlayerDto {
+  return GameserverReportPlayerDtoFromJSONTyped(json, false);
 }
 
-export function GameserverReportPlayerDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): GameserverReportPlayerDto {
-    if ((json === undefined) || (json === null)) {
-        return json;
-    }
-    return {
-
-        'reported': json['reported'],
-        'reporter': json['reporter'],
-        'text': json['text'],
-        'matchId': json['matchId'],
-    };
+export function GameserverReportPlayerDtoFromJSONTyped(
+  json: any,
+  ignoreDiscriminator: boolean,
+): GameserverReportPlayerDto {
+  if (json === undefined || json === null) {
+    return json;
+  }
+  return {
+    reported: json["reported"],
+    reporter: json["reporter"],
+    text: json["text"],
+    matchId: json["matchId"],
+  };
 }
 
-export function GameserverReportPlayerDtoToJSON(value?: GameserverReportPlayerDto | null): any {
-    if (value === undefined) {
-        return undefined;
-    }
-    if (value === null) {
-        return null;
-    }
-    return {
-
-        'reported': value.reported,
-        'reporter': value.reporter,
-        'text': value.text,
-        'matchId': value.matchId,
-    };
+export function GameserverReportPlayerDtoToJSON(
+  value?: GameserverReportPlayerDto | null,
+): any {
+  if (value === undefined) {
+    return undefined;
+  }
+  if (value === null) {
+    return null;
+  }
+  return {
+    reported: value.reported,
+    reporter: value.reporter,
+    text: value.text,
+    matchId: value.matchId,
+  };
 }
-
-

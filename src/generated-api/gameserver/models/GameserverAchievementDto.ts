@@ -28,79 +28,84 @@ import {
  * @interface GameserverAchievementDto
  */
 export class GameserverAchievementDto {
-    /**
-     *
-     * @type {GameserverAchievementKey}
-     * @memberof GameserverAchievementDto
-     */
-    key: GameserverAchievementKey;
-    /**
-     *
-     * @type {string}
-     * @memberof GameserverAchievementDto
-     */
-    steamId: string;
-    /**
-     *
-     * @type {number}
-     * @memberof GameserverAchievementDto
-     */
-    maxProgress: number;
-    /**
-     *
-     * @type {number}
-     * @memberof GameserverAchievementDto
-     */
-    progress: number;
-    /**
-     *
-     * @type {boolean}
-     * @memberof GameserverAchievementDto
-     */
-    isComplete: boolean;
-    /**
-     *
-     * @type {GameserverMatchDto}
-     * @memberof GameserverAchievementDto
-     */
-    match?: GameserverMatchDto;
+  /**
+   *
+   * @type {GameserverAchievementKey}
+   * @memberof GameserverAchievementDto
+   */
+  key: GameserverAchievementKey;
+  /**
+   *
+   * @type {string}
+   * @memberof GameserverAchievementDto
+   */
+  steamId: string;
+  /**
+   *
+   * @type {number}
+   * @memberof GameserverAchievementDto
+   */
+  maxProgress: number;
+  /**
+   *
+   * @type {number}
+   * @memberof GameserverAchievementDto
+   */
+  progress: number;
+  /**
+   *
+   * @type {boolean}
+   * @memberof GameserverAchievementDto
+   */
+  isComplete: boolean;
+  /**
+   *
+   * @type {GameserverMatchDto}
+   * @memberof GameserverAchievementDto
+   */
+  match?: GameserverMatchDto;
 }
 
-export function GameserverAchievementDtoFromJSON(json: any): GameserverAchievementDto {
-    return GameserverAchievementDtoFromJSONTyped(json, false);
+export function GameserverAchievementDtoFromJSON(
+  json: any,
+): GameserverAchievementDto {
+  return GameserverAchievementDtoFromJSONTyped(json, false);
 }
 
-export function GameserverAchievementDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): GameserverAchievementDto {
-    if ((json === undefined) || (json === null)) {
-        return json;
-    }
-    return {
-
-        'key': GameserverAchievementKeyFromJSON(json['key']),
-        'steamId': json['steamId'],
-        'maxProgress': json['maxProgress'],
-        'progress': json['progress'],
-        'isComplete': json['isComplete'],
-        'match': !exists(json, 'match') ? undefined : GameserverMatchDtoFromJSON(json['match']),
-    };
+export function GameserverAchievementDtoFromJSONTyped(
+  json: any,
+  ignoreDiscriminator: boolean,
+): GameserverAchievementDto {
+  if (json === undefined || json === null) {
+    return json;
+  }
+  return {
+    key: GameserverAchievementKeyFromJSON(json["key"]),
+    steamId: json["steamId"],
+    maxProgress: json["maxProgress"],
+    progress: json["progress"],
+    isComplete: json["isComplete"],
+    match: !exists(json, "match")
+      ? undefined
+      : GameserverMatchDtoFromJSON(json["match"]),
+  };
 }
 
-export function GameserverAchievementDtoToJSON(value?: GameserverAchievementDto | null): any {
-    if (value === undefined) {
-        return undefined;
-    }
-    if (value === null) {
-        return null;
-    }
-    return {
-
-        'key': GameserverAchievementKeyToJSON(value.key),
-        'steamId': value.steamId,
-        'maxProgress': value.maxProgress,
-        'progress': value.progress,
-        'isComplete': value.isComplete,
-        'match': GameserverMatchDtoToJSON(value.match),
-    };
+export function GameserverAchievementDtoToJSON(
+  value?: GameserverAchievementDto | null,
+): any {
+  if (value === undefined) {
+    return undefined;
+  }
+  if (value === null) {
+    return null;
+  }
+  return {
+    key: GameserverAchievementKeyToJSON(value.key),
+    steamId: value.steamId,
+    maxProgress: value.maxProgress,
+    progress: value.progress,
+    isComplete: value.isComplete,
+    match: GameserverMatchDtoToJSON(value.match),
+  };
 }
-
-

@@ -1,12 +1,10 @@
-import BigNumber from 'bignumber.js';
+import BigNumber from "bignumber.js";
 
-const magic = new BigNumber('76561197960265728');
+const magic = new BigNumber("76561197960265728");
 export const extractSteam32 = (steam32: string) =>
-  steam32.substring(1, steam32.length - 1).split(':')[2];
+  steam32.substring(1, steam32.length - 1).split(":")[2];
 export const steam32to64 = (steam32: string): string => {
-  const converted = new BigNumber(
-    steam32
-  );
+  const converted = new BigNumber(steam32);
 
   const steam64 = magic.plus(converted);
 
@@ -22,7 +20,7 @@ export const steam64to32 = (steam64s: string): string => {
 };
 
 export const numSteamId = (steam32: string): string => {
-  if(steam32.startsWith('[U:')) {
+  if (steam32.startsWith("[U:")) {
     return steam32.substring(5, steam32.length - 1);
   }
   return steam32;

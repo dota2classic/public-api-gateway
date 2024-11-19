@@ -20,63 +20,64 @@ import { ForumThreadDTO, ForumThreadDTOFromJSON, ForumThreadDTOToJSON } from './
  * @interface ForumThreadPageDto
  */
 export class ForumThreadPageDto {
-    /**
-     *
-     * @type {Array<ForumThreadDTO>}
-     * @memberof ForumThreadPageDto
-     */
-    data: Array<ForumThreadDTO>;
-    /**
-     *
-     * @type {number}
-     * @memberof ForumThreadPageDto
-     */
-    perPage: number;
-    /**
-     *
-     * @type {number}
-     * @memberof ForumThreadPageDto
-     */
-    page: number;
-    /**
-     *
-     * @type {number}
-     * @memberof ForumThreadPageDto
-     */
-    pages: number;
+  /**
+   *
+   * @type {Array<ForumThreadDTO>}
+   * @memberof ForumThreadPageDto
+   */
+  data: Array<ForumThreadDTO>;
+  /**
+   *
+   * @type {number}
+   * @memberof ForumThreadPageDto
+   */
+  perPage: number;
+  /**
+   *
+   * @type {number}
+   * @memberof ForumThreadPageDto
+   */
+  page: number;
+  /**
+   *
+   * @type {number}
+   * @memberof ForumThreadPageDto
+   */
+  pages: number;
 }
 
 export function ForumThreadPageDtoFromJSON(json: any): ForumThreadPageDto {
-    return ForumThreadPageDtoFromJSONTyped(json, false);
+  return ForumThreadPageDtoFromJSONTyped(json, false);
 }
 
-export function ForumThreadPageDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): ForumThreadPageDto {
-    if ((json === undefined) || (json === null)) {
-        return json;
-    }
-    return {
-
-        'data': ((json['data'] as Array<any>).map(ForumThreadDTOFromJSON)),
-        'perPage': json['perPage'],
-        'page': json['page'],
-        'pages': json['pages'],
-    };
+export function ForumThreadPageDtoFromJSONTyped(
+  json: any,
+  ignoreDiscriminator: boolean,
+): ForumThreadPageDto {
+  if (json === undefined || json === null) {
+    return json;
+  }
+  return {
+    data: (json["data"] as Array<any>).map(ForumThreadDTOFromJSON),
+    perPage: json["perPage"],
+    page: json["page"],
+    pages: json["pages"],
+  };
 }
 
-export function ForumThreadPageDtoToJSON(value?: ForumThreadPageDto | null): any {
-    if (value === undefined) {
-        return undefined;
-    }
-    if (value === null) {
-        return null;
-    }
-    return {
-
-        'data': ((value.data as Array<any>).map(ForumThreadDTOToJSON)),
-        'perPage': value.perPage,
-        'page': value.page,
-        'pages': value.pages,
-    };
+export function ForumThreadPageDtoToJSON(
+  value?: ForumThreadPageDto | null,
+): any {
+  if (value === undefined) {
+    return undefined;
+  }
+  if (value === null) {
+    return null;
+  }
+  return {
+    data: (value.data as Array<any>).map(ForumThreadDTOToJSON),
+    perPage: value.perPage,
+    page: value.page,
+    pages: value.pages,
+  };
 }
-
-

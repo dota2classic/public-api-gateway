@@ -1,29 +1,27 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { SubscriptionDto } from './notification.dto';
-import { InjectRepository } from '@nestjs/typeorm';
-import { WebpushSubscriptionEntity } from '../../entity/webpush-subscription.entity';
-import { In, Not, Repository } from 'typeorm';
-import { QueryBus } from '@nestjs/cqrs';
-import * as webpush from 'web-push';
-import { VAPID_PRIVATE_KEY, VAPID_PUBLIC_KEY } from '../../utils/env';
-import { MatchmakingMode } from '../../gateway/shared-types/matchmaking-mode';
-import { GetQueueStateQueryResult } from '../../gateway/queries/QueueState/get-queue-state-query.result';
-import { GetQueueStateQuery } from '../../gateway/queries/QueueState/get-queue-state.query';
-import { Dota2Version } from '../../gateway/shared-types/dota2version';
-import { ReadyCheckStartedEvent } from '../../gateway/events/ready-check-started.event';
+import { Injectable, Logger } from "@nestjs/common";
+import { SubscriptionDto } from "./notification.dto";
+import { InjectRepository } from "@nestjs/typeorm";
+import { WebpushSubscriptionEntity } from "../../entity/webpush-subscription.entity";
+import { In, Not, Repository } from "typeorm";
+import { QueryBus } from "@nestjs/cqrs";
+import * as webpush from "web-push";
+import { VAPID_PRIVATE_KEY, VAPID_PUBLIC_KEY } from "../../utils/env";
+import { MatchmakingMode } from "../../gateway/shared-types/matchmaking-mode";
+import { GetQueueStateQueryResult } from "../../gateway/queries/QueueState/get-queue-state-query.result";
+import { GetQueueStateQuery } from "../../gateway/queries/QueueState/get-queue-state.query";
+import { Dota2Version } from "../../gateway/shared-types/dota2version";
+import { ReadyCheckStartedEvent } from "../../gateway/events/ready-check-started.event";
 
 @Injectable()
 export class NotificationService {
   private logger = new Logger(NotificationService.name);
   constructor(
     @InjectRepository(WebpushSubscriptionEntity)
-    private readonly webpushSubscriptionEntityRepository: Repository<
-      WebpushSubscriptionEntity
-    >,
+    private readonly webpushSubscriptionEntityRepository: Repository<WebpushSubscriptionEntity>,
     private qbus: QueryBus,
   ) {
     webpush.setVapidDetails(
-      'mailto:enchantinggg4@gmail.com',
+      "mailto:enchantinggg4@gmail.com",
       VAPID_PUBLIC_KEY(),
       VAPID_PRIVATE_KEY(),
     );
@@ -38,9 +36,9 @@ export class NotificationService {
         },
       ],
       {
-        conflictPaths: ['steam_id'],
+        conflictPaths: ["steam_id"],
         skipUpdateIfNoValuesChanged: true,
-        upsertType: 'on-conflict-do-update',
+        upsertType: "on-conflict-do-update",
       },
     );
   }
@@ -53,11 +51,11 @@ export class NotificationService {
 
   public async notify(payload: any, subs: WebpushSubscriptionEntity[]) {
     const pushPayload = JSON.stringify(payload);
-    const prom = subs.map(subscription => {
+    const prom = subs.map((subscription) => {
       return webpush
         .sendNotification(subscription.subscription, pushPayload)
         .then(() => 1)
-        .catch(e => {
+        .catch((e) => {
           this.logger.error(`Error sending push notification: ${e}`);
           return 0;
         });
@@ -77,17 +75,17 @@ export class NotificationService {
       new GetQueueStateQuery(mode, Dota2Version.Dota_684),
     );
     const inQueue = qs.entries
-      .flatMap(t => t.players.length)
+      .flatMap((t) => t.players.length)
       .reduce((a, b) => a + b, 0);
     const evt = {
-      type: 'TIME_TO_QUEUE',
+      type: "TIME_TO_QUEUE",
       inQueue: inQueue,
       mode: mode,
     };
 
     const alreadyInQueue = qs.entries
-      .flatMap(t => t.players)
-      .map(it => it.value);
+      .flatMap((t) => t.players)
+      .map((it) => it.value);
 
     const eligible = await this.webpushSubscriptionEntityRepository.find({
       where: {
@@ -102,12 +100,12 @@ export class NotificationService {
     evt: ReadyCheckStartedEvent,
   ): Promise<[any, WebpushSubscriptionEntity[]]> {
     const body = {
-      type: 'GAME_READY',
+      type: "GAME_READY",
       mode: evt.mode,
     };
     const eligible = await this.webpushSubscriptionEntityRepository.find({
       where: {
-        steam_id: In(evt.entries.map(it => it.playerId.value)),
+        steam_id: In(evt.entries.map((it) => it.playerId.value)),
       },
     });
 

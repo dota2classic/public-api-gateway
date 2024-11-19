@@ -1,9 +1,9 @@
-import { UserConnection } from '../../../gateway/shared-types/user-connection';
-import { Role } from '../../../gateway/shared-types/roles';
-import { BanStatusDto } from '../../admin/dto/admin.dto';
-import { UserDTO } from '../../shared.dto';
-import { ApiProperty } from '@nestjs/swagger';
-import { Page } from '../../../gateway/shared-types/page';
+import { UserConnection } from "../../../gateway/shared-types/user-connection";
+import { Role } from "../../../gateway/shared-types/roles";
+import { BanStatusDto } from "../../admin/dto/admin.dto";
+import { UserDTO } from "../../shared.dto";
+import { ApiProperty } from "@nestjs/swagger";
+import { Page } from "../../../gateway/shared-types/page";
 
 export class LeaderboardEntryDto {
   user: UserDTO;
@@ -37,7 +37,7 @@ export class MeDto {
 
   id: string;
   mmr: number;
-  @ApiProperty({ enum: Role, enumName: 'Role' })
+  @ApiProperty({ enum: Role, enumName: "Role" })
   roles: Role[];
   rank: number;
   unrankedGamesLeft: number;
@@ -85,9 +85,8 @@ export class PlayerTeammatePageDto {
   perPage: number;
 }
 
-
 export class LeaderboardEntryPageDto extends Page<LeaderboardEntryDto> {
-  data: LeaderboardEntryDto[]
+  data: LeaderboardEntryDto[];
   page: number;
   perPage: number;
   pages: number;

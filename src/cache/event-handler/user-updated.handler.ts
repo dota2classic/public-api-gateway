@@ -1,7 +1,7 @@
-import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
-import { UserUpdatedEvent } from '../../gateway/events/user/user-updated.event';
-import { UserRepository } from '../user/user.repository';
-import { UserModel } from '../user/user.model';
+import { EventsHandler, IEventHandler } from "@nestjs/cqrs";
+import { UserUpdatedEvent } from "../../gateway/events/user/user-updated.event";
+import { UserRepository } from "../user/user.repository";
+import { UserModel } from "../user/user.model";
 
 @EventsHandler(UserUpdatedEvent)
 export class UserUpdatedHandler implements IEventHandler<UserUpdatedEvent> {

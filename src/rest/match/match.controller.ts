@@ -5,28 +5,28 @@ import {
   Param,
   Query,
   UseInterceptors,
-} from '@nestjs/common';
-import { CacheTTL } from '@nestjs/cache-manager';
-import { ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
-import { MatchmakingMode } from '../../gateway/shared-types/matchmaking-mode';
-import { Configuration, MatchApi } from '../../generated-api/gameserver';
-import { GAMESERVER_APIURL } from '../../utils/env';
-import { MatchDto, MatchPageDto } from './dto/match.dto';
-import { MatchMapper } from './match.mapper';
-import { WithOptionalUser } from '../../utils/decorator/with-optional-user';
+} from "@nestjs/common";
+import { CacheTTL } from "@nestjs/cache-manager";
+import { ApiParam, ApiQuery, ApiTags } from "@nestjs/swagger";
+import { MatchmakingMode } from "../../gateway/shared-types/matchmaking-mode";
+import { Configuration, MatchApi } from "../../generated-api/gameserver";
+import { GAMESERVER_APIURL } from "../../utils/env";
+import { MatchDto, MatchPageDto } from "./dto/match.dto";
+import { MatchMapper } from "./match.mapper";
+import { WithOptionalUser } from "../../utils/decorator/with-optional-user";
 import {
   CurrentUser,
   CurrentUserDto,
-} from '../../utils/decorator/current-user';
-import { PlayerId } from '../../gateway/shared-types/player-id';
-import { HttpCacheInterceptor } from '../../utils/cache-key-track';
-import { QueryBus } from '@nestjs/cqrs';
-import { GetReportsAvailableQuery } from '../../gateway/queries/GetReportsAvailable/get-reports-available.query';
-import { GetReportsAvailableQueryResult } from '../../gateway/queries/GetReportsAvailable/get-reports-available-query.result';
-import { WithPagination } from '../../utils/decorator/pagination';
+} from "../../utils/decorator/current-user";
+import { PlayerId } from "../../gateway/shared-types/player-id";
+import { HttpCacheInterceptor } from "../../utils/cache-key-track";
+import { QueryBus } from "@nestjs/cqrs";
+import { GetReportsAvailableQuery } from "../../gateway/queries/GetReportsAvailable/get-reports-available.query";
+import { GetReportsAvailableQueryResult } from "../../gateway/queries/GetReportsAvailable/get-reports-available-query.result";
+import { WithPagination } from "../../utils/decorator/pagination";
 
-@Controller('match')
-@ApiTags('match')
+@Controller("match")
+@ApiTags("match")
 export class MatchController {
   private ms: MatchApi;
 
@@ -42,15 +42,15 @@ export class MatchController {
   @UseInterceptors(HttpCacheInterceptor)
   @WithPagination()
   @ApiQuery({
-    name: 'mode',
-    type: 'number',
+    name: "mode",
+    type: "number",
     required: false,
   })
-  @Get('/all')
+  @Get("/all")
   async matches(
-    @Query('page') page: number,
-    @Query('per_page') perPage: number = 25,
-    @Query('mode') mode?: MatchmakingMode,
+    @Query("page") page: number,
+    @Query("per_page") perPage: number = 25,
+    @Query("mode") mode?: MatchmakingMode,
   ): Promise<MatchPageDto> {
     return this.ms
       .matchControllerMatches(page, perPage, mode)
@@ -60,14 +60,14 @@ export class MatchController {
   @UseInterceptors(HttpCacheInterceptor)
   @WithPagination()
   @ApiQuery({
-    name: 'hero',
+    name: "hero",
     required: true,
   })
-  @Get('/by_hero')
+  @Get("/by_hero")
   async heroMatches(
-    @Query('page') page: number,
-    @Query('per_page') perPage: number = 25,
-    @Query('hero') hero: string,
+    @Query("page") page: number,
+    @Query("per_page") perPage: number = 25,
+    @Query("hero") hero: string,
   ): Promise<MatchPageDto> {
     return this.ms
       .matchControllerHeroMatches(page, hero, perPage)
@@ -77,14 +77,14 @@ export class MatchController {
   @UseInterceptors(HttpCacheInterceptor)
   @CacheTTL(10)
   @ApiParam({
-    name: 'id',
+    name: "id",
     required: true,
   })
-  @Get('/:id')
+  @Get("/:id")
   @WithOptionalUser()
   async match(
     @CurrentUser() user: CurrentUserDto | undefined,
-    @Param('id') id: number,
+    @Param("id") id: number,
   ): Promise<MatchDto> {
     try {
       const pid = (user && new PlayerId(user.steam_id)) || undefined;
@@ -104,29 +104,29 @@ export class MatchController {
 
   @UseInterceptors(HttpCacheInterceptor)
   @ApiParam({
-    name: 'id',
+    name: "id",
     required: true,
   })
   @WithPagination()
   @ApiQuery({
-    name: 'mode',
+    name: "mode",
     required: false,
   })
   @ApiQuery({
-    name: 'hero',
+    name: "hero",
     type: String,
     required: false,
   })
-  @Get('/player/:id')
+  @Get("/player/:id")
   async playerMatches(
-    @Param('id') steam_id: string,
-    @Query('page') page: number,
-    @Query('per_page') perPage: number = 25,
-    @Query('mode') mode?: MatchmakingMode,
-    @Query('hero') hero?: string,
+    @Param("id") steam_id: string,
+    @Query("page") page: number,
+    @Query("per_page") perPage: number = 25,
+    @Query("mode") mode?: MatchmakingMode,
+    @Query("hero") hero?: string,
   ): Promise<MatchPageDto> {
     return this.ms
       .matchControllerPlayerMatches(steam_id, page, perPage, mode, hero)
-      .then(t => this.mapper.mapMatchPage(t));
+      .then((t) => this.mapper.mapMatchPage(t));
   }
 }

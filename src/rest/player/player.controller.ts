@@ -9,50 +9,50 @@ import {
   UploadedFile,
   UseGuards,
   UseInterceptors,
-} from '@nestjs/common';
-import { CacheTTL } from '@nestjs/cache-manager';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { Dota2Version } from '../../gateway/shared-types/dota2version';
-import { Configuration, PlayerApi } from '../../generated-api/gameserver';
-import { GAMESERVER_APIURL } from '../../utils/env';
-import { PlayerMapper } from './player.mapper';
+} from "@nestjs/common";
+import { CacheTTL } from "@nestjs/cache-manager";
+import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
+import { Dota2Version } from "../../gateway/shared-types/dota2version";
+import { Configuration, PlayerApi } from "../../generated-api/gameserver";
+import { GAMESERVER_APIURL } from "../../utils/env";
+import { PlayerMapper } from "./player.mapper";
 import {
   LeaderboardEntryPageDto,
   MeDto,
   MyProfileDto,
   PlayerSummaryDto,
   PlayerTeammatePageDto,
-} from './dto/player.dto';
+} from "./dto/player.dto";
 import {
   CurrentUser,
   CurrentUserDto,
-} from '../../utils/decorator/current-user';
-import { AuthGuard } from '@nestjs/passport';
-import { EventBus, QueryBus } from '@nestjs/cqrs';
-import { GetPartyQuery } from '../../gateway/queries/GetParty/get-party.query';
-import { GetPartyQueryResult } from '../../gateway/queries/GetParty/get-party-query.result';
-import { D2CUser } from '../strategy/jwt.strategy';
-import { PlayerId } from '../../gateway/shared-types/player-id';
-import { UserRepository } from '../../cache/user/user.repository';
-import { WithUser } from '../../utils/decorator/with-user';
-import { UserConnectionRepository } from '../../cache/user-connection/user-connection.repository';
-import { UserMightExistEvent } from '../../gateway/events/user/user-might-exist.event';
-import { ClientProxy } from '@nestjs/microservices';
-import { HeroStatsDto } from './dto/hero.dto';
-import { HttpCacheInterceptor } from '../../utils/cache-key-track';
-import { ReportDto } from './dto/report.dto';
-import { GetReportsAvailableQuery } from '../../gateway/queries/GetReportsAvailable/get-reports-available.query';
-import { GetReportsAvailableQueryResult } from '../../gateway/queries/GetReportsAvailable/get-reports-available-query.result';
-import { extname } from 'path';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
-import { UserDTO } from '../shared.dto';
-import { AchievementDto } from './dto/achievement.dto';
-import { WithPagination } from '../../utils/decorator/pagination';
-import { NullableIntPipe } from '../../utils/pipes';
+} from "../../utils/decorator/current-user";
+import { AuthGuard } from "@nestjs/passport";
+import { EventBus, QueryBus } from "@nestjs/cqrs";
+import { GetPartyQuery } from "../../gateway/queries/GetParty/get-party.query";
+import { GetPartyQueryResult } from "../../gateway/queries/GetParty/get-party-query.result";
+import { D2CUser } from "../strategy/jwt.strategy";
+import { PlayerId } from "../../gateway/shared-types/player-id";
+import { UserRepository } from "../../cache/user/user.repository";
+import { WithUser } from "../../utils/decorator/with-user";
+import { UserConnectionRepository } from "../../cache/user-connection/user-connection.repository";
+import { UserMightExistEvent } from "../../gateway/events/user/user-might-exist.event";
+import { ClientProxy } from "@nestjs/microservices";
+import { HeroStatsDto } from "./dto/hero.dto";
+import { HttpCacheInterceptor } from "../../utils/cache-key-track";
+import { ReportDto } from "./dto/report.dto";
+import { GetReportsAvailableQuery } from "../../gateway/queries/GetReportsAvailable/get-reports-available.query";
+import { GetReportsAvailableQueryResult } from "../../gateway/queries/GetReportsAvailable/get-reports-available-query.result";
+import { extname } from "path";
+import { FileInterceptor } from "@nestjs/platform-express";
+import { diskStorage } from "multer";
+import { UserDTO } from "../shared.dto";
+import { AchievementDto } from "./dto/achievement.dto";
+import { WithPagination } from "../../utils/decorator/pagination";
+import { NullableIntPipe } from "../../utils/pipes";
 
-@Controller('player')
-@ApiTags('player')
+@Controller("player")
+@ApiTags("player")
 export class PlayerController {
   private ms: PlayerApi;
   // private ts: TeamApi;
@@ -62,7 +62,7 @@ export class PlayerController {
     private readonly qbus: QueryBus,
     private readonly userRepository: UserRepository,
     private readonly userConnectionRep: UserConnectionRepository,
-    @Inject('QueryCore') private readonly redisEventQueue: ClientProxy,
+    @Inject("QueryCore") private readonly redisEventQueue: ClientProxy,
 
     private readonly ebus: EventBus,
   ) {
@@ -71,18 +71,18 @@ export class PlayerController {
     );
   }
 
-  @Post('upload')
+  @Post("upload")
   @WithUser()
   @UseInterceptors(
-    FileInterceptor('image', {
+    FileInterceptor("image", {
       storage: diskStorage({
-        destination: './dist/upload',
+        destination: "./dist/upload",
         filename: (req, file, cb) => {
           // Generating a 32 random chars long string
           const randomName = Array(32)
             .fill(null)
             .map(() => Math.round(Math.random() * 16).toString(16))
-            .join('');
+            .join("");
           //Calling the callback passing the random name generated with the original extension name
           cb(null, `${randomName}${extname(file.originalname)}`);
         },
@@ -97,7 +97,7 @@ export class PlayerController {
     return file.filename;
   }
 
-  @Get('/me')
+  @Get("/me")
   @WithUser()
   @CacheTTL(60)
   async me(@CurrentUser() user: CurrentUserDto): Promise<MeDto> {
@@ -116,7 +116,7 @@ export class PlayerController {
     return this.mapper.mapMe(rawData, res, undefined, u);
   }
 
-  @Get('/connections')
+  @Get("/connections")
   @WithUser()
   async connections(
     @CurrentUser() user: CurrentUserDto,
@@ -126,11 +126,11 @@ export class PlayerController {
 
   @UseInterceptors(HttpCacheInterceptor)
   @CacheTTL(60 * 30)
-  @Get('/leaderboard')
+  @Get("/leaderboard")
   @WithPagination()
   async leaderboard(
-    @Query('page') page: number,
-    @Query('per_page', NullableIntPipe) perPage: number = 25,
+    @Query("page") page: number,
+    @Query("per_page", NullableIntPipe) perPage: number = 25,
   ): Promise<LeaderboardEntryPageDto> {
     const rawPage = await this.ms.playerControllerLeaderboard(page, perPage);
 
@@ -145,11 +145,11 @@ export class PlayerController {
   }
 
   @WithPagination()
-  @Get('/:id/teammates')
+  @Get("/:id/teammates")
   async teammates(
-    @Param('id') steam_id: string,
-    @Query('page') page: number,
-    @Query('per_page') perPage: number = 25,
+    @Param("id") steam_id: string,
+    @Query("page") page: number,
+    @Query("per_page") perPage: number = 25,
   ): Promise<PlayerTeammatePageDto> {
     const rawData = await this.ms.playerControllerPlayerTeammates(
       steam_id,
@@ -164,16 +164,16 @@ export class PlayerController {
     };
   }
 
-  @Get('/:id/achievements')
-  async achievements(@Param('id') steam_id: string): Promise<AchievementDto[]> {
+  @Get("/:id/achievements")
+  async achievements(@Param("id") steam_id: string): Promise<AchievementDto[]> {
     const rawData = await this.ms.playerControllerPlayerAchievements(steam_id);
 
     return Promise.all(rawData.map(this.mapper.mapAchievement));
   }
 
-  @Get('/:id/summary')
+  @Get("/:id/summary")
   async playerSummary(
-    @Param('id') steam_id: string,
+    @Param("id") steam_id: string,
   ): Promise<PlayerSummaryDto> {
     const rawData = await this.ms.playerControllerPlayerSummary(
       Dota2Version.Dota_681,
@@ -187,9 +187,9 @@ export class PlayerController {
     return this.mapper.mapPlayerSummary(rawData);
   }
 
-  @Get('/party')
+  @Get("/party")
   @ApiBearerAuth()
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard("jwt"))
   async myParty(@CurrentUser() user: D2CUser) {
     const party = await this.qbus.execute<GetPartyQuery, GetPartyQueryResult>(
       new GetPartyQuery(new PlayerId(user.steam_id)),
@@ -202,33 +202,33 @@ export class PlayerController {
   }
 
   @UseInterceptors(HttpCacheInterceptor)
-  @Get('/summary/hero/:id')
-  async heroSummary(@Param('id') steam_id: string): Promise<HeroStatsDto[]> {
+  @Get("/summary/hero/:id")
+  async heroSummary(@Param("id") steam_id: string): Promise<HeroStatsDto[]> {
     return this.ms.playerControllerPlayerHeroSummary(
       Dota2Version.Dota_681,
       steam_id,
     );
   }
 
-  @Get('/search')
+  @Get("/search")
   async search(
-    @Query('name') name: string,
+    @Query("name") name: string,
     @CurrentUser() user: D2CUser,
   ): Promise<UserDTO[]> {
     //TODO!!! WE NEED TO MAKE THIS GOOD NOT BAD :wicked:
     return (await this.userRepository.all())
-      .filter(t => t.name.toLowerCase().includes(name.toLowerCase()))
+      .filter((t) => t.name.toLowerCase().includes(name.toLowerCase()))
       .slice(0, 100)
-      .map(it => ({
+      .map((it) => ({
         steamId: it.id,
         name: it.name,
         avatar: it.avatar,
         roles: it.roles,
-        avatarSmall: it.avatar && it.avatar.replace('_full', '_medium'),
+        avatarSmall: it.avatar && it.avatar.replace("_full", "_medium"),
       }));
   }
 
-  @Post('/report')
+  @Post("/report")
   @WithUser()
   async reportPlayer(
     @CurrentUser() user: CurrentUserDto,
@@ -245,7 +245,7 @@ export class PlayerController {
     } catch (e) {
       return false;
     } finally {
-      console.log('hehehehe', dto.matchId);
+      console.log("hehehehe", dto.matchId);
     }
   }
 }

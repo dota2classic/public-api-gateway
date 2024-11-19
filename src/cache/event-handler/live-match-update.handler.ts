@@ -1,11 +1,12 @@
-import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
-import { LiveMatchUpdateEvent } from '../../gateway/events/gs/live-match-update.event';
-import { LiveMatchService } from '../live-match.service';
-import { UserRepository } from '../user/user.repository';
+import { EventsHandler, IEventHandler } from "@nestjs/cqrs";
+import { LiveMatchUpdateEvent } from "../../gateway/events/gs/live-match-update.event";
+import { LiveMatchService } from "../live-match.service";
+import { UserRepository } from "../user/user.repository";
 
 @EventsHandler(LiveMatchUpdateEvent)
 export class LiveMatchUpdateHandler
-  implements IEventHandler<LiveMatchUpdateEvent> {
+  implements IEventHandler<LiveMatchUpdateEvent>
+{
   constructor(
     private readonly ls: LiveMatchService,
     private readonly uRep: UserRepository,
@@ -20,9 +21,9 @@ export class LiveMatchUpdateHandler
       server: event.server,
       timestamp: event.timestamp,
       heroes: await Promise.all(
-        event.heroes.map(async h => ({
+        event.heroes.map(async (h) => ({
           ...h,
-          name: h.bot ? '' : await this.uRep.name(h.steam_id),
+          name: h.bot ? "" : await this.uRep.name(h.steam_id),
         })),
       ),
     });

@@ -1,26 +1,26 @@
-import { Body, Controller, Delete, Post } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
-import { SubscriptionDto, TagPlayerForQueue } from './notification.dto';
-import { AdminGuard, WithUser } from '../../utils/decorator/with-user';
+import { Body, Controller, Delete, Post } from "@nestjs/common";
+import { ApiTags } from "@nestjs/swagger";
+import { SubscriptionDto, TagPlayerForQueue } from "./notification.dto";
+import { AdminGuard, WithUser } from "../../utils/decorator/with-user";
 import {
   CurrentUser,
   CurrentUserDto,
-} from '../../utils/decorator/current-user';
-import { NotificationService } from './notification.service';
+} from "../../utils/decorator/current-user";
+import { NotificationService } from "./notification.service";
 
-@Controller('notification')
-@ApiTags('notification')
+@Controller("notification")
+@ApiTags("notification")
 export class NotificationController {
   constructor(private readonly notificationService: NotificationService) {}
 
-  @Delete('/subscribe')
+  @Delete("/subscribe")
   @WithUser()
   async unsubscribe(@CurrentUser() user: CurrentUserDto) {
     await this.notificationService.unsubscribe(user.steam_id);
     return 200;
   }
 
-  @Post('/subscribe')
+  @Post("/subscribe")
   @WithUser()
   async subscribe(
     @Body() sub: SubscriptionDto,
@@ -32,7 +32,7 @@ export class NotificationController {
 
   @AdminGuard()
   @WithUser()
-  @Post('suggest_queue')
+  @Post("suggest_queue")
   async notifyAboutQueue(@Body() dto: TagPlayerForQueue) {
     const [payload, subs] = await this.notificationService.createHerePayload(
       dto.mode,

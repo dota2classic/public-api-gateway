@@ -52,6 +52,6 @@ export abstract class RuntimeRepository<
   private static list: RuntimeRepository<any, any>[] = [];
 
   private static clearAll() {
-    this.list.forEach(it => it.cache.clear());
+    this.list.forEach((it) => it.cache.clear());
   }
 }

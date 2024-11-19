@@ -18,87 +18,90 @@
  * @interface GameserverPlayerHeroPerformance
  */
 export class GameserverPlayerHeroPerformance {
-    /**
-     *
-     * @type {string}
-     * @memberof GameserverPlayerHeroPerformance
-     */
-    steam_id: string;
-    /**
-     *
-     * @type {number}
-     * @memberof GameserverPlayerHeroPerformance
-     */
-    games: number;
-    /**
-     *
-     * @type {number}
-     * @memberof GameserverPlayerHeroPerformance
-     */
-    wins: number;
-    /**
-     *
-     * @type {number}
-     * @memberof GameserverPlayerHeroPerformance
-     */
-    kills: number;
-    /**
-     *
-     * @type {number}
-     * @memberof GameserverPlayerHeroPerformance
-     */
-    deaths: number;
-    /**
-     *
-     * @type {number}
-     * @memberof GameserverPlayerHeroPerformance
-     */
-    assists: number;
-    /**
-     *
-     * @type {number}
-     * @memberof GameserverPlayerHeroPerformance
-     */
-    score: number;
+  /**
+   *
+   * @type {string}
+   * @memberof GameserverPlayerHeroPerformance
+   */
+  steam_id: string;
+  /**
+   *
+   * @type {number}
+   * @memberof GameserverPlayerHeroPerformance
+   */
+  games: number;
+  /**
+   *
+   * @type {number}
+   * @memberof GameserverPlayerHeroPerformance
+   */
+  wins: number;
+  /**
+   *
+   * @type {number}
+   * @memberof GameserverPlayerHeroPerformance
+   */
+  kills: number;
+  /**
+   *
+   * @type {number}
+   * @memberof GameserverPlayerHeroPerformance
+   */
+  deaths: number;
+  /**
+   *
+   * @type {number}
+   * @memberof GameserverPlayerHeroPerformance
+   */
+  assists: number;
+  /**
+   *
+   * @type {number}
+   * @memberof GameserverPlayerHeroPerformance
+   */
+  score: number;
 }
 
-export function GameserverPlayerHeroPerformanceFromJSON(json: any): GameserverPlayerHeroPerformance {
-    return GameserverPlayerHeroPerformanceFromJSONTyped(json, false);
+export function GameserverPlayerHeroPerformanceFromJSON(
+  json: any,
+): GameserverPlayerHeroPerformance {
+  return GameserverPlayerHeroPerformanceFromJSONTyped(json, false);
 }
 
-export function GameserverPlayerHeroPerformanceFromJSONTyped(json: any, ignoreDiscriminator: boolean): GameserverPlayerHeroPerformance {
-    if ((json === undefined) || (json === null)) {
-        return json;
-    }
-    return {
-
-        'steam_id': json['steam_id'],
-        'games': json['games'],
-        'wins': json['wins'],
-        'kills': json['kills'],
-        'deaths': json['deaths'],
-        'assists': json['assists'],
-        'score': json['score'],
-    };
+export function GameserverPlayerHeroPerformanceFromJSONTyped(
+  json: any,
+  ignoreDiscriminator: boolean,
+): GameserverPlayerHeroPerformance {
+  if (json === undefined || json === null) {
+    return json;
+  }
+  return {
+    steam_id: json["steam_id"],
+    games: json["games"],
+    wins: json["wins"],
+    kills: json["kills"],
+    deaths: json["deaths"],
+    assists: json["assists"],
+    score: json["score"],
+  };
 }
 
-export function GameserverPlayerHeroPerformanceToJSON(value?: GameserverPlayerHeroPerformance | null): any {
-    if (value === undefined) {
-        return undefined;
-    }
-    if (value === null) {
-        return null;
-    }
-    return {
-
-        'steam_id': value.steam_id,
-        'games': value.games,
-        'wins': value.wins,
-        'kills': value.kills,
-        'deaths': value.deaths,
-        'assists': value.assists,
-        'score': value.score,
-    };
+export function GameserverPlayerHeroPerformanceToJSON(
+  value?: GameserverPlayerHeroPerformance | null,
+): any {
+  if (value === undefined) {
+    return undefined;
+  }
+  if (value === null) {
+    return null;
+  }
+  return {
+    steam_id: value.steam_id,
+    games: value.games,
+    wins: value.wins,
+    kills: value.kills,
+    deaths: value.deaths,
+    assists: value.assists,
+    score: value.score,
+  };
 }
-
-

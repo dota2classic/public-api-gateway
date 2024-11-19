@@ -8,41 +8,41 @@ import {
   Request,
   Res,
   UseGuards,
-} from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
-import { frontUrl } from '../utils/utils';
-import { JwtService } from '@nestjs/jwt';
-import { steam64to32 } from '../utils/steamIds';
-import { TOKEN_KEY } from '../utils/env';
-import { ApiExcludeEndpoint, ApiOkResponse, ApiTags } from '@nestjs/swagger';
-import { UserRepository } from '../cache/user/user.repository';
-import { UserLoggedInEvent } from '../gateway/events/user/user-logged-in.event';
-import { PlayerId } from '../gateway/shared-types/player-id';
-import { ClientProxy } from '@nestjs/microservices';
-import { Response } from 'express';
+} from "@nestjs/common";
+import { AuthGuard } from "@nestjs/passport";
+import { frontUrl } from "../utils/utils";
+import { JwtService } from "@nestjs/jwt";
+import { steam64to32 } from "../utils/steamIds";
+import { TOKEN_KEY } from "../utils/env";
+import { ApiExcludeEndpoint, ApiOkResponse, ApiTags } from "@nestjs/swagger";
+import { UserRepository } from "../cache/user/user.repository";
+import { UserLoggedInEvent } from "../gateway/events/user/user-logged-in.event";
+import { PlayerId } from "../gateway/shared-types/player-id";
+import { ClientProxy } from "@nestjs/microservices";
+import { Response } from "express";
 import {
   AccessToken,
   CurrentUser,
   CurrentUserDto,
-} from '../utils/decorator/current-user';
-import { AuthService } from './auth/auth.service';
-import { WithUser } from '../utils/decorator/with-user';
+} from "../utils/decorator/current-user";
+import { AuthService } from "./auth/auth.service";
+import { WithUser } from "../utils/decorator/with-user";
 
-@Controller('auth/steam')
-@ApiTags('auth')
+@Controller("auth/steam")
+@ApiTags("auth")
 export class SteamController {
   private logger = new Logger(SteamController.name);
   constructor(
     private readonly jwtService: JwtService,
     private readonly userRepository: UserRepository,
-    @Inject('QueryCore') private readonly rq: ClientProxy,
+    @Inject("QueryCore") private readonly rq: ClientProxy,
     private readonly authService: AuthService,
   ) {}
 
-  @Post('refresh_token')
+  @Post("refresh_token")
   @WithUser()
   @ApiOkResponse({
-    description: 'New token',
+    description: "New token",
     type: String,
   })
   public async refreshToken(
@@ -52,20 +52,17 @@ export class SteamController {
   ) {
     this.logger.verbose(`Refresh token for ${user?.steam_id}`);
     const newToken = await this.authService.refreshToken(token);
-    res
-      .cookie(TOKEN_KEY, newToken)
-      .status(200)
-      .send(newToken);
+    res.cookie(TOKEN_KEY, newToken).status(200).send(newToken);
   }
 
   @Get()
   @ApiExcludeEndpoint()
-  @UseGuards(AuthGuard('steam'))
+  @UseGuards(AuthGuard("steam"))
   async steamAuth(@Req() req) {}
 
-  @Get('callback')
+  @Get("callback")
   @ApiExcludeEndpoint()
-  @UseGuards(AuthGuard('steam'))
+  @UseGuards(AuthGuard("steam"))
   async steamAuthRequest(
     @Req() req: Request & { user?: any },
     @Res() res: Response,

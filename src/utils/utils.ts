@@ -1,4 +1,4 @@
-import { BACK_URL, FRONT_URL, isDev } from './env';
+import { BACK_URL, FRONT_URL, isDev } from "./env";
 
 export const frontUrl = isDev ? "http://localhost:3000" : FRONT_URL;
 // export const backUrl = ;

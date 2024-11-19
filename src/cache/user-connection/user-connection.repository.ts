@@ -1,19 +1,19 @@
-import { RuntimeRepository } from '../runtime.repository';
-import { Injectable } from '@nestjs/common';
-import { QueryBus } from '@nestjs/cqrs';
-import { PlayerId } from '../../gateway/shared-types/player-id';
-import { UserConnectionModel } from './user-connection.model';
-import { GetAllConnectionsQuery } from '../../gateway/queries/GetAllConnections/get-all-connections.query';
-import { GetAllConnectionsQueryResult } from '../../gateway/queries/GetAllConnections/get-all-connections-query.result';
-import { UserModel } from '../user/user.model';
-import { UserConnection } from '../../gateway/shared-types/user-connection';
-import { GetConnectionsQuery } from '../../gateway/queries/GetConnections/get-connections.query';
-import { GetConnectionsQueryResult } from '../../gateway/queries/GetConnections/get-connections-query.result';
+import { RuntimeRepository } from "../runtime.repository";
+import { Injectable } from "@nestjs/common";
+import { QueryBus } from "@nestjs/cqrs";
+import { PlayerId } from "../../gateway/shared-types/player-id";
+import { UserConnectionModel } from "./user-connection.model";
+import { GetAllConnectionsQuery } from "../../gateway/queries/GetAllConnections/get-all-connections.query";
+import { GetAllConnectionsQueryResult } from "../../gateway/queries/GetAllConnections/get-all-connections-query.result";
+import { UserModel } from "../user/user.model";
+import { UserConnection } from "../../gateway/shared-types/user-connection";
+import { GetConnectionsQuery } from "../../gateway/queries/GetConnections/get-connections.query";
+import { GetConnectionsQueryResult } from "../../gateway/queries/GetConnections/get-connections-query.result";
 
 @Injectable()
 export class UserConnectionRepository extends RuntimeRepository<
   UserConnectionModel,
-  'id'
+  "id"
 > {
   constructor(private readonly qbus: QueryBus) {
     super();
@@ -24,8 +24,8 @@ export class UserConnectionRepository extends RuntimeRepository<
       .execute<GetAllConnectionsQuery, GetAllConnectionsQueryResult>(
         new GetAllConnectionsQuery(UserConnection.DISCORD),
       )
-      .then(result => {
-        result.entries.forEach(t =>
+      .then((result) => {
+        result.entries.forEach((t) =>
           this.save(
             t.id.value,
             new UserConnectionModel(t.id.value, t.connection, t.externalId),
@@ -34,14 +34,14 @@ export class UserConnectionRepository extends RuntimeRepository<
       });
   }
 
-  async resolve(id: UserModel['id']): Promise<UserConnectionModel> {
+  async resolve(id: UserModel["id"]): Promise<UserConnectionModel> {
     return this.qbus
       .execute<GetConnectionsQuery, GetConnectionsQueryResult>(
         // todo?
         new GetConnectionsQuery(new PlayerId(id), UserConnection.DISCORD),
       )
       .then(
-        t =>
+        (t) =>
           (t.con &&
             new UserConnectionModel(
               t.con?.id.value,

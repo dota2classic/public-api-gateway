@@ -12,13 +12,12 @@
  * Do not edit the class manually.
  */
 
-
-import * as runtime from '../runtime';
+import * as runtime from "../runtime";
 
 import {
   GameserverCrimeLogPageDto,
   GameserverCrimeLogPageDtoFromJSON,
-} from '../models';
+} from "../models";
 
 export interface CrimeControllerCrimeLogRequest {
   page: number;
@@ -30,59 +29,77 @@ export interface CrimeControllerCrimeLogRequest {
  *
  */
 export class CrimeApi extends runtime.BaseAPI {
+  /**
+   */
+  crimeControllerCrimeLogContext(
+    requestParameters: CrimeControllerCrimeLogRequest,
+  ): runtime.RequestOpts {
+    const queryParameters: any = {};
 
-    /**
-     */
-    private async crimeControllerCrimeLogRaw(requestParameters: CrimeControllerCrimeLogRequest): Promise<runtime.ApiResponse<GameserverCrimeLogPageDto>> {
-        this.crimeControllerCrimeLogValidation(requestParameters);
-        const context = this.crimeControllerCrimeLogContext(requestParameters);
-        const response = await this.request(context);
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => GameserverCrimeLogPageDtoFromJSON(jsonValue));
+    if (requestParameters.page !== undefined) {
+      queryParameters["page"] = requestParameters.page;
     }
 
-
-
-    /**
-     */
-    private crimeControllerCrimeLogValidation(requestParameters: CrimeControllerCrimeLogRequest) {
-        if (requestParameters.page === null || requestParameters.page === undefined) {
-            throw new runtime.RequiredError('page','Required parameter requestParameters.page was null or undefined when calling crimeControllerCrimeLog.');
-        }
+    if (requestParameters.perPage !== undefined) {
+      queryParameters["per_page"] = requestParameters.perPage;
     }
 
-    /**
-     */
-    crimeControllerCrimeLogContext(requestParameters: CrimeControllerCrimeLogRequest): runtime.RequestOpts {
-        const queryParameters: any = {};
-
-        if (requestParameters.page !== undefined) {
-            queryParameters['page'] = requestParameters.page;
-        }
-
-        if (requestParameters.perPage !== undefined) {
-            queryParameters['per_page'] = requestParameters.perPage;
-        }
-
-        if (requestParameters.steamId !== undefined) {
-            queryParameters['steam_id'] = requestParameters.steamId;
-        }
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-        return {
-            path: `/crime`,
-            method: 'GET',
-            headers: headerParameters,
-            query: queryParameters,
-        };
+    if (requestParameters.steamId !== undefined) {
+      queryParameters["steam_id"] = requestParameters.steamId;
     }
 
-    /**
-     */
-    crimeControllerCrimeLog = async (page: number, perPage?: number, steamId?: string): Promise<GameserverCrimeLogPageDto> => {
-        const response = await this.crimeControllerCrimeLogRaw({ page: page, perPage: perPage, steamId: steamId });
-        return await response.value();
-    }
+    const headerParameters: runtime.HTTPHeaders = {};
 
+    return {
+      path: `/crime`,
+      method: "GET",
+      headers: headerParameters,
+      query: queryParameters,
+    };
+  }
+
+  /**
+   */
+  crimeControllerCrimeLog = async (
+    page: number,
+    perPage?: number,
+    steamId?: string,
+  ): Promise<GameserverCrimeLogPageDto> => {
+    const response = await this.crimeControllerCrimeLogRaw({
+      page: page,
+      perPage: perPage,
+      steamId: steamId,
+    });
+    return await response.value();
+  };
+
+  /**
+   */
+  private async crimeControllerCrimeLogRaw(
+    requestParameters: CrimeControllerCrimeLogRequest,
+  ): Promise<runtime.ApiResponse<GameserverCrimeLogPageDto>> {
+    this.crimeControllerCrimeLogValidation(requestParameters);
+    const context = this.crimeControllerCrimeLogContext(requestParameters);
+    const response = await this.request(context);
+
+    return new runtime.JSONApiResponse(response, (jsonValue) =>
+      GameserverCrimeLogPageDtoFromJSON(jsonValue),
+    );
+  }
+
+  /**
+   */
+  private crimeControllerCrimeLogValidation(
+    requestParameters: CrimeControllerCrimeLogRequest,
+  ) {
+    if (
+      requestParameters.page === null ||
+      requestParameters.page === undefined
+    ) {
+      throw new runtime.RequiredError(
+        "page",
+        "Required parameter requestParameters.page was null or undefined when calling crimeControllerCrimeLog.",
+      );
+    }
+  }
 }

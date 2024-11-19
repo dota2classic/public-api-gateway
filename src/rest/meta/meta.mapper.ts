@@ -1,7 +1,7 @@
-import { Injectable } from '@nestjs/common';
-import { UserRepository } from '../../cache/user/user.repository';
-import { GameserverPlayerHeroPerformance } from '../../generated-api/gameserver/models';
-import { HeroPlayerDto } from './dto/meta.dto';
+import { Injectable } from "@nestjs/common";
+import { UserRepository } from "../../cache/user/user.repository";
+import { GameserverPlayerHeroPerformance } from "../../generated-api/gameserver/models";
+import { HeroPlayerDto } from "./dto/meta.dto";
 
 @Injectable()
 export class MetaMapper {

@@ -24,63 +24,68 @@ import {
  * @interface GameserverLeaderboardEntryPageDto
  */
 export class GameserverLeaderboardEntryPageDto {
-    /**
-     *
-     * @type {Array<GameserverLeaderboardEntryDto>}
-     * @memberof GameserverLeaderboardEntryPageDto
-     */
-    data: Array<GameserverLeaderboardEntryDto>;
-    /**
-     *
-     * @type {number}
-     * @memberof GameserverLeaderboardEntryPageDto
-     */
-    page: number;
-    /**
-     *
-     * @type {number}
-     * @memberof GameserverLeaderboardEntryPageDto
-     */
-    perPage: number;
-    /**
-     *
-     * @type {number}
-     * @memberof GameserverLeaderboardEntryPageDto
-     */
-    pages: number;
+  /**
+   *
+   * @type {Array<GameserverLeaderboardEntryDto>}
+   * @memberof GameserverLeaderboardEntryPageDto
+   */
+  data: Array<GameserverLeaderboardEntryDto>;
+  /**
+   *
+   * @type {number}
+   * @memberof GameserverLeaderboardEntryPageDto
+   */
+  page: number;
+  /**
+   *
+   * @type {number}
+   * @memberof GameserverLeaderboardEntryPageDto
+   */
+  perPage: number;
+  /**
+   *
+   * @type {number}
+   * @memberof GameserverLeaderboardEntryPageDto
+   */
+  pages: number;
 }
 
-export function GameserverLeaderboardEntryPageDtoFromJSON(json: any): GameserverLeaderboardEntryPageDto {
-    return GameserverLeaderboardEntryPageDtoFromJSONTyped(json, false);
+export function GameserverLeaderboardEntryPageDtoFromJSON(
+  json: any,
+): GameserverLeaderboardEntryPageDto {
+  return GameserverLeaderboardEntryPageDtoFromJSONTyped(json, false);
 }
 
-export function GameserverLeaderboardEntryPageDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): GameserverLeaderboardEntryPageDto {
-    if ((json === undefined) || (json === null)) {
-        return json;
-    }
-    return {
-
-        'data': ((json['data'] as Array<any>).map(GameserverLeaderboardEntryDtoFromJSON)),
-        'page': json['page'],
-        'perPage': json['perPage'],
-        'pages': json['pages'],
-    };
+export function GameserverLeaderboardEntryPageDtoFromJSONTyped(
+  json: any,
+  ignoreDiscriminator: boolean,
+): GameserverLeaderboardEntryPageDto {
+  if (json === undefined || json === null) {
+    return json;
+  }
+  return {
+    data: (json["data"] as Array<any>).map(
+      GameserverLeaderboardEntryDtoFromJSON,
+    ),
+    page: json["page"],
+    perPage: json["perPage"],
+    pages: json["pages"],
+  };
 }
 
-export function GameserverLeaderboardEntryPageDtoToJSON(value?: GameserverLeaderboardEntryPageDto | null): any {
-    if (value === undefined) {
-        return undefined;
-    }
-    if (value === null) {
-        return null;
-    }
-    return {
-
-        'data': ((value.data as Array<any>).map(GameserverLeaderboardEntryDtoToJSON)),
-        'page': value.page,
-        'perPage': value.perPage,
-        'pages': value.pages,
-    };
+export function GameserverLeaderboardEntryPageDtoToJSON(
+  value?: GameserverLeaderboardEntryPageDto | null,
+): any {
+  if (value === undefined) {
+    return undefined;
+  }
+  if (value === null) {
+    return null;
+  }
+  return {
+    data: (value.data as Array<any>).map(GameserverLeaderboardEntryDtoToJSON),
+    page: value.page,
+    perPage: value.perPage,
+    pages: value.pages,
+  };
 }
-
-

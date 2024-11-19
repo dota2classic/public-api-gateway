@@ -1,7 +1,7 @@
-import { Injectable, NestMiddleware } from '@nestjs/common';
-import { Counter, Gauge } from 'prom-client';
-import { InjectMetric } from '@willsoto/nestjs-prometheus';
-import { NextFunction, Request, Response } from 'express';
+import { Injectable, NestMiddleware } from "@nestjs/common";
+import { Counter, Gauge } from "prom-client";
+import { InjectMetric } from "@willsoto/nestjs-prometheus";
+import { NextFunction, Request, Response } from "express";
 
 @Injectable()
 export class CustomMetricsMiddleware implements NestMiddleware {
@@ -11,18 +11,18 @@ export class CustomMetricsMiddleware implements NestMiddleware {
   constructor(
     // Must be identical to those declared in our AppModule
     // @InjectMetric('count') public appCounter: Counter<string>,
-    @InjectMetric('my_app_requests') public appGauge: Gauge<string>,
+    @InjectMetric("my_app_requests") public appGauge: Gauge<string>,
   ) {
     // Customizing the names and help messages for metrics
     this.customDurationGauge = new Gauge<string>({
-      name: 'app_duration_metrics',
-      help: 'app_concurrent_metrics_help',
-      labelNames: ['app_method', 'app_origin', 'request_duration'],
+      name: "app_duration_metrics",
+      help: "app_concurrent_metrics_help",
+      labelNames: ["app_method", "app_origin", "request_duration"],
     });
     this.customErrorsCounter = new Counter<string>({
-      name: 'app_error_metrics',
-      help: 'app_usage_metrics_to_detect_errors',
-      labelNames: ['app_method', 'app_origin', 'app_status'],
+      name: "app_error_metrics",
+      help: "app_usage_metrics_to_detect_errors",
+      labelNames: ["app_method", "app_origin", "app_status"],
     });
   }
 
@@ -35,7 +35,7 @@ export class CustomMetricsMiddleware implements NestMiddleware {
     const startTime = Date.now();
 
     // Setting up a callback for when the response finishes
-    res.on('finish', () => {
+    res.on("finish", () => {
       // Calculating the duration and recording it in the custom duration gauge
       const endTime = Date.now();
       const duration = endTime - startTime;

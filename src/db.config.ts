@@ -1,7 +1,7 @@
-import { TypeOrmModuleOptions } from '@nestjs/typeorm';
-import { DB_HOST, DB_PASSWORD, DB_USERNAME } from './utils/env';
-import { MatchmakingModeStatusEntity } from './entity/matchmaking-mode-status.entity';
-import { WebpushSubscriptionEntity } from './entity/webpush-subscription.entity';
+import { TypeOrmModuleOptions } from "@nestjs/typeorm";
+import { DB_HOST, DB_PASSWORD, DB_USERNAME } from "./utils/env";
+import { MatchmakingModeStatusEntity } from "./entity/matchmaking-mode-status.entity";
+import { WebpushSubscriptionEntity } from "./entity/webpush-subscription.entity";
 
 export const Entities = [
   MatchmakingModeStatusEntity,
@@ -9,8 +9,8 @@ export const Entities = [
 ];
 
 export const prodDbConfig: TypeOrmModuleOptions = {
-  type: 'postgres',
-  database: 'postgres',
+  type: "postgres",
+  database: "postgres",
   host: DB_HOST(),
   port: 5432,
   username: DB_USERNAME(),

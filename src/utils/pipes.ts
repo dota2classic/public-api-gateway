@@ -1,4 +1,4 @@
-import { ArgumentMetadata, PipeTransform } from '@nestjs/common';
+import { ArgumentMetadata, PipeTransform } from "@nestjs/common";
 
 export class NullableIntPipe implements PipeTransform<string> {
   transform(value: string, metadata: ArgumentMetadata): any {

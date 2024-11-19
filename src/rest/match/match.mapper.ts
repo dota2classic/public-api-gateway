@@ -1,19 +1,19 @@
-import { Injectable } from '@nestjs/common';
-import { UserRepository } from '../../cache/user/user.repository';
+import { Injectable } from "@nestjs/common";
+import { UserRepository } from "../../cache/user/user.repository";
 import {
   GameserverMatchDto,
   GameserverMatchPageDto,
   GameserverMmrChangeDto,
   GameserverPlayerInMatchDto,
-} from '../../generated-api/gameserver/models';
+} from "../../generated-api/gameserver/models";
 import {
   MatchDto,
   MatchPageDto,
   MmrChangeDto,
   PlayerInMatchDto,
-} from './dto/match.dto';
-import { MATCH_REPORT_TIMEOUT } from '../../gateway/shared-types/timings';
-import { GetReportsAvailableQueryResult } from '../../gateway/queries/GetReportsAvailable/get-reports-available-query.result';
+} from "./dto/match.dto";
+import { MATCH_REPORT_TIMEOUT } from "../../gateway/shared-types/timings";
+import { GetReportsAvailableQueryResult } from "../../gateway/queries/GetReportsAvailable/get-reports-available-query.result";
 
 export interface PlayerMappableResource
   extends GetReportsAvailableQueryResult {}
@@ -46,8 +46,8 @@ export class MatchMapper {
     const timeDiff = new Date().getTime() - new Date(it.timestamp).getTime();
     const isReportable =
       mapFor !== undefined &&
-      (it.radiant.find(z => z.steam_id === mapFor.id.value) ||
-        it.dire.find(z => z.steam_id === mapFor.id.value)) &&
+      (it.radiant.find((z) => z.steam_id === mapFor.id.value) ||
+        it.dire.find((z) => z.steam_id === mapFor.id.value)) &&
       timeDiff <= MATCH_REPORT_TIMEOUT &&
       mapFor.available > 0;
     return {
@@ -68,7 +68,7 @@ export class MatchMapper {
   ): Promise<MatchPageDto> => {
     return {
       ...it,
-      data: await Promise.all(it.data.map(t => this.mapMatch(t, mapFor))),
-    }
+      data: await Promise.all(it.data.map((t) => this.mapMatch(t, mapFor))),
+    };
   };
 }

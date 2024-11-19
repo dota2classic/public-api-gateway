@@ -18,79 +18,82 @@
  * @interface GameserverPlayerTeammateDto
  */
 export class GameserverPlayerTeammateDto {
-    /**
-     *
-     * @type {string}
-     * @memberof GameserverPlayerTeammateDto
-     */
-    steam_id: string;
-    /**
-     *
-     * @type {number}
-     * @memberof GameserverPlayerTeammateDto
-     */
-    games: number;
-    /**
-     *
-     * @type {number}
-     * @memberof GameserverPlayerTeammateDto
-     */
-    wins: number;
-    /**
-     *
-     * @type {number}
-     * @memberof GameserverPlayerTeammateDto
-     */
-    losses: number;
-    /**
-     *
-     * @type {number}
-     * @memberof GameserverPlayerTeammateDto
-     */
-    winrate: number;
-    /**
-     *
-     * @type {number}
-     * @memberof GameserverPlayerTeammateDto
-     */
-    rank: number;
+  /**
+   *
+   * @type {string}
+   * @memberof GameserverPlayerTeammateDto
+   */
+  steam_id: string;
+  /**
+   *
+   * @type {number}
+   * @memberof GameserverPlayerTeammateDto
+   */
+  games: number;
+  /**
+   *
+   * @type {number}
+   * @memberof GameserverPlayerTeammateDto
+   */
+  wins: number;
+  /**
+   *
+   * @type {number}
+   * @memberof GameserverPlayerTeammateDto
+   */
+  losses: number;
+  /**
+   *
+   * @type {number}
+   * @memberof GameserverPlayerTeammateDto
+   */
+  winrate: number;
+  /**
+   *
+   * @type {number}
+   * @memberof GameserverPlayerTeammateDto
+   */
+  rank: number;
 }
 
-export function GameserverPlayerTeammateDtoFromJSON(json: any): GameserverPlayerTeammateDto {
-    return GameserverPlayerTeammateDtoFromJSONTyped(json, false);
+export function GameserverPlayerTeammateDtoFromJSON(
+  json: any,
+): GameserverPlayerTeammateDto {
+  return GameserverPlayerTeammateDtoFromJSONTyped(json, false);
 }
 
-export function GameserverPlayerTeammateDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): GameserverPlayerTeammateDto {
-    if ((json === undefined) || (json === null)) {
-        return json;
-    }
-    return {
-
-        'steam_id': json['steam_id'],
-        'games': json['games'],
-        'wins': json['wins'],
-        'losses': json['losses'],
-        'winrate': json['winrate'],
-        'rank': json['rank'],
-    };
+export function GameserverPlayerTeammateDtoFromJSONTyped(
+  json: any,
+  ignoreDiscriminator: boolean,
+): GameserverPlayerTeammateDto {
+  if (json === undefined || json === null) {
+    return json;
+  }
+  return {
+    steam_id: json["steam_id"],
+    games: json["games"],
+    wins: json["wins"],
+    losses: json["losses"],
+    winrate: json["winrate"],
+    rank: json["rank"],
+  };
 }
 
-export function GameserverPlayerTeammateDtoToJSON(value?: GameserverPlayerTeammateDto | null): any {
-    if (value === undefined) {
-        return undefined;
-    }
-    if (value === null) {
-        return null;
-    }
-    return {
-
-        'steam_id': value.steam_id,
-        'games': value.games,
-        'wins': value.wins,
-        'losses': value.losses,
-        'winrate': value.winrate,
-        'rank': value.rank,
-    };
+export function GameserverPlayerTeammateDtoToJSON(
+  value?: GameserverPlayerTeammateDto | null,
+): any {
+  if (value === undefined) {
+    return undefined;
+  }
+  if (value === null) {
+    return null;
+  }
+  return {
+    steam_id: value.steam_id,
+    games: value.games,
+    wins: value.wins,
+    losses: value.losses,
+    winrate: value.winrate,
+    rank: value.rank,
+  };
 }
-
-

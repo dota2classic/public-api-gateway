@@ -1,1 +1,1 @@
-export * from './ForumApi';
+export * from "./ForumApi";

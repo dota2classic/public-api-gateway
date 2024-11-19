@@ -1,44 +1,47 @@
-import { performance } from 'perf_hooks';
-import { Logger } from '@nestjs/common';
+import { performance } from "perf_hooks";
+import { Logger } from "@nestjs/common";
 
+const logger = new Logger("Performance");
 
-const logger = new Logger('Performance')
-
-export function measureN<T>(callback: () => T, msg: string = ""): T{
+export function measureN<T>(callback: () => T, msg: string = ""): T {
   const start = performance.now();
   const result = callback();
   if (result instanceof Promise) {
     result.then(() => {
       const finish = performance.now();
-      logger.verbose(`Promise execution time: ${finish - start} milliseconds, ` + msg);
+      logger.verbose(
+        `Promise execution time: ${finish - start} milliseconds, ` + msg,
+      );
     });
   } else {
     const finish = performance.now();
-    logger.verbose(`Execution time: ${finish - start} milliseconds, ` + msg) ;
+    logger.verbose(`Execution time: ${finish - start} milliseconds, ` + msg);
   }
 
   return result;
 }
-export const measure = (msg: string) => (
-  target: Object,
-  propertyKey: string,
-  descriptor: PropertyDescriptor,
-) => {
-  const originalMethod = descriptor.value;
+export const measure =
+  (msg: string) =>
+  (target: Object, propertyKey: string, descriptor: PropertyDescriptor) => {
+    const originalMethod = descriptor.value;
 
-  descriptor.value = function(...args) {
-    const start = performance.now();
-    const result = originalMethod.apply(this, args);
-    if (result instanceof Promise) {
-      result.then(() => {
+    descriptor.value = function (...args) {
+      const start = performance.now();
+      const result = originalMethod.apply(this, args);
+      if (result instanceof Promise) {
+        result.then(() => {
+          const finish = performance.now();
+          logger.verbose(
+            `Promise execution time: ${finish - start} milliseconds [${msg}]`,
+          );
+        });
+      } else {
         const finish = performance.now();
-        logger.verbose(`Promise execution time: ${finish - start} milliseconds [${msg}]`);
-      });
-    } else {
-      const finish = performance.now();
-      logger.verbose(`Execution time: ${finish - start} milliseconds [${msg}]`);
-    }
+        logger.verbose(
+          `Execution time: ${finish - start} milliseconds [${msg}]`,
+        );
+      }
 
-    return result;
+      return result;
+    };
   };
-};

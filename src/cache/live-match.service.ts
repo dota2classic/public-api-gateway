@@ -1,8 +1,8 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { LiveMatchDto } from '../rest/match/dto/match.dto';
-import { concat, Observable, of, Subject } from 'rxjs';
-import { delay } from 'rxjs/operators';
-import { LIVE_MATCH_DELAY } from '../utils/env';
+import { Injectable, Logger } from "@nestjs/common";
+import { LiveMatchDto } from "../rest/match/dto/match.dto";
+import { concat, Observable, of, Subject } from "rxjs";
+import { delay } from "rxjs/operators";
+import { LIVE_MATCH_DELAY } from "../utils/env";
 
 @Injectable()
 export class LiveMatchService {
@@ -33,7 +33,7 @@ export class LiveMatchService {
       const eventStream = new Subject<LiveMatchDto>();
       this.cache.set(event.matchId, eventStream);
 
-      eventStream.pipe(delay(LIVE_MATCH_DELAY)).subscribe(e => {
+      eventStream.pipe(delay(LIVE_MATCH_DELAY)).subscribe((e) => {
         this.entityCache.set(e.matchId, e);
       });
     }
@@ -53,7 +53,7 @@ export class LiveMatchService {
 
   public list(): LiveMatchDto[] {
     return [...this.entityCache.values()].filter(
-      t => !this.isMatchComplete(t.matchId),
+      (t) => !this.isMatchComplete(t.matchId),
     );
   }
 
