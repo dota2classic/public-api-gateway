@@ -18,86 +18,87 @@
  * @interface ForumMessageDTO
  */
 export class ForumMessageDTO {
-  /**
-   *
-   * @type {string}
-   * @memberof ForumMessageDTO
-   */
-  threadId: string;
-  /**
-   *
-   * @type {string}
-   * @memberof ForumMessageDTO
-   */
-  id: string;
-  /**
-   *
-   * @type {string}
-   * @memberof ForumMessageDTO
-   */
-  content: string;
-  /**
-   *
-   * @type {string}
-   * @memberof ForumMessageDTO
-   */
-  author: string;
-  /**
-   *
-   * @type {string}
-   * @memberof ForumMessageDTO
-   */
-  createdAt: string;
-  /**
-   *
-   * @type {number}
-   * @memberof ForumMessageDTO
-   */
-  index: number;
-  /**
-   *
-   * @type {boolean}
-   * @memberof ForumMessageDTO
-   */
-  deleted: boolean;
+    /**
+     *
+     * @type {string}
+     * @memberof ForumMessageDTO
+     */
+    threadId: string;
+    /**
+     *
+     * @type {string}
+     * @memberof ForumMessageDTO
+     */
+    id: string;
+    /**
+     *
+     * @type {string}
+     * @memberof ForumMessageDTO
+     */
+    content: string;
+    /**
+     *
+     * @type {string}
+     * @memberof ForumMessageDTO
+     */
+    author: string;
+    /**
+     *
+     * @type {string}
+     * @memberof ForumMessageDTO
+     */
+    createdAt: string;
+    /**
+     *
+     * @type {number}
+     * @memberof ForumMessageDTO
+     */
+    index: number;
+    /**
+     *
+     * @type {boolean}
+     * @memberof ForumMessageDTO
+     */
+    deleted: boolean;
 }
 
 export function ForumMessageDTOFromJSON(json: any): ForumMessageDTO {
-  return ForumMessageDTOFromJSONTyped(json, false);
+    return ForumMessageDTOFromJSONTyped(json, false);
 }
 
-export function ForumMessageDTOFromJSONTyped(
-  json: any,
-  ignoreDiscriminator: boolean,
-): ForumMessageDTO {
-  if (json === undefined || json === null) {
-    return json;
-  }
-  return {
-    threadId: json["threadId"],
-    id: json["id"],
-    content: json["content"],
-    author: json["author"],
-    createdAt: json["createdAt"],
-    index: json["index"],
-    deleted: json["deleted"],
-  };
+export function ForumMessageDTOFromJSONTyped(json: any, ignoreDiscriminator: boolean): ForumMessageDTO {
+    if ((json === undefined) || (json === null)) {
+        return json;
+    }
+    return {
+
+        'threadId': json['threadId'],
+        'id': json['id'],
+        'content': json['content'],
+        'author': json['author'],
+        'createdAt': json['createdAt'],
+        'index': json['index'],
+        'deleted': json['deleted'],
+    };
 }
 
 export function ForumMessageDTOToJSON(value?: ForumMessageDTO | null): any {
-  if (value === undefined) {
-    return undefined;
-  }
-  if (value === null) {
-    return null;
-  }
-  return {
-    threadId: value.threadId,
-    id: value.id,
-    content: value.content,
-    author: value.author,
-    createdAt: value.createdAt,
-    index: value.index,
-    deleted: value.deleted,
-  };
+    if (value === undefined) {
+        return undefined;
+    }
+    if (value === null) {
+        return null;
+    }
+    return {
+
+        'threadId': value.threadId,
+        'id': value.id,
+        'content': value.content,
+        'author': value.author,
+        'createdAt': value.createdAt,
+        'index': value.index,
+        'deleted': value.deleted,
+    };
 }
+
+

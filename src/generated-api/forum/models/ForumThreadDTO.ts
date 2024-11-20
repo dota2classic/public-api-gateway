@@ -28,120 +28,119 @@ import {
  * @interface ForumThreadDTO
  */
 export class ForumThreadDTO {
-  /**
-   *
-   * @type {ForumThreadType}
-   * @memberof ForumThreadDTO
-   */
-  threadType: ForumThreadType;
-  /**
-   *
-   * @type {string}
-   * @memberof ForumThreadDTO
-   */
-  id: string;
-  /**
-   *
-   * @type {string}
-   * @memberof ForumThreadDTO
-   */
-  externalId: string;
-  /**
-   *
-   * @type {string}
-   * @memberof ForumThreadDTO
-   */
-  title: string;
-  /**
-   *
-   * @type {number}
-   * @memberof ForumThreadDTO
-   */
-  views: number;
-  /**
-   *
-   * @type {boolean}
-   * @memberof ForumThreadDTO
-   */
-  pinned: boolean;
-  /**
-   *
-   * @type {boolean}
-   * @memberof ForumThreadDTO
-   */
-  adminOnly: boolean;
-  /**
-   *
-   * @type {number}
-   * @memberof ForumThreadDTO
-   */
-  messageCount: number;
-  /**
-   *
-   * @type {number}
-   * @memberof ForumThreadDTO
-   */
-  newMessageCount: number;
-  /**
-   *
-   * @type {string}
-   * @memberof ForumThreadDTO
-   */
-  originalPoster: string;
-  /**
-   *
-   * @type {ForumMessageDTO}
-   * @memberof ForumThreadDTO
-   */
-  lastMessage?: ForumMessageDTO;
+    /**
+     *
+     * @type {ForumThreadType}
+     * @memberof ForumThreadDTO
+     */
+    threadType: ForumThreadType;
+    /**
+     *
+     * @type {string}
+     * @memberof ForumThreadDTO
+     */
+    id: string;
+    /**
+     *
+     * @type {string}
+     * @memberof ForumThreadDTO
+     */
+    externalId: string;
+    /**
+     *
+     * @type {string}
+     * @memberof ForumThreadDTO
+     */
+    title: string;
+    /**
+     *
+     * @type {number}
+     * @memberof ForumThreadDTO
+     */
+    views: number;
+    /**
+     *
+     * @type {boolean}
+     * @memberof ForumThreadDTO
+     */
+    pinned: boolean;
+    /**
+     *
+     * @type {boolean}
+     * @memberof ForumThreadDTO
+     */
+    adminOnly: boolean;
+    /**
+     *
+     * @type {number}
+     * @memberof ForumThreadDTO
+     */
+    messageCount: number;
+    /**
+     *
+     * @type {number}
+     * @memberof ForumThreadDTO
+     */
+    newMessageCount: number;
+    /**
+     *
+     * @type {string}
+     * @memberof ForumThreadDTO
+     */
+    originalPoster: string;
+    /**
+     *
+     * @type {ForumMessageDTO}
+     * @memberof ForumThreadDTO
+     */
+    lastMessage?: ForumMessageDTO;
 }
 
 export function ForumThreadDTOFromJSON(json: any): ForumThreadDTO {
-  return ForumThreadDTOFromJSONTyped(json, false);
+    return ForumThreadDTOFromJSONTyped(json, false);
 }
 
-export function ForumThreadDTOFromJSONTyped(
-  json: any,
-  ignoreDiscriminator: boolean,
-): ForumThreadDTO {
-  if (json === undefined || json === null) {
-    return json;
-  }
-  return {
-    threadType: ForumThreadTypeFromJSON(json["threadType"]),
-    id: json["id"],
-    externalId: json["externalId"],
-    title: json["title"],
-    views: json["views"],
-    pinned: json["pinned"],
-    adminOnly: json["adminOnly"],
-    messageCount: json["messageCount"],
-    newMessageCount: json["newMessageCount"],
-    originalPoster: json["originalPoster"],
-    lastMessage: !exists(json, "lastMessage")
-      ? undefined
-      : ForumMessageDTOFromJSON(json["lastMessage"]),
-  };
+export function ForumThreadDTOFromJSONTyped(json: any, ignoreDiscriminator: boolean): ForumThreadDTO {
+    if ((json === undefined) || (json === null)) {
+        return json;
+    }
+    return {
+
+        'threadType': ForumThreadTypeFromJSON(json['threadType']),
+        'id': json['id'],
+        'externalId': json['externalId'],
+        'title': json['title'],
+        'views': json['views'],
+        'pinned': json['pinned'],
+        'adminOnly': json['adminOnly'],
+        'messageCount': json['messageCount'],
+        'newMessageCount': json['newMessageCount'],
+        'originalPoster': json['originalPoster'],
+        'lastMessage': !exists(json, 'lastMessage') ? undefined : ForumMessageDTOFromJSON(json['lastMessage']),
+    };
 }
 
 export function ForumThreadDTOToJSON(value?: ForumThreadDTO | null): any {
-  if (value === undefined) {
-    return undefined;
-  }
-  if (value === null) {
-    return null;
-  }
-  return {
-    threadType: ForumThreadTypeToJSON(value.threadType),
-    id: value.id,
-    externalId: value.externalId,
-    title: value.title,
-    views: value.views,
-    pinned: value.pinned,
-    adminOnly: value.adminOnly,
-    messageCount: value.messageCount,
-    newMessageCount: value.newMessageCount,
-    originalPoster: value.originalPoster,
-    lastMessage: ForumMessageDTOToJSON(value.lastMessage),
-  };
+    if (value === undefined) {
+        return undefined;
+    }
+    if (value === null) {
+        return null;
+    }
+    return {
+
+        'threadType': ForumThreadTypeToJSON(value.threadType),
+        'id': value.id,
+        'externalId': value.externalId,
+        'title': value.title,
+        'views': value.views,
+        'pinned': value.pinned,
+        'adminOnly': value.adminOnly,
+        'messageCount': value.messageCount,
+        'newMessageCount': value.newMessageCount,
+        'originalPoster': value.originalPoster,
+        'lastMessage': ForumMessageDTOToJSON(value.lastMessage),
+    };
 }
+
+

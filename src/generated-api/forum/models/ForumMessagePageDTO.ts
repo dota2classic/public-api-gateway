@@ -20,64 +20,63 @@ import { ForumMessageDTO, ForumMessageDTOFromJSON, ForumMessageDTOToJSON } from 
  * @interface ForumMessagePageDTO
  */
 export class ForumMessagePageDTO {
-  /**
-   *
-   * @type {Array<ForumMessageDTO>}
-   * @memberof ForumMessagePageDTO
-   */
-  data: Array<ForumMessageDTO>;
-  /**
-   *
-   * @type {number}
-   * @memberof ForumMessagePageDTO
-   */
-  perPage: number;
-  /**
-   *
-   * @type {number}
-   * @memberof ForumMessagePageDTO
-   */
-  page: number;
-  /**
-   *
-   * @type {number}
-   * @memberof ForumMessagePageDTO
-   */
-  pages: number;
+    /**
+     *
+     * @type {Array<ForumMessageDTO>}
+     * @memberof ForumMessagePageDTO
+     */
+    data: Array<ForumMessageDTO>;
+    /**
+     *
+     * @type {number}
+     * @memberof ForumMessagePageDTO
+     */
+    perPage: number;
+    /**
+     *
+     * @type {number}
+     * @memberof ForumMessagePageDTO
+     */
+    page: number;
+    /**
+     *
+     * @type {number}
+     * @memberof ForumMessagePageDTO
+     */
+    pages: number;
 }
 
 export function ForumMessagePageDTOFromJSON(json: any): ForumMessagePageDTO {
-  return ForumMessagePageDTOFromJSONTyped(json, false);
+    return ForumMessagePageDTOFromJSONTyped(json, false);
 }
 
-export function ForumMessagePageDTOFromJSONTyped(
-  json: any,
-  ignoreDiscriminator: boolean,
-): ForumMessagePageDTO {
-  if (json === undefined || json === null) {
-    return json;
-  }
-  return {
-    data: (json["data"] as Array<any>).map(ForumMessageDTOFromJSON),
-    perPage: json["perPage"],
-    page: json["page"],
-    pages: json["pages"],
-  };
+export function ForumMessagePageDTOFromJSONTyped(json: any, ignoreDiscriminator: boolean): ForumMessagePageDTO {
+    if ((json === undefined) || (json === null)) {
+        return json;
+    }
+    return {
+
+        'data': ((json['data'] as Array<any>).map(ForumMessageDTOFromJSON)),
+        'perPage': json['perPage'],
+        'page': json['page'],
+        'pages': json['pages'],
+    };
 }
 
-export function ForumMessagePageDTOToJSON(
-  value?: ForumMessagePageDTO | null,
-): any {
-  if (value === undefined) {
-    return undefined;
-  }
-  if (value === null) {
-    return null;
-  }
-  return {
-    data: (value.data as Array<any>).map(ForumMessageDTOToJSON),
-    perPage: value.perPage,
-    page: value.page,
-    pages: value.pages,
-  };
+export function ForumMessagePageDTOToJSON(value?: ForumMessagePageDTO | null): any {
+    if (value === undefined) {
+        return undefined;
+    }
+    if (value === null) {
+        return null;
+    }
+    return {
+
+        'data': ((value.data as Array<any>).map(ForumMessageDTOToJSON)),
+        'perPage': value.perPage,
+        'page': value.page,
+        'pages': value.pages,
+    };
 }
+
+

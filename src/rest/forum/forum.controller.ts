@@ -319,17 +319,17 @@ export class ForumController {
     @Param("id") steamId: string,
     @Body() dto: UpdateUserDTO,
   ): Promise<number> {
-    // try {
-    //   const response = await this.api
-    //     .forumControllerUpdateUser(steamId, dto)
-    //     .catch(e => {
-    //       console.error('HEy', e);
-    //     });
-    //
-    //   console.log('eee', response);
-    // } catch (g) {
-    //   console.error('GGG', g);
-    // }
+    try {
+      const response = await this.api
+        .forumControllerUpdateUser(steamId, dto)
+        .catch((e) => {
+          console.error("HEy", e);
+        });
+
+      console.log("eee", response);
+    } catch (g) {
+      console.error("GGG", g);
+    }
     return 200;
   }
 }
