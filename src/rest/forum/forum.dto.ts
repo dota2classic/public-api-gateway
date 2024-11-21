@@ -41,7 +41,7 @@ export class ThreadDTO {
   readonly pinned: boolean;
   readonly adminOnly: boolean;
 
-  readonly originalPoster: UserDTO;
+  readonly originalPoster?: UserDTO;
   readonly lastMessage?: ThreadMessageDTO;
 }
 

@@ -14,12 +14,12 @@
 
 import { exists } from '../runtime';
 import {
-  ForumMessageDTO,
-  ForumMessageDTOFromJSON,
-  ForumMessageDTOToJSON,
-  ForumThreadType,
-  ForumThreadTypeFromJSON,
-  ForumThreadTypeToJSON,
+    ForumMessageDTO,
+    ForumMessageDTOFromJSON,
+    ForumMessageDTOToJSON,
+    ForumThreadType,
+    ForumThreadTypeFromJSON,
+    ForumThreadTypeToJSON,
 } from './';
 
 /**
@@ -87,7 +87,7 @@ export class ForumThreadDTO {
      * @type {string}
      * @memberof ForumThreadDTO
      */
-    originalPoster: string;
+    originalPoster?: string;
     /**
      *
      * @type {ForumMessageDTO}
@@ -115,7 +115,7 @@ export function ForumThreadDTOFromJSONTyped(json: any, ignoreDiscriminator: bool
         'adminOnly': json['adminOnly'],
         'messageCount': json['messageCount'],
         'newMessageCount': json['newMessageCount'],
-        'originalPoster': json['originalPoster'],
+        'originalPoster': !exists(json, 'originalPoster') ? undefined : json['originalPoster'],
         'lastMessage': !exists(json, 'lastMessage') ? undefined : ForumMessageDTOFromJSON(json['lastMessage']),
     };
 }

@@ -34,7 +34,9 @@ export class ForumMapper {
     messageCount: thread.messageCount,
     newMessageCount: thread.newMessageCount,
 
-    originalPoster: await this.urepo.userDto(thread.originalPoster),
+    originalPoster:
+      thread.originalPoster &&
+      (await this.urepo.userDto(thread.originalPoster)),
     lastMessage:
       thread.lastMessage && (await this.mapApiMessage(thread.lastMessage)),
   });

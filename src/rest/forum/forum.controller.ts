@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   HttpException,
+  NotFoundException,
   Param,
   Patch,
   Post,
@@ -54,6 +55,7 @@ import { randomUUID } from "crypto";
 import { MessageUpdatedEvent } from "../../gateway/events/message-updated.event";
 import { ForumMapper } from "./forum.mapper";
 import { WithPagination } from "../../utils/decorator/pagination";
+import { PlayerId } from "../../gateway/shared-types/player-id";
 
 @Controller("forum")
 @ApiTags("forum")
@@ -195,13 +197,45 @@ export class ForumController {
     enumName: "ThreadType",
   })
   @Get("thread/:id/:threadType")
-  getThread(
+  async getThread(
     @Param("id") id: string,
     @Param("threadType") threadType: ThreadType,
   ) {
-    return this.api
-      .forumControllerGetThread(`${threadType}_${id}`)
-      .then(this.mapper.mapThread);
+    console.log(id, threadType);
+    if (threadType === ThreadType.FORUM) {
+      return this.api
+        .forumControllerGetThread(`${threadType}_${id}`)
+        .then(this.mapper.mapThread);
+    } else if (threadType === ThreadType.PLAYER) {
+      try {
+        // Check if its valid
+        new PlayerId(id);
+        return this.api
+          .forumControllerGetThreadForKey({
+            threadType: ThreadType.PLAYER,
+            externalId: id,
+            title: `Игрок ${id}`,
+            op: undefined, // Make player author of its own thread
+          })
+          .then(this.mapper.mapThread);
+      } catch (e) {
+        throw new NotFoundException("Thread not found");
+      }
+    } else if (threadType === ThreadType.MATCH) {
+      try {
+        const match = await this.matchApi.matchControllerGetMatch(parseInt(id));
+        return this.api
+          .forumControllerGetThreadForKey({
+            threadType: ThreadType.MATCH,
+            externalId: id,
+            title: `Матч ${match.id}`,
+            op: undefined, // A little harder here, who is op? Should there be an op?
+          })
+          .then(this.mapper.mapThread);
+      } catch (e) {
+        throw new NotFoundException("Match not found");
+      }
+    }
   }
 
   @ApiParam({
@@ -256,7 +290,7 @@ export class ForumController {
   ): Promise<ThreadMessageDTO> {
     try {
       return await this.api
-        .forumControllerPostMessage(`forum_${content.threadId}`, {
+        .forumControllerPostMessage(content.threadId, {
           author: user,
           content: content.content,
         })

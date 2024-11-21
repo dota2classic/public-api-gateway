@@ -3,7 +3,6 @@ import { GetAllQuery } from "./gateway/queries/GetAll/get-all.query";
 import { GetAllQueryResult } from "./gateway/queries/GetAll/get-all-query.result";
 import { UserRepository } from "./cache/user/user.repository";
 import { UserModel } from "./cache/user/user.model";
-import { Cron } from "@nestjs/schedule";
 import { QueryBus } from "@nestjs/cqrs";
 import { MatchmakingModeStatusEntity } from "./entity/matchmaking-mode-status.entity";
 import { Repository } from "typeorm";
@@ -41,7 +40,7 @@ export class MainService {
     });
   }
 
-  @Cron("*/30 * * * * *")
+  // @Cron("*/30 * * * * *")
   async actualizeServers() {
     const res = await this.qbus.execute<GetAllQuery, GetAllQueryResult>(
       new GetAllQuery(),
