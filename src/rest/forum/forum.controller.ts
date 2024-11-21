@@ -201,7 +201,6 @@ export class ForumController {
     @Param("id") id: string,
     @Param("threadType") threadType: ThreadType,
   ) {
-    console.log(id, threadType);
     if (threadType === ThreadType.FORUM) {
       return this.api
         .forumControllerGetThread(`${threadType}_${id}`)
