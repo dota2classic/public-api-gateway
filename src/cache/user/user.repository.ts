@@ -11,14 +11,15 @@ import { UserDTO } from "../../rest/shared.dto";
 @Injectable()
 export class UserRepository extends RuntimeRepository<UserModel, "id"> {
   constructor(private readonly qbus: QueryBus) {
-    super();
+    super(86400);
   }
 
   async resolve(id: UserModel["id"]): Promise<UserModel> {
     return this.qbus
-      .execute<GetUserInfoQuery, GetUserInfoQueryResult>(
-        new GetUserInfoQuery(new PlayerId(id)),
-      )
+      .execute<
+        GetUserInfoQuery,
+        GetUserInfoQueryResult
+      >(new GetUserInfoQuery(new PlayerId(id)))
       .then((t) => {
         if (t) {
           const m = new UserModel(t.id.value, t.name, t.avatar, t.roles);

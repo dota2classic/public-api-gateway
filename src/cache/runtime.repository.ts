@@ -19,9 +19,12 @@ export abstract class RuntimeRepository<
 
   abstract resolve(id: Key): Promise<T | undefined>;
 
+  protected constructor(protected readonly ttl: number) {
+  }
+
   get = async (id: Key): Promise<T | null> => {
     const cached = this.cache.get(id);
-    if (cached && secDiff(cached.resolvedAt, new Date()) < CACHE_TIME) {
+    if (cached && secDiff(cached.resolvedAt, new Date()) < this.ttl) {
       return cached;
     }
     const loaded = await this.resolve(id);

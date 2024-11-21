@@ -61,9 +61,8 @@ export class LiveMatchService {
     const liveOne = this.cache.get(id);
 
     if (liveOne && !this.isMatchComplete(id)) {
-      return concat(
-        of(this.entityCache.get(id)),
-        liveOne, //.pipe(delay(LIVE_MATCH_DELAY)),
+      return concat(of(this.entityCache.get(id)), liveOne).pipe(
+        delay(LIVE_MATCH_DELAY),
       );
     }
 
