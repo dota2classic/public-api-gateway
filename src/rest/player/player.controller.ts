@@ -35,7 +35,6 @@ import { D2CUser } from "../strategy/jwt.strategy";
 import { PlayerId } from "../../gateway/shared-types/player-id";
 import { UserRepository } from "../../cache/user/user.repository";
 import { WithUser } from "../../utils/decorator/with-user";
-import { UserConnectionRepository } from "../../cache/user-connection/user-connection.repository";
 import { UserMightExistEvent } from "../../gateway/events/user/user-might-exist.event";
 import { ClientProxy } from "@nestjs/microservices";
 import { HeroStatsDto } from "./dto/hero.dto";
@@ -61,7 +60,6 @@ export class PlayerController {
     private readonly mapper: PlayerMapper,
     private readonly qbus: QueryBus,
     private readonly userRepository: UserRepository,
-    private readonly userConnectionRep: UserConnectionRepository,
     @Inject("QueryCore") private readonly redisEventQueue: ClientProxy,
 
     private readonly ebus: EventBus,

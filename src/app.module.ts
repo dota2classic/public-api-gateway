@@ -23,7 +23,6 @@ import { UserUpdatedHandler } from "./cache/event-handler/user-updated.handler";
 import { AdminUserController } from "./rest/admin/admin-user.controller";
 import { DiscordController } from "./rest/discord.controller";
 import { DiscordStrategy } from "./rest/strategy/discord.strategy";
-import { UserConnectionRepository } from "./cache/user-connection/user-connection.repository";
 import { GetAllConnectionsQuery } from "./gateway/queries/GetAllConnections/get-all-connections.query";
 import { GetConnectionsQuery } from "./gateway/queries/GetConnections/get-connections.query";
 import { join } from "path";
@@ -167,7 +166,6 @@ export function qCache<T, B>() {
     ForumMapper,
 
     UserRepository,
-    UserConnectionRepository,
     UserCreatedHandler,
     UserUpdatedHandler,
     LiveMatchUpdateHandler,
