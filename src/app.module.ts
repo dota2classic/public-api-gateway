@@ -64,6 +64,16 @@ import { NotificationController } from "./rest/notification/notification.control
 import { ReadyCheckStartedHandler } from "./cache/event-handler/ready-check-started.handler";
 import { NotificationService } from "./rest/notification/notification.service";
 import { GetSessionByUserQuery } from "./gateway/queries/GetSessionByUser/get-session-by-user.query";
+import { SocketGateway } from "./socket/socket.gateway";
+import { PlayerAPIProvider } from "./generated-api/api-providers";
+import { PartyService } from "./rest/party.service";
+import { ReadyStateUpdatedHandler } from "./socket/event-handler/ready-state-updated.handler";
+import { QueueUpdatedHandler } from "./socket/event-handler/queue-updated.handler";
+import { PartyUpdatedHandler } from "./socket/event-handler/party-updated.handler";
+import { PartyInviteExpiredHandler } from "./socket/event-handler/party-invite-expired.handler";
+import { PartyInviteCreatedHandler } from "./socket/event-handler/party-invite-created.handler";
+import { MatchStartedHandler } from "./socket/event-handler/match-started.handler";
+import { MatchCancelledHandler } from "./socket/event-handler/match-cancelled.handler";
 
 export function qCache<T, B>() {
   return new QueryCache<T, B>({
@@ -137,6 +147,9 @@ export function qCache<T, B>() {
     PrometheusGuardedController,
     AuthController,
     NotificationController,
+
+    // Socket
+    SocketGateway,
   ],
   providers: [
     HttpCacheInterceptor,
@@ -175,6 +188,22 @@ export function qCache<T, B>() {
 
     GameResultsHandler,
     MatchFinishedHandler,
+
+    // API
+    PartyService,
+    PlayerAPIProvider,
+
+    // Socket
+    ReadyStateUpdatedHandler,
+    ReadyCheckStartedHandler,
+    QueueUpdatedHandler,
+    PartyUpdatedHandler,
+    PartyInviteExpiredHandler,
+    PartyInviteCreatedHandler,
+    MatchStartedHandler,
+    MatchFinishedHandler,
+    MatchCancelledHandler,
+    GameResultsHandler,
 
     // grafana
     makeCounterProvider({
