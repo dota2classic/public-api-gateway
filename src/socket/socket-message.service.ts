@@ -8,7 +8,10 @@ import { WebSocketServer } from "@nestjs/websockets";
 import { Server as WSServer } from "socket.io";
 import { GetUserRoomQuery } from "../gateway/queries/GetUserRoom/get-user-room.query";
 import { GetUserRoomQueryResult } from "../gateway/queries/GetUserRoom/get-user-room-query.result";
-import { PlayerRoomStateMessageS2C } from "./messages/s2c/player-room-state-message.s2c";
+import {
+  PlayerRoomEntry,
+  PlayerRoomStateMessageS2C,
+} from "./messages/s2c/player-room-state-message.s2c";
 import { GetPartyInvitationsQuery } from "../gateway/queries/GetPartyInvitations/get-party-invitations.query";
 import { GetPartyInvitationsQueryResult } from "../gateway/queries/GetPartyInvitations/get-party-invitations-query.result";
 import {
@@ -49,11 +52,12 @@ export class SocketMessageService {
     >(new GetUserRoomQuery(new PlayerId(steamId)));
     if (!roomState.info) return undefined;
 
-    // Fixme: fill from game-coordinator
     return new PlayerRoomStateMessageS2C(
       roomState.info.roomId,
       roomState.info.mode,
-      [],
+      roomState.info.entries.map(
+        (it) => new PlayerRoomEntry(it.playerId.value, it.readyState),
+      ),
     );
   }
 

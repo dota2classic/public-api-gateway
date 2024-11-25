@@ -74,6 +74,8 @@ import { PartyInviteExpiredHandler } from "./socket/event-handler/party-invite-e
 import { PartyInviteCreatedHandler } from "./socket/event-handler/party-invite-created.handler";
 import { MatchStartedHandler } from "./socket/event-handler/match-started.handler";
 import { MatchCancelledHandler } from "./socket/event-handler/match-cancelled.handler";
+import { SocketDelivery } from "./socket/socket-delivery";
+import { SocketMessageService } from "./socket/socket-message.service";
 
 export function qCache<T, B>() {
   return new QueryCache<T, B>({
@@ -204,6 +206,8 @@ export function qCache<T, B>() {
     MatchFinishedHandler,
     MatchCancelledHandler,
     GameResultsHandler,
+    SocketDelivery,
+    SocketMessageService,
 
     // grafana
     makeCounterProvider({
