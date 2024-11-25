@@ -5,6 +5,7 @@ import { PlayerSummaryDto } from "./player.dto";
 export class PartyMemberDTO {
   banStatus: BanStatusDto;
   summary: PlayerSummaryDto;
+  session?: string;
 }
 export class PartyDto {
   id: string;

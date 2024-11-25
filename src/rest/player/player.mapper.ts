@@ -22,6 +22,7 @@ import { TournamentTeamDto } from "../../generated-api/tournament/models";
 import { UserDTO } from "../shared.dto";
 import { AchievementDto } from "./dto/achievement.dto";
 import { MatchMapper } from "../match/match.mapper";
+import { GetSessionByUserQueryResult } from "../../gateway/queries/GetSessionByUser/get-session-by-user-query.result";
 
 @Injectable()
 export class PlayerMapper {
@@ -101,6 +102,7 @@ export class PlayerMapper {
     party: GetPartyQueryResult,
     banStatuses: GameserverBanStatusDto[],
     summaries: GameserverPlayerSummaryDto[],
+    sessions: { result: GetSessionByUserQueryResult; pid: PlayerId }[],
   ): Promise<PartyDto> => {
     return {
       id: party.id,
@@ -109,6 +111,7 @@ export class PlayerMapper {
         party.players.map(async (plr) => {
           const status = banStatuses.find((t) => t.steam_id === plr.value);
           const summary = summaries.find((t) => t.steam_id === plr.value);
+          const session = sessions.find((t) => t.pid.value === plr.value);
 
           return {
             banStatus: {
@@ -116,6 +119,7 @@ export class PlayerMapper {
               bannedUntil: status.bannedUntil,
               status: status.status as any,
             },
+            session: session?.result?.serverUrl,
             summary: await this.mapPlayerSummary(summary),
           } satisfies PartyMemberDTO;
         }),

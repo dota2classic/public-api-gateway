@@ -63,6 +63,7 @@ import { MatchFinishedHandler } from "./cache/event-handler/match-finished.handl
 import { NotificationController } from "./rest/notification/notification.controller";
 import { ReadyCheckStartedHandler } from "./cache/event-handler/ready-check-started.handler";
 import { NotificationService } from "./rest/notification/notification.service";
+import { GetSessionByUserQuery } from "./gateway/queries/GetSessionByUser/get-session-by-user.query";
 
 export function qCache<T, B>() {
   return new QueryCache<T, B>({
@@ -149,6 +150,7 @@ export function qCache<T, B>() {
     outerQuery(GetReportsAvailableQuery, "QueryCore", qCache()),
     outerQuery(GetRoleSubscriptionsQuery, "QueryCore", qCache()),
     outerQuery(GetPlayerInfoQuery, "QueryCore", qCache()),
+    outerQuery(GetSessionByUserQuery, "QueryCore", qCache()),
 
     SteamStrategy,
     JwtStrategy,

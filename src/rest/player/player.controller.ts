@@ -49,6 +49,8 @@ import { UserDTO } from "../shared.dto";
 import { AchievementDto } from "./dto/achievement.dto";
 import { WithPagination } from "../../utils/decorator/pagination";
 import { NullableIntPipe } from "../../utils/pipes";
+import { GetSessionByUserQuery } from "../../gateway/queries/GetSessionByUser/get-session-by-user.query";
+import { GetSessionByUserQueryResult } from "../../gateway/queries/GetSessionByUser/get-session-by-user-query.result";
 
 @Controller("player")
 @ApiTags("player")
@@ -197,12 +199,23 @@ export class PlayerController {
       party.players.map(({ value }) => this.ms.playerControllerBanInfo(value)),
     );
 
+    const sessions = await Promise.all(
+      party.players.map((pid) =>
+        this.qbus
+          .execute<
+            GetSessionByUserQuery,
+            GetSessionByUserQueryResult
+          >(new GetSessionByUserQuery(pid))
+          .then((result) => ({ pid, result })),
+      ),
+    );
+
     const summaries = await Promise.all(
       party.players.map(({ value }) =>
         this.ms.playerControllerPlayerSummary(Dota2Version.Dota_684, value),
       ),
     );
-    return this.mapper.mapParty(party, banStatuses, summaries);
+    return this.mapper.mapParty(party, banStatuses, summaries, sessions);
   }
 
   @UseInterceptors(HttpCacheInterceptor)
