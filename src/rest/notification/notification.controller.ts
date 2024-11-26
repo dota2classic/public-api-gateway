@@ -37,6 +37,16 @@ export class NotificationController {
     const [payload, subs] = await this.notificationService.createHerePayload(
       dto.mode,
     );
-    return this.notificationService.notify(payload, subs);
+    const { send, successful } = await this.notificationService.notify(
+      payload,
+      subs,
+    );
+    const viaSocket = await this.notificationService.notifyOnliners(dto.mode);
+
+    return {
+      send,
+      successful,
+      viaSocket,
+    };
   }
 }

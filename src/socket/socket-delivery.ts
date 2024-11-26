@@ -36,4 +36,16 @@ export class SocketDelivery {
       (it: PlayerSocket) => it.steamId === steamId,
     ) as PlayerSocket[];
   }
+
+  public async broadcastPredicate<T>(
+    param: (steamId: string | undefined) => boolean,
+    key: MessageTypeS2C,
+    payload: T,
+  ) {
+    const targets = Array.from(this.server.sockets.sockets.values()).filter(
+      (socket: PlayerSocket) => param(socket.steamId),
+    );
+    targets.forEach((socket) => socket.emit(key, payload));
+    return targets.length;
+  }
 }
