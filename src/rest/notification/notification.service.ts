@@ -11,6 +11,9 @@ import { GetQueueStateQueryResult } from "../../gateway/queries/QueueState/get-q
 import { GetQueueStateQuery } from "../../gateway/queries/QueueState/get-queue-state.query";
 import { Dota2Version } from "../../gateway/shared-types/dota2version";
 import { ReadyCheckStartedEvent } from "../../gateway/events/ready-check-started.event";
+import { SocketDelivery } from "../../socket/socket-delivery";
+import { MessageTypeS2C } from "../../socket/messages/s2c/message-type.s2c";
+import { PleaseEnterQueueMessageS2C } from "../../socket/messages/s2c/please-enter-queue-message.s2c";
 
 @Injectable()
 export class NotificationService {
@@ -19,6 +22,7 @@ export class NotificationService {
     @InjectRepository(WebpushSubscriptionEntity)
     private readonly webpushSubscriptionEntityRepository: Repository<WebpushSubscriptionEntity>,
     private qbus: QueryBus,
+    private readonly delivery: SocketDelivery,
   ) {
     webpush.setVapidDetails(
       "mailto:enchantinggg4@gmail.com",
@@ -110,5 +114,24 @@ export class NotificationService {
     });
 
     return [body, eligible];
+  }
+
+  public async notifyOnliners(mode: MatchmakingMode) {
+    const qs: GetQueueStateQueryResult = await this.qbus.execute(
+      new GetQueueStateQuery(mode, Dota2Version.Dota_684),
+    );
+    const inQueue = qs.entries
+      .flatMap((t) => t.players.length)
+      .reduce((a, b) => a + b, 0);
+
+    const alreadyInQueue = qs.entries
+      .flatMap((t) => t.players)
+      .map((it) => it.value);
+
+    return await this.delivery.broadcastPredicate(
+      (steamId) => !alreadyInQueue.includes(steamId),
+      MessageTypeS2C.GO_QUEUE,
+      new PleaseEnterQueueMessageS2C(mode, Dota2Version.Dota_684, inQueue),
+    );
   }
 }
