@@ -6,7 +6,6 @@ import {
   Param,
   Post,
   Query,
-  UploadedFile,
   UseGuards,
   UseInterceptors,
 } from "@nestjs/common";
@@ -29,8 +28,6 @@ import {
 } from "../../utils/decorator/current-user";
 import { AuthGuard } from "@nestjs/passport";
 import { EventBus, QueryBus } from "@nestjs/cqrs";
-import { GetPartyQuery } from "../../gateway/queries/GetParty/get-party.query";
-import { GetPartyQueryResult } from "../../gateway/queries/GetParty/get-party-query.result";
 import { D2CUser } from "../strategy/jwt.strategy";
 import { PlayerId } from "../../gateway/shared-types/player-id";
 import { UserRepository } from "../../cache/user/user.repository";
@@ -42,15 +39,11 @@ import { HttpCacheInterceptor } from "../../utils/cache-key-track";
 import { ReportDto } from "./dto/report.dto";
 import { GetReportsAvailableQuery } from "../../gateway/queries/GetReportsAvailable/get-reports-available.query";
 import { GetReportsAvailableQueryResult } from "../../gateway/queries/GetReportsAvailable/get-reports-available-query.result";
-import { extname } from "path";
-import { FileInterceptor } from "@nestjs/platform-express";
-import { diskStorage } from "multer";
 import { UserDTO } from "../shared.dto";
 import { AchievementDto } from "./dto/achievement.dto";
 import { WithPagination } from "../../utils/decorator/pagination";
 import { NullableIntPipe } from "../../utils/pipes";
-import { GetSessionByUserQuery } from "../../gateway/queries/GetSessionByUser/get-session-by-user.query";
-import { GetSessionByUserQueryResult } from "../../gateway/queries/GetSessionByUser/get-session-by-user-query.result";
+import { PartyService } from "../party.service";
 
 @Controller("player")
 @ApiTags("player")
@@ -63,6 +56,7 @@ export class PlayerController {
     private readonly qbus: QueryBus,
     private readonly userRepository: UserRepository,
     @Inject("QueryCore") private readonly redisEventQueue: ClientProxy,
+    private readonly partyService: PartyService,
 
     private readonly ebus: EventBus,
   ) {
@@ -71,31 +65,31 @@ export class PlayerController {
     );
   }
 
-  @Post("upload")
-  @WithUser()
-  @UseInterceptors(
-    FileInterceptor("image", {
-      storage: diskStorage({
-        destination: "./dist/upload",
-        filename: (req, file, cb) => {
-          // Generating a 32 random chars long string
-          const randomName = Array(32)
-            .fill(null)
-            .map(() => Math.round(Math.random() * 16).toString(16))
-            .join("");
-          //Calling the callback passing the random name generated with the original extension name
-          cb(null, `${randomName}${extname(file.originalname)}`);
-        },
-      }),
-    }),
-  )
-  public async uploadImage(@UploadedFile() file) {
-    // console.log(`upload hehe`, file)
-    //.split('.').slice(0, -1).join('.');
-    // img.path = file.filename;
-    // await rep.save(img);
-    return file.filename;
-  }
+  // @Post("upload")
+  // @WithUser()
+  // @UseInterceptors(
+  //   FileInterceptor("image", {
+  //     storage: diskStorage({
+  //       destination: "./dist/upload",
+  //       filename: (req, file, cb) => {
+  //         // Generating a 32 random chars long string
+  //         const randomName = Array(32)
+  //           .fill(null)
+  //           .map(() => Math.round(Math.random() * 16).toString(16))
+  //           .join("");
+  //         //Calling the callback passing the random name generated with the original extension name
+  //         cb(null, `${randomName}${extname(file.originalname)}`);
+  //       },
+  //     }),
+  //   }),
+  // )
+  // public async uploadImage(@UploadedFile() file) {
+  //   // console.log(`upload hehe`, file)
+  //   //.split('.').slice(0, -1).join('.');
+  //   // img.path = file.filename;
+  //   // await rep.save(img);
+  //   return file.filename;
+  // }
 
   @Get("/me")
   @WithUser()
@@ -191,31 +185,7 @@ export class PlayerController {
   @ApiBearerAuth()
   @UseGuards(AuthGuard("jwt"))
   async myParty(@CurrentUser() user: D2CUser) {
-    const party = await this.qbus.execute<GetPartyQuery, GetPartyQueryResult>(
-      new GetPartyQuery(new PlayerId(user.steam_id)),
-    );
-
-    const banStatuses = await Promise.all(
-      party.players.map(({ value }) => this.ms.playerControllerBanInfo(value)),
-    );
-
-    const sessions = await Promise.all(
-      party.players.map((pid) =>
-        this.qbus
-          .execute<
-            GetSessionByUserQuery,
-            GetSessionByUserQueryResult
-          >(new GetSessionByUserQuery(pid))
-          .then((result) => ({ pid, result })),
-      ),
-    );
-
-    const summaries = await Promise.all(
-      party.players.map(({ value }) =>
-        this.ms.playerControllerPlayerSummary(Dota2Version.Dota_684, value),
-      ),
-    );
-    return this.mapper.mapParty(party, banStatuses, summaries, sessions);
+    return this.partyService.getParty(user.steam_id);
   }
 
   @UseInterceptors(HttpCacheInterceptor)

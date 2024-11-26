@@ -6,7 +6,6 @@ import * as cookieParser from "cookie-parser";
 import { REDIS_HOST, REDIS_PASSWORD, REDIS_URL } from "./utils/env";
 import { Transport } from "@nestjs/microservices";
 import { INestApplication, Logger, ValidationPipe } from "@nestjs/common";
-import { MainService } from "./main.service";
 import { inspect } from "util";
 import { EventBus, QueryBus } from "@nestjs/cqrs";
 import { LiveMatchUpdateEvent } from "./gateway/events/gs/live-match-update.event";
@@ -66,7 +65,7 @@ async function bootstrap() {
 
   await app.startAllMicroservices();
 
-  await app.get<MainService>(MainService).actualizeServers();
+  // await app.get<MainService>(MainService).actualizeServers();
 
   console.log("Started api gateway");
 
