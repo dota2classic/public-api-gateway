@@ -115,14 +115,18 @@ export class ForumController {
     @Query("limit", NullableIntPipe) limit: number = 10,
     @Query("order") order: SortOrder = SortOrder.ASC,
   ): Promise<ThreadMessageDTO[]> {
-    const id = `${threadType}_${_id}`;
-    const msgs = await this.api.forumControllerMessages(
-      id,
-      after,
-      limit,
-      order as unknown as ForumSortOrder,
-    );
-    return Promise.all(msgs.map(this.mapper.mapApiMessage));
+    try {
+      const id = `${threadType}_${_id}`;
+      const msgs = await this.api.forumControllerMessages(
+        id,
+        after,
+        limit,
+        order as unknown as ForumSortOrder,
+      );
+      return Promise.all(msgs.map(this.mapper.mapApiMessage));
+    } catch (e) {
+      return Promise.resolve([]);
+    }
   }
 
   @ApiParam({

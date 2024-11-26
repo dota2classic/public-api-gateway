@@ -82,6 +82,7 @@ export class SocketGateway implements OnGatewayDisconnect, OnGatewayConnection {
     @MessageBody() data: EnterQueueMessageC2S,
     @ConnectedSocket() client: PlayerSocket,
   ) {
+    console.log(data, client.steamId);
     await this.redis
       .emit(
         PlayerEnterQueueCommand.name,
@@ -199,7 +200,7 @@ export class SocketGateway implements OnGatewayDisconnect, OnGatewayConnection {
       this.disconnectAction(new PlayerId(client.steamId));
     }, 60_000);
     this.stopDisconnectCountdown(client);
-    this.disconnectConsiderLeaver[client.steamId] = timer;
+    this.disconnectConsiderLeaver[client.steamId] = timer as unknown as number;
   }
 
   private async updateOnline() {
@@ -219,7 +220,7 @@ export class SocketGateway implements OnGatewayDisconnect, OnGatewayConnection {
     this.server.emit(
       MessageTypeS2C.ONLINE_UPDATE,
       new OnlineUpdateMessageS2C(
-        Array.from(authorizedClients),
+        Array.from(authorizedClients.values()),
         uniqueUsers.size,
       ) as any,
     );
@@ -242,7 +243,17 @@ export class SocketGateway implements OnGatewayDisconnect, OnGatewayConnection {
     const partyInvState = await this.messageService.playerPartyInvitesState(
       socket.steamId,
     );
-    socket.emit(MessageTypeS2C.PLAYER_PARTY_STATE, partyInvState);
+    socket.emit(MessageTypeS2C.PLAYER_PARTY_INVITES_STATE, partyInvState);
+
+    // GameState
+    const gameState = await this.messageService.playerGameState(socket.steamId);
+    socket.emit(MessageTypeS2C.PLAYER_GAME_STATE, gameState);
+
+    // General queues
+    const queuesStates = await this.messageService.queues();
+    queuesStates.forEach((state) =>
+      socket.emit(MessageTypeS2C.QUEUE_STATE, state),
+    );
   }
 
   private totalConnections(steamId: string) {

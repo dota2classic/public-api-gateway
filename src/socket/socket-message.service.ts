@@ -14,17 +14,27 @@ import {
 } from "./messages/s2c/player-room-state-message.s2c";
 import { GetPartyInvitationsQuery } from "../gateway/queries/GetPartyInvitations/get-party-invitations.query";
 import { GetPartyInvitationsQueryResult } from "../gateway/queries/GetPartyInvitations/get-party-invitations-query.result";
-import {
-  PartyInvitation,
-  PlayerPartyInvitationsMessageS2C,
-} from "./messages/s2c/player-party-invitations-message.s2c";
+import { PlayerPartyInvitationsMessageS2C } from "./messages/s2c/player-party-invitations-message.s2c";
+import { PartyInviteReceivedMessageS2C } from "./messages/s2c/party-invite-received-message.s2c";
+import { UserRepository } from "../cache/user/user.repository";
+import { GetSessionByUserQueryResult } from "../gateway/queries/GetSessionByUser/get-session-by-user-query.result";
+import { GetSessionByUserQuery } from "../gateway/queries/GetSessionByUser/get-session-by-user.query";
+import { PlayerGameStateMessageS2C } from "./messages/s2c/player-game-state-message.s2c";
+import { GetQueueStateQuery } from "../gateway/queries/QueueState/get-queue-state.query";
+import { GetQueueStateQueryResult } from "../gateway/queries/QueueState/get-queue-state-query.result";
+import { Dota2Version } from "../gateway/shared-types/dota2version";
+import { MatchmakingModes } from "../gateway/shared-types/matchmaking-mode";
+import { QueueStateMessageS2C } from "./messages/s2c/queue-state-message.s2c";
 
 @Injectable()
 export class SocketMessageService {
   @WebSocketServer()
   public server: WSServer;
 
-  constructor(private readonly qbus: QueryBus) {}
+  constructor(
+    private readonly qbus: QueryBus,
+    private readonly userRepo: UserRepository,
+  ) {}
 
   public async playerQueueState(
     steamId: string,
@@ -70,8 +80,50 @@ export class SocketMessageService {
     >(new GetPartyInvitationsQuery(new PlayerId(steamId)));
 
     return new PlayerPartyInvitationsMessageS2C(
-      invitations.invitations.map(
-        (it) => new PartyInvitation(it.partyId, it.leaderId.value, it.id),
+      await Promise.all(
+        invitations.invitations.map(
+          async (it) =>
+            new PartyInviteReceivedMessageS2C(
+              it.partyId,
+              it.id,
+              await this.userRepo.userDto(it.leaderId.value),
+            ),
+        ),
+      ),
+    );
+  }
+
+  async playerGameState(
+    steamId: string,
+  ): Promise<PlayerGameStateMessageS2C | undefined> {
+    const res = await this.qbus.execute<
+      GetSessionByUserQuery,
+      GetSessionByUserQueryResult
+    >(new GetSessionByUserQuery(new PlayerId(steamId)));
+
+    return res.serverUrl
+      ? new PlayerGameStateMessageS2C(res.serverUrl)
+      : undefined;
+  }
+
+  async queues(): Promise<QueueStateMessageS2C[]> {
+    return Promise.all(
+      MatchmakingModes.map((mode) =>
+        this.qbus
+          .execute<
+            GetQueueStateQuery,
+            GetQueueStateQueryResult
+          >(new GetQueueStateQuery(mode, Dota2Version.Dota_684))
+          .then(
+            (result) =>
+              new QueueStateMessageS2C(
+                mode,
+                Dota2Version.Dota_684,
+                result.entries
+                  .map((entry) => entry.players.length)
+                  .reduce((a, b) => a + b, 0),
+              ),
+          ),
       ),
     );
   }

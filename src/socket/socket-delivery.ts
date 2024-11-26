@@ -1,10 +1,9 @@
-import { Injectable } from "@nestjs/common";
-import { WebSocketServer } from "@nestjs/websockets";
+import { WebSocketGateway, WebSocketServer } from "@nestjs/websockets";
 import { Server as WSServer } from "socket.io";
 import { PlayerSocket } from "./player.socket";
 import { MessageTypeS2C } from "./messages/s2c/message-type.s2c";
 
-@Injectable()
+@WebSocketGateway()
 export class SocketDelivery {
   @WebSocketServer()
   public server: WSServer;

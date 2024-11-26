@@ -19,7 +19,7 @@ export class QueueUpdatedHandler implements IEventHandler<QueueUpdatedEvent> {
       const qs: GetQueueStateQueryResult = await this.qbus.execute(
         new GetQueueStateQuery(event.mode, event.version),
       );
-      //
+
       const inQueue = qs.entries
         .map((t) => t.players.length)
         .reduce((a, b) => a + b, 0);

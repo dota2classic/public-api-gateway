@@ -24,7 +24,7 @@ export class ReadyCheckStartedHandler
 
     await this.delivery.broadcastAuthorized(
       event.entries.map((it) => it.playerId.value),
-      () => [MessageTypeS2C.PLAYER_ROOM_STATE, state],
+      () => [MessageTypeS2C.PLAYER_ROOM_FOUND, state],
     );
   }
 }

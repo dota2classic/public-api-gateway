@@ -70,12 +70,20 @@ import { PartyService } from "./rest/party.service";
 import { ReadyStateUpdatedHandler } from "./socket/event-handler/ready-state-updated.handler";
 import { QueueUpdatedHandler } from "./socket/event-handler/queue-updated.handler";
 import { PartyUpdatedHandler } from "./socket/event-handler/party-updated.handler";
+import { ReadyCheckStartedHandler as SocketReadyCheckStartedHandler } from "./socket/event-handler/ready-check-started.handler";
 import { PartyInviteExpiredHandler } from "./socket/event-handler/party-invite-expired.handler";
 import { PartyInviteCreatedHandler } from "./socket/event-handler/party-invite-created.handler";
 import { MatchStartedHandler } from "./socket/event-handler/match-started.handler";
 import { MatchCancelledHandler } from "./socket/event-handler/match-cancelled.handler";
 import { SocketDelivery } from "./socket/socket-delivery";
 import { SocketMessageService } from "./socket/socket-message.service";
+import { GetUserRoomQuery } from "./gateway/queries/GetUserRoom/get-user-room.query";
+import { GetPartyInvitationsQuery } from "./gateway/queries/GetPartyInvitations/get-party-invitations.query";
+import { PartyQueueStateUpdatedHandler } from "./socket/event-handler/party-queue-state-updated.handler";
+import { RoomNotReadyHandler } from "./socket/event-handler/room-not-ready.handler";
+import { MatchFinishedHandler as SocketMatchFinishedHandler } from "./socket/event-handler/match-finished.handler";
+import { RoomReadyHandler } from "./socket/event-handler/room-ready.handler";
+import { PartyInvalidatedHandler } from "./socket/event-handler/party-invalidated.handler";
 
 export function qCache<T, B>() {
   return new QueryCache<T, B>({
@@ -149,9 +157,6 @@ export function qCache<T, B>() {
     PrometheusGuardedController,
     AuthController,
     NotificationController,
-
-    // Socket
-    SocketGateway,
   ],
   providers: [
     HttpCacheInterceptor,
@@ -166,6 +171,8 @@ export function qCache<T, B>() {
     outerQuery(GetRoleSubscriptionsQuery, "QueryCore", qCache()),
     outerQuery(GetPlayerInfoQuery, "QueryCore", qCache()),
     outerQuery(GetSessionByUserQuery, "QueryCore", qCache()),
+    outerQuery(GetUserRoomQuery, "QueryCore", qCache()),
+    outerQuery(GetPartyInvitationsQuery, "QueryCore", qCache()),
 
     SteamStrategy,
     JwtStrategy,
@@ -196,16 +203,21 @@ export function qCache<T, B>() {
     PlayerAPIProvider,
 
     // Socket
+    SocketGateway,
     ReadyStateUpdatedHandler,
-    ReadyCheckStartedHandler,
+    SocketReadyCheckStartedHandler,
     QueueUpdatedHandler,
     PartyUpdatedHandler,
     PartyInviteExpiredHandler,
     PartyInviteCreatedHandler,
     MatchStartedHandler,
-    MatchFinishedHandler,
+    SocketMatchFinishedHandler,
     MatchCancelledHandler,
     GameResultsHandler,
+    PartyQueueStateUpdatedHandler,
+    RoomNotReadyHandler,
+    RoomReadyHandler,
+    PartyInvalidatedHandler,
     SocketDelivery,
     SocketMessageService,
 
