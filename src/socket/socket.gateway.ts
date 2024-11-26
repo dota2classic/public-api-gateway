@@ -254,6 +254,8 @@ export class SocketGateway implements OnGatewayDisconnect, OnGatewayConnection {
     queuesStates.forEach((state) =>
       socket.emit(MessageTypeS2C.QUEUE_STATE, state),
     );
+
+    socket.emit(MessageTypeS2C.CONNECTION_COMPLETE);
   }
 
   private totalConnections(steamId: string) {
