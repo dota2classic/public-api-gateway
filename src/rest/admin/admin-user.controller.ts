@@ -9,7 +9,7 @@ import {
 } from "@nestjs/common";
 import { ClientProxy } from "@nestjs/microservices";
 import { EventBus, QueryBus } from "@nestjs/cqrs";
-import { Configuration, CrimeApi } from "../../generated-api/gameserver";
+import { CrimeApi } from "../../generated-api/gameserver";
 import { ApiQuery, ApiTags } from "@nestjs/swagger";
 import {
   BanHammerDto,
@@ -38,14 +38,12 @@ import { MatchmakingModeStatusEntity } from "../../entity/matchmaking-mode-statu
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { NullableIntPipe } from "../../utils/pipes";
-import { GAMESERVER_APIURL } from "../../utils/env";
 import { AdminMapper } from "./admin.mapper";
 import { WithPagination } from "../../utils/decorator/pagination";
 
 @Controller("admin/users")
 @ApiTags("admin")
 export class AdminUserController {
-  private api: CrimeApi;
   constructor(
     @Inject("QueryCore") private readonly rq: ClientProxy,
     private readonly qBus: QueryBus,
@@ -54,11 +52,8 @@ export class AdminUserController {
     private readonly mapper: AdminMapper,
     @InjectRepository(MatchmakingModeStatusEntity)
     private readonly matchmakingModeStatusEntityRepository: Repository<MatchmakingModeStatusEntity>,
-  ) {
-    this.api = new CrimeApi(
-      new Configuration({ basePath: `http://${GAMESERVER_APIURL}` }),
-    );
-  }
+    private readonly api: CrimeApi,
+  ) {}
 
   @ModeratorGuard()
   @WithUser()

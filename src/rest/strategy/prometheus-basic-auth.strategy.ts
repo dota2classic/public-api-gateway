@@ -1,18 +1,21 @@
 import { BasicStrategy as Strategy } from "passport-http";
 import { Injectable, UnauthorizedException } from "@nestjs/common";
 import { PassportStrategy } from "@nestjs/passport";
-import { PROMETHEUS_PASSWORD, PROMETHEUS_USER } from "../../utils/env";
+import { ConfigService } from "@nestjs/config";
 
 @Injectable()
 export class BasicStrategy extends PassportStrategy(Strategy) {
-  constructor() {
+  constructor(private readonly configService: ConfigService) {
     super({
       passReqToCallback: true,
     });
   }
 
   public validate = async (req, username, password): Promise<boolean> => {
-    if (PROMETHEUS_USER() === username && PROMETHEUS_PASSWORD() === password) {
+    if (
+      this.configService.get("telemetry.prometheus.user") === username &&
+      this.configService.get("telemetry.prometheus.password") === password
+    ) {
       return true;
     }
     throw new UnauthorizedException();

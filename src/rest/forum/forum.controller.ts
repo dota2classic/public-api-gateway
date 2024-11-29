@@ -32,12 +32,7 @@ import {
   UpdateThreadDTO,
   UpdateUserDTO,
 } from "./forum.dto";
-import {
-  Configuration,
-  ForumApi,
-  ForumSortOrder,
-} from "../../generated-api/forum";
-import { FORUM_APIURL, GAMESERVER_APIURL } from "../../utils/env";
+import { ForumApi, ForumSortOrder } from "../../generated-api/forum";
 import { NullableIntPipe } from "../../utils/pipes";
 import { AdminGuard, WithUser } from "../../utils/decorator/with-user";
 import {
@@ -45,11 +40,7 @@ import {
   CurrentUserDto,
 } from "../../utils/decorator/current-user";
 import { CustomThrottlerGuard } from "../strategy/custom-throttler.guard";
-import {
-  Configuration as C2,
-  MatchApi,
-  PlayerApi,
-} from "../../generated-api/gameserver";
+import { MatchApi } from "../../generated-api/gameserver";
 import { ThreadType } from "../../gateway/shared-types/thread-type";
 import { randomUUID } from "crypto";
 import { MessageUpdatedEvent } from "../../gateway/events/message-updated.event";
@@ -60,25 +51,13 @@ import { PlayerId } from "../../gateway/shared-types/player-id";
 @Controller("forum")
 @ApiTags("forum")
 export class ForumController {
-  private api: ForumApi;
-  private matchApi: MatchApi;
-  private playerApi: PlayerApi;
-
   constructor(
     private readonly ebus: EventBus,
     private readonly mapper: ForumMapper,
     private readonly urepo: UserRepository,
-  ) {
-    this.api = new ForumApi(
-      new Configuration({ basePath: `http://${FORUM_APIURL}` }),
-    );
-    this.matchApi = new MatchApi(
-      new C2({ basePath: `http://${GAMESERVER_APIURL}` }),
-    );
-    this.playerApi = new PlayerApi(
-      new C2({ basePath: `http://${GAMESERVER_APIURL}` }),
-    );
-  }
+    private readonly api: ForumApi,
+    private readonly matchApi: MatchApi,
+  ) {}
 
   @ApiParam({
     name: "id",

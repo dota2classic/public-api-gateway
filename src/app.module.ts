@@ -3,9 +3,8 @@ import { MatchController } from "./rest/match/match.controller";
 import { SteamController } from "./rest/steam.controller";
 import SteamStrategy from "./rest/strategy/steam.strategy";
 import { JwtModule } from "@nestjs/jwt";
-import { ClientsModule, Transport } from "@nestjs/microservices";
-import { JWT_SECRET, REDIS_HOST, REDIS_PASSWORD, REDIS_URL } from "./utils/env";
-import { outerQuery } from "./gateway/util/outerQuery";
+import { ClientsModule, RedisOptions, Transport } from "@nestjs/microservices";
+import { JWT_SECRET } from "./utils/env";
 import { GetAllQuery } from "./gateway/queries/GetAll/get-all.query";
 import { GetUserInfoQuery } from "./gateway/queries/GetUserInfo/get-user-info.query";
 import { UserRepository } from "./cache/user/user.repository";
@@ -42,7 +41,7 @@ import { ScheduleModule } from "@nestjs/schedule";
 import { MainService } from "./main.service";
 import { Entities, prodDbConfig } from "./db.config";
 import { TypeOrmModule } from "@nestjs/typeorm";
-import { CacheModule } from "@nestjs/cache-manager";
+import { CacheModule, CacheModuleOptions } from "@nestjs/cache-manager";
 import { QueryCache } from "./rcache";
 import { MetaMapper } from "./rest/meta/meta.mapper";
 import { GameResultsHandler } from "./cache/event-handler/game-results.handler";
@@ -65,7 +64,6 @@ import { ReadyCheckStartedHandler } from "./cache/event-handler/ready-check-star
 import { NotificationService } from "./rest/notification/notification.service";
 import { GetSessionByUserQuery } from "./gateway/queries/GetSessionByUser/get-session-by-user.query";
 import { SocketGateway } from "./socket/socket.gateway";
-import { PlayerAPIProvider } from "./generated-api/api-providers";
 import { PartyService } from "./rest/party.service";
 import { ReadyStateUpdatedHandler } from "./socket/event-handler/ready-state-updated.handler";
 import { QueueUpdatedHandler } from "./socket/event-handler/queue-updated.handler";
@@ -85,17 +83,87 @@ import { MatchFinishedHandler as SocketMatchFinishedHandler } from "./socket/eve
 import { RoomReadyHandler } from "./socket/event-handler/room-ready.handler";
 import { PartyInvalidatedHandler } from "./socket/event-handler/party-invalidated.handler";
 import { GetUserQueueQuery } from "./gateway/queries/GetUserQueue/get-user-queue.query";
+import { ConfigModule, ConfigService } from "@nestjs/config";
+import configuration from "./config/configuration";
+import { outerQueryNew } from "./utils/outerQueryNew";
+import {
+  Configuration as GSConfiguration,
+  CrimeApi,
+  InfoApi,
+  MatchApi,
+  MetaApi,
+  PlayerApi,
+} from "./generated-api/gameserver";
+import { Provider } from "@nestjs/common/interfaces/modules/provider.interface";
+import {
+  Configuration as FConfiguratin,
+  ForumApi,
+} from "./generated-api/forum";
 
-export function qCache<T, B>() {
-  return new QueryCache<T, B>({
-    url: REDIS_URL(),
-    password: REDIS_PASSWORD(),
-    ttl: 10,
-  });
-}
+const OPENAPI_GENERATED: Provider[] = [
+  {
+    provide: MatchApi,
+    useFactory: (config: ConfigService) => {
+      return new MatchApi(
+        new GSConfiguration({ basePath: config.get("api.gameserverApiUrl") }),
+      );
+    },
+    inject: [ConfigService],
+  },
+  {
+    provide: MetaApi,
+    useFactory: (config: ConfigService) => {
+      return new MetaApi(
+        new GSConfiguration({ basePath: config.get("api.gameserverApiUrl") }),
+      );
+    },
+    inject: [ConfigService],
+  },
+  {
+    provide: CrimeApi,
+    useFactory: (config: ConfigService) => {
+      return new CrimeApi(
+        new GSConfiguration({ basePath: config.get("api.gameserverApiUrl") }),
+      );
+    },
+    inject: [ConfigService],
+  },
+  {
+    provide: PlayerApi,
+    useFactory: (config: ConfigService) => {
+      return new PlayerApi(
+        new GSConfiguration({ basePath: config.get("api.gameserverApiUrl") }),
+      );
+    },
+    inject: [ConfigService],
+  },
+  {
+    provide: InfoApi,
+    useFactory: (config: ConfigService) => {
+      return new InfoApi(
+        new GSConfiguration({ basePath: config.get("api.gameserverApiUrl") }),
+      );
+    },
+    inject: [ConfigService],
+  },
+
+  {
+    provide: ForumApi,
+    useFactory: (config: ConfigService) => {
+      return new ForumApi(
+        new FConfiguratin({ basePath: config.get("api.forumApiUrl") }),
+      );
+    },
+    inject: [ConfigService],
+  },
+];
 
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      load: [configuration],
+    }),
     PrometheusModule.register({
       path: "/metrics",
       controller: PrometheusGuardedController,
@@ -121,24 +189,34 @@ export function qCache<T, B>() {
       signOptions: { expiresIn: "100 days" },
     }),
     CqrsModule,
-    CacheModule.register({
-      ttl: 60,
-      store: redisStore,
-      port: 6379,
-      url: REDIS_URL(),
-      host: REDIS_HOST(),
-      auth_pass: REDIS_PASSWORD(),
+    CacheModule.registerAsync({
+      useFactory(config: ConfigService): CacheModuleOptions {
+        return {
+          ttl: 60,
+          store: redisStore,
+          port: 6379,
+          url: `redis://${config.get("redis.host")}:6379`,
+          host: config.get("redis.host"),
+          auth_pass: config.get("redis.password"),
+        };
+      },
+      inject: [ConfigService],
+      imports: [],
     }),
-    ClientsModule.register([
+    ClientsModule.registerAsync([
       {
         name: "QueryCore",
-        transport: Transport.REDIS,
-        options: {
-          password: REDIS_PASSWORD(),
-          host: REDIS_HOST(),
-          retryAttempts: Infinity,
-          retryDelay: 5000,
+        useFactory(config: ConfigService): RedisOptions {
+          return {
+            transport: Transport.REDIS,
+            options: {
+              host: config.get("redis.host"),
+              password: config.get("redis.password"),
+            },
+          };
         },
+        inject: [ConfigService],
+        imports: [],
       },
     ]),
   ],
@@ -160,21 +238,34 @@ export function qCache<T, B>() {
     NotificationController,
   ],
   providers: [
+    ...OPENAPI_GENERATED,
     HttpCacheInterceptor,
     MainService,
-    outerQuery(GetQueueStateQuery, "QueryCore", qCache()),
-    outerQuery(GetAllQuery, "QueryCore", qCache()),
-    outerQuery(GetUserInfoQuery, "QueryCore", qCache()),
-    outerQuery(GetPartyQuery, "QueryCore", qCache()),
-    outerQuery(GetAllConnectionsQuery, "QueryCore", qCache()),
-    outerQuery(GetConnectionsQuery, "QueryCore", qCache()),
-    outerQuery(GetReportsAvailableQuery, "QueryCore", qCache()),
-    outerQuery(GetRoleSubscriptionsQuery, "QueryCore", qCache()),
-    outerQuery(GetPlayerInfoQuery, "QueryCore", qCache()),
-    outerQuery(GetSessionByUserQuery, "QueryCore", qCache()),
-    outerQuery(GetUserRoomQuery, "QueryCore", qCache()),
-    outerQuery(GetPartyInvitationsQuery, "QueryCore", qCache()),
-    outerQuery(GetUserQueueQuery, "QueryCore", qCache()),
+
+    {
+      provide: "QueryCache",
+      useFactory(config: ConfigService) {
+        return new QueryCache({
+          url: `redis://${config.get("redis.host")}:6379`,
+          password: config.get("redis.password"),
+          ttl: 1000,
+        });
+      },
+      inject: [ConfigService],
+    },
+    outerQueryNew(GetQueueStateQuery, "QueryCore"),
+    outerQueryNew(GetAllQuery, "QueryCore"),
+    outerQueryNew(GetUserInfoQuery, "QueryCore"),
+    outerQueryNew(GetPartyQuery, "QueryCore"),
+    outerQueryNew(GetAllConnectionsQuery, "QueryCore"),
+    outerQueryNew(GetConnectionsQuery, "QueryCore"),
+    outerQueryNew(GetReportsAvailableQuery, "QueryCore"),
+    outerQueryNew(GetRoleSubscriptionsQuery, "QueryCore"),
+    outerQueryNew(GetPlayerInfoQuery, "QueryCore"),
+    outerQueryNew(GetSessionByUserQuery, "QueryCore"),
+    outerQueryNew(GetUserRoomQuery, "QueryCore"),
+    outerQueryNew(GetPartyInvitationsQuery, "QueryCore"),
+    outerQueryNew(GetUserQueueQuery, "QueryCore"),
 
     SteamStrategy,
     JwtStrategy,
@@ -202,7 +293,6 @@ export function qCache<T, B>() {
 
     // API
     PartyService,
-    PlayerAPIProvider,
 
     // Socket
     SocketGateway,

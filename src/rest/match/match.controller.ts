@@ -9,8 +9,7 @@ import {
 import { CacheTTL } from "@nestjs/cache-manager";
 import { ApiParam, ApiQuery, ApiTags } from "@nestjs/swagger";
 import { MatchmakingMode } from "../../gateway/shared-types/matchmaking-mode";
-import { Configuration, MatchApi } from "../../generated-api/gameserver";
-import { GAMESERVER_APIURL } from "../../utils/env";
+import { MatchApi } from "../../generated-api/gameserver";
 import { MatchDto, MatchPageDto } from "./dto/match.dto";
 import { MatchMapper } from "./match.mapper";
 import { WithOptionalUser } from "../../utils/decorator/with-optional-user";
@@ -28,16 +27,11 @@ import { WithPagination } from "../../utils/decorator/pagination";
 @Controller("match")
 @ApiTags("match")
 export class MatchController {
-  private ms: MatchApi;
-
   constructor(
     private readonly mapper: MatchMapper,
     private readonly qbus: QueryBus,
-  ) {
-    this.ms = new MatchApi(
-      new Configuration({ basePath: `http://${GAMESERVER_APIURL}` }),
-    );
-  }
+    private readonly ms: MatchApi,
+  ) {}
 
   @UseInterceptors(HttpCacheInterceptor)
   @WithPagination()

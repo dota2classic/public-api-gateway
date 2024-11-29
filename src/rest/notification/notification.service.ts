@@ -5,7 +5,6 @@ import { WebpushSubscriptionEntity } from "../../entity/webpush-subscription.ent
 import { In, Not, Repository } from "typeorm";
 import { QueryBus } from "@nestjs/cqrs";
 import * as webpush from "web-push";
-import { VAPID_PRIVATE_KEY, VAPID_PUBLIC_KEY } from "../../utils/env";
 import { MatchmakingMode } from "../../gateway/shared-types/matchmaking-mode";
 import { GetQueueStateQueryResult } from "../../gateway/queries/QueueState/get-queue-state-query.result";
 import { GetQueueStateQuery } from "../../gateway/queries/QueueState/get-queue-state.query";
@@ -14,6 +13,7 @@ import { ReadyCheckStartedEvent } from "../../gateway/events/ready-check-started
 import { SocketDelivery } from "../../socket/socket-delivery";
 import { MessageTypeS2C } from "../../socket/messages/s2c/message-type.s2c";
 import { PleaseEnterQueueMessageS2C } from "../../socket/messages/s2c/please-enter-queue-message.s2c";
+import { ConfigService } from "@nestjs/config";
 
 @Injectable()
 export class NotificationService {
@@ -23,11 +23,12 @@ export class NotificationService {
     private readonly webpushSubscriptionEntityRepository: Repository<WebpushSubscriptionEntity>,
     private qbus: QueryBus,
     private readonly delivery: SocketDelivery,
+    private readonly config: ConfigService,
   ) {
     webpush.setVapidDetails(
       "mailto:enchantinggg4@gmail.com",
-      VAPID_PUBLIC_KEY(),
-      VAPID_PRIVATE_KEY(),
+      config.get("webpush.publicKey"),
+      config.get("webpush.privateKey"),
     );
   }
 

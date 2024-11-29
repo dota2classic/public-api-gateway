@@ -7,12 +7,7 @@ import {
   ItemDto,
   ItemHeroDto,
 } from "./dto/meta.dto";
-import {
-  Configuration,
-  MetaApi,
-  PlayerApi,
-} from "../../generated-api/gameserver";
-import { GAMESERVER_APIURL } from "../../utils/env";
+import { MetaApi, PlayerApi } from "../../generated-api/gameserver";
 import { HttpCacheInterceptor } from "../../utils/cache-key-track";
 import { CacheTTL } from "@nestjs/cache-manager";
 import { MetaMapper } from "./meta.mapper";
@@ -21,17 +16,11 @@ import { MetaMapper } from "./meta.mapper";
 @ApiTags("meta")
 @UseInterceptors(HttpCacheInterceptor)
 export class MetaController {
-  private ms: MetaApi;
-  private ps: PlayerApi;
-
-  constructor(private readonly mapper: MetaMapper) {
-    this.ms = new MetaApi(
-      new Configuration({ basePath: `http://${GAMESERVER_APIURL}` }),
-    );
-    this.ps = new PlayerApi(
-      new Configuration({ basePath: `http://${GAMESERVER_APIURL}` }),
-    );
-  }
+  constructor(
+    private readonly mapper: MetaMapper,
+    private readonly ps: PlayerApi,
+    private readonly ms: MetaApi,
+  ) {}
 
   @CacheTTL(10)
   @Get("heroes")

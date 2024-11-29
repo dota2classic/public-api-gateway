@@ -1,12 +1,10 @@
-import { otelSDK } from "./tracer";
+// import { otelSDK } from "./tracer";
 import { NestFactory } from "@nestjs/core";
 import { AppModule } from "./app.module";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 import * as cookieParser from "cookie-parser";
-import { REDIS_HOST, REDIS_PASSWORD, REDIS_URL } from "./utils/env";
 import { Transport } from "@nestjs/microservices";
 import { INestApplication, Logger, ValidationPipe } from "@nestjs/common";
-import { inspect } from "util";
 import { EventBus, QueryBus } from "@nestjs/cqrs";
 import { LiveMatchUpdateEvent } from "./gateway/events/gs/live-match-update.event";
 import { GetPlayerInfoQueryResult } from "./gateway/queries/GetPlayerInfo/get-player-info-query.result";
@@ -15,12 +13,21 @@ import { PlayerId } from "./gateway/shared-types/player-id";
 import { GetPlayerInfoQuery } from "./gateway/queries/GetPlayerInfo/get-player-info.query";
 import { UserRepository } from "./cache/user/user.repository";
 import * as fs from "fs";
+import { WinstonWrapper } from "./utils/logger";
+import configuration from "./config/configuration";
+import { ConfigService } from "@nestjs/config";
 
 async function bootstrap() {
   // Start SDK before nestjs factory create
-  await otelSDK.start();
+  // await otelSDK.start();
+  const config = new ConfigService(configuration());
 
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, {
+    logger: new WinstonWrapper(
+      config.get("fluentbit.host"),
+      config.get<number>("fluentbit.port"),
+    ),
+  });
   app.setGlobalPrefix("v1");
 
   const options = new DocumentBuilder()
@@ -38,11 +45,11 @@ async function bootstrap() {
   app.connectMicroservice({
     transport: Transport.REDIS,
     options: {
-      url: REDIS_URL(),
-      host: REDIS_HOST(),
+      url: `redis://${config.get("redis.host")}:6379`,
+      host: config.get("redis.host"),
       retryAttempts: Infinity,
       retryDelay: 5000,
-      password: REDIS_PASSWORD(),
+      password: config.get("redis.password"),
     },
   });
 
@@ -50,7 +57,7 @@ async function bootstrap() {
   app.get(EventBus).subscribe((e) => {
     if (e.constructor.name === LiveMatchUpdateEvent.name) return;
 
-    elogger.log(`${inspect(e)}`);
+    elogger.verbose(e.constructor.name, e);
   });
 
   app.useGlobalPipes(new ValidationPipe());

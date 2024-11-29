@@ -12,8 +12,7 @@ import {
 import { CacheTTL } from "@nestjs/cache-manager";
 import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 import { Dota2Version } from "../../gateway/shared-types/dota2version";
-import { Configuration, PlayerApi } from "../../generated-api/gameserver";
-import { GAMESERVER_APIURL } from "../../utils/env";
+import { PlayerApi } from "../../generated-api/gameserver";
 import { PlayerMapper } from "./player.mapper";
 import {
   LeaderboardEntryPageDto,
@@ -27,7 +26,7 @@ import {
   CurrentUserDto,
 } from "../../utils/decorator/current-user";
 import { AuthGuard } from "@nestjs/passport";
-import { EventBus, QueryBus } from "@nestjs/cqrs";
+import { QueryBus } from "@nestjs/cqrs";
 import { D2CUser } from "../strategy/jwt.strategy";
 import { PlayerId } from "../../gateway/shared-types/player-id";
 import { UserRepository } from "../../cache/user/user.repository";
@@ -48,22 +47,14 @@ import { PartyService } from "../party.service";
 @Controller("player")
 @ApiTags("player")
 export class PlayerController {
-  private ms: PlayerApi;
-  // private ts: TeamApi;
-
   constructor(
     private readonly mapper: PlayerMapper,
     private readonly qbus: QueryBus,
     private readonly userRepository: UserRepository,
     @Inject("QueryCore") private readonly redisEventQueue: ClientProxy,
     private readonly partyService: PartyService,
-
-    private readonly ebus: EventBus,
-  ) {
-    this.ms = new PlayerApi(
-      new Configuration({ basePath: `http://${GAMESERVER_APIURL}` }),
-    );
-  }
+    private readonly ms: PlayerApi,
+  ) {}
 
   // @Post("upload")
   // @WithUser()

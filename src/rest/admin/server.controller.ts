@@ -8,12 +8,11 @@ import {
 } from "./dto/admin.dto";
 import { ClientProxy } from "@nestjs/microservices";
 import { EventBus, QueryBus } from "@nestjs/cqrs";
-import { GAMESERVER_APIURL } from "../../utils/env";
 import { AdminMapper } from "./admin.mapper";
 import { ApiTags } from "@nestjs/swagger";
 import { KillServerRequestedEvent } from "../../gateway/events/gs/kill-server-requested.event";
 import { timeout } from "rxjs/operators";
-import { Configuration, InfoApi } from "../../generated-api/gameserver";
+import { InfoApi } from "../../generated-api/gameserver";
 import { GetQueueStateQuery } from "../../gateway/queries/QueueState/get-queue-state.query";
 import {
   MatchmakingMode,
@@ -31,18 +30,14 @@ import {
 @Controller("servers")
 @ApiTags("admin")
 export class ServerController {
-  private readonly ms: InfoApi;
   constructor(
     @Inject("QueryCore") private readonly rq: ClientProxy,
     private readonly qBus: QueryBus,
     private readonly urepo: UserRepository,
     private readonly mapper: AdminMapper,
     private readonly ebus: EventBus,
-  ) {
-    this.ms = new InfoApi(
-      new Configuration({ basePath: `http://${GAMESERVER_APIURL}` }),
-    );
-  }
+    private readonly ms: InfoApi,
+  ) {}
 
   @Get("/queues")
   async queues(): Promise<QueueStateDTO[]> {
