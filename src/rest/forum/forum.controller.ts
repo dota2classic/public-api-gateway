@@ -12,6 +12,7 @@ import {
   Req,
   Sse,
   UseGuards,
+  UseInterceptors,
 } from "@nestjs/common";
 import { ApiParam, ApiQuery, ApiTags } from "@nestjs/swagger";
 import { filter, Observable } from "rxjs";
@@ -47,7 +48,9 @@ import { MessageUpdatedEvent } from "../../gateway/events/message-updated.event"
 import { ForumMapper } from "./forum.mapper";
 import { WithPagination } from "../../utils/decorator/pagination";
 import { PlayerId } from "../../gateway/shared-types/player-id";
+import { ReqLoggingInterceptor } from "../../middleware/req-logging.interceptor";
 
+@UseInterceptors(ReqLoggingInterceptor)
 @Controller("forum")
 @ApiTags("forum")
 export class ForumController {

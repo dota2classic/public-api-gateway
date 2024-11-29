@@ -23,7 +23,9 @@ import { QueryBus } from "@nestjs/cqrs";
 import { GetReportsAvailableQuery } from "../../gateway/queries/GetReportsAvailable/get-reports-available.query";
 import { GetReportsAvailableQueryResult } from "../../gateway/queries/GetReportsAvailable/get-reports-available-query.result";
 import { WithPagination } from "../../utils/decorator/pagination";
+import { ReqLoggingInterceptor } from "../../middleware/req-logging.interceptor";
 
+@UseInterceptors(ReqLoggingInterceptor)
 @Controller("match")
 @ApiTags("match")
 export class MatchController {

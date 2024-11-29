@@ -98,6 +98,7 @@ import {
   Configuration as FConfiguratin,
   ForumApi,
 } from "./generated-api/forum";
+import { ReqLoggingInterceptor } from "./middleware/req-logging.interceptor";
 
 const OPENAPI_GENERATED: Provider[] = [
   {
@@ -261,6 +262,7 @@ const OPENAPI_GENERATED: Provider[] = [
   ],
   providers: [
     ...OPENAPI_GENERATED,
+    ReqLoggingInterceptor,
     HttpCacheInterceptor,
     MainService,
 

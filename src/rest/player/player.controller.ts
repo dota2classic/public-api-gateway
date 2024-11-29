@@ -43,7 +43,9 @@ import { AchievementDto } from "./dto/achievement.dto";
 import { WithPagination } from "../../utils/decorator/pagination";
 import { NullableIntPipe } from "../../utils/pipes";
 import { PartyService } from "../party.service";
+import { ReqLoggingInterceptor } from "../../middleware/req-logging.interceptor";
 
+@UseInterceptors(ReqLoggingInterceptor)
 @Controller("player")
 @ApiTags("player")
 export class PlayerController {

@@ -1,4 +1,4 @@
-import { Controller, Get } from "@nestjs/common";
+import { Controller, Get, UseInterceptors } from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
 import { InfoApi } from "../../generated-api/gameserver";
 import { CurrentOnlineDto, MatchmakingInfo } from "./dto/stats.dto";
@@ -6,7 +6,9 @@ import { MatchmakingModeStatusEntity } from "../../entity/matchmaking-mode-statu
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { CacheTTL } from "@nestjs/cache-manager";
+import { ReqLoggingInterceptor } from "../../middleware/req-logging.interceptor";
 
+@UseInterceptors(ReqLoggingInterceptor)
 @Controller("stats")
 @ApiTags("stats")
 export class StatsController {

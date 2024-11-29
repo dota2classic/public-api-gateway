@@ -11,7 +11,9 @@ import { MetaApi, PlayerApi } from "../../generated-api/gameserver";
 import { HttpCacheInterceptor } from "../../utils/cache-key-track";
 import { CacheTTL } from "@nestjs/cache-manager";
 import { MetaMapper } from "./meta.mapper";
+import { ReqLoggingInterceptor } from "../../middleware/req-logging.interceptor";
 
+@UseInterceptors(ReqLoggingInterceptor)
 @Controller("meta")
 @ApiTags("meta")
 @UseInterceptors(HttpCacheInterceptor)

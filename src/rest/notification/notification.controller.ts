@@ -1,4 +1,10 @@
-import { Body, Controller, Delete, Post } from "@nestjs/common";
+import {
+  Body,
+  Controller,
+  Delete,
+  Post,
+  UseInterceptors,
+} from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
 import { SubscriptionDto, TagPlayerForQueue } from "./notification.dto";
 import { AdminGuard, WithUser } from "../../utils/decorator/with-user";
@@ -7,7 +13,9 @@ import {
   CurrentUserDto,
 } from "../../utils/decorator/current-user";
 import { NotificationService } from "./notification.service";
+import { ReqLoggingInterceptor } from "../../middleware/req-logging.interceptor";
 
+@UseInterceptors(ReqLoggingInterceptor)
 @Controller("notification")
 @ApiTags("notification")
 export class NotificationController {

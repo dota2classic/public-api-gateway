@@ -6,13 +6,13 @@ import { SemanticResourceAttributes } from "@opentelemetry/semantic-conventions"
 
 // @ts-ignore
 import { UndiciInstrumentation } from "@opentelemetry/instrumentation-undici";
-import { JAEGER_EXPORT_URL } from "./utils/env";
 import { NestInstrumentation } from "@opentelemetry/instrumentation-nestjs-core";
 import { ExpressInstrumentation } from "@opentelemetry/instrumentation-express";
+import configuration from "./config/configuration";
 // import { FetchInstrumentation } from "@onreza/opentelemetry-instrumentation-fetch-bun";
-
+const cfg = configuration();
 const exporterOptions = {
-  url: JAEGER_EXPORT_URL, // grcp
+  url: cfg.telemetry.jaeger.url, // grcp
 };
 
 const traceExporter = new OTLPTraceExporter(exporterOptions);

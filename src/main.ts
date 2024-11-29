@@ -1,4 +1,4 @@
-// import { otelSDK } from "./tracer";
+import { otelSDK } from "./tracer";
 import { NestFactory } from "@nestjs/core";
 import { AppModule } from "./app.module";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
@@ -19,7 +19,7 @@ import { ConfigService } from "@nestjs/config";
 
 async function bootstrap() {
   // Start SDK before nestjs factory create
-  // await otelSDK.start();
+  await otelSDK.start();
   const parsedConfig = configuration();
   const config = new ConfigService(parsedConfig);
 

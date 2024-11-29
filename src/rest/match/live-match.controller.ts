@@ -1,4 +1,11 @@
-import { Controller, Get, Param, ParseIntPipe, Sse } from "@nestjs/common";
+import {
+  Controller,
+  Get,
+  Param,
+  ParseIntPipe,
+  Sse,
+  UseInterceptors,
+} from "@nestjs/common";
 import { LiveMatchService } from "../../cache/live-match.service";
 import { ApiParam, ApiTags } from "@nestjs/swagger";
 import {
@@ -8,12 +15,15 @@ import {
 } from "./dto/match.dto";
 import { Observable, scan } from "rxjs";
 import { map } from "rxjs/operators";
+import { ReqLoggingInterceptor } from "../../middleware/req-logging.interceptor";
 
 function wrapSse<A>() {
   return (source: A): MessageObjectDto<A> => ({
     data: source,
   });
 }
+
+@UseInterceptors(ReqLoggingInterceptor)
 @Controller("live")
 @ApiTags("live")
 export class LiveMatchController {
