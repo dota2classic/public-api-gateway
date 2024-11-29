@@ -65,7 +65,8 @@ export class UserRoleSummaryDto {
 
 export class BanStatusDto {
   public readonly isBanned: boolean;
-  public readonly bannedUntil: number;
+  // iso
+  public readonly bannedUntil: string;
   @ApiProperty({ enum: BanReason, enumName: "BanReason" })
   public readonly status: BanReason;
 }

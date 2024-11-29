@@ -18,66 +18,63 @@
  * @interface GameserverHeroItemDto
  */
 export class GameserverHeroItemDto {
-  /**
-   *
-   * @type {number}
-   * @memberof GameserverHeroItemDto
-   */
-  item: number;
-  /**
-   *
-   * @type {number}
-   * @memberof GameserverHeroItemDto
-   */
-  game_count: number;
-  /**
-   *
-   * @type {number}
-   * @memberof GameserverHeroItemDto
-   */
-  wins: number;
-  /**
-   *
-   * @type {number}
-   * @memberof GameserverHeroItemDto
-   */
-  winrate: number;
+    /**
+     *
+     * @type {number}
+     * @memberof GameserverHeroItemDto
+     */
+    item: number;
+    /**
+     *
+     * @type {number}
+     * @memberof GameserverHeroItemDto
+     */
+    game_count: number;
+    /**
+     *
+     * @type {number}
+     * @memberof GameserverHeroItemDto
+     */
+    wins: number;
+    /**
+     *
+     * @type {number}
+     * @memberof GameserverHeroItemDto
+     */
+    winrate: number;
 }
 
-export function GameserverHeroItemDtoFromJSON(
-  json: any,
-): GameserverHeroItemDto {
-  return GameserverHeroItemDtoFromJSONTyped(json, false);
+export function GameserverHeroItemDtoFromJSON(json: any): GameserverHeroItemDto {
+    return GameserverHeroItemDtoFromJSONTyped(json, false);
 }
 
-export function GameserverHeroItemDtoFromJSONTyped(
-  json: any,
-  ignoreDiscriminator: boolean,
-): GameserverHeroItemDto {
-  if (json === undefined || json === null) {
-    return json;
-  }
-  return {
-    item: json["item"],
-    game_count: json["game_count"],
-    wins: json["wins"],
-    winrate: json["winrate"],
-  };
+export function GameserverHeroItemDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): GameserverHeroItemDto {
+    if ((json === undefined) || (json === null)) {
+        return json;
+    }
+    return {
+
+        'item': json['item'],
+        'game_count': json['game_count'],
+        'wins': json['wins'],
+        'winrate': json['winrate'],
+    };
 }
 
-export function GameserverHeroItemDtoToJSON(
-  value?: GameserverHeroItemDto | null,
-): any {
-  if (value === undefined) {
-    return undefined;
-  }
-  if (value === null) {
-    return null;
-  }
-  return {
-    item: value.item,
-    game_count: value.game_count,
-    wins: value.wins,
-    winrate: value.winrate,
-  };
+export function GameserverHeroItemDtoToJSON(value?: GameserverHeroItemDto | null): any {
+    if (value === undefined) {
+        return undefined;
+    }
+    if (value === null) {
+        return null;
+    }
+    return {
+
+        'item': value.item,
+        'game_count': value.game_count,
+        'wins': value.wins,
+        'winrate': value.winrate,
+    };
 }
+
+

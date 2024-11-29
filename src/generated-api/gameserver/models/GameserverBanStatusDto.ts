@@ -12,83 +12,71 @@
  * Do not edit the class manually.
  */
 
+import { GameserverBanReason, GameserverBanReasonFromJSON, GameserverBanReasonToJSON } from './';
+
 /**
  *
  * @export
  * @interface GameserverBanStatusDto
  */
 export class GameserverBanStatusDto {
-  /**
-   *
-   * @type {string}
-   * @memberof GameserverBanStatusDto
-   */
-  steam_id: string;
-  /**
-   *
-   * @type {boolean}
-   * @memberof GameserverBanStatusDto
-   */
-  isBanned: boolean;
-  /**
-   *
-   * @type {number}
-   * @memberof GameserverBanStatusDto
-   */
-  bannedUntil: number;
-  /**
-   *
-   * @type {number}
-   * @memberof GameserverBanStatusDto
-   */
-  status: GameserverBanStatusDtoStatusEnum;
+    /**
+     *
+     * @type {GameserverBanReason}
+     * @memberof GameserverBanStatusDto
+     */
+    status: GameserverBanReason;
+    /**
+     *
+     * @type {string}
+     * @memberof GameserverBanStatusDto
+     */
+    steam_id: string;
+    /**
+     *
+     * @type {boolean}
+     * @memberof GameserverBanStatusDto
+     */
+    isBanned: boolean;
+    /**
+     *
+     * @type {string}
+     * @memberof GameserverBanStatusDto
+     */
+    bannedUntil: string;
 }
 
-export function GameserverBanStatusDtoFromJSON(
-  json: any,
-): GameserverBanStatusDto {
-  return GameserverBanStatusDtoFromJSONTyped(json, false);
+export function GameserverBanStatusDtoFromJSON(json: any): GameserverBanStatusDto {
+    return GameserverBanStatusDtoFromJSONTyped(json, false);
 }
 
-export function GameserverBanStatusDtoFromJSONTyped(
-  json: any,
-  ignoreDiscriminator: boolean,
-): GameserverBanStatusDto {
-  if (json === undefined || json === null) {
-    return json;
-  }
-  return {
-    steam_id: json["steam_id"],
-    isBanned: json["isBanned"],
-    bannedUntil: json["bannedUntil"],
-    status: json["status"],
-  };
+export function GameserverBanStatusDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): GameserverBanStatusDto {
+    if ((json === undefined) || (json === null)) {
+        return json;
+    }
+    return {
+
+        'status': GameserverBanReasonFromJSON(json['status']),
+        'steam_id': json['steam_id'],
+        'isBanned': json['isBanned'],
+        'bannedUntil': json['bannedUntil'],
+    };
 }
 
-export function GameserverBanStatusDtoToJSON(
-  value?: GameserverBanStatusDto | null,
-): any {
-  if (value === undefined) {
-    return undefined;
-  }
-  if (value === null) {
-    return null;
-  }
-  return {
-    steam_id: value.steam_id,
-    isBanned: value.isBanned,
-    bannedUntil: value.bannedUntil,
-    status: value.status,
-  };
+export function GameserverBanStatusDtoToJSON(value?: GameserverBanStatusDto | null): any {
+    if (value === undefined) {
+        return undefined;
+    }
+    if (value === null) {
+        return null;
+    }
+    return {
+
+        'status': GameserverBanReasonToJSON(value.status),
+        'steam_id': value.steam_id,
+        'isBanned': value.isBanned,
+        'bannedUntil': value.bannedUntil,
+    };
 }
 
-/**
- * @export
- * @enum {string}
- */
-export enum GameserverBanStatusDtoStatusEnum {
-  NUMBER_0 = 0,
-  NUMBER_1 = 1,
-  NUMBER_2 = 2,
-  NUMBER_3 = 3,
-}
+

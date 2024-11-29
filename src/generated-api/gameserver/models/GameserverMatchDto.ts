@@ -30,100 +30,95 @@ import {
  * @interface GameserverMatchDto
  */
 export class GameserverMatchDto {
-  /**
-   *
-   * @type {GameserverMatchmakingMode}
-   * @memberof GameserverMatchDto
-   */
-  mode: GameserverMatchmakingMode;
-  /**
-   *
-   * @type {GameserverDotaGameMode}
-   * @memberof GameserverMatchDto
-   */
-  game_mode: GameserverDotaGameMode;
-  /**
-   *
-   * @type {number}
-   * @memberof GameserverMatchDto
-   */
-  id: number;
-  /**
-   *
-   * @type {Array<GameserverPlayerInMatchDto>}
-   * @memberof GameserverMatchDto
-   */
-  radiant: Array<GameserverPlayerInMatchDto>;
-  /**
-   *
-   * @type {Array<GameserverPlayerInMatchDto>}
-   * @memberof GameserverMatchDto
-   */
-  dire: Array<GameserverPlayerInMatchDto>;
-  /**
-   *
-   * @type {number}
-   * @memberof GameserverMatchDto
-   */
-  winner: number;
-  /**
-   *
-   * @type {number}
-   * @memberof GameserverMatchDto
-   */
-  duration: number;
-  /**
-   *
-   * @type {string}
-   * @memberof GameserverMatchDto
-   */
-  timestamp: string;
+    /**
+     *
+     * @type {GameserverMatchmakingMode}
+     * @memberof GameserverMatchDto
+     */
+    mode: GameserverMatchmakingMode;
+    /**
+     *
+     * @type {GameserverDotaGameMode}
+     * @memberof GameserverMatchDto
+     */
+    game_mode: GameserverDotaGameMode;
+    /**
+     *
+     * @type {number}
+     * @memberof GameserverMatchDto
+     */
+    id: number;
+    /**
+     *
+     * @type {Array<GameserverPlayerInMatchDto>}
+     * @memberof GameserverMatchDto
+     */
+    radiant: Array<GameserverPlayerInMatchDto>;
+    /**
+     *
+     * @type {Array<GameserverPlayerInMatchDto>}
+     * @memberof GameserverMatchDto
+     */
+    dire: Array<GameserverPlayerInMatchDto>;
+    /**
+     *
+     * @type {number}
+     * @memberof GameserverMatchDto
+     */
+    winner: number;
+    /**
+     *
+     * @type {number}
+     * @memberof GameserverMatchDto
+     */
+    duration: number;
+    /**
+     *
+     * @type {string}
+     * @memberof GameserverMatchDto
+     */
+    timestamp: string;
 }
 
 export function GameserverMatchDtoFromJSON(json: any): GameserverMatchDto {
-  return GameserverMatchDtoFromJSONTyped(json, false);
+    return GameserverMatchDtoFromJSONTyped(json, false);
 }
 
-export function GameserverMatchDtoFromJSONTyped(
-  json: any,
-  ignoreDiscriminator: boolean,
-): GameserverMatchDto {
-  if (json === undefined || json === null) {
-    return json;
-  }
-  return {
-    mode: GameserverMatchmakingModeFromJSON(json["mode"]),
-    game_mode: GameserverDotaGameModeFromJSON(json["game_mode"]),
-    id: json["id"],
-    radiant: (json["radiant"] as Array<any>).map(
-      GameserverPlayerInMatchDtoFromJSON,
-    ),
-    dire: (json["dire"] as Array<any>).map(GameserverPlayerInMatchDtoFromJSON),
-    winner: json["winner"],
-    duration: json["duration"],
-    timestamp: json["timestamp"],
-  };
+export function GameserverMatchDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): GameserverMatchDto {
+    if ((json === undefined) || (json === null)) {
+        return json;
+    }
+    return {
+
+        'mode': GameserverMatchmakingModeFromJSON(json['mode']),
+        'game_mode': GameserverDotaGameModeFromJSON(json['game_mode']),
+        'id': json['id'],
+        'radiant': ((json['radiant'] as Array<any>).map(GameserverPlayerInMatchDtoFromJSON)),
+        'dire': ((json['dire'] as Array<any>).map(GameserverPlayerInMatchDtoFromJSON)),
+        'winner': json['winner'],
+        'duration': json['duration'],
+        'timestamp': json['timestamp'],
+    };
 }
 
-export function GameserverMatchDtoToJSON(
-  value?: GameserverMatchDto | null,
-): any {
-  if (value === undefined) {
-    return undefined;
-  }
-  if (value === null) {
-    return null;
-  }
-  return {
-    mode: GameserverMatchmakingModeToJSON(value.mode),
-    game_mode: GameserverDotaGameModeToJSON(value.game_mode),
-    id: value.id,
-    radiant: (value.radiant as Array<any>).map(
-      GameserverPlayerInMatchDtoToJSON,
-    ),
-    dire: (value.dire as Array<any>).map(GameserverPlayerInMatchDtoToJSON),
-    winner: value.winner,
-    duration: value.duration,
-    timestamp: value.timestamp,
-  };
+export function GameserverMatchDtoToJSON(value?: GameserverMatchDto | null): any {
+    if (value === undefined) {
+        return undefined;
+    }
+    if (value === null) {
+        return null;
+    }
+    return {
+
+        'mode': GameserverMatchmakingModeToJSON(value.mode),
+        'game_mode': GameserverDotaGameModeToJSON(value.game_mode),
+        'id': value.id,
+        'radiant': ((value.radiant as Array<any>).map(GameserverPlayerInMatchDtoToJSON)),
+        'dire': ((value.dire as Array<any>).map(GameserverPlayerInMatchDtoToJSON)),
+        'winner': value.winner,
+        'duration': value.duration,
+        'timestamp': value.timestamp,
+    };
 }
+
+

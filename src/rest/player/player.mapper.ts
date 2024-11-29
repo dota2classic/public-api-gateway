@@ -76,7 +76,7 @@ export class PlayerMapper {
       banStatus: {
         isBanned: status.isBanned,
         bannedUntil: status.bannedUntil,
-        status: status.status as any,
+        status: status.status,
       },
       reportsAvailable: reports.available,
     };
@@ -117,7 +117,7 @@ export class PlayerMapper {
             banStatus: {
               isBanned: status.isBanned,
               bannedUntil: status.bannedUntil,
-              status: status.status as any,
+              status: status.status,
             },
             session: session?.result?.serverUrl,
             summary: await this.mapPlayerSummary(summary),

@@ -12,6 +12,7 @@
  * Do not edit the class manually.
  */
 
+
 import * as runtime from '../runtime';
 
 import {
@@ -25,125 +26,116 @@ import {
  *
  */
 export class InfoApi extends runtime.BaseAPI {
-  /**
-   */
-  infoControllerGameServersContext(): runtime.RequestOpts {
-    const queryParameters: any = {};
 
-    const headerParameters: runtime.HTTPHeaders = {};
+    /**
+     */
+    infoControllerGameServersContext(): runtime.RequestOpts {
+        const queryParameters: any = {};
 
-    return {
-      path: `/info/game_servers`,
-      method: "GET",
-      headers: headerParameters,
-      query: queryParameters,
-    };
-  }
+        const headerParameters: runtime.HTTPHeaders = {};
 
-  /**
-   */
-  infoControllerGameServers = async (): Promise<
-    Array<GameserverGameServerDto>
-  > => {
-    const response = await this.infoControllerGameServersRaw();
-    return await response.value();
-  };
+        return {
+            path: `/info/game_servers`,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        };
+    }
 
-  /**
-   */
-  infoControllerGameSessionsContext(): runtime.RequestOpts {
-    const queryParameters: any = {};
+    /**
+     */
+    infoControllerGameServers = async (): Promise<Array<GameserverGameServerDto>> => {
+        const response = await this.infoControllerGameServersRaw();
+        return await response.value();
+    }
 
-    const headerParameters: runtime.HTTPHeaders = {};
+    /**
+     */
+    infoControllerGameSessionsContext(): runtime.RequestOpts {
+        const queryParameters: any = {};
 
-    return {
-      path: `/info/game_sessions`,
-      method: "GET",
-      headers: headerParameters,
-      query: queryParameters,
-    };
-  }
+        const headerParameters: runtime.HTTPHeaders = {};
 
-  /**
-   */
-  infoControllerGameSessions = async (): Promise<
-    Array<GameserverGameSessionDto>
-  > => {
-    const response = await this.infoControllerGameSessionsRaw();
-    return await response.value();
-  };
+        return {
+            path: `/info/game_sessions`,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        };
+    }
 
-  /**
-   */
-  infoControllerGetCurrentOnlineContext(): runtime.RequestOpts {
-    const queryParameters: any = {};
+    /**
+     */
+    infoControllerGameSessions = async (): Promise<Array<GameserverGameSessionDto>> => {
+        const response = await this.infoControllerGameSessionsRaw();
+        return await response.value();
+    }
 
-    const headerParameters: runtime.HTTPHeaders = {};
+    /**
+     */
+    infoControllerGetCurrentOnlineContext(): runtime.RequestOpts {
+        const queryParameters: any = {};
 
-    return {
-      path: `/info/current_online`,
-      method: "GET",
-      headers: headerParameters,
-      query: queryParameters,
-    };
-  }
+        const headerParameters: runtime.HTTPHeaders = {};
 
-  /**
-   */
-  infoControllerGetCurrentOnline = async (): Promise<number> => {
-    const response = await this.infoControllerGetCurrentOnlineRaw();
-    return await response.value();
-  };
+        return {
+            path: `/info/current_online`,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        };
+    }
 
-  /**
-   */
-  private async infoControllerGameServersRaw(): Promise<
-    runtime.ApiResponse<Array<GameserverGameServerDto>>
-  > {
-    this.infoControllerGameServersValidation();
-    const context = this.infoControllerGameServersContext();
-    const response = await this.request(context);
+    /**
+     */
+    infoControllerGetCurrentOnline = async (): Promise<number> => {
+        const response = await this.infoControllerGetCurrentOnlineRaw();
+        return await response.value();
+    }
 
-    return new runtime.JSONApiResponse(response, (jsonValue) =>
-      jsonValue.map(GameserverGameServerDtoFromJSON),
-    );
-  }
+    /**
+     */
+    private async infoControllerGameServersRaw(): Promise<runtime.ApiResponse<Array<GameserverGameServerDto>>> {
+        this.infoControllerGameServersValidation();
+        const context = this.infoControllerGameServersContext();
+        const response = await this.request(context);
 
-  /**
-   */
-  private infoControllerGameServersValidation() {}
+        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(GameserverGameServerDtoFromJSON));
+    }
 
-  /**
-   */
-  private async infoControllerGameSessionsRaw(): Promise<
-    runtime.ApiResponse<Array<GameserverGameSessionDto>>
-  > {
-    this.infoControllerGameSessionsValidation();
-    const context = this.infoControllerGameSessionsContext();
-    const response = await this.request(context);
+    /**
+     */
+    private infoControllerGameServersValidation() {
+    }
 
-    return new runtime.JSONApiResponse(response, (jsonValue) =>
-      jsonValue.map(GameserverGameSessionDtoFromJSON),
-    );
-  }
+    /**
+     */
+    private async infoControllerGameSessionsRaw(): Promise<runtime.ApiResponse<Array<GameserverGameSessionDto>>> {
+        this.infoControllerGameSessionsValidation();
+        const context = this.infoControllerGameSessionsContext();
+        const response = await this.request(context);
 
-  /**
-   */
-  private infoControllerGameSessionsValidation() {}
+        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(GameserverGameSessionDtoFromJSON));
+    }
 
-  /**
-   */
-  private async infoControllerGetCurrentOnlineRaw(): Promise<
-    runtime.ApiResponse<number>
-  > {
-    this.infoControllerGetCurrentOnlineValidation();
-    const context = this.infoControllerGetCurrentOnlineContext();
-    const response = await this.request(context);
+    /**
+     */
+    private infoControllerGameSessionsValidation() {
+    }
 
-    return new runtime.TextApiResponse(response) as any;
-  }
+    /**
+     */
+    private async infoControllerGetCurrentOnlineRaw(): Promise<runtime.ApiResponse<number>> {
+        this.infoControllerGetCurrentOnlineValidation();
+        const context = this.infoControllerGetCurrentOnlineContext();
+        const response = await this.request(context);
 
-  /**
-   */
-  private infoControllerGetCurrentOnlineValidation() {}
+        return new runtime.TextApiResponse(response) as any;
+    }
+
+    /**
+     */
+    private infoControllerGetCurrentOnlineValidation() {
+    }
+
 }

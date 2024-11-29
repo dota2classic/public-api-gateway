@@ -18,106 +18,103 @@
  * @interface GameserverLeaderboardEntryDto
  */
 export class GameserverLeaderboardEntryDto {
-  /**
-   *
-   * @type {number}
-   * @memberof GameserverLeaderboardEntryDto
-   */
-  rank: number | null;
-  /**
-   *
-   * @type {string}
-   * @memberof GameserverLeaderboardEntryDto
-   */
-  steam_id: string;
-  /**
-   *
-   * @type {number}
-   * @memberof GameserverLeaderboardEntryDto
-   */
-  mmr: number;
-  /**
-   *
-   * @type {number}
-   * @memberof GameserverLeaderboardEntryDto
-   */
-  games: number;
-  /**
-   *
-   * @type {number}
-   * @memberof GameserverLeaderboardEntryDto
-   */
-  wins: number;
-  /**
-   *
-   * @type {number}
-   * @memberof GameserverLeaderboardEntryDto
-   */
-  kills: number;
-  /**
-   *
-   * @type {number}
-   * @memberof GameserverLeaderboardEntryDto
-   */
-  deaths: number;
-  /**
-   *
-   * @type {number}
-   * @memberof GameserverLeaderboardEntryDto
-   */
-  assists: number;
-  /**
-   *
-   * @type {number}
-   * @memberof GameserverLeaderboardEntryDto
-   */
-  play_time: number;
+    /**
+     *
+     * @type {number}
+     * @memberof GameserverLeaderboardEntryDto
+     */
+    rank: number | null;
+    /**
+     *
+     * @type {string}
+     * @memberof GameserverLeaderboardEntryDto
+     */
+    steam_id: string;
+    /**
+     *
+     * @type {number}
+     * @memberof GameserverLeaderboardEntryDto
+     */
+    mmr: number;
+    /**
+     *
+     * @type {number}
+     * @memberof GameserverLeaderboardEntryDto
+     */
+    games: number;
+    /**
+     *
+     * @type {number}
+     * @memberof GameserverLeaderboardEntryDto
+     */
+    wins: number;
+    /**
+     *
+     * @type {number}
+     * @memberof GameserverLeaderboardEntryDto
+     */
+    kills: number;
+    /**
+     *
+     * @type {number}
+     * @memberof GameserverLeaderboardEntryDto
+     */
+    deaths: number;
+    /**
+     *
+     * @type {number}
+     * @memberof GameserverLeaderboardEntryDto
+     */
+    assists: number;
+    /**
+     *
+     * @type {number}
+     * @memberof GameserverLeaderboardEntryDto
+     */
+    play_time: number;
 }
 
-export function GameserverLeaderboardEntryDtoFromJSON(
-  json: any,
-): GameserverLeaderboardEntryDto {
-  return GameserverLeaderboardEntryDtoFromJSONTyped(json, false);
+export function GameserverLeaderboardEntryDtoFromJSON(json: any): GameserverLeaderboardEntryDto {
+    return GameserverLeaderboardEntryDtoFromJSONTyped(json, false);
 }
 
-export function GameserverLeaderboardEntryDtoFromJSONTyped(
-  json: any,
-  ignoreDiscriminator: boolean,
-): GameserverLeaderboardEntryDto {
-  if (json === undefined || json === null) {
-    return json;
-  }
-  return {
-    rank: json["rank"],
-    steam_id: json["steam_id"],
-    mmr: json["mmr"],
-    games: json["games"],
-    wins: json["wins"],
-    kills: json["kills"],
-    deaths: json["deaths"],
-    assists: json["assists"],
-    play_time: json["play_time"],
-  };
+export function GameserverLeaderboardEntryDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): GameserverLeaderboardEntryDto {
+    if ((json === undefined) || (json === null)) {
+        return json;
+    }
+    return {
+
+        'rank': json['rank'],
+        'steam_id': json['steam_id'],
+        'mmr': json['mmr'],
+        'games': json['games'],
+        'wins': json['wins'],
+        'kills': json['kills'],
+        'deaths': json['deaths'],
+        'assists': json['assists'],
+        'play_time': json['play_time'],
+    };
 }
 
-export function GameserverLeaderboardEntryDtoToJSON(
-  value?: GameserverLeaderboardEntryDto | null,
-): any {
-  if (value === undefined) {
-    return undefined;
-  }
-  if (value === null) {
-    return null;
-  }
-  return {
-    rank: value.rank,
-    steam_id: value.steam_id,
-    mmr: value.mmr,
-    games: value.games,
-    wins: value.wins,
-    kills: value.kills,
-    deaths: value.deaths,
-    assists: value.assists,
-    play_time: value.play_time,
-  };
+export function GameserverLeaderboardEntryDtoToJSON(value?: GameserverLeaderboardEntryDto | null): any {
+    if (value === undefined) {
+        return undefined;
+    }
+    if (value === null) {
+        return null;
+    }
+    return {
+
+        'rank': value.rank,
+        'steam_id': value.steam_id,
+        'mmr': value.mmr,
+        'games': value.games,
+        'wins': value.wins,
+        'kills': value.kills,
+        'deaths': value.deaths,
+        'assists': value.assists,
+        'play_time': value.play_time,
+    };
 }
+
+

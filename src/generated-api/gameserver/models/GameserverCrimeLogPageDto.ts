@@ -20,66 +20,63 @@ import { GameserverCrimeLogDto, GameserverCrimeLogDtoFromJSON, GameserverCrimeLo
  * @interface GameserverCrimeLogPageDto
  */
 export class GameserverCrimeLogPageDto {
-  /**
-   *
-   * @type {Array<GameserverCrimeLogDto>}
-   * @memberof GameserverCrimeLogPageDto
-   */
-  data: Array<GameserverCrimeLogDto>;
-  /**
-   *
-   * @type {number}
-   * @memberof GameserverCrimeLogPageDto
-   */
-  pages: number;
-  /**
-   *
-   * @type {number}
-   * @memberof GameserverCrimeLogPageDto
-   */
-  perPage: number;
-  /**
-   *
-   * @type {number}
-   * @memberof GameserverCrimeLogPageDto
-   */
-  page: number;
+    /**
+     *
+     * @type {Array<GameserverCrimeLogDto>}
+     * @memberof GameserverCrimeLogPageDto
+     */
+    data: Array<GameserverCrimeLogDto>;
+    /**
+     *
+     * @type {number}
+     * @memberof GameserverCrimeLogPageDto
+     */
+    pages: number;
+    /**
+     *
+     * @type {number}
+     * @memberof GameserverCrimeLogPageDto
+     */
+    perPage: number;
+    /**
+     *
+     * @type {number}
+     * @memberof GameserverCrimeLogPageDto
+     */
+    page: number;
 }
 
-export function GameserverCrimeLogPageDtoFromJSON(
-  json: any,
-): GameserverCrimeLogPageDto {
-  return GameserverCrimeLogPageDtoFromJSONTyped(json, false);
+export function GameserverCrimeLogPageDtoFromJSON(json: any): GameserverCrimeLogPageDto {
+    return GameserverCrimeLogPageDtoFromJSONTyped(json, false);
 }
 
-export function GameserverCrimeLogPageDtoFromJSONTyped(
-  json: any,
-  ignoreDiscriminator: boolean,
-): GameserverCrimeLogPageDto {
-  if (json === undefined || json === null) {
-    return json;
-  }
-  return {
-    data: (json["data"] as Array<any>).map(GameserverCrimeLogDtoFromJSON),
-    pages: json["pages"],
-    perPage: json["perPage"],
-    page: json["page"],
-  };
+export function GameserverCrimeLogPageDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): GameserverCrimeLogPageDto {
+    if ((json === undefined) || (json === null)) {
+        return json;
+    }
+    return {
+
+        'data': ((json['data'] as Array<any>).map(GameserverCrimeLogDtoFromJSON)),
+        'pages': json['pages'],
+        'perPage': json['perPage'],
+        'page': json['page'],
+    };
 }
 
-export function GameserverCrimeLogPageDtoToJSON(
-  value?: GameserverCrimeLogPageDto | null,
-): any {
-  if (value === undefined) {
-    return undefined;
-  }
-  if (value === null) {
-    return null;
-  }
-  return {
-    data: (value.data as Array<any>).map(GameserverCrimeLogDtoToJSON),
-    pages: value.pages,
-    perPage: value.perPage,
-    page: value.page,
-  };
+export function GameserverCrimeLogPageDtoToJSON(value?: GameserverCrimeLogPageDto | null): any {
+    if (value === undefined) {
+        return undefined;
+    }
+    if (value === null) {
+        return null;
+    }
+    return {
+
+        'data': ((value.data as Array<any>).map(GameserverCrimeLogDtoToJSON)),
+        'pages': value.pages,
+        'perPage': value.perPage,
+        'page': value.page,
+    };
 }
+
+

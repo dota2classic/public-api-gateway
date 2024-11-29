@@ -18,66 +18,63 @@
  * @interface GameserverMmrChangeDto
  */
 export class GameserverMmrChangeDto {
-  /**
-   *
-   * @type {number}
-   * @memberof GameserverMmrChangeDto
-   */
-  mmr_before: number;
-  /**
-   *
-   * @type {number}
-   * @memberof GameserverMmrChangeDto
-   */
-  mmr_after: number;
-  /**
-   *
-   * @type {boolean}
-   * @memberof GameserverMmrChangeDto
-   */
-  is_hidden: boolean;
-  /**
-   *
-   * @type {number}
-   * @memberof GameserverMmrChangeDto
-   */
-  change: number;
+    /**
+     *
+     * @type {number}
+     * @memberof GameserverMmrChangeDto
+     */
+    mmr_before: number;
+    /**
+     *
+     * @type {number}
+     * @memberof GameserverMmrChangeDto
+     */
+    mmr_after: number;
+    /**
+     *
+     * @type {boolean}
+     * @memberof GameserverMmrChangeDto
+     */
+    is_hidden: boolean;
+    /**
+     *
+     * @type {number}
+     * @memberof GameserverMmrChangeDto
+     */
+    change: number;
 }
 
-export function GameserverMmrChangeDtoFromJSON(
-  json: any,
-): GameserverMmrChangeDto {
-  return GameserverMmrChangeDtoFromJSONTyped(json, false);
+export function GameserverMmrChangeDtoFromJSON(json: any): GameserverMmrChangeDto {
+    return GameserverMmrChangeDtoFromJSONTyped(json, false);
 }
 
-export function GameserverMmrChangeDtoFromJSONTyped(
-  json: any,
-  ignoreDiscriminator: boolean,
-): GameserverMmrChangeDto {
-  if (json === undefined || json === null) {
-    return json;
-  }
-  return {
-    mmr_before: json["mmr_before"],
-    mmr_after: json["mmr_after"],
-    is_hidden: json["is_hidden"],
-    change: json["change"],
-  };
+export function GameserverMmrChangeDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): GameserverMmrChangeDto {
+    if ((json === undefined) || (json === null)) {
+        return json;
+    }
+    return {
+
+        'mmr_before': json['mmr_before'],
+        'mmr_after': json['mmr_after'],
+        'is_hidden': json['is_hidden'],
+        'change': json['change'],
+    };
 }
 
-export function GameserverMmrChangeDtoToJSON(
-  value?: GameserverMmrChangeDto | null,
-): any {
-  if (value === undefined) {
-    return undefined;
-  }
-  if (value === null) {
-    return null;
-  }
-  return {
-    mmr_before: value.mmr_before,
-    mmr_after: value.mmr_after,
-    is_hidden: value.is_hidden,
-    change: value.change,
-  };
+export function GameserverMmrChangeDtoToJSON(value?: GameserverMmrChangeDto | null): any {
+    if (value === undefined) {
+        return undefined;
+    }
+    if (value === null) {
+        return null;
+    }
+    return {
+
+        'mmr_before': value.mmr_before,
+        'mmr_after': value.mmr_after,
+        'is_hidden': value.is_hidden,
+        'change': value.change,
+    };
 }
+
+

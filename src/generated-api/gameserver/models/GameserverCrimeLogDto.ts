@@ -20,74 +20,71 @@ import { GameserverBanReason, GameserverBanReasonFromJSON, GameserverBanReasonTo
  * @interface GameserverCrimeLogDto
  */
 export class GameserverCrimeLogDto {
-  /**
-   *
-   * @type {GameserverBanReason}
-   * @memberof GameserverCrimeLogDto
-   */
-  crime: GameserverBanReason;
-  /**
-   *
-   * @type {number}
-   * @memberof GameserverCrimeLogDto
-   */
-  id: number;
-  /**
-   *
-   * @type {boolean}
-   * @memberof GameserverCrimeLogDto
-   */
-  handled: boolean;
-  /**
-   *
-   * @type {string}
-   * @memberof GameserverCrimeLogDto
-   */
-  steam_id: string;
-  /**
-   *
-   * @type {string}
-   * @memberof GameserverCrimeLogDto
-   */
-  created_at: string;
+    /**
+     *
+     * @type {GameserverBanReason}
+     * @memberof GameserverCrimeLogDto
+     */
+    crime: GameserverBanReason;
+    /**
+     *
+     * @type {number}
+     * @memberof GameserverCrimeLogDto
+     */
+    id: number;
+    /**
+     *
+     * @type {boolean}
+     * @memberof GameserverCrimeLogDto
+     */
+    handled: boolean;
+    /**
+     *
+     * @type {string}
+     * @memberof GameserverCrimeLogDto
+     */
+    steam_id: string;
+    /**
+     *
+     * @type {string}
+     * @memberof GameserverCrimeLogDto
+     */
+    created_at: string;
 }
 
-export function GameserverCrimeLogDtoFromJSON(
-  json: any,
-): GameserverCrimeLogDto {
-  return GameserverCrimeLogDtoFromJSONTyped(json, false);
+export function GameserverCrimeLogDtoFromJSON(json: any): GameserverCrimeLogDto {
+    return GameserverCrimeLogDtoFromJSONTyped(json, false);
 }
 
-export function GameserverCrimeLogDtoFromJSONTyped(
-  json: any,
-  ignoreDiscriminator: boolean,
-): GameserverCrimeLogDto {
-  if (json === undefined || json === null) {
-    return json;
-  }
-  return {
-    crime: GameserverBanReasonFromJSON(json["crime"]),
-    id: json["id"],
-    handled: json["handled"],
-    steam_id: json["steam_id"],
-    created_at: json["created_at"],
-  };
+export function GameserverCrimeLogDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): GameserverCrimeLogDto {
+    if ((json === undefined) || (json === null)) {
+        return json;
+    }
+    return {
+
+        'crime': GameserverBanReasonFromJSON(json['crime']),
+        'id': json['id'],
+        'handled': json['handled'],
+        'steam_id': json['steam_id'],
+        'created_at': json['created_at'],
+    };
 }
 
-export function GameserverCrimeLogDtoToJSON(
-  value?: GameserverCrimeLogDto | null,
-): any {
-  if (value === undefined) {
-    return undefined;
-  }
-  if (value === null) {
-    return null;
-  }
-  return {
-    crime: GameserverBanReasonToJSON(value.crime),
-    id: value.id,
-    handled: value.handled,
-    steam_id: value.steam_id,
-    created_at: value.created_at,
-  };
+export function GameserverCrimeLogDtoToJSON(value?: GameserverCrimeLogDto | null): any {
+    if (value === undefined) {
+        return undefined;
+    }
+    if (value === null) {
+        return null;
+    }
+    return {
+
+        'crime': GameserverBanReasonToJSON(value.crime),
+        'id': value.id,
+        'handled': value.handled,
+        'steam_id': value.steam_id,
+        'created_at': value.created_at,
+    };
 }
+
+

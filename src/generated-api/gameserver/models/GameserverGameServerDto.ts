@@ -18,59 +18,56 @@
  * @interface GameserverGameServerDto
  */
 export class GameserverGameServerDto {
-  /**
-   *
-   * @type {string}
-   * @memberof GameserverGameServerDto
-   */
-  url: string;
-  /**
-   *
-   * @type {string}
-   * @memberof GameserverGameServerDto
-   */
-  version: GameserverGameServerDtoVersionEnum;
+    /**
+     *
+     * @type {string}
+     * @memberof GameserverGameServerDto
+     */
+    url: string;
+    /**
+     *
+     * @type {string}
+     * @memberof GameserverGameServerDto
+     */
+    version: GameserverGameServerDtoVersionEnum;
 }
 
-export function GameserverGameServerDtoFromJSON(
-  json: any,
-): GameserverGameServerDto {
-  return GameserverGameServerDtoFromJSONTyped(json, false);
+export function GameserverGameServerDtoFromJSON(json: any): GameserverGameServerDto {
+    return GameserverGameServerDtoFromJSONTyped(json, false);
 }
 
-export function GameserverGameServerDtoFromJSONTyped(
-  json: any,
-  ignoreDiscriminator: boolean,
-): GameserverGameServerDto {
-  if (json === undefined || json === null) {
-    return json;
-  }
-  return {
-    url: json["url"],
-    version: json["version"],
-  };
+export function GameserverGameServerDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): GameserverGameServerDto {
+    if ((json === undefined) || (json === null)) {
+        return json;
+    }
+    return {
+
+        'url': json['url'],
+        'version': json['version'],
+    };
 }
 
-export function GameserverGameServerDtoToJSON(
-  value?: GameserverGameServerDto | null,
-): any {
-  if (value === undefined) {
-    return undefined;
-  }
-  if (value === null) {
-    return null;
-  }
-  return {
-    url: value.url,
-    version: value.version,
-  };
+export function GameserverGameServerDtoToJSON(value?: GameserverGameServerDto | null): any {
+    if (value === undefined) {
+        return undefined;
+    }
+    if (value === null) {
+        return null;
+    }
+    return {
+
+        'url': value.url,
+        'version': value.version,
+    };
 }
 
 /**
- * @export
- * @enum {string}
- */
+* @export
+* @enum {string}
+*/
 export enum GameserverGameServerDtoVersionEnum {
-  _681 = "Dota_681",
-  _684 = "Dota_684",
+    _681 = 'Dota_681',
+    _684 = 'Dota_684'
 }
+
+

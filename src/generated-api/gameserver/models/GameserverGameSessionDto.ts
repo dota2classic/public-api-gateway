@@ -20,58 +20,55 @@ import { GameserverMatchInfoDto, GameserverMatchInfoDtoFromJSON, GameserverMatch
  * @interface GameserverGameSessionDto
  */
 export class GameserverGameSessionDto {
-  /**
-   *
-   * @type {string}
-   * @memberof GameserverGameSessionDto
-   */
-  url: string;
-  /**
-   *
-   * @type {number}
-   * @memberof GameserverGameSessionDto
-   */
-  matchId: number;
-  /**
-   *
-   * @type {GameserverMatchInfoDto}
-   * @memberof GameserverGameSessionDto
-   */
-  info: GameserverMatchInfoDto;
+    /**
+     *
+     * @type {string}
+     * @memberof GameserverGameSessionDto
+     */
+    url: string;
+    /**
+     *
+     * @type {number}
+     * @memberof GameserverGameSessionDto
+     */
+    matchId: number;
+    /**
+     *
+     * @type {GameserverMatchInfoDto}
+     * @memberof GameserverGameSessionDto
+     */
+    info: GameserverMatchInfoDto;
 }
 
-export function GameserverGameSessionDtoFromJSON(
-  json: any,
-): GameserverGameSessionDto {
-  return GameserverGameSessionDtoFromJSONTyped(json, false);
+export function GameserverGameSessionDtoFromJSON(json: any): GameserverGameSessionDto {
+    return GameserverGameSessionDtoFromJSONTyped(json, false);
 }
 
-export function GameserverGameSessionDtoFromJSONTyped(
-  json: any,
-  ignoreDiscriminator: boolean,
-): GameserverGameSessionDto {
-  if (json === undefined || json === null) {
-    return json;
-  }
-  return {
-    url: json["url"],
-    matchId: json["matchId"],
-    info: GameserverMatchInfoDtoFromJSON(json["info"]),
-  };
+export function GameserverGameSessionDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): GameserverGameSessionDto {
+    if ((json === undefined) || (json === null)) {
+        return json;
+    }
+    return {
+
+        'url': json['url'],
+        'matchId': json['matchId'],
+        'info': GameserverMatchInfoDtoFromJSON(json['info']),
+    };
 }
 
-export function GameserverGameSessionDtoToJSON(
-  value?: GameserverGameSessionDto | null,
-): any {
-  if (value === undefined) {
-    return undefined;
-  }
-  if (value === null) {
-    return null;
-  }
-  return {
-    url: value.url,
-    matchId: value.matchId,
-    info: GameserverMatchInfoDtoToJSON(value.info),
-  };
+export function GameserverGameSessionDtoToJSON(value?: GameserverGameSessionDto | null): any {
+    if (value === undefined) {
+        return undefined;
+    }
+    if (value === null) {
+        return null;
+    }
+    return {
+
+        'url': value.url,
+        'matchId': value.matchId,
+        'info': GameserverMatchInfoDtoToJSON(value.info),
+    };
 }
+
+
