@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, Logger } from "@nestjs/common";
 import { QueryBus } from "@nestjs/cqrs";
 import { GetUserQueueQuery } from "../gateway/queries/GetUserQueue/get-user-queue.query";
 import { PlayerId } from "../gateway/shared-types/player-id";
@@ -31,6 +31,8 @@ export class SocketMessageService {
   @WebSocketServer()
   public server: WSServer;
 
+  private readonly logger = new Logger(SocketMessageService.name);
+
   constructor(
     private readonly qbus: QueryBus,
     private readonly userRepo: UserRepository,
@@ -47,7 +49,12 @@ export class SocketMessageService {
 
       if (result.version && result.mode)
         return new PlayerQueueStateMessageS2C(result.mode, result.version);
-    } catch (e) {}
+    } catch (e) {
+      this.logger.error("Couldn't resolve queue state", {
+        steam_id: steamId,
+        error: e,
+      });
+    }
 
     return undefined;
   }

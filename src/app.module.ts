@@ -84,6 +84,7 @@ import { RoomNotReadyHandler } from "./socket/event-handler/room-not-ready.handl
 import { MatchFinishedHandler as SocketMatchFinishedHandler } from "./socket/event-handler/match-finished.handler";
 import { RoomReadyHandler } from "./socket/event-handler/room-ready.handler";
 import { PartyInvalidatedHandler } from "./socket/event-handler/party-invalidated.handler";
+import { GetUserQueueQuery } from "./gateway/queries/GetUserQueue/get-user-queue.query";
 
 export function qCache<T, B>() {
   return new QueryCache<T, B>({
@@ -173,6 +174,7 @@ export function qCache<T, B>() {
     outerQuery(GetSessionByUserQuery, "QueryCore", qCache()),
     outerQuery(GetUserRoomQuery, "QueryCore", qCache()),
     outerQuery(GetPartyInvitationsQuery, "QueryCore", qCache()),
+    outerQuery(GetUserQueueQuery, "QueryCore", qCache()),
 
     SteamStrategy,
     JwtStrategy,
