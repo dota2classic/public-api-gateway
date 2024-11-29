@@ -1,16 +1,15 @@
 import { PassportStrategy } from "@nestjs/passport";
 import { Strategy as SteamStrategyT } from "passport-steam";
 import { Injectable } from "@nestjs/common";
-import { backUrl } from "../../utils/utils";
-import { STEAM_KEY } from "../../utils/env";
+import { ConfigService } from "@nestjs/config";
 
 @Injectable()
 export default class SteamStrategy extends PassportStrategy(SteamStrategyT) {
-  constructor() {
+  constructor(private readonly config: ConfigService) {
     super({
-      returnURL: `${backUrl}/v1/auth/steam/callback`,
-      realm: `${backUrl}/`,
-      apiKey: STEAM_KEY,
+      returnURL: `${config.get("api.backUrl")}/v1/auth/steam/callback`,
+      realm: `${config.get("api.backUrl")}/`,
+      apiKey: config.get("steam.key"),
     });
   }
 

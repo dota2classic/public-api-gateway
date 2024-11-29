@@ -2,7 +2,7 @@ import { Injectable, Logger } from "@nestjs/common";
 import { LiveMatchDto } from "../rest/match/dto/match.dto";
 import { concat, Observable, of, Subject } from "rxjs";
 import { delay } from "rxjs/operators";
-import { LIVE_MATCH_DELAY } from "../utils/env";
+import { ConfigService } from "@nestjs/config";
 
 @Injectable()
 export class LiveMatchService {
@@ -13,9 +13,11 @@ export class LiveMatchService {
 
   private readonly entityCache = new Map<number, LiveMatchDto>();
   private readonly logger = new Logger(LiveMatchService.name);
+  private readonly delay: number;
 
-  constructor() {
-    this.logger.log(`Using delay of ${LIVE_MATCH_DELAY} for live previews`);
+  constructor(private readonly config: ConfigService) {
+    this.delay = config.get<number>("api.liveMatchDelay");
+    this.logger.log(`Using delay of ${this.delay} for live previews`);
   }
 
   private isMatchComplete(id: number): boolean {
@@ -33,7 +35,7 @@ export class LiveMatchService {
       const eventStream = new Subject<LiveMatchDto>();
       this.cache.set(event.matchId, eventStream);
 
-      eventStream.pipe(delay(LIVE_MATCH_DELAY)).subscribe((e) => {
+      eventStream.pipe(delay(this.delay)).subscribe((e) => {
         this.entityCache.set(e.matchId, e);
       });
     }
@@ -62,7 +64,7 @@ export class LiveMatchService {
 
     if (liveOne && !this.isMatchComplete(id)) {
       return concat(of(this.entityCache.get(id)), liveOne).pipe(
-        delay(LIVE_MATCH_DELAY),
+        delay(this.delay),
       );
     }
 

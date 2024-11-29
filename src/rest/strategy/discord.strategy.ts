@@ -1,16 +1,16 @@
 import { Injectable } from "@nestjs/common";
 import { PassportStrategy } from "@nestjs/passport";
 import { Strategy as DiscordStrategyT } from "passport-discord";
-import { backUrl } from "../../utils/utils";
+import { ConfigService } from "@nestjs/config";
 
 @Injectable()
 export class DiscordStrategy extends PassportStrategy(DiscordStrategyT) {
-  constructor() {
+  constructor(private readonly config: ConfigService) {
     super(
       {
         clientID: "758900068363010072",
         clientSecret: "FalBJZM8eqX1rOakBA9_InR8X2QZgSab",
-        callbackURL: `${backUrl}/v1/auth/discord/callback`,
+        callbackURL: `${config.get("api.backUrl")}/v1/auth/discord/callback`,
         scope: ["identify"],
       },
       async (accessToken, refreshToken, profile, cb) => {

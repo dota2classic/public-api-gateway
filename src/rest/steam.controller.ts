@@ -10,7 +10,6 @@ import {
   UseGuards,
 } from "@nestjs/common";
 import { AuthGuard } from "@nestjs/passport";
-import { frontUrl } from "../utils/utils";
 import { JwtService } from "@nestjs/jwt";
 import { steam64to32 } from "../utils/steamIds";
 import { TOKEN_KEY } from "../utils/env";
@@ -27,6 +26,7 @@ import {
 } from "../utils/decorator/current-user";
 import { AuthService } from "./auth/auth.service";
 import { WithUser } from "../utils/decorator/with-user";
+import { ConfigService } from "@nestjs/config";
 
 @Controller("auth/steam")
 @ApiTags("auth")
@@ -37,6 +37,7 @@ export class SteamController {
     private readonly userRepository: UserRepository,
     @Inject("QueryCore") private readonly rq: ClientProxy,
     private readonly authService: AuthService,
+    private readonly config: ConfigService,
   ) {}
 
   @Post("refresh_token")
@@ -84,6 +85,8 @@ export class SteamController {
       req.user!!._json.personaname,
       req.user!!._json.avatarfull,
     );
-    res.cookie(TOKEN_KEY, token).redirect(`${frontUrl}/players/${steam32id}`);
+    res
+      .cookie(TOKEN_KEY, token)
+      .redirect(`${this.config.get("api.frontUrl")}/players/${steam32id}`);
   }
 }

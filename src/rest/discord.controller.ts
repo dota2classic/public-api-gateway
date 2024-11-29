@@ -1,7 +1,6 @@
 import { Controller, Get, Inject, Req, Res, UseGuards } from "@nestjs/common";
 import { ApiExcludeEndpoint } from "@nestjs/swagger";
 import { AuthGuard } from "@nestjs/passport";
-import { frontUrl } from "../utils/utils";
 import { ClientProxy } from "@nestjs/microservices";
 import { CookieUserGuard } from "../utils/decorator/with-user";
 import { CookiesUserId } from "../utils/decorator/current-user";
@@ -9,11 +8,13 @@ import { AttachUserConnectionCommand } from "../gateway/commands/attach-user-con
 import { PlayerId } from "../gateway/shared-types/player-id";
 import { UserConnection } from "../gateway/shared-types/user-connection";
 import { numSteamId } from "../utils/steamIds";
+import { ConfigService } from "@nestjs/config";
 
 @Controller("auth/discord")
 export class DiscordController {
   constructor(
     @Inject("QueryCore") private readonly redisEventQueue: ClientProxy,
+    private readonly config: ConfigService,
   ) {}
 
   @Get()
@@ -44,6 +45,10 @@ export class DiscordController {
 
     const numericalSteamId = numSteamId(steam_id);
 
-    res.status(302).redirect(`${frontUrl}/player/${numericalSteamId}`);
+    res
+      .status(302)
+      .redirect(
+        `${this.config.get("api.frontUrl")}/player/${numericalSteamId}`,
+      );
   }
 }

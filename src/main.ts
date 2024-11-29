@@ -20,7 +20,8 @@ import { ConfigService } from "@nestjs/config";
 async function bootstrap() {
   // Start SDK before nestjs factory create
   // await otelSDK.start();
-  const config = new ConfigService(configuration());
+  const parsedConfig = configuration();
+  const config = new ConfigService(parsedConfig);
 
   const app = await NestFactory.create(AppModule, {
     logger: new WinstonWrapper(

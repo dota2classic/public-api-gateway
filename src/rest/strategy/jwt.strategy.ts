@@ -2,19 +2,19 @@ import { ExtractJwt, Strategy } from "passport-jwt";
 import { PassportStrategy } from "@nestjs/passport";
 import { Injectable } from "@nestjs/common";
 import { CurrentUserDto } from "../../utils/decorator/current-user";
-import { JWT_SECRET } from "../../utils/env";
 import { JwtPayload } from "../auth/auth.service";
+import { ConfigService } from "@nestjs/config";
 
 export interface D2CUser {
   steam_id: string;
 }
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-  constructor() {
+  constructor(private readonly config: ConfigService) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: JWT_SECRET,
+      secretOrKey: config.get("api.jwtSecret"),
     });
   }
 

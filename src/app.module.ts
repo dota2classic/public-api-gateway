@@ -2,9 +2,8 @@ import { MiddlewareConsumer, Module, NestModule } from "@nestjs/common";
 import { MatchController } from "./rest/match/match.controller";
 import { SteamController } from "./rest/steam.controller";
 import SteamStrategy from "./rest/strategy/steam.strategy";
-import { JwtModule } from "@nestjs/jwt";
+import { JwtModule, JwtModuleOptions } from "@nestjs/jwt";
 import { ClientsModule, RedisOptions, Transport } from "@nestjs/microservices";
-import { JWT_SECRET } from "./utils/env";
 import { GetAllQuery } from "./gateway/queries/GetAll/get-all.query";
 import { GetUserInfoQuery } from "./gateway/queries/GetUserInfo/get-user-info.query";
 import { UserRepository } from "./cache/user/user.repository";
@@ -39,8 +38,8 @@ import { GetReportsAvailableQuery } from "./gateway/queries/GetReportsAvailable/
 import { MulterModule } from "@nestjs/platform-express";
 import { ScheduleModule } from "@nestjs/schedule";
 import { MainService } from "./main.service";
-import { Entities, prodDbConfig } from "./db.config";
-import { TypeOrmModule } from "@nestjs/typeorm";
+import { Entities } from "./db.config";
+import { TypeOrmModule, TypeOrmModuleOptions } from "@nestjs/typeorm";
 import { CacheModule, CacheModuleOptions } from "@nestjs/cache-manager";
 import { QueryCache } from "./rcache";
 import { MetaMapper } from "./rest/meta/meta.mapper";
@@ -168,7 +167,24 @@ const OPENAPI_GENERATED: Provider[] = [
       path: "/metrics",
       controller: PrometheusGuardedController,
     }),
-    TypeOrmModule.forRoot(prodDbConfig),
+    TypeOrmModule.forRootAsync({
+      useFactory(config: ConfigService): TypeOrmModuleOptions {
+        return {
+          type: "postgres",
+          database: "postgres",
+          host: config.get("postgres.host"),
+          port: 5432,
+          username: config.get("postgres.username"),
+          password: config.get("postgres.password"),
+          entities: Entities,
+          synchronize: true,
+
+          ssl: false,
+        };
+      },
+      imports: [],
+      inject: [ConfigService],
+    }),
     ThrottlerModule.forRoot([
       {
         ttl: 60_000, // 1 minute
@@ -184,9 +200,15 @@ const OPENAPI_GENERATED: Provider[] = [
     MulterModule.register({
       dest: "./dist/upload",
     }),
-    JwtModule.register({
-      secret: JWT_SECRET,
-      signOptions: { expiresIn: "100 days" },
+    JwtModule.registerAsync({
+      useFactory(config: ConfigService): JwtModuleOptions {
+        return {
+          secret: config.get("api.jwtSecret"),
+          signOptions: { expiresIn: "100 days" },
+        };
+      },
+      inject: [ConfigService],
+      imports: [],
     }),
     CqrsModule,
     CacheModule.registerAsync({

@@ -10,6 +10,9 @@ export interface ExpectedConfig {
     publicKey: string;
     privateKey: string;
   };
+  steam: {
+    key: string;
+  };
   redis: {
     host: string;
     password: string;
@@ -26,6 +29,7 @@ export interface ExpectedConfig {
 
     gameserverApiUrl: string;
     forumApiUrl: string;
+    jwtSecret: string;
   };
   telemetry: {
     jaeger: {
