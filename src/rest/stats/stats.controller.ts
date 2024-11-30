@@ -23,6 +23,13 @@ export class StatsController {
     return this.matchmakingModeStatusEntityRepository.find();
   }
 
+  @Get("/servers")
+  public async getServers(): Promise<string[]> {
+    const servers = await this.ms.infoControllerGameServers();
+    const hosts = new Set(servers.map((server) => server.url.split(":")[0]));
+    return Array.from(hosts.values());
+  }
+
   @Get("/online")
   @CacheTTL(10)
   async online(): Promise<CurrentOnlineDto> {
