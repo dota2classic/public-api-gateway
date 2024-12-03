@@ -41,6 +41,26 @@ export class MetaApi extends runtime.BaseAPI {
 
     /**
      */
+    private async metaControllerHeroDataRaw(requestParameters: MetaControllerHeroDataRequest): Promise<runtime.ApiResponse<Array<GameserverHeroItemDto>>> {
+        this.metaControllerHeroDataValidation(requestParameters);
+        const context = this.metaControllerHeroDataContext(requestParameters);
+        const response = await this.request(context);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(GameserverHeroItemDtoFromJSON));
+    }
+
+
+
+    /**
+     */
+    private metaControllerHeroDataValidation(requestParameters: MetaControllerHeroDataRequest) {
+        if (requestParameters.hero === null || requestParameters.hero === undefined) {
+            throw new runtime.RequiredError('hero','Required parameter requestParameters.hero was null or undefined when calling metaControllerHeroData.');
+        }
+    }
+
+    /**
+     */
     metaControllerHeroDataContext(requestParameters: MetaControllerHeroDataRequest): runtime.RequestOpts {
         const queryParameters: any = {};
 
@@ -59,6 +79,23 @@ export class MetaApi extends runtime.BaseAPI {
     metaControllerHeroData = async (hero: string): Promise<Array<GameserverHeroItemDto>> => {
         const response = await this.metaControllerHeroDataRaw({ hero: hero });
         return await response.value();
+    }
+
+    /**
+     */
+    private async metaControllerHeroesRaw(): Promise<runtime.ApiResponse<Array<GameserverHeroSummaryDto>>> {
+        this.metaControllerHeroesValidation();
+        const context = this.metaControllerHeroesContext();
+        const response = await this.request(context);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(GameserverHeroSummaryDtoFromJSON));
+    }
+
+
+
+    /**
+     */
+    private metaControllerHeroesValidation() {
     }
 
     /**
@@ -85,6 +122,26 @@ export class MetaApi extends runtime.BaseAPI {
 
     /**
      */
+    private async metaControllerItemDataRaw(requestParameters: MetaControllerItemDataRequest): Promise<runtime.ApiResponse<Array<GameserverItemHeroDto>>> {
+        this.metaControllerItemDataValidation(requestParameters);
+        const context = this.metaControllerItemDataContext(requestParameters);
+        const response = await this.request(context);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(GameserverItemHeroDtoFromJSON));
+    }
+
+
+
+    /**
+     */
+    private metaControllerItemDataValidation(requestParameters: MetaControllerItemDataRequest) {
+        if (requestParameters.item === null || requestParameters.item === undefined) {
+            throw new runtime.RequiredError('item','Required parameter requestParameters.item was null or undefined when calling metaControllerItemData.');
+        }
+    }
+
+    /**
+     */
     metaControllerItemDataContext(requestParameters: MetaControllerItemDataRequest): runtime.RequestOpts {
         const queryParameters: any = {};
 
@@ -107,6 +164,23 @@ export class MetaApi extends runtime.BaseAPI {
 
     /**
      */
+    private async metaControllerItemsRaw(): Promise<runtime.ApiResponse<Array<GameserverItemDto>>> {
+        this.metaControllerItemsValidation();
+        const context = this.metaControllerItemsContext();
+        const response = await this.request(context);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(GameserverItemDtoFromJSON));
+    }
+
+
+
+    /**
+     */
+    private metaControllerItemsValidation() {
+    }
+
+    /**
+     */
     metaControllerItemsContext(): runtime.RequestOpts {
         const queryParameters: any = {};
 
@@ -125,72 +199,6 @@ export class MetaApi extends runtime.BaseAPI {
     metaControllerItems = async (): Promise<Array<GameserverItemDto>> => {
         const response = await this.metaControllerItemsRaw();
         return await response.value();
-    }
-
-    /**
-     */
-    private async metaControllerHeroDataRaw(requestParameters: MetaControllerHeroDataRequest): Promise<runtime.ApiResponse<Array<GameserverHeroItemDto>>> {
-        this.metaControllerHeroDataValidation(requestParameters);
-        const context = this.metaControllerHeroDataContext(requestParameters);
-        const response = await this.request(context);
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(GameserverHeroItemDtoFromJSON));
-    }
-
-    /**
-     */
-    private metaControllerHeroDataValidation(requestParameters: MetaControllerHeroDataRequest) {
-        if (requestParameters.hero === null || requestParameters.hero === undefined) {
-            throw new runtime.RequiredError('hero','Required parameter requestParameters.hero was null or undefined when calling metaControllerHeroData.');
-        }
-    }
-
-    /**
-     */
-    private async metaControllerHeroesRaw(): Promise<runtime.ApiResponse<Array<GameserverHeroSummaryDto>>> {
-        this.metaControllerHeroesValidation();
-        const context = this.metaControllerHeroesContext();
-        const response = await this.request(context);
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(GameserverHeroSummaryDtoFromJSON));
-    }
-
-    /**
-     */
-    private metaControllerHeroesValidation() {
-    }
-
-    /**
-     */
-    private async metaControllerItemDataRaw(requestParameters: MetaControllerItemDataRequest): Promise<runtime.ApiResponse<Array<GameserverItemHeroDto>>> {
-        this.metaControllerItemDataValidation(requestParameters);
-        const context = this.metaControllerItemDataContext(requestParameters);
-        const response = await this.request(context);
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(GameserverItemHeroDtoFromJSON));
-    }
-
-    /**
-     */
-    private metaControllerItemDataValidation(requestParameters: MetaControllerItemDataRequest) {
-        if (requestParameters.item === null || requestParameters.item === undefined) {
-            throw new runtime.RequiredError('item','Required parameter requestParameters.item was null or undefined when calling metaControllerItemData.');
-        }
-    }
-
-    /**
-     */
-    private async metaControllerItemsRaw(): Promise<runtime.ApiResponse<Array<GameserverItemDto>>> {
-        this.metaControllerItemsValidation();
-        const context = this.metaControllerItemsContext();
-        const response = await this.request(context);
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(GameserverItemDtoFromJSON));
-    }
-
-    /**
-     */
-    private metaControllerItemsValidation() {
     }
 
 }

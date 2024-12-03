@@ -12,7 +12,6 @@
  * Do not edit the class manually.
  */
 
-import { exists } from '../runtime';
 import { GameserverMmrChangeDto, GameserverMmrChangeDtoFromJSON, GameserverMmrChangeDtoToJSON } from './';
 
 /**
@@ -116,7 +115,7 @@ export class GameserverPlayerInMatchDto {
      * @type {GameserverMmrChangeDto}
      * @memberof GameserverPlayerInMatchDto
      */
-    mmr?: GameserverMmrChangeDto;
+    mmr: GameserverMmrChangeDto | null;
     /**
      *
      * @type {number}
@@ -186,7 +185,7 @@ export function GameserverPlayerInMatchDtoFromJSONTyped(json: any, ignoreDiscrim
         'last_hits': json['last_hits'],
         'denies': json['denies'],
         'gold': json['gold'],
-        'mmr': !exists(json, 'mmr') ? undefined : GameserverMmrChangeDtoFromJSON(json['mmr']),
+        'mmr': GameserverMmrChangeDtoFromJSON(json['mmr']),
         'item0': json['item0'],
         'item1': json['item1'],
         'item2': json['item2'],
