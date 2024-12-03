@@ -1,12 +1,11 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { LiveMatchDto } from "../rest/match/dto/match.dto";
 import { concat, Observable, of, Subject } from "rxjs";
-import { delay } from "rxjs/operators";
 import { ConfigService } from "@nestjs/config";
 
 interface LiveMatchEntry {
   source: Subject<LiveMatchDto>;
-  delayed: Observable<LiveMatchDto>;
+  // delayed: Observable<LiveMatchDto>;
 }
 @Injectable()
 export class LiveMatchService {
@@ -28,7 +27,7 @@ export class LiveMatchService {
     return this.finishedMatchesCache.get(id) === true;
   }
 
-  public pushEvent(event: LiveMatchDto) {
+  public async pushEvent(event: LiveMatchDto) {
     this.logger.verbose(
       `Pushing event ${event.matchId} ${this.isMatchComplete(event.matchId)}`,
     );
@@ -37,15 +36,17 @@ export class LiveMatchService {
     if (!this.cache.has(event.matchId)) {
       // if not subject, we
       const eventStream = new Subject<LiveMatchDto>();
-      this.cache.set(event.matchId, {
+      const entry = {
         source: eventStream,
-        delayed: eventStream.pipe(delay(this.delay)),
-      });
+      } satisfies LiveMatchEntry;
+      this.cache.set(event.matchId, entry);
 
-      eventStream.pipe(delay(this.delay)).subscribe((e) => {
+      entry.source.subscribe((e) => {
         this.entityCache.set(e.matchId, e);
       });
     }
+
+    await new Promise((resolve) => setTimeout(resolve, this.delay));
 
     this.cache.get(event.matchId).source.next(event);
   }
@@ -70,7 +71,7 @@ export class LiveMatchService {
     const liveOne = this.cache.get(id);
 
     if (liveOne && !this.isMatchComplete(id)) {
-      return concat(of(this.entityCache.get(id)), liveOne.delayed);
+      return concat(of(this.entityCache.get(id)), liveOne.source);
     }
 
     return of();
