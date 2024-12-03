@@ -4,11 +4,15 @@ import { concat, Observable, of, Subject } from "rxjs";
 import { delay } from "rxjs/operators";
 import { ConfigService } from "@nestjs/config";
 
+interface LiveMatchEntry {
+  source: Subject<LiveMatchDto>;
+  delayed: Observable<LiveMatchDto>;
+}
 @Injectable()
 export class LiveMatchService {
   // MINUTE DELAY
   // matchID key => events
-  private cache = new Map<number, Subject<LiveMatchDto>>();
+  private cache = new Map<number, LiveMatchEntry>();
   private finishedMatchesCache = new Map<number, boolean>();
 
   private readonly entityCache = new Map<number, LiveMatchDto>();
@@ -33,20 +37,23 @@ export class LiveMatchService {
     if (!this.cache.has(event.matchId)) {
       // if not subject, we
       const eventStream = new Subject<LiveMatchDto>();
-      this.cache.set(event.matchId, eventStream);
+      this.cache.set(event.matchId, {
+        source: eventStream,
+        delayed: eventStream.pipe(delay(this.delay)),
+      });
 
       eventStream.pipe(delay(this.delay)).subscribe((e) => {
         this.entityCache.set(e.matchId, e);
       });
     }
 
-    this.cache.get(event.matchId).next(event);
+    this.cache.get(event.matchId).source.next(event);
   }
 
   public onStop(id: number) {
     const sub = this.cache.get(id);
     if (sub) {
-      sub.complete();
+      sub.source.complete();
       this.cache.delete(id);
       this.finishedMatchesCache.set(id, true);
       this.entityCache.delete(id);
@@ -63,9 +70,7 @@ export class LiveMatchService {
     const liveOne = this.cache.get(id);
 
     if (liveOne && !this.isMatchComplete(id)) {
-      return concat(of(this.entityCache.get(id)), liveOne).pipe(
-        delay(this.delay),
-      );
+      return concat(of(this.entityCache.get(id)), liveOne.delayed);
     }
 
     return of();
