@@ -34,9 +34,6 @@ import { GetPlayerInfoQuery } from "../../gateway/queries/GetPlayerInfo/get-play
 import { GetPlayerInfoQueryResult } from "../../gateway/queries/GetPlayerInfo/get-player-info-query.result";
 import { Dota2Version } from "../../gateway/shared-types/dota2version";
 import { PlayerBanHammeredEvent } from "../../gateway/events/bans/player-ban-hammered.event";
-import { MatchmakingModeStatusEntity } from "../../entity/matchmaking-mode-status.entity";
-import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
 import { NullableIntPipe } from "../../utils/pipes";
 import { AdminMapper } from "./admin.mapper";
 import { WithPagination } from "../../utils/decorator/pagination";
@@ -51,8 +48,6 @@ export class AdminUserController {
     private readonly urep: UserRepository,
     private readonly ebus: EventBus,
     private readonly mapper: AdminMapper,
-    @InjectRepository(MatchmakingModeStatusEntity)
-    private readonly matchmakingModeStatusEntityRepository: Repository<MatchmakingModeStatusEntity>,
     private readonly api: CrimeApi,
     private readonly infoApi: InfoApi,
   ) {}

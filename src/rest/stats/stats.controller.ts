@@ -2,9 +2,6 @@ import { Controller, Get, UseInterceptors } from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
 import { InfoApi } from "../../generated-api/gameserver";
 import { CurrentOnlineDto, MatchmakingInfo } from "./dto/stats.dto";
-import { MatchmakingModeStatusEntity } from "../../entity/matchmaking-mode-status.entity";
-import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
 import { CacheTTL } from "@nestjs/cache-manager";
 import { ReqLoggingInterceptor } from "../../middleware/req-logging.interceptor";
 
@@ -12,11 +9,7 @@ import { ReqLoggingInterceptor } from "../../middleware/req-logging.interceptor"
 @Controller("stats")
 @ApiTags("stats")
 export class StatsController {
-  constructor(
-    @InjectRepository(MatchmakingModeStatusEntity)
-    private readonly matchmakingModeStatusEntityRepository: Repository<MatchmakingModeStatusEntity>,
-    private readonly ms: InfoApi,
-  ) {}
+  constructor(private readonly ms: InfoApi) {}
 
   @Get("/matchmaking")
   async getMatchmakingInfo(): Promise<MatchmakingInfo[]> {

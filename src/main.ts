@@ -16,6 +16,7 @@ import * as fs from "fs";
 import { WinstonWrapper } from "./utils/logger";
 import configuration from "./config/configuration";
 import { ConfigService } from "@nestjs/config";
+import { MainService } from "./main.service";
 
 async function bootstrap() {
   // Start SDK before nestjs factory create
@@ -73,7 +74,7 @@ async function bootstrap() {
 
   await app.startAllMicroservices();
 
-  // await app.get<MainService>(MainService).actualizeServers();
+  await app.get<MainService>(MainService).actualizeServers();
 
   console.log("Started api gateway");
 
