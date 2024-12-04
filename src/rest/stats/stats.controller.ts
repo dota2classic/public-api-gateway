@@ -20,7 +20,7 @@ export class StatsController {
 
   @Get("/matchmaking")
   async getMatchmakingInfo(): Promise<MatchmakingInfo[]> {
-    return this.matchmakingModeStatusEntityRepository.find();
+    return this.ms.infoControllerGamemodes();
   }
 
   @Get("/servers")

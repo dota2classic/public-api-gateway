@@ -1,6 +1,6 @@
 import { MatchmakingMode } from "../../../gateway/shared-types/matchmaking-mode";
-import { Dota2Version } from "../../../gateway/shared-types/dota2version";
 import { ApiProperty } from "@nestjs/swagger";
+import { Dota_GameMode } from "../../../gateway/shared-types/dota-game-mode";
 
 export class CurrentOnlineDto {
   inGame: number;
@@ -10,8 +10,10 @@ export class CurrentOnlineDto {
 
 export class MatchmakingInfo {
   @ApiProperty({ enum: MatchmakingMode, enumName: "MatchmakingMode" })
-  mode: MatchmakingMode;
+  lobby_type: MatchmakingMode;
+
+  @ApiProperty({ enum: Dota_GameMode, enumName: "Dota_GameMode" })
+  game_mode: Dota_GameMode;
+
   enabled: boolean;
-  @ApiProperty({ enum: Dota2Version, enumName: "Dota2Version" })
-  version: Dota2Version;
 }

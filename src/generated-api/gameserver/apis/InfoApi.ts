@@ -13,14 +13,23 @@
  */
 
 
-import * as runtime from '../runtime';
+import * as runtime from "../runtime";
 
 import {
   GameserverGameServerDto,
   GameserverGameServerDtoFromJSON,
   GameserverGameSessionDto,
   GameserverGameSessionDtoFromJSON,
-} from '../models';
+  GameserverMatchmakingModeInfoDto,
+  GameserverMatchmakingModeInfoDtoFromJSON,
+  GameserverUpdateGamemodeDto,
+  GameserverUpdateGamemodeDtoToJSON,
+} from "../models";
+
+export interface InfoControllerUpdateGamemodeRequest {
+  mode: number;
+  gameserverUpdateGamemodeDto: GameserverUpdateGamemodeDto;
+}
 
 /**
  *
@@ -107,6 +116,52 @@ export class InfoApi extends runtime.BaseAPI {
 
     /**
      */
+    infoControllerGamemodesContext(): runtime.RequestOpts {
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        return {
+            path: `/info/gamemode`,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        };
+    }
+
+    /**
+     */
+    infoControllerGamemodes = async (): Promise<Array<GameserverMatchmakingModeInfoDto>> => {
+        const response = await this.infoControllerGamemodesRaw();
+        return await response.value();
+    }
+
+    /**
+     */
+    infoControllerUpdateGamemodeContext(requestParameters: InfoControllerUpdateGamemodeRequest): runtime.RequestOpts {
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+        return {
+            path: `/info/gamemode/{mode}`.replace(`{${"mode"}}`, encodeURIComponent(String(requestParameters.mode))),
+            method: 'PUT',
+            headers: headerParameters,
+            query: queryParameters,
+            body: GameserverUpdateGamemodeDtoToJSON(requestParameters.gameserverUpdateGamemodeDto),
+        };
+    }
+
+    /**
+     */
+    infoControllerUpdateGamemode = async (mode: number, gameserverUpdateGamemodeDto: GameserverUpdateGamemodeDto): Promise<void> => {
+        await this.infoControllerUpdateGamemodeRaw({ mode: mode, gameserverUpdateGamemodeDto: gameserverUpdateGamemodeDto });
+    }
+
+    /**
+     */
     private async infoControllerGetCurrentOnlineRaw(): Promise<runtime.ApiResponse<number>> {
         this.infoControllerGetCurrentOnlineValidation();
         const context = this.infoControllerGetCurrentOnlineContext();
@@ -142,6 +197,42 @@ export class InfoApi extends runtime.BaseAPI {
     infoControllerGetCurrentOnline = async (): Promise<number> => {
         const response = await this.infoControllerGetCurrentOnlineRaw();
         return await response.value();
+    }
+
+    /**
+     */
+    private async infoControllerGamemodesRaw(): Promise<runtime.ApiResponse<Array<GameserverMatchmakingModeInfoDto>>> {
+        this.infoControllerGamemodesValidation();
+        const context = this.infoControllerGamemodesContext();
+        const response = await this.request(context);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(GameserverMatchmakingModeInfoDtoFromJSON));
+    }
+
+    /**
+     */
+    private infoControllerGamemodesValidation() {
+    }
+
+    /**
+     */
+    private async infoControllerUpdateGamemodeRaw(requestParameters: InfoControllerUpdateGamemodeRequest): Promise<runtime.ApiResponse<void>> {
+        this.infoControllerUpdateGamemodeValidation(requestParameters);
+        const context = this.infoControllerUpdateGamemodeContext(requestParameters);
+        const response = await this.request(context);
+
+        return new runtime.VoidApiResponse(response);
+    }
+
+    /**
+     */
+    private infoControllerUpdateGamemodeValidation(requestParameters: InfoControllerUpdateGamemodeRequest) {
+        if (requestParameters.mode === null || requestParameters.mode === undefined) {
+            throw new runtime.RequiredError('mode','Required parameter requestParameters.mode was null or undefined when calling infoControllerUpdateGamemode.');
+        }
+        if (requestParameters.gameserverUpdateGamemodeDto === null || requestParameters.gameserverUpdateGamemodeDto === undefined) {
+            throw new runtime.RequiredError('gameserverUpdateGamemodeDto','Required parameter requestParameters.gameserverUpdateGamemodeDto was null or undefined when calling infoControllerUpdateGamemode.');
+        }
     }
 
 }

@@ -14,6 +14,7 @@ export * from './GameserverLeaderboardEntryPageDto';
 export * from './GameserverMatchDto';
 export * from './GameserverMatchInfoDto';
 export * from './GameserverMatchPageDto';
+export * from './GameserverMatchmakingModeInfoDto';
 export * from './GameserverMmrChangeDto';
 export * from './GameserverPlayerHeroPerformance';
 export * from './GameserverPlayerInMatchDto';
@@ -21,4 +22,5 @@ export * from './GameserverPlayerSummaryDto';
 export * from './GameserverPlayerTeammateDto';
 export * from './GameserverPlayerTeammatePage';
 export * from './GameserverReportPlayerDto';
+export * from './GameserverUpdateGamemodeDto';
 export * from "../../mapped-models"

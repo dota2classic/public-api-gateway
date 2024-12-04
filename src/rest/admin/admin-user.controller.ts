@@ -9,7 +9,7 @@ import {
 } from "@nestjs/common";
 import { ClientProxy } from "@nestjs/microservices";
 import { EventBus, QueryBus } from "@nestjs/cqrs";
-import { CrimeApi } from "../../generated-api/gameserver";
+import { CrimeApi, InfoApi } from "../../generated-api/gameserver";
 import { ApiQuery, ApiTags } from "@nestjs/swagger";
 import {
   BanHammerDto,
@@ -40,6 +40,7 @@ import { Repository } from "typeorm";
 import { NullableIntPipe } from "../../utils/pipes";
 import { AdminMapper } from "./admin.mapper";
 import { WithPagination } from "../../utils/decorator/pagination";
+import { MatchmakingInfo } from "../stats/dto/stats.dto";
 
 @Controller("admin/users")
 @ApiTags("admin")
@@ -53,6 +54,7 @@ export class AdminUserController {
     @InjectRepository(MatchmakingModeStatusEntity)
     private readonly matchmakingModeStatusEntityRepository: Repository<MatchmakingModeStatusEntity>,
     private readonly api: CrimeApi,
+    private readonly infoApi: InfoApi,
   ) {}
 
   @ModeratorGuard()
@@ -84,25 +86,13 @@ export class AdminUserController {
   @Post("updateGameMode")
   public async updateGameMode(
     @Body() b: UpdateModeDTO,
-  ): Promise<MatchmakingModeStatusEntity[]> {
-    let status = await this.matchmakingModeStatusEntityRepository.findOne({
-      where: {
-        version: b.version,
-        mode: b.mode,
-      },
+  ): Promise<MatchmakingInfo[]> {
+    await this.infoApi.infoControllerUpdateGamemode(b.mode, {
+      enabled: b.enabled,
+      game_mode: b.dotaGameMode,
     });
 
-    if (!status) {
-      status = new MatchmakingModeStatusEntity();
-      status.version = b.version;
-      status.mode = b.mode;
-    }
-
-    status.enabled = b.enabled;
-
-    await this.matchmakingModeStatusEntityRepository.save(status);
-
-    return this.matchmakingModeStatusEntityRepository.find();
+    return this.infoApi.infoControllerGamemodes();
   }
 
   @AdminGuard()

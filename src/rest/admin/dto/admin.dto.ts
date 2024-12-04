@@ -6,6 +6,7 @@ import { ApiProperty } from "@nestjs/swagger";
 import { UserDTO } from "../../shared.dto";
 import { Page } from "../../../gateway/shared-types/page";
 import { Timestamp } from "../../../gateway/shared-types/dto-types";
+import { Dota_GameMode } from "../../../gateway/shared-types/dota-game-mode";
 
 export class MatchInfoDto {
   @ApiProperty({ enum: MatchmakingMode, enumName: "MatchmakingMode" })
@@ -45,8 +46,9 @@ export class UpdateRolesDto {
 export class UpdateModeDTO {
   @ApiProperty({ enum: MatchmakingMode, enumName: "MatchmakingMode" })
   mode: MatchmakingMode;
-  @ApiProperty({ enum: Dota2Version, enumName: "Dota2Version" })
-  version: Dota2Version;
+  @ApiProperty({ enum: Dota_GameMode, enumName: "Dota_GameMode" })
+  dotaGameMode: Dota_GameMode;
+
   enabled: boolean;
 }
 
