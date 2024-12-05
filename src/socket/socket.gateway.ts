@@ -56,6 +56,7 @@ export class SocketGateway implements OnGatewayDisconnect, OnGatewayConnection {
       const parsed = this.jwtService.verify<{ sub: string }>(authToken);
 
       client.steamId = parsed.sub;
+      this.stopDisconnectCountdown(client);
 
       await this.shareInitialData(client);
     } catch (e) {
