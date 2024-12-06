@@ -48,7 +48,9 @@ export class LiveMatchService {
 
     await new Promise((resolve) => setTimeout(resolve, this.delay));
 
-    this.cache.get(event.matchId).source.next(event);
+    try {
+      this.cache.get(event.matchId).source.next(event);
+    } catch (e) {}
   }
 
   public onStop(id: number) {
