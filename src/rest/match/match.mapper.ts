@@ -53,6 +53,7 @@ export class MatchMapper {
     return {
       id: it.id,
       mode: it.mode,
+      game_mode: it.game_mode,
       winner: it.winner,
       duration: it.duration,
       timestamp: it.timestamp,

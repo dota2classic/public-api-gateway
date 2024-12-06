@@ -46,6 +46,9 @@ export class MatchDto {
   @ApiProperty({ enum: MatchmakingMode, enumName: "MatchmakingMode" })
   mode: MatchmakingMode;
 
+  @ApiProperty({ enum: Dota_GameMode, enumName: "Dota_GameMode" })
+  game_mode: Dota_GameMode;
+
   radiant: Array<PlayerInMatchDto>;
 
   dire: Array<PlayerInMatchDto>;
