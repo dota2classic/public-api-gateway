@@ -2,6 +2,8 @@ import { MatchmakingMode } from "../../../gateway/shared-types/matchmaking-mode"
 import { Dota_GameMode } from "../../../gateway/shared-types/dota-game-mode";
 import { ApiProperty } from "@nestjs/swagger";
 import { UserDTO } from "../../shared.dto";
+import { Dota_GameRulesState } from "../../../gateway/shared-types/dota-game-rules-state";
+import { DotaConnectionState } from "../../../gateway/shared-types/dota-player-connection-state";
 
 export class MmrChangeDto {
   mmr_before: number;
@@ -69,11 +71,7 @@ export class MatchPageDto {
 }
 
 export class PlayerInfo {
-  steam_id: string;
-  name: string;
-
   hero: string;
-  team: number;
   level: number;
 
   bot: boolean;
@@ -101,6 +99,14 @@ export class PlayerInfo {
   respawn_time: number;
 }
 
+export class MatchSlotInfo {
+  user: UserDTO;
+  team: number;
+  @ApiProperty({ enum: DotaConnectionState, enumName: "DotaConnectionState" })
+  connection: DotaConnectionState;
+
+  heroData?: PlayerInfo;
+}
 export class LiveMatchDto {
   matchId: number;
   @ApiProperty({ enum: MatchmakingMode, enumName: "MatchmakingMode" })
@@ -108,10 +114,14 @@ export class LiveMatchDto {
 
   @ApiProperty({ enum: Dota_GameMode, enumName: "Dota_GameMode" })
   gameMode: Dota_GameMode;
+
+  @ApiProperty({ enum: Dota_GameRulesState, enumName: "DotaGameRulesState" })
+  gameState: Dota_GameRulesState;
+
   duration: number;
   server: string;
   timestamp: number;
-  heroes: PlayerInfo[];
+  heroes: MatchSlotInfo[];
 }
 
 export class MessageObjectDto<T> {
