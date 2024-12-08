@@ -1,5 +1,6 @@
 import * as winston from "winston";
 import * as fluent from "fluent-logger";
+import * as winstonTransport from "winston-transport";
 import { LoggerService } from "@nestjs/common/services/logger.service";
 import { LogLevel } from "@nestjs/common";
 
@@ -28,12 +29,12 @@ export class WinstonWrapper implements LoggerService {
             }),
           ),
         }),
-        // new winstonTransport({
-        //   level: "verbose",
-        //   log(v, next) {
-        //      fluentLogger.emit(v, next);
-        //   },
-        // }),
+        new winstonTransport({
+          level: "verbose",
+          log(v, next) {
+            fluentLogger.emit(v, next);
+          },
+        }),
       ],
     });
   }
