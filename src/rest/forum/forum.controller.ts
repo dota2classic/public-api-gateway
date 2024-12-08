@@ -49,6 +49,7 @@ import { ForumMapper } from "./forum.mapper";
 import { WithPagination } from "../../utils/decorator/pagination";
 import { PlayerId } from "../../gateway/shared-types/player-id";
 import { ReqLoggingInterceptor } from "../../middleware/req-logging.interceptor";
+import { LiveMatchService } from "../../cache/live-match.service";
 
 @UseInterceptors(ReqLoggingInterceptor)
 @Controller("forum")
@@ -60,6 +61,7 @@ export class ForumController {
     private readonly urepo: UserRepository,
     private readonly api: ForumApi,
     private readonly matchApi: MatchApi,
+    private readonly liveMatchService: LiveMatchService,
   ) {}
 
   @ApiParam({
@@ -208,15 +210,20 @@ export class ForumController {
       }
     } else if (threadType === ThreadType.MATCH) {
       try {
-        const match = await this.matchApi.matchControllerGetMatch(parseInt(id));
-        return this.api
-          .forumControllerGetThreadForKey({
-            threadType: ThreadType.MATCH,
-            externalId: id,
-            title: `Матч ${match.id}`,
-            op: undefined, // A little harder here, who is op? Should there be an op?
-          })
-          .then(this.mapper.mapThread);
+        // Live or finished
+        const matchId = parseInt(id);
+        if (
+          this.liveMatchService.isLive(matchId) ||
+          (await this.matchApi.matchControllerGetMatch(matchId))
+        )
+          return this.api
+            .forumControllerGetThreadForKey({
+              threadType: ThreadType.MATCH,
+              externalId: id,
+              title: `Матч ${matchId}`,
+              op: undefined, // A little harder here, who is op? Should there be an op?
+            })
+            .then(this.mapper.mapThread);
       } catch (e) {
         throw new NotFoundException("Match not found");
       }

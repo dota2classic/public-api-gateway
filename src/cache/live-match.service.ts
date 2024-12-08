@@ -78,4 +78,8 @@ export class LiveMatchService {
 
     return of();
   }
+
+  public isLive(id: number): boolean {
+    return this.cache.get(id) !== undefined;
+  }
 }
