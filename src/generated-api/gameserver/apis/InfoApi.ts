@@ -116,28 +116,6 @@ export class InfoApi extends runtime.BaseAPI {
 
     /**
      */
-    infoControllerGamemodesContext(): runtime.RequestOpts {
-        const queryParameters: any = {};
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-        return {
-            path: `/info/gamemode`,
-            method: 'GET',
-            headers: headerParameters,
-            query: queryParameters,
-        };
-    }
-
-    /**
-     */
-    infoControllerGamemodes = async (): Promise<Array<GameserverMatchmakingModeInfoDto>> => {
-        const response = await this.infoControllerGamemodesRaw();
-        return await response.value();
-    }
-
-    /**
-     */
     infoControllerUpdateGamemodeContext(requestParameters: InfoControllerUpdateGamemodeRequest): runtime.RequestOpts {
         const queryParameters: any = {};
 
@@ -158,6 +136,28 @@ export class InfoApi extends runtime.BaseAPI {
      */
     infoControllerUpdateGamemode = async (mode: number, gameserverUpdateGamemodeDto: GameserverUpdateGamemodeDto): Promise<void> => {
         await this.infoControllerUpdateGamemodeRaw({ mode: mode, gameserverUpdateGamemodeDto: gameserverUpdateGamemodeDto });
+    }
+
+    /**
+     */
+    infoControllerGamemodesContext(): runtime.RequestOpts {
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        return {
+            path: `/info/gamemode`,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        };
+    }
+
+    /**
+     */
+    infoControllerGamemodes = async (): Promise<Array<GameserverMatchmakingModeInfoDto>> => {
+        const response = await this.infoControllerGamemodesRaw();
+        return await response.value();
     }
 
     /**
@@ -201,6 +201,29 @@ export class InfoApi extends runtime.BaseAPI {
 
     /**
      */
+    private async infoControllerUpdateGamemodeRaw(requestParameters: InfoControllerUpdateGamemodeRequest): Promise<runtime.ApiResponse<void>> {
+        this.infoControllerUpdateGamemodeValidation(requestParameters);
+        const context = this.infoControllerUpdateGamemodeContext(requestParameters);
+        const response = await this.request(context);
+
+        return new runtime.VoidApiResponse(response);
+    }
+
+
+
+    /**
+     */
+    private infoControllerUpdateGamemodeValidation(requestParameters: InfoControllerUpdateGamemodeRequest) {
+        if (requestParameters.mode === null || requestParameters.mode === undefined) {
+            throw new runtime.RequiredError('mode','Required parameter requestParameters.mode was null or undefined when calling infoControllerUpdateGamemode.');
+        }
+        if (requestParameters.gameserverUpdateGamemodeDto === null || requestParameters.gameserverUpdateGamemodeDto === undefined) {
+            throw new runtime.RequiredError('gameserverUpdateGamemodeDto','Required parameter requestParameters.gameserverUpdateGamemodeDto was null or undefined when calling infoControllerUpdateGamemode.');
+        }
+    }
+
+    /**
+     */
     private async infoControllerGamemodesRaw(): Promise<runtime.ApiResponse<Array<GameserverMatchmakingModeInfoDto>>> {
         this.infoControllerGamemodesValidation();
         const context = this.infoControllerGamemodesContext();
@@ -212,27 +235,6 @@ export class InfoApi extends runtime.BaseAPI {
     /**
      */
     private infoControllerGamemodesValidation() {
-    }
-
-    /**
-     */
-    private async infoControllerUpdateGamemodeRaw(requestParameters: InfoControllerUpdateGamemodeRequest): Promise<runtime.ApiResponse<void>> {
-        this.infoControllerUpdateGamemodeValidation(requestParameters);
-        const context = this.infoControllerUpdateGamemodeContext(requestParameters);
-        const response = await this.request(context);
-
-        return new runtime.VoidApiResponse(response);
-    }
-
-    /**
-     */
-    private infoControllerUpdateGamemodeValidation(requestParameters: InfoControllerUpdateGamemodeRequest) {
-        if (requestParameters.mode === null || requestParameters.mode === undefined) {
-            throw new runtime.RequiredError('mode','Required parameter requestParameters.mode was null or undefined when calling infoControllerUpdateGamemode.');
-        }
-        if (requestParameters.gameserverUpdateGamemodeDto === null || requestParameters.gameserverUpdateGamemodeDto === undefined) {
-            throw new runtime.RequiredError('gameserverUpdateGamemodeDto','Required parameter requestParameters.gameserverUpdateGamemodeDto was null or undefined when calling infoControllerUpdateGamemode.');
-        }
     }
 
 }

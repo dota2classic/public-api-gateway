@@ -12,7 +12,14 @@
  * Do not edit the class manually.
  */
 
-import { GameserverBanReason, GameserverBanReasonFromJSON, GameserverBanReasonToJSON } from './';
+import {
+  GameserverBanReason,
+  GameserverBanReasonFromJSON,
+  GameserverBanReasonToJSON,
+  GameserverMatchmakingMode,
+  GameserverMatchmakingModeFromJSON,
+  GameserverMatchmakingModeToJSON,
+} from './';
 
 /**
  *
@@ -26,6 +33,12 @@ export class GameserverCrimeLogDto {
      * @memberof GameserverCrimeLogDto
      */
     crime: GameserverBanReason;
+    /**
+     *
+     * @type {GameserverMatchmakingMode}
+     * @memberof GameserverCrimeLogDto
+     */
+    lobby_type: GameserverMatchmakingMode;
     /**
      *
      * @type {number}
@@ -63,6 +76,7 @@ export function GameserverCrimeLogDtoFromJSONTyped(json: any, ignoreDiscriminato
     return {
 
         'crime': GameserverBanReasonFromJSON(json['crime']),
+        'lobby_type': GameserverMatchmakingModeFromJSON(json['lobby_type']),
         'id': json['id'],
         'handled': json['handled'],
         'steam_id': json['steam_id'],
@@ -80,6 +94,7 @@ export function GameserverCrimeLogDtoToJSON(value?: GameserverCrimeLogDto | null
     return {
 
         'crime': GameserverBanReasonToJSON(value.crime),
+        'lobby_type': GameserverMatchmakingModeToJSON(value.lobby_type),
         'id': value.id,
         'handled': value.handled,
         'steam_id': value.steam_id,

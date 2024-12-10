@@ -20,6 +20,7 @@ export class AdminMapper {
     user: await this.userRep.userDto(t.steam_id),
     handled: t.handled,
     crime: t.crime,
+    lobby_type: t.lobby_type,
     created_at: t.created_at,
   });
 

@@ -108,6 +108,10 @@ export class CrimeLogDto {
 
   @ApiProperty({ enum: BanReason, enumName: "BanReason" })
   readonly crime: BanReason;
+
+  @ApiProperty({ enum: MatchmakingMode, enumName: "MatchmakingMode" })
+  readonly lobby_type: MatchmakingMode;
+
   readonly created_at: string;
 }
 export class CrimeLogPageDto extends Page<CrimeLogDto> {
