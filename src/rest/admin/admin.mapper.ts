@@ -22,6 +22,7 @@ export class AdminMapper {
     crime: t.crime,
     lobby_type: t.lobby_type,
     created_at: t.created_at,
+    ban_duration: t.banTime,
   });
 
   public mapGameServer = (t: GameserverGameServerDto): GameServerDto => ({

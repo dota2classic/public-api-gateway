@@ -63,6 +63,12 @@ export class GameserverCrimeLogDto {
      * @memberof GameserverCrimeLogDto
      */
     created_at: string;
+    /**
+     *
+     * @type {number}
+     * @memberof GameserverCrimeLogDto
+     */
+    banTime: number;
 }
 
 export function GameserverCrimeLogDtoFromJSON(json: any): GameserverCrimeLogDto {
@@ -81,6 +87,7 @@ export function GameserverCrimeLogDtoFromJSONTyped(json: any, ignoreDiscriminato
         'handled': json['handled'],
         'steam_id': json['steam_id'],
         'created_at': json['created_at'],
+        'banTime': json['banTime'],
     };
 }
 
@@ -99,6 +106,7 @@ export function GameserverCrimeLogDtoToJSON(value?: GameserverCrimeLogDto | null
         'handled': value.handled,
         'steam_id': value.steam_id,
         'created_at': value.created_at,
+        'banTime': value.banTime,
     };
 }
 

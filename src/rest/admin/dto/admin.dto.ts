@@ -113,6 +113,7 @@ export class CrimeLogDto {
   readonly lobby_type: MatchmakingMode;
 
   readonly created_at: string;
+  readonly ban_duration: number;
 }
 export class CrimeLogPageDto extends Page<CrimeLogDto> {
   data: CrimeLogDto[];
