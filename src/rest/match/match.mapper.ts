@@ -14,12 +14,16 @@ import {
 } from "./dto/match.dto";
 import { MATCH_REPORT_TIMEOUT } from "../../gateway/shared-types/timings";
 import { GetReportsAvailableQueryResult } from "../../gateway/queries/GetReportsAvailable/get-reports-available-query.result";
+import { ConfigService } from "@nestjs/config";
 
 export interface PlayerMappableResource
   extends GetReportsAvailableQueryResult {}
 @Injectable()
 export class MatchMapper {
-  constructor(private readonly userRepository: UserRepository) {}
+  constructor(
+    private readonly userRepository: UserRepository,
+    private readonly configService: ConfigService,
+  ) {}
 
   public mapMmr = (it: GameserverMmrChangeDto): MmrChangeDto => ({
     mmr_before: it.mmr_before,
@@ -60,6 +64,7 @@ export class MatchMapper {
       reportable: isReportable,
       radiant: await Promise.all(it.radiant.map(this.mapPlayerInMatch)),
       dire: await Promise.all(it.dire.map(this.mapPlayerInMatch)),
+      replayUrl: `${this.configService.get("api.replayUrl")}${it.id}.dem`,
     };
   };
 

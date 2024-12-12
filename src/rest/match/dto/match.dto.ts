@@ -61,6 +61,7 @@ export class MatchDto {
   reportable: boolean;
 
   timestamp: string;
+  replayUrl: string;
 }
 
 export class MatchPageDto {
