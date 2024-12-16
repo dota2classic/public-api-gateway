@@ -53,6 +53,7 @@ export class PlayerSummaryDto {
   rank?: number;
   unrankedGamesLeft: number;
   playedAnyGame: boolean;
+  hasHumanGamesAccess: boolean;
   calibrationGamesLeft: number;
 
   games_played: number;

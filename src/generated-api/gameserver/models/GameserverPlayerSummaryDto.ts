@@ -38,6 +38,12 @@ export class GameserverPlayerSummaryDto {
     calibrationGamesLeft: number;
     /**
      *
+     * @type {boolean}
+     * @memberof GameserverPlayerSummaryDto
+     */
+    hasUnrankedAccess: boolean;
+    /**
+     *
      * @type {number}
      * @memberof GameserverPlayerSummaryDto
      */
@@ -105,6 +111,7 @@ export function GameserverPlayerSummaryDtoFromJSONTyped(json: any, ignoreDiscrim
         'newbieUnrankedGamesLeft': json['newbieUnrankedGamesLeft'],
         'playedAnyGame': json['playedAnyGame'],
         'calibrationGamesLeft': json['calibrationGamesLeft'],
+        'hasUnrankedAccess': json['hasUnrankedAccess'],
         'rank': json['rank'],
         'steam_id': json['steam_id'],
         'mmr': json['mmr'],
@@ -129,6 +136,7 @@ export function GameserverPlayerSummaryDtoToJSON(value?: GameserverPlayerSummary
         'newbieUnrankedGamesLeft': value.newbieUnrankedGamesLeft,
         'playedAnyGame': value.playedAnyGame,
         'calibrationGamesLeft': value.calibrationGamesLeft,
+        'hasUnrankedAccess': value.hasUnrankedAccess,
         'rank': value.rank,
         'steam_id': value.steam_id,
         'mmr': value.mmr,

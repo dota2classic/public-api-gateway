@@ -96,6 +96,7 @@ export class PlayerMapper {
       loss: it.games - it.wins,
       games_played: it.games,
       calibrationGamesLeft: it.calibrationGamesLeft,
+      hasHumanGamesAccess: it.hasUnrankedAccess,
     };
   };
 
