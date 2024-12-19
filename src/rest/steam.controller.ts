@@ -1,7 +1,6 @@
 import {
   Controller,
   Get,
-  Inject,
   Logger,
   Post,
   Req,
@@ -17,7 +16,6 @@ import { ApiExcludeEndpoint, ApiOkResponse, ApiTags } from "@nestjs/swagger";
 import { UserRepository } from "../cache/user/user.repository";
 import { UserLoggedInEvent } from "../gateway/events/user/user-logged-in.event";
 import { PlayerId } from "../gateway/shared-types/player-id";
-import { ClientProxy } from "@nestjs/microservices";
 import { CookieOptions, Response } from "express";
 import {
   AccessToken,
@@ -27,6 +25,7 @@ import {
 import { AuthService } from "./auth/auth.service";
 import { WithUser } from "../utils/decorator/with-user";
 import { ConfigService } from "@nestjs/config";
+import { EventBus } from "@nestjs/cqrs";
 
 @Controller("auth/steam")
 @ApiTags("auth")
@@ -39,9 +38,9 @@ export class SteamController {
   constructor(
     private readonly jwtService: JwtService,
     private readonly userRepository: UserRepository,
-    @Inject("QueryCore") private readonly rq: ClientProxy,
     private readonly authService: AuthService,
     private readonly config: ConfigService,
+    private readonly ebus: EventBus,
   ) {}
 
   @Post("refresh_token")
@@ -77,8 +76,7 @@ export class SteamController {
   ) {
     const steam32id = steam64to32(req.user!!._json.steamid);
 
-    this.rq.emit(
-      UserLoggedInEvent.name,
+    this.ebus.publish(
       new UserLoggedInEvent(
         new PlayerId(steam32id),
         req.user!!._json.personaname,

@@ -30,10 +30,15 @@ export class AuthService {
     );
   }
 
-  public async createToken(steam_id: string, name?: string, avatar?: string) {
+  public async createToken(
+    steam_id: string,
+    name?: string,
+    avatar?: string,
+    expiresIn = AuthService.REFRESH_TOKEN_EXPIRES_IN,
+  ) {
     const payload = await this.createJwtPayload(steam_id, name, avatar);
     return this.jwtService.sign(payload, {
-      expiresIn: AuthService.REFRESH_TOKEN_EXPIRES_IN,
+      expiresIn,
     });
   }
 
