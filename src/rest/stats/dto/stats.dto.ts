@@ -1,6 +1,7 @@
 import { MatchmakingMode } from "../../../gateway/shared-types/matchmaking-mode";
 import { ApiProperty } from "@nestjs/swagger";
 import { Dota_GameMode } from "../../../gateway/shared-types/dota-game-mode";
+import { Dota_Map } from "../../../gateway/shared-types/dota-map";
 
 export class CurrentOnlineDto {
   inGame: number;
@@ -14,6 +15,9 @@ export class MatchmakingInfo {
 
   @ApiProperty({ enum: Dota_GameMode, enumName: "Dota_GameMode" })
   game_mode: Dota_GameMode;
+
+  @ApiProperty({ enum: Dota_Map, enumName: "Dota_Map" })
+  dota_map: Dota_Map;
 
   enabled: boolean;
 }

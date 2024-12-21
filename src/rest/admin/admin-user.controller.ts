@@ -84,6 +84,7 @@ export class AdminUserController {
   ): Promise<MatchmakingInfo[]> {
     await this.infoApi.infoControllerUpdateGamemode(b.mode, {
       enabled: b.enabled,
+      dota_map: b.dotaMap,
       game_mode: b.dotaGameMode,
     });
 

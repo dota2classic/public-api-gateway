@@ -7,6 +7,7 @@ import { UserDTO } from "../../shared.dto";
 import { Page } from "../../../gateway/shared-types/page";
 import { Timestamp } from "../../../gateway/shared-types/dto-types";
 import { Dota_GameMode } from "../../../gateway/shared-types/dota-game-mode";
+import { Dota_Map } from "../../../gateway/shared-types/dota-map";
 
 export class MatchInfoDto {
   @ApiProperty({ enum: MatchmakingMode, enumName: "MatchmakingMode" })
@@ -46,8 +47,12 @@ export class UpdateRolesDto {
 export class UpdateModeDTO {
   @ApiProperty({ enum: MatchmakingMode, enumName: "MatchmakingMode" })
   mode: MatchmakingMode;
+
   @ApiProperty({ enum: Dota_GameMode, enumName: "Dota_GameMode" })
   dotaGameMode: Dota_GameMode;
+
+  @ApiProperty({ enum: Dota_Map, enumName: "Dota_Map" })
+  dotaMap: Dota_Map;
 
   enabled: boolean;
 }

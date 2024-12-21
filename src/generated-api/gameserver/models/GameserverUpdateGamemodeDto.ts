@@ -12,7 +12,14 @@
  * Do not edit the class manually.
  */
 
-import { GameserverDotaGameMode, GameserverDotaGameModeFromJSON, GameserverDotaGameModeToJSON } from './';
+import {
+  GameserverDotaGameMode,
+  GameserverDotaGameModeFromJSON,
+  GameserverDotaGameModeToJSON,
+  GameserverDotaMap,
+  GameserverDotaMapFromJSON,
+  GameserverDotaMapToJSON,
+} from './';
 
 /**
  *
@@ -26,6 +33,12 @@ export class GameserverUpdateGamemodeDto {
      * @memberof GameserverUpdateGamemodeDto
      */
     game_mode: GameserverDotaGameMode;
+    /**
+     *
+     * @type {GameserverDotaMap}
+     * @memberof GameserverUpdateGamemodeDto
+     */
+    dota_map: GameserverDotaMap;
     /**
      *
      * @type {boolean}
@@ -45,6 +58,7 @@ export function GameserverUpdateGamemodeDtoFromJSONTyped(json: any, ignoreDiscri
     return {
 
         'game_mode': GameserverDotaGameModeFromJSON(json['game_mode']),
+        'dota_map': GameserverDotaMapFromJSON(json['dota_map']),
         'enabled': json['enabled'],
     };
 }
@@ -59,6 +73,7 @@ export function GameserverUpdateGamemodeDtoToJSON(value?: GameserverUpdateGamemo
     return {
 
         'game_mode': GameserverDotaGameModeToJSON(value.game_mode),
+        'dota_map': GameserverDotaMapToJSON(value.dota_map),
         'enabled': value.enabled,
     };
 }

@@ -13,12 +13,15 @@
  */
 
 import {
-  GameserverDotaGameMode,
-  GameserverDotaGameModeFromJSON,
-  GameserverDotaGameModeToJSON,
-  GameserverMatchmakingMode,
-  GameserverMatchmakingModeFromJSON,
-  GameserverMatchmakingModeToJSON,
+    GameserverDotaGameMode,
+    GameserverDotaGameModeFromJSON,
+    GameserverDotaGameModeToJSON,
+    GameserverDotaMap,
+    GameserverDotaMapFromJSON,
+    GameserverDotaMapToJSON,
+    GameserverMatchmakingMode,
+    GameserverMatchmakingModeFromJSON,
+    GameserverMatchmakingModeToJSON,
 } from './';
 
 /**
@@ -41,6 +44,12 @@ export class GameserverMatchmakingModeInfoDto {
     game_mode: GameserverDotaGameMode;
     /**
      *
+     * @type {GameserverDotaMap}
+     * @memberof GameserverMatchmakingModeInfoDto
+     */
+    dota_map: GameserverDotaMap;
+    /**
+     *
      * @type {boolean}
      * @memberof GameserverMatchmakingModeInfoDto
      */
@@ -59,6 +68,7 @@ export function GameserverMatchmakingModeInfoDtoFromJSONTyped(json: any, ignoreD
 
         'lobby_type': GameserverMatchmakingModeFromJSON(json['lobby_type']),
         'game_mode': GameserverDotaGameModeFromJSON(json['game_mode']),
+        'dota_map': GameserverDotaMapFromJSON(json['dota_map']),
         'enabled': json['enabled'],
     };
 }
@@ -74,6 +84,7 @@ export function GameserverMatchmakingModeInfoDtoToJSON(value?: GameserverMatchma
 
         'lobby_type': GameserverMatchmakingModeToJSON(value.lobby_type),
         'game_mode': GameserverDotaGameModeToJSON(value.game_mode),
+        'dota_map': GameserverDotaMapToJSON(value.dota_map),
         'enabled': value.enabled,
     };
 }
