@@ -99,6 +99,9 @@ import {
   ForumApi,
 } from "./generated-api/forum";
 import { ReqLoggingInterceptor } from "./middleware/req-logging.interceptor";
+import { LobbyController } from "./rest/lobby/lobby.controller";
+import { LobbyMapper } from "./rest/lobby/lobby.mapper";
+import { LobbyService } from "./rest/lobby/lobby.service";
 
 const OPENAPI_GENERATED: Provider[] = [
   {
@@ -250,6 +253,7 @@ const OPENAPI_GENERATED: Provider[] = [
     ServerController,
     EventController,
     AdminUserController,
+    LobbyController,
 
     MetaController,
     StatsController,
@@ -296,6 +300,7 @@ const OPENAPI_GENERATED: Provider[] = [
     DiscordStrategy,
     BasicStrategy,
     LiveMatchService,
+    LobbyService,
 
     AuthService,
     NotificationService,
@@ -305,6 +310,7 @@ const OPENAPI_GENERATED: Provider[] = [
     MetaMapper,
     AdminMapper,
     ForumMapper,
+    LobbyMapper,
 
     UserRepository,
     UserCreatedHandler,
