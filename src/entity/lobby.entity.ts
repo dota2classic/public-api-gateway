@@ -7,9 +7,19 @@ export class LobbyEntity {
   @PrimaryGeneratedColumn("uuid")
   public id: string;
 
-  @OneToMany((type) => LobbySlotEntity, (t) => t.lobby, { eager: true })
+  @Column({ name: "owner_steam_id" })
+  public ownerSteamId: string;
+
+  @OneToMany((type) => LobbySlotEntity, (t) => t.lobby, {
+    eager: true,
+    onDelete: "CASCADE",
+  })
   public slots: LobbySlotEntity[];
 
   @Column({ default: Dota_GameMode.ALLPICK })
   public gameMode: Dota_GameMode;
+
+  constructor(ownerSteamId: string) {
+    this.ownerSteamId = ownerSteamId;
+  }
 }

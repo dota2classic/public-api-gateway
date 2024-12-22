@@ -18,3 +18,13 @@ export class LobbyDto {
   @ApiProperty({ enum: Dota_GameMode, enumName: "Dota_GameMode" })
   gameMode: Dota_GameMode;
 }
+
+export class UpdateLobbyDto {
+  @ApiProperty({ enum: Dota_GameMode, enumName: "Dota_GameMode" })
+  gameMode: Dota_GameMode;
+}
+
+export class ChangeTeamInLobbyDto {
+  @ApiProperty({ enum: DotaTeam, enumName: "DotaTeam" })
+  team?: DotaTeam;
+}
