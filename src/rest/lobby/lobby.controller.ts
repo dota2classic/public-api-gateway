@@ -79,8 +79,10 @@ export class LobbyController {
     @Param("id") id: string,
     @CurrentUser() user: CurrentUserDto,
     @Body() dto: UpdateLobbyDto,
-  ) {
-    return this.lobbyService.updateLobby(id, user, dto.gameMode);
+  ): Promise<LobbyDto> {
+    return this.lobbyService
+      .updateLobby(id, user, dto.gameMode, dto.map)
+      .then(this.lobbyMapper.mapLobby);
   }
 
   @WithUser()

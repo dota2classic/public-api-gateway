@@ -18,6 +18,7 @@ export class LobbyMapper {
   public mapLobby = async (lobby: LobbyEntity): Promise<LobbyDto> => ({
     id: lobby.id,
     gameMode: lobby.gameMode,
+    map: lobby.map,
     slots: await Promise.all(lobby.slots.map(this.mapLobbySlot)),
   });
 }

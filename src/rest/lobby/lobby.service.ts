@@ -14,6 +14,7 @@ import { Dota2Version } from "../../gateway/shared-types/dota2version";
 import { PlayerId } from "../../gateway/shared-types/player-id";
 import { LobbyReadyEvent } from "../../gateway/events/lobby-ready.event";
 import { DotaTeam } from "../../gateway/shared-types/dota-team";
+import { Dota_Map } from "../../gateway/shared-types/dota-map";
 
 @Injectable()
 export class LobbyService {
@@ -76,13 +77,16 @@ export class LobbyService {
       });
     }
 
-    const lobby = await q.getOneOrFail();
+    try {
+      const lobby = await q.getOneOrFail();
+      await this.datasource.transaction(async (em) => {
+        await em.remove(lobby.slots);
 
-    await this.datasource.transaction(async (em) => {
-      await em.remove(lobby.slots);
-
-      await em.remove(lobby);
-    });
+        await em.remove(lobby);
+      });
+    } catch (e) {
+      throw new HttpException("Not an owner", HttpStatusCode.Forbidden);
+    }
   }
 
   public async joinLobby(
@@ -133,11 +137,13 @@ export class LobbyService {
   public async updateLobby(
     id: string,
     user: CurrentUserDto,
-    gameMode: Dota_GameMode,
+    gameMode: Dota_GameMode | undefined,
+    map: Dota_Map | undefined,
   ): Promise<LobbyEntity> {
     const lobby = await this.getLobby(id, user);
 
     lobby.gameMode = gameMode;
+    lobby.map = map;
     return this.lobbyEntityRepository.save(lobby);
   }
 
@@ -156,6 +162,7 @@ export class LobbyService {
       new LobbyReadyEvent(
         lobby.id,
         MatchmakingMode.LOBBY,
+        lobby.map,
         lobby.gameMode,
         filledSlots.map(
           (slot) =>

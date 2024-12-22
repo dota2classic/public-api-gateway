@@ -12,7 +12,7 @@ import { NestApplication } from "@nestjs/core";
 import { CurrentUserDto } from "../../utils/decorator/current-user";
 import * as request from "supertest";
 import { AuthService } from "../auth/auth.service";
-import { LobbyDto } from "./lobby.dto";
+import { LobbyDto, UpdateLobbyDto } from "./lobby.dto";
 import { Role } from "../../gateway/shared-types/roles";
 import { Dota_GameMode } from "../../gateway/shared-types/dota-game-mode";
 import { UserRepository } from "../../cache/user/user.repository";
@@ -29,6 +29,7 @@ import { Dota2Version } from "../../gateway/shared-types/dota2version";
 import { LobbyReadyEvent } from "../../gateway/events/lobby-ready.event";
 import { Repository } from "typeorm";
 import { DotaTeam } from "../../gateway/shared-types/dota-team";
+import { Dota_Map } from "../../gateway/shared-types/dota-map";
 
 describe("LobbyController", () => {
   jest.setTimeout(60000);
@@ -204,6 +205,7 @@ describe("LobbyController", () => {
       new LobbyReadyEvent(
         lobby.id,
         MatchmakingMode.LOBBY,
+        lobby.map,
         lobby.gameMode,
         [
           new MatchPlayer(
@@ -282,7 +284,7 @@ describe("LobbyController", () => {
     const [user, token] = await createUser("12345");
     const lobby = await ls.createLobby(user);
 
-    const [somebody, somebodyToken] = await createUser("12345", []);
+    const [somebody, somebodyToken] = await createUser("5555", []);
 
     // Non-owner
     await request(app.getHttpServer())
@@ -300,7 +302,7 @@ describe("LobbyController", () => {
     await request(app.getHttpServer())
       .delete(`/lobby/${lobby.id}`)
       .set({ Authorization: `Bearer ${token}` })
-      .expect(403);
+      .expect(200);
   });
 
   it("DELETE /:id as moderator", async () => {
@@ -327,6 +329,7 @@ describe("LobbyController", () => {
       .expect((res) =>
         expect(res.body).toMatchObject({
           gameMode: Dota_GameMode.ALLPICK,
+          map: Dota_Map.DOTA,
           slots: [{ user: { steamId: user.steam_id } }] as any[],
         } satisfies Partial<LobbyDto>),
       );
@@ -351,5 +354,29 @@ describe("LobbyController", () => {
       .set({ Authorization: `Bearer ${token}` })
       .expect(200)
       .expect(JSON.stringify(await mapper.mapLobby(lobby)));
+  });
+
+  it("PATCH /:id", async () => {
+    const ls = module.get(LobbyService);
+    const [user, token] = await createUser("12345");
+    const lobby = await ls.createLobby(user);
+
+    await request(app.getHttpServer())
+      .patch(`/lobby/${lobby.id}`)
+      .set({ Authorization: `Bearer ${token}` })
+      .send({
+        map: Dota_Map.DIRETIDE,
+        gameMode: Dota_GameMode.CAPTAINS_MODE,
+      } satisfies UpdateLobbyDto)
+      .expect(200)
+      .expect(
+        JSON.stringify(
+          await mapper.mapLobby({
+            ...lobby,
+            map: Dota_Map.DIRETIDE,
+            gameMode: Dota_GameMode.CAPTAINS_MODE,
+          }),
+        ),
+      );
   });
 });
