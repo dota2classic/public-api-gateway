@@ -24,8 +24,8 @@ export class LobbyController {
     return this.lobbyService.getLobby(id, user).then(this.lobbyMapper.mapLobby);
   }
 
-  @WithUser()
   @ModeratorGuard()
+  @WithUser()
   @Post("/")
   public async createLobby(
     @CurrentUser() user: CurrentUserDto,

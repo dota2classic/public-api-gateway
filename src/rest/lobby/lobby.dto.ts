@@ -16,5 +16,5 @@ export class LobbyDto {
   slots: LobbySlotDto[];
 
   @ApiProperty({ enum: Dota_GameMode, enumName: "Dota_GameMode" })
-  gameMode?: Dota_GameMode;
+  gameMode: Dota_GameMode;
 }
