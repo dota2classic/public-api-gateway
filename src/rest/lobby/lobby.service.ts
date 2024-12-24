@@ -186,7 +186,7 @@ export class LobbyService {
       ),
     );
 
-    // await this.closeLobby(id, user);
+    await this.closeLobby(id, user);
   }
 
   public async changeTeam(

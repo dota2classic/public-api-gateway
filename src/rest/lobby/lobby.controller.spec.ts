@@ -187,7 +187,7 @@ describe("LobbyController", () => {
     const lser: Repository<LobbySlotEntity> = module.get(
       getRepositoryToken(LobbySlotEntity),
     );
-    const lse = new LobbySlotEntity(lobby.id, somebody.steam_id);
+    const lse = new LobbySlotEntity(lobby.id, somebody.steam_id, 0);
     lse.team = DotaTeam.RADIANT;
     await lser.save(lse);
 
@@ -227,7 +227,7 @@ describe("LobbyController", () => {
     const [somebody, somebodyToken] = await createUser("55555", []);
 
     const lser = module.get(getRepositoryToken(LobbySlotEntity));
-    await lser.save(new LobbySlotEntity(lobby.id, somebody.steam_id));
+    await lser.save(new LobbySlotEntity(lobby.id, somebody.steam_id, 0));
 
     // Make team set
     await request(app.getHttpServer())
@@ -266,7 +266,7 @@ describe("LobbyController", () => {
     const [somebody, somebodyToken] = await createUser("55555", []);
 
     const lser = module.get(getRepositoryToken(LobbySlotEntity));
-    await lser.save(new LobbySlotEntity(lobby.id, somebody.steam_id));
+    await lser.save(new LobbySlotEntity(lobby.id, somebody.steam_id, 0));
 
     // Non-owner
     await request(app.getHttpServer())
