@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  UseInterceptors,
 } from "@nestjs/common";
 import { LobbyService } from "./lobby.service";
 import { LobbyMapper } from "./lobby.mapper";
@@ -15,13 +16,28 @@ import {
   CurrentUserDto,
 } from "../../utils/decorator/current-user";
 import { ChangeTeamInLobbyDto, LobbyDto, UpdateLobbyDto } from "./lobby.dto";
+import { ApiTags } from "@nestjs/swagger";
+import { ReqLoggingInterceptor } from "../../middleware/req-logging.interceptor";
 
+@UseInterceptors(ReqLoggingInterceptor)
+@ApiTags("lobby")
 @Controller("lobby")
 export class LobbyController {
   constructor(
     private readonly lobbyService: LobbyService,
     private readonly lobbyMapper: LobbyMapper,
   ) {}
+
+  @ModeratorGuard()
+  @WithUser()
+  @Get("/")
+  public async listLobbies(
+    @CurrentUser() user: CurrentUserDto,
+  ): Promise<LobbyDto[]> {
+    return this.lobbyService
+      .allLobbies()
+      .then((ls) => Promise.all(ls.map(this.lobbyMapper.mapLobby)));
+  }
 
   @ModeratorGuard()
   @WithUser()
@@ -51,7 +67,7 @@ export class LobbyController {
     @Body() dto: ChangeTeamInLobbyDto,
   ): Promise<LobbyDto> {
     return this.lobbyService
-      .changeTeam(id, user, dto.team)
+      .changeTeam(id, user, dto.steamId, dto.team, dto.index || 0)
       .then(this.lobbyMapper.mapLobby);
   }
 

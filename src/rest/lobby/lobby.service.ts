@@ -1,4 +1,4 @@
-import { HttpException, Injectable } from "@nestjs/common";
+import { ForbiddenException, HttpException, Injectable } from "@nestjs/common";
 import { LobbyEntity } from "../../entity/lobby.entity";
 import { LobbySlotEntity } from "../../entity/lobby-slot.entity";
 import { InjectRepository } from "@nestjs/typeorm";
@@ -53,10 +53,18 @@ export class LobbyService {
   }
 
   public async createLobby(user: CurrentUserDto): Promise<LobbyEntity> {
+    const lobbies = await this.lobbySlotEntityRepository.find({
+      where: { steamId: user.steam_id },
+    });
+    await Promise.all(
+      lobbies.map((lobby) => this.leaveLobby(lobby.lobbyId, user)),
+    );
+    // Need to leave from all other lobbies
     let lobby = new LobbyEntity(user.steam_id);
     lobby = await this.lobbyEntityRepository.save(lobby);
-    const lse = new LobbySlotEntity(lobby.id, user.steam_id);
+    const lse = new LobbySlotEntity(lobby.id, user.steam_id, 0);
     await this.lobbySlotEntityRepository.save(lse);
+
     return this.getLobby(lobby.id, user);
   }
 
@@ -104,7 +112,7 @@ export class LobbyService {
     }
 
     const lse = await this.lobbySlotEntityRepository.save(
-      new LobbySlotEntity(lobby.id, user.steam_id),
+      new LobbySlotEntity(lobby.id, user.steam_id, 0),
     );
 
     lobby.slots.push(lse);
@@ -144,7 +152,9 @@ export class LobbyService {
 
     lobby.gameMode = gameMode;
     lobby.map = map;
-    return this.lobbyEntityRepository.save(lobby);
+    await this.lobbyEntityRepository.save(lobby);
+
+    return this.getLobby(id, user);
   }
 
   public async startLobby(id: string, user: CurrentUserDto) {
@@ -158,7 +168,7 @@ export class LobbyService {
       );
     }
 
-    await this.ebus.publish(
+    this.ebus.publish(
       new LobbyReadyEvent(
         lobby.id,
         MatchmakingMode.LOBBY,
@@ -176,23 +186,47 @@ export class LobbyService {
       ),
     );
 
-    await this.closeLobby(id, user);
+    // await this.closeLobby(id, user);
   }
 
   public async changeTeam(
     id: string,
     user: CurrentUserDto,
+    steamId: string | undefined,
     team: DotaTeam | undefined,
+    index: number,
   ): Promise<LobbyEntity> {
-    const lse = await this.lobbySlotEntityRepository.findOneOrFail({
-      where: {
-        lobbyId: id,
-        steamId: user.steam_id,
-      },
-    });
+    const lobby = await this.getLobby(id, user);
+
+    let lse: LobbySlotEntity;
+    if (steamId) {
+      if (user.steam_id !== lobby.ownerSteamId) {
+        throw new ForbiddenException(
+          "Only moderator or admin can manage players in lobby",
+        );
+      }
+      lse = await this.lobbySlotEntityRepository.findOneOrFail({
+        where: {
+          lobbyId: id,
+          steamId: steamId,
+        },
+      });
+    } else {
+      lse = await this.lobbySlotEntityRepository.findOneOrFail({
+        where: {
+          lobbyId: id,
+          steamId: user.steam_id,
+        },
+      });
+    }
 
     lse.team = team || null;
+    lse.indexInTeam = index;
     await this.lobbySlotEntityRepository.save(lse);
     return this.getLobby(id, user);
+  }
+
+  public async allLobbies(): Promise<LobbyEntity[]> {
+    return this.lobbyEntityRepository.find();
   }
 }

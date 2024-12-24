@@ -1,5 +1,4 @@
 import { UserDTO } from "../shared.dto";
-import { DotaTeam } from "../../gateway/shared-types/dota-team";
 import { ApiProperty } from "@nestjs/swagger";
 import { Dota_GameMode } from "../../gateway/shared-types/dota-game-mode";
 import { Dota_Map } from "../../gateway/shared-types/dota-map";
@@ -7,12 +6,14 @@ import { Dota_Map } from "../../gateway/shared-types/dota-map";
 export class LobbySlotDto {
   user: UserDTO;
 
-  @ApiProperty({ enum: DotaTeam, enumName: "DotaTeam" })
-  team?: DotaTeam;
+  index: number;
+  team?: number;
 }
 
 export class LobbyDto {
   id: string;
+
+  owner: UserDTO;
 
   slots: LobbySlotDto[];
 
@@ -32,6 +33,7 @@ export class UpdateLobbyDto {
 }
 
 export class ChangeTeamInLobbyDto {
-  @ApiProperty({ enum: DotaTeam, enumName: "DotaTeam" })
-  team?: DotaTeam;
+  steamId?: string;
+  team?: number;
+  index?: number;
 }

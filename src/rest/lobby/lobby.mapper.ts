@@ -13,9 +13,11 @@ export class LobbyMapper {
   ): Promise<LobbySlotDto> => ({
     user: await this.uRep.userDto(slot.steamId),
     team: slot.team,
+    index: slot.indexInTeam,
   });
 
   public mapLobby = async (lobby: LobbyEntity): Promise<LobbyDto> => ({
+    owner: await this.uRep.userDto(lobby.ownerSteamId),
     id: lobby.id,
     gameMode: lobby.gameMode,
     map: lobby.map,

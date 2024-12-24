@@ -11,14 +11,17 @@ import { DotaTeam } from "../gateway/shared-types/dota-team";
 
 @Entity()
 export class LobbySlotEntity {
-  @PrimaryColumn({ name: "lobby_id", type: "uuid" })
+  @Column({ name: "lobby_id", type: "uuid" })
   lobbyId: string;
 
-  @PrimaryColumn({ name: "steam_id" })
+  @PrimaryColumn({ name: "steam_id", unique: true })
   steamId: string;
 
   @Column({ nullable: true })
   team?: DotaTeam;
+
+  @Column({ name: "index_in_team", default: 0 })
+  indexInTeam: number;
 
   @ManyToOne((type) => LobbyEntity)
   @JoinColumn([
@@ -29,8 +32,9 @@ export class LobbySlotEntity {
   ])
   lobby: Relation<LobbySlotEntity>;
 
-  constructor(lobbyId: string, steamId: string) {
+  constructor(lobbyId: string, steamId: string, index: number) {
     this.lobbyId = lobbyId;
     this.steamId = steamId;
+    this.indexInTeam = index;
   }
 }
