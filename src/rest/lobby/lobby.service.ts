@@ -62,9 +62,7 @@ export class LobbyService {
     // Need to leave from all other lobbies
     let lobby = new LobbyEntity(user.steam_id);
     lobby = await this.lobbyEntityRepository.save(lobby);
-    // const lse = new LobbySlotEntity(lobby.id, user.steam_id, 0);
-    const lse = new LobbySlotEntity(lobby.id, "1793056095", 0);
-    lse.team = 2;
+    const lse = new LobbySlotEntity(lobby.id, user.steam_id, 0);
     await this.lobbySlotEntityRepository.save(lse);
 
     return this.getLobby(lobby.id, user);
