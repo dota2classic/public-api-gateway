@@ -193,6 +193,10 @@ export class ForumController {
       return this.api
         .forumControllerGetThread(`${threadType}_${id}`)
         .then(this.mapper.mapThread);
+    } else if (threadType === ThreadType.LOBBY) {
+      return this.api
+        .forumControllerGetThread(`${threadType}_${id}`)
+        .then(this.mapper.mapThread);
     } else if (threadType === ThreadType.PLAYER) {
       try {
         // Check if its valid
@@ -266,7 +270,6 @@ export class ForumController {
           threadId: mce.threadId,
           deleted: "deleted" in mce ? mce.deleted : false,
           messageId: mce.messageId,
-          index: mce.messageIndex,
         };
         return { data: m };
       }, 1),

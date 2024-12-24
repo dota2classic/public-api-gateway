@@ -18,7 +18,6 @@ export class ThreadMessageDTO {
   content: string;
   createdAt: string;
   deleted: boolean;
-  index: number;
 }
 
 export class ThreadMessagePageDTO extends Page<ThreadMessageDTO> {

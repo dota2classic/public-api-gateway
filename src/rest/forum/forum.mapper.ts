@@ -15,7 +15,6 @@ export class ForumMapper {
       threadId: msg.threadId,
       content: msg.content,
       createdAt: msg.createdAt,
-      index: msg.index,
       deleted: msg.deleted,
 
       author: await this.urepo.userDto(msg.author),
