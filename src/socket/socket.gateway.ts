@@ -14,7 +14,7 @@ import { SocketMessageService } from "./socket-message.service";
 import { SocketDelivery } from "./socket-delivery";
 import { MessageTypeS2C } from "./messages/s2c/message-type.s2c";
 import { MessageTypeC2S } from "./messages/c2s/message-type.c2s";
-import { Inject } from "@nestjs/common";
+import { Inject, Logger } from "@nestjs/common";
 import { ClientProxy } from "@nestjs/microservices";
 import { EnterQueueMessageC2S } from "./messages/c2s/enter-queue-message.c2s";
 import { PlayerEnterQueueCommand } from "../gateway/commands/player-enter-queue.command";
@@ -36,6 +36,8 @@ import { OnlineUpdateMessageS2C } from "./messages/s2c/online-update-message.s2c
 
 @WebSocketGateway({ cors: "*" })
 export class SocketGateway implements OnGatewayDisconnect, OnGatewayConnection {
+  private logger = new Logger(SocketGateway.name);
+
   @WebSocketServer()
   server: WSServer;
 
@@ -217,6 +219,16 @@ export class SocketGateway implements OnGatewayDisconnect, OnGatewayConnection {
         (it) => it.handshake.address,
       ),
     );
+
+    this.logger.log("Trash log: ", {
+      users: Array.from(this.server.sockets.sockets.values()).map(
+        (it) => it.handshake.address,
+      ),
+    });
+
+    this.logger.log("Online update", {
+      authorized: authorizedClients.size,
+    });
 
     this.server.emit(
       MessageTypeS2C.ONLINE_UPDATE,
