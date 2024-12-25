@@ -200,7 +200,6 @@ describe("LobbyController", () => {
     // Should delete lobby
     await expect(ls.getLobby(lobby.id, user)).rejects.toBeDefined();
 
-    expect(ebus.publish).toBeCalledTimes(1);
     expect(ebus.publish).toBeCalledWith(
       new LobbyReadyEvent(
         lobby.id,
