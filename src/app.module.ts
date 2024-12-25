@@ -102,6 +102,8 @@ import { ReqLoggingInterceptor } from "./middleware/req-logging.interceptor";
 import { LobbyController } from "./rest/lobby/lobby.controller";
 import { LobbyMapper } from "./rest/lobby/lobby.mapper";
 import { LobbyService } from "./rest/lobby/lobby.service";
+import { SocketFullDisconnectHandler } from "./socket/event-handler/scoekt-full-disconnect.handler";
+import { LeaveLobbySocketDisconnectHandler } from "./rest/lobby/event-handler/leave-lobby-socket-disconnect.handler";
 
 const OPENAPI_GENERATED: Provider[] = [
   {
@@ -335,6 +337,8 @@ const OPENAPI_GENERATED: Provider[] = [
     MatchStartedHandler,
     SocketMatchFinishedHandler,
     MatchCancelledHandler,
+    SocketFullDisconnectHandler,
+    LeaveLobbySocketDisconnectHandler,
     GameResultsHandler,
     PartyQueueStateUpdatedHandler,
     RoomNotReadyHandler,

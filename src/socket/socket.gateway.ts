@@ -33,6 +33,8 @@ import { PartyInviteRequestedEvent } from "../gateway/events/party/party-invite-
 import { AcceptPartyInviteMessageC2S } from "./messages/c2s/accept-party-invite-message.c2s";
 import { InviteToPartyMessageC2S } from "./messages/c2s/invite-to-party-message.c2s";
 import { OnlineUpdateMessageS2C } from "./messages/s2c/online-update-message.s2c";
+import { EventBus } from "@nestjs/cqrs";
+import { SocketFullDisconnectEvent } from "./event/socket-full-disconnect.event";
 
 @WebSocketGateway({ cors: "*" })
 export class SocketGateway implements OnGatewayDisconnect, OnGatewayConnection {
@@ -49,6 +51,7 @@ export class SocketGateway implements OnGatewayDisconnect, OnGatewayConnection {
     private readonly jwtService: JwtService,
     private readonly messageService: SocketMessageService,
     private readonly delivery: SocketDelivery,
+    private readonly ebus: EventBus,
     @Inject("QueryCore") private readonly redis: ClientProxy,
   ) {}
 
@@ -180,27 +183,9 @@ export class SocketGateway implements OnGatewayDisconnect, OnGatewayConnection {
     }
   }
 
-  private async disconnectAction(playerId: PlayerId) {
-    const cmds = MatchmakingModes.flatMap((mode) => [
-      this.redis
-        .emit(
-          PlayerLeaveQueueCommand.name,
-          new PlayerLeaveQueueCommand(playerId, mode, Dota2Version.Dota_681),
-        )
-        .toPromise(),
-      this.redis
-        .emit(
-          PlayerLeaveQueueCommand.name,
-          new PlayerLeaveQueueCommand(playerId, mode, Dota2Version.Dota_684),
-        )
-        .toPromise(),
-    ]);
-    return Promise.all(cmds);
-  }
-
   private startDisconnectCountdown(client: PlayerSocket) {
     const timer = setTimeout(() => {
-      this.disconnectAction(new PlayerId(client.steamId));
+      this.ebus.publish(new SocketFullDisconnectEvent(client.steamId));
     }, 60_000);
     this.stopDisconnectCountdown(client);
     this.disconnectConsiderLeaver[client.steamId] = timer as unknown as number;
@@ -216,13 +201,13 @@ export class SocketGateway implements OnGatewayDisconnect, OnGatewayConnection {
 
     const uniqueUsers = new Set(
       Array.from(this.server.sockets.sockets.values()).map(
-        (it) => it.handshake.address,
+        (it) => it.request.connection.remoteAddress,
       ),
     );
 
     this.logger.log("Trash log: ", {
       users: Array.from(this.server.sockets.sockets.values()).map(
-        (it) => it.handshake.address,
+        (it) => it.request.connection.remoteAddress,
       ),
     });
 

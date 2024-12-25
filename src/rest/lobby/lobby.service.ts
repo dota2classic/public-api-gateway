@@ -15,6 +15,8 @@ import { PlayerId } from "../../gateway/shared-types/player-id";
 import { LobbyReadyEvent } from "../../gateway/events/lobby-ready.event";
 import { DotaTeam } from "../../gateway/shared-types/dota-team";
 import { Dota_Map } from "../../gateway/shared-types/dota-map";
+import { LobbyUpdatedEvent } from "./event/lobby-updated.event";
+import { LobbyClosedEvent } from "./event/lobby-closed.event";
 
 @Injectable()
 export class LobbyService {
@@ -29,7 +31,7 @@ export class LobbyService {
 
   public async getLobby(
     id: string,
-    askedBy: CurrentUserDto,
+    askedBy?: CurrentUserDto,
   ): Promise<LobbyEntity> {
     let q = this.lobbyEntityRepository
       .createQueryBuilder("l")
@@ -38,6 +40,7 @@ export class LobbyService {
 
     // If casual player, need to check permissions
     if (
+      askedBy &&
       !askedBy.roles.includes(Role.ADMIN) &&
       !askedBy.roles.includes(Role.MODERATOR)
     ) {
@@ -65,7 +68,10 @@ export class LobbyService {
     const lse = new LobbySlotEntity(lobby.id, user.steam_id, 0);
     await this.lobbySlotEntityRepository.save(lse);
 
-    return this.getLobby(lobby.id, user);
+    return this.getLobby(lobby.id, user).then((lobby) => {
+      this.ebus.publish(new LobbyUpdatedEvent(lobby));
+      return lobby;
+    });
   }
 
   //
@@ -91,6 +97,7 @@ export class LobbyService {
         await em.remove(lobby.slots);
 
         await em.remove(lobby);
+        this.ebus.publish(new LobbyClosedEvent(id));
       });
     } catch (e) {
       throw new HttpException("Not an owner", HttpStatusCode.Forbidden);
@@ -117,6 +124,7 @@ export class LobbyService {
 
     lobby.slots.push(lse);
 
+    this.ebus.publish(new LobbyUpdatedEvent(lobby));
     return lobby;
   }
 
@@ -140,6 +148,12 @@ export class LobbyService {
       steamId: user.steam_id,
       lobbyId: lobby.id,
     });
+    lobby.slots.splice(
+      lobby.slots.findIndex((t) => t.steamId === user.steam_id),
+      1,
+    );
+
+    this.ebus.publish(new LobbyUpdatedEvent(lobby));
   }
 
   public async updateLobby(
@@ -148,13 +162,16 @@ export class LobbyService {
     gameMode: Dota_GameMode | undefined,
     map: Dota_Map | undefined,
   ): Promise<LobbyEntity> {
-    const lobby = await this.getLobby(id, user);
+    let lobby = await this.getLobby(id, user);
 
     lobby.gameMode = gameMode;
     lobby.map = map;
     await this.lobbyEntityRepository.save(lobby);
 
-    return this.getLobby(id, user);
+    return this.getLobby(id, user).then((lobby) => {
+      this.ebus.publish(new LobbyUpdatedEvent(lobby));
+      return lobby;
+    });
   }
 
   public async startLobby(id: string, user: CurrentUserDto) {
@@ -168,25 +185,27 @@ export class LobbyService {
       );
     }
 
-    this.ebus.publish(
-      new LobbyReadyEvent(
-        lobby.id,
-        MatchmakingMode.LOBBY,
-        lobby.map,
-        lobby.gameMode,
-        filledSlots.map(
-          (slot) =>
-            new MatchPlayer(
-              new PlayerId(slot.steamId),
-              slot.team,
-              slot.steamId,
-            ),
+    // We need a lock for this maybe??
+
+    await this.closeLobby(id, user).then(() =>
+      this.ebus.publish(
+        new LobbyReadyEvent(
+          lobby.id,
+          MatchmakingMode.LOBBY,
+          lobby.map,
+          lobby.gameMode,
+          filledSlots.map(
+            (slot) =>
+              new MatchPlayer(
+                new PlayerId(slot.steamId),
+                slot.team,
+                slot.steamId,
+              ),
+          ),
+          Dota2Version.Dota_684,
         ),
-        Dota2Version.Dota_684,
       ),
     );
-
-    await this.closeLobby(id, user);
   }
 
   public async changeTeam(
@@ -223,10 +242,28 @@ export class LobbyService {
     lse.team = team || null;
     lse.indexInTeam = index;
     await this.lobbySlotEntityRepository.save(lse);
-    return this.getLobby(id, user);
+
+    return this.getLobby(id, user).then((lobby) => {
+      this.ebus.publish(new LobbyUpdatedEvent(lobby));
+      return lobby;
+    });
   }
 
   public async allLobbies(): Promise<LobbyEntity[]> {
     return this.lobbyEntityRepository.find();
+  }
+
+  public async leaveLobbyIfAny(steamId: string) {
+    const lse = await this.lobbySlotEntityRepository.findOne({
+      where: {
+        steamId,
+      },
+    });
+    if (lse) {
+      await this.lobbySlotEntityRepository.delete(lse);
+      this.getLobby(lse.lobbyId).then((lobby) =>
+        this.ebus.publish(new LobbyUpdatedEvent(lobby)),
+      );
+    }
   }
 }

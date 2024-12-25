@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  Sse,
   UseInterceptors,
 } from "@nestjs/common";
 import { LobbyService } from "./lobby.service";
@@ -15,9 +16,20 @@ import {
   CurrentUser,
   CurrentUserDto,
 } from "../../utils/decorator/current-user";
-import { ChangeTeamInLobbyDto, LobbyDto, UpdateLobbyDto } from "./lobby.dto";
-import { ApiTags } from "@nestjs/swagger";
+import {
+  ChangeTeamInLobbyDto,
+  LobbyDto,
+  LobbyUpdateDto,
+  UpdateLobbyDto,
+} from "./lobby.dto";
+import { ApiParam, ApiTags } from "@nestjs/swagger";
 import { ReqLoggingInterceptor } from "../../middleware/req-logging.interceptor";
+import { filter, Observable } from "rxjs";
+import { asyncMap } from "rxjs-async-map";
+import { EventBus } from "@nestjs/cqrs";
+import { LobbyUpdatedEvent } from "./event/lobby-updated.event";
+import { LobbyClosedEvent } from "./event/lobby-closed.event";
+import { LobbyEvent } from "./event/lobby.event";
 
 @UseInterceptors(ReqLoggingInterceptor)
 @ApiTags("lobby")
@@ -26,6 +38,7 @@ export class LobbyController {
   constructor(
     private readonly lobbyService: LobbyService,
     private readonly lobbyMapper: LobbyMapper,
+    private readonly ebus: EventBus,
   ) {}
 
   @ModeratorGuard()
@@ -108,6 +121,32 @@ export class LobbyController {
     @CurrentUser() user: CurrentUserDto,
   ): Promise<LobbyDto> {
     return this.lobbyService.getLobby(id, user).then(this.lobbyMapper.mapLobby);
+  }
+
+  @ApiParam({
+    name: "id",
+    required: true,
+  })
+  @Sse("/sse/:id")
+  public lobbyUpdates(@Param("id") id: string): Observable<LobbyUpdateDto> {
+    return this.ebus.pipe(
+      filter(
+        (it) =>
+          it instanceof LobbyUpdatedEvent || it instanceof LobbyClosedEvent,
+      ),
+      filter((it: LobbyEvent) => it.lobbyId === id),
+      asyncMap(async (mce: LobbyUpdatedEvent | LobbyClosedEvent) => {
+        console.log("Lobby evt", mce);
+        if ("lobbyEntity" in mce) {
+          const dto = await this.lobbyMapper.mapLobby(mce.lobbyEntity);
+          return {
+            data: { data: dto, lobbyId: dto.id },
+          } satisfies LobbyUpdateDto;
+        } else {
+          return { data: { lobbyId: mce.lobbyId } } satisfies LobbyUpdateDto;
+        }
+      }, 1),
+    );
   }
 
   @WithUser()

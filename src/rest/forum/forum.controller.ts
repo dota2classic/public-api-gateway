@@ -195,7 +195,12 @@ export class ForumController {
         .then(this.mapper.mapThread);
     } else if (threadType === ThreadType.LOBBY) {
       return this.api
-        .forumControllerGetThread(`${threadType}_${id}`)
+        .forumControllerGetThreadForKey({
+          threadType: ThreadType.LOBBY,
+          externalId: id,
+          title: `Лобби ${id}`,
+          op: undefined, // Make player author of its own thread
+        })
         .then(this.mapper.mapThread);
     } else if (threadType === ThreadType.PLAYER) {
       try {

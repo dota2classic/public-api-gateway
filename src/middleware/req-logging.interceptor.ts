@@ -26,6 +26,7 @@ export class ReqLoggingInterceptor implements NestInterceptor {
     const logMessage = {
       user: user?.steam_id,
       path: req.path,
+      method: req.method,
       query: req.query,
       params: req.params,
       body: req.body,

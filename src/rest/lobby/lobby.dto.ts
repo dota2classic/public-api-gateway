@@ -2,6 +2,7 @@ import { UserDTO } from "../shared.dto";
 import { ApiProperty } from "@nestjs/swagger";
 import { Dota_GameMode } from "../../gateway/shared-types/dota-game-mode";
 import { Dota_Map } from "../../gateway/shared-types/dota-map";
+import { MessageObjectDto } from "../match/dto/match.dto";
 
 export class LobbySlotDto {
   user: UserDTO;
@@ -36,4 +37,13 @@ export class ChangeTeamInLobbyDto {
   steamId?: string;
   team?: number;
   index?: number;
+}
+
+class LobbyUpdateType {
+  data?: LobbyDto;
+  lobbyId: string;
+}
+
+export class LobbyUpdateDto extends MessageObjectDto<LobbyUpdateType> {
+  data: LobbyUpdateType;
 }
