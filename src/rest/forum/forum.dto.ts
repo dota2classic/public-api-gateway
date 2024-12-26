@@ -75,5 +75,11 @@ export class UpdateThreadDTO {
 }
 
 export class UpdateUserDTO {
-  muteUntil?: string;
+  muteUntil: string;
+}
+
+export class ForumUserDto {
+  user: UserDTO;
+  mutedUntil: string;
+  messages: number;
 }

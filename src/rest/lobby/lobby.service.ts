@@ -115,7 +115,9 @@ export class LobbyService {
     if (
       lobby.slots.findIndex((slot) => slot.steamId === user.steam_id) !== -1
     ) {
-      throw new HttpException("Already in lobby", HttpStatusCode.Conflict);
+      // throw new HttpException("Already in lobby", HttpStatusCode.Conflict);
+      // It's ok, just return it
+      return lobby;
     }
 
     const lse = await this.lobbySlotEntityRepository.save(

@@ -14,12 +14,12 @@
 
 import { exists } from '../runtime';
 import {
-    ForumMessageDTO,
-    ForumMessageDTOFromJSON,
-    ForumMessageDTOToJSON,
-    ForumThreadType,
-    ForumThreadTypeFromJSON,
-    ForumThreadTypeToJSON,
+  ForumMessageDTO,
+  ForumMessageDTOFromJSON,
+  ForumMessageDTOToJSON,
+  ForumThreadType,
+  ForumThreadTypeFromJSON,
+  ForumThreadTypeToJSON,
 } from './';
 
 /**

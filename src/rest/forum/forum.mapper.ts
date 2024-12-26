@@ -1,6 +1,10 @@
 import { Injectable } from "@nestjs/common";
-import { ForumMessageDTO, ForumThreadDTO } from "../../generated-api/forum";
-import { ThreadDTO, ThreadMessageDTO } from "./forum.dto";
+import {
+  ForumForumUserDTO,
+  ForumMessageDTO,
+  ForumThreadDTO,
+} from "../../generated-api/forum";
+import { ForumUserDto, ThreadDTO, ThreadMessageDTO } from "./forum.dto";
 import { UserRepository } from "../../cache/user/user.repository";
 
 @Injectable()
@@ -38,5 +42,11 @@ export class ForumMapper {
       (await this.urepo.userDto(thread.originalPoster)),
     lastMessage:
       thread.lastMessage && (await this.mapApiMessage(thread.lastMessage)),
+  });
+
+  public mapUser = async (user: ForumForumUserDTO): Promise<ForumUserDto> => ({
+    user: await this.urepo.userDto(user.steamId),
+    messages: user.messages,
+    mutedUntil: user.muteUntil,
   });
 }

@@ -50,12 +50,6 @@ export class ForumMessageDTO {
     createdAt: string;
     /**
      *
-     * @type {number}
-     * @memberof ForumMessageDTO
-     */
-    index: number;
-    /**
-     *
      * @type {boolean}
      * @memberof ForumMessageDTO
      */
@@ -77,7 +71,6 @@ export function ForumMessageDTOFromJSONTyped(json: any, ignoreDiscriminator: boo
         'content': json['content'],
         'author': json['author'],
         'createdAt': json['createdAt'],
-        'index': json['index'],
         'deleted': json['deleted'],
     };
 }
@@ -96,7 +89,6 @@ export function ForumMessageDTOToJSON(value?: ForumMessageDTO | null): any {
         'content': value.content,
         'author': value.author,
         'createdAt': value.createdAt,
-        'index': value.index,
         'deleted': value.deleted,
     };
 }

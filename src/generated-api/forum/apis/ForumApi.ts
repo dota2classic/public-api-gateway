@@ -20,6 +20,8 @@ import {
   ForumCreateMessageDTOToJSON,
   ForumCreateThreadDTO,
   ForumCreateThreadDTOToJSON,
+  ForumForumUserDTO,
+  ForumForumUserDTOFromJSON,
   ForumMessageDTO,
   ForumMessageDTOFromJSON,
   ForumMessagePageDTO,
@@ -46,6 +48,10 @@ export interface ForumControllerGetThreadRequest {
 
 export interface ForumControllerGetThreadForKeyRequest {
     forumCreateThreadDTO: ForumCreateThreadDTO;
+}
+
+export interface ForumControllerGetUserRequest {
+    id: string;
 }
 
 export interface ForumControllerMessagesRequest {
@@ -222,6 +228,46 @@ export class ForumApi extends runtime.BaseAPI {
     forumControllerGetThreadForKey = async (forumCreateThreadDTO: ForumCreateThreadDTO): Promise<ForumThreadDTO> => {
         const response = await this.forumControllerGetThreadForKeyRaw({ forumCreateThreadDTO: forumCreateThreadDTO });
         return await response.value();
+    }
+
+    /**
+     */
+    forumControllerGetUserContext(requestParameters: ForumControllerGetUserRequest): runtime.RequestOpts {
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        return {
+            path: `/forum/user/{id}`.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters.id))),
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        };
+    }
+
+    /**
+     */
+    forumControllerGetUser = async (id: string): Promise<ForumForumUserDTO> => {
+        const response = await this.forumControllerGetUserRaw({ id: id });
+        return await response.value();
+    }
+
+    /**
+     */
+    private async forumControllerGetUserRaw(requestParameters: ForumControllerGetUserRequest): Promise<runtime.ApiResponse<ForumForumUserDTO>> {
+        this.forumControllerGetUserValidation(requestParameters);
+        const context = this.forumControllerGetUserContext(requestParameters);
+        const response = await this.request(context);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => ForumForumUserDTOFromJSON(jsonValue));
+    }
+
+    /**
+     */
+    private forumControllerGetUserValidation(requestParameters: ForumControllerGetUserRequest) {
+        if (requestParameters.id === null || requestParameters.id === undefined) {
+            throw new runtime.RequiredError('id','Required parameter requestParameters.id was null or undefined when calling forumControllerGetUser.');
+        }
     }
 
     /**

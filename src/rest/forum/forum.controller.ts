@@ -24,6 +24,7 @@ import { UserRepository } from "../../cache/user/user.repository";
 import {
   CreateMessageDTO,
   CreateThreadDTO,
+  ForumUserDto,
   SortOrder,
   ThreadDTO,
   ThreadMessageDTO,
@@ -365,5 +366,14 @@ export class ForumController {
       console.error("GGG", g);
     }
     return 200;
+  }
+
+  @Get("user/:id")
+  @AdminGuard()
+  @WithUser()
+  public async getUser(@Param("id") steamId: string): Promise<ForumUserDto> {
+    const user = await this.api.forumControllerGetUser(steamId);
+
+    return this.mapper.mapUser(user);
   }
 }

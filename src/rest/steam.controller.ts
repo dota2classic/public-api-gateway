@@ -4,7 +4,6 @@ import {
   Logger,
   Post,
   Req,
-  Request,
   Res,
   UseGuards,
 } from "@nestjs/common";
@@ -16,7 +15,7 @@ import { ApiExcludeEndpoint, ApiOkResponse, ApiTags } from "@nestjs/swagger";
 import { UserRepository } from "../cache/user/user.repository";
 import { UserLoggedInEvent } from "../gateway/events/user/user-logged-in.event";
 import { PlayerId } from "../gateway/shared-types/player-id";
-import { CookieOptions, Response } from "express";
+import { CookieOptions, Request, Response } from "express";
 import {
   AccessToken,
   CurrentUser,
@@ -76,11 +75,15 @@ export class SteamController {
   ) {
     const steam32id = steam64to32(req.user!!._json.steamid);
 
+    console.log("STEAM AUTH CALLBACK: COOKIES");
+    console.log(req.cookies);
+
     this.ebus.publish(
       new UserLoggedInEvent(
         new PlayerId(steam32id),
         req.user!!._json.personaname,
         req.user!!._json.avatarfull,
+        req.cookies["d2c:referral"],
       ),
     );
 

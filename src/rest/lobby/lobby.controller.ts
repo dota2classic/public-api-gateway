@@ -136,7 +136,6 @@ export class LobbyController {
       ),
       filter((it: LobbyEvent) => it.lobbyId === id),
       asyncMap(async (mce: LobbyUpdatedEvent | LobbyClosedEvent) => {
-        console.log("Lobby evt", mce);
         if ("lobbyEntity" in mce) {
           const dto = await this.lobbyMapper.mapLobby(mce.lobbyEntity);
           return {

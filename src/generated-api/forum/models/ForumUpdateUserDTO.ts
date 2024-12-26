@@ -12,8 +12,6 @@
  * Do not edit the class manually.
  */
 
-import { exists } from '../runtime';
-
 /**
  *
  * @export
@@ -25,7 +23,7 @@ export class ForumUpdateUserDTO {
      * @type {string}
      * @memberof ForumUpdateUserDTO
      */
-    muteUntil?: string;
+    muteUntil: string;
 }
 
 export function ForumUpdateUserDTOFromJSON(json: any): ForumUpdateUserDTO {
@@ -38,7 +36,7 @@ export function ForumUpdateUserDTOFromJSONTyped(json: any, ignoreDiscriminator: 
     }
     return {
 
-        'muteUntil': !exists(json, 'muteUntil') ? undefined : json['muteUntil'],
+        'muteUntil': json['muteUntil'],
     };
 }
 
