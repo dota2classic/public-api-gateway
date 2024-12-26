@@ -166,6 +166,12 @@ export class LobbyService {
   ): Promise<LobbyEntity> {
     let lobby = await this.getLobby(id, user);
 
+    if (lobby.ownerSteamId !== user.steam_id) {
+      throw new ForbiddenException(
+        "Only lobby owner allowed to change lobby settings",
+      );
+    }
+
     lobby.gameMode = gameMode;
     lobby.map = map;
     await this.lobbyEntityRepository.save(lobby);
