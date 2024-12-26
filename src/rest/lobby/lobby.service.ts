@@ -221,9 +221,9 @@ export class LobbyService {
 
     let lse: LobbySlotEntity;
     if (steamId) {
-      if (user.steam_id !== lobby.ownerSteamId) {
+      if (user.steam_id !== lobby.ownerSteamId && user.steam_id !== steamId) {
         throw new ForbiddenException(
-          "Only moderator or admin can manage players in lobby",
+          "Only moderator or admin can manage players in lobby, or the player itself",
         );
       }
       lse = await this.lobbySlotEntityRepository.findOneOrFail({
