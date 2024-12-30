@@ -52,6 +52,7 @@ import { WithPagination } from "../../utils/decorator/pagination";
 import { PlayerId } from "../../gateway/shared-types/player-id";
 import { ReqLoggingInterceptor } from "../../middleware/req-logging.interceptor";
 import { LiveMatchService } from "../../cache/live-match.service";
+import { tap } from "rxjs/operators";
 
 @UseInterceptors(ReqLoggingInterceptor)
 @Controller("forum")
@@ -260,6 +261,9 @@ export class ForumController {
 
     return this.ebus.pipe(
       filter((it) => it instanceof MessageUpdatedEvent),
+      tap((e) => {
+        console.log("MessageUpdtedEVent", e);
+      }),
       filter((mce: MessageUpdatedEvent) => mce.threadId === externalThreadId),
       asyncMap(async (mce: MessageUpdatedEvent) => {
         return { data: await this.mapper.mapApiMessage(mce) };

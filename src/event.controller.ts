@@ -19,6 +19,7 @@ import { UserUpdatedEvent } from "./gateway/events/user/user-updated.event";
 import { PartyQueueStateUpdatedEvent } from "./gateway/events/mm/party-queue-state-updated.event";
 import { MatchCancelledEvent } from "./gateway/events/match-cancelled.event";
 import { RoomReadyEvent } from "./gateway/events/room-ready.event";
+import { MessageUpdatedEvent } from "./gateway/events/message-updated.event";
 
 @Controller()
 export class EventController {
@@ -119,5 +120,10 @@ export class EventController {
   @EventPattern(PartyQueueStateUpdatedEvent.name)
   async PartyQueueStateUpdatedEvent(data: PartyQueueStateUpdatedEvent) {
     this.event(PartyQueueStateUpdatedEvent, data);
+  }
+
+  @EventPattern(MessageUpdatedEvent.name)
+  async MessageUpdatedEvent(data: MessageUpdatedEvent) {
+    this.event(MessageUpdatedEvent, data);
   }
 }
