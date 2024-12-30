@@ -43,7 +43,7 @@ export class UserRepository extends RuntimeRepository<UserModel, "id"> {
     return this.get(id).then((t) => t.avatar);
   }
 
-  async userDto(steamId: string): Promise<UserDTO> {
+  userDto = async (steamId: string): Promise<UserDTO> => {
     const u = await this.get(steamId);
     if (!u) {
       return {
@@ -61,5 +61,5 @@ export class UserRepository extends RuntimeRepository<UserModel, "id"> {
       avatarSmall: (u.avatar || "").replace("_full", "_medium"),
       roles: u.roles,
     };
-  }
+  };
 }

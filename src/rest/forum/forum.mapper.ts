@@ -1,15 +1,31 @@
 import { Injectable } from "@nestjs/common";
 import {
+  ForumEmoticonDto,
   ForumForumUserDTO,
   ForumMessageDTO,
   ForumThreadDTO,
 } from "../../generated-api/forum";
-import { ForumUserDto, ThreadDTO, ThreadMessageDTO } from "./forum.dto";
+import {
+  EmoticonDto,
+  ForumUserDto,
+  ThreadDTO,
+  ThreadMessageDTO,
+} from "./forum.dto";
 import { UserRepository } from "../../cache/user/user.repository";
+import { ConfigService } from "@nestjs/config";
 
 @Injectable()
 export class ForumMapper {
-  constructor(private readonly urepo: UserRepository) {}
+  constructor(
+    private readonly urepo: UserRepository,
+    private readonly config: ConfigService,
+  ) {}
+
+  public mapEmoticon = (emo: ForumEmoticonDto): EmoticonDto => ({
+    code: emo.code,
+    id: emo.id,
+    src: `${this.config.get("api.s3root")}/${emo.bucket}/${emo.key}`,
+  });
 
   public mapApiMessage = async (
     msg: ForumMessageDTO,
@@ -20,6 +36,12 @@ export class ForumMapper {
       content: msg.content,
       createdAt: msg.createdAt,
       deleted: msg.deleted,
+      reactions: await Promise.all(
+        msg.reactions.map(async (reaction) => ({
+          emoticon: this.mapEmoticon(reaction.emoticon),
+          reacted: await Promise.all(reaction.reacted.map(this.urepo.userDto)),
+        })),
+      ),
 
       author: await this.urepo.userDto(msg.author),
     };

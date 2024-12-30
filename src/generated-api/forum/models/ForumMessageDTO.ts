@@ -12,6 +12,8 @@
  * Do not edit the class manually.
  */
 
+import { ForumReactionEntry, ForumReactionEntryFromJSON, ForumReactionEntryToJSON } from './';
+
 /**
  *
  * @export
@@ -54,6 +56,12 @@ export class ForumMessageDTO {
      * @memberof ForumMessageDTO
      */
     deleted: boolean;
+    /**
+     *
+     * @type {Array<ForumReactionEntry>}
+     * @memberof ForumMessageDTO
+     */
+    reactions: Array<ForumReactionEntry>;
 }
 
 export function ForumMessageDTOFromJSON(json: any): ForumMessageDTO {
@@ -72,6 +80,7 @@ export function ForumMessageDTOFromJSONTyped(json: any, ignoreDiscriminator: boo
         'author': json['author'],
         'createdAt': json['createdAt'],
         'deleted': json['deleted'],
+        'reactions': ((json['reactions'] as Array<any>).map(ForumReactionEntryFromJSON)),
     };
 }
 
@@ -90,6 +99,7 @@ export function ForumMessageDTOToJSON(value?: ForumMessageDTO | null): any {
         'author': value.author,
         'createdAt': value.createdAt,
         'deleted': value.deleted,
+        'reactions': ((value.reactions as Array<any>).map(ForumReactionEntryToJSON)),
     };
 }
 

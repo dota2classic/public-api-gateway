@@ -17,13 +17,13 @@ import {
 import { ApiParam, ApiQuery, ApiTags } from "@nestjs/swagger";
 import { filter, Observable } from "rxjs";
 import { EventBus } from "@nestjs/cqrs";
-import { MessageCreatedEvent } from "../../gateway/events/message-created.event";
 import { makePage } from "../../gateway/util/make-page";
 import { asyncMap } from "rxjs-async-map";
 import { UserRepository } from "../../cache/user/user.repository";
 import {
   CreateMessageDTO,
   CreateThreadDTO,
+  EmoticonDto,
   ForumUserDto,
   SortOrder,
   ThreadDTO,
@@ -31,6 +31,7 @@ import {
   ThreadMessagePageDTO,
   ThreadMessageSseDto,
   ThreadPageDTO,
+  UpdateMessageReactionDto,
   UpdateThreadDTO,
   UpdateUserDTO,
 } from "./forum.dto";
@@ -77,8 +78,8 @@ export class ForumController {
     enumName: "ThreadType",
   })
   @ApiQuery({
-    name: "after",
-    type: "number",
+    name: "cursor",
+    type: "string",
     required: false,
   })
   @ApiQuery({
@@ -96,7 +97,7 @@ export class ForumController {
   async getMessages(
     @Param("id") _id: string,
     @Param("threadType") threadType: ThreadType,
-    @Query("after", NullableIntPipe) after?: number,
+    @Query("cursor") cursor: string,
     @Query("limit", NullableIntPipe) limit: number = 10,
     @Query("order") order: SortOrder = SortOrder.ASC,
   ): Promise<ThreadMessageDTO[]> {
@@ -104,7 +105,7 @@ export class ForumController {
       const id = `${threadType}_${_id}`;
       const msgs = await this.api.forumControllerMessages(
         id,
-        after,
+        cursor,
         limit,
         order as unknown as ForumSortOrder,
       );
@@ -258,26 +259,10 @@ export class ForumController {
     const externalThreadId = `${threadType}_${id}`;
 
     return this.ebus.pipe(
-      filter(
-        (it) =>
-          it instanceof MessageCreatedEvent ||
-          it instanceof MessageUpdatedEvent,
-      ),
-      filter(
-        (mce: MessageCreatedEvent | MessageUpdatedEvent) =>
-          mce.threadId === externalThreadId,
-      ),
-      asyncMap(async (mce: MessageCreatedEvent | MessageUpdatedEvent) => {
-        const m: ThreadMessageDTO = {
-          author: await this.urepo.userDto(mce.authorId),
-
-          content: mce.content,
-          createdAt: mce.createdAt,
-          threadId: mce.threadId,
-          deleted: "deleted" in mce ? mce.deleted : false,
-          messageId: mce.messageId,
-        };
-        return { data: m };
+      filter((it) => it instanceof MessageUpdatedEvent),
+      filter((mce: MessageUpdatedEvent) => mce.threadId === externalThreadId),
+      asyncMap(async (mce: MessageUpdatedEvent) => {
+        return { data: await this.mapper.mapApiMessage(mce) };
       }, 1),
     );
   }
@@ -366,6 +351,39 @@ export class ForumController {
       console.error("GGG", g);
     }
     return 200;
+  }
+
+  @Post("thread/message/:id/react")
+  @WithUser()
+  async react(
+    @Param("id") messageId: string,
+    @Body() content: UpdateMessageReactionDto,
+    @CurrentUser() user: CurrentUserDto,
+  ): Promise<ThreadMessageDTO> {
+    try {
+      return await this.api
+        .forumControllerToggleReaction(messageId, {
+          emoticonId: content.emoticonId,
+          author: user.steam_id,
+        })
+        .then(this.mapper.mapApiMessage);
+    } catch (response) {
+      throw new HttpException("Muted", response.status);
+    }
+  }
+
+  @ApiQuery({
+    type: "string",
+    required: false,
+    name: "steam_id",
+  })
+  @Get("emoticons")
+  public emoticons(
+    @Query("steam_id") steamId?: string,
+  ): Promise<EmoticonDto[]> {
+    return this.api
+      .forumControllerAllEmoticons(steamId)
+      .then((emoticons) => emoticons.map(this.mapper.mapEmoticon));
   }
 
   @Get("user/:id")

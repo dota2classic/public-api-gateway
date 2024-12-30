@@ -20,6 +20,8 @@ import {
   ForumCreateMessageDTOToJSON,
   ForumCreateThreadDTO,
   ForumCreateThreadDTOToJSON,
+  ForumEmoticonDto,
+  ForumEmoticonDtoFromJSON,
   ForumForumUserDTO,
   ForumForumUserDTOFromJSON,
   ForumMessageDTO,
@@ -32,14 +34,20 @@ import {
   ForumThreadPageDto,
   ForumThreadPageDtoFromJSON,
   ForumThreadType,
+  ForumUpdateMessageReactionDto,
+  ForumUpdateMessageReactionDtoToJSON,
   ForumUpdateThreadDTO,
   ForumUpdateThreadDTOToJSON,
   ForumUpdateUserDTO,
   ForumUpdateUserDTOToJSON,
 } from "../models";
 
+export interface ForumControllerAllEmoticonsRequest {
+  steamId?: string;
+}
+
 export interface ForumControllerDeleteMessageRequest {
-  id: string;
+    id: string;
 }
 
 export interface ForumControllerGetThreadRequest {
@@ -56,7 +64,7 @@ export interface ForumControllerGetUserRequest {
 
 export interface ForumControllerMessagesRequest {
     id: string;
-    after?: number;
+    cursor?: string;
     limit?: number;
     order?: ForumSortOrder;
 }
@@ -78,6 +86,11 @@ export interface ForumControllerThreadsRequest {
     threadType?: ForumThreadType;
 }
 
+export interface ForumControllerToggleReactionRequest {
+    id: string;
+    forumUpdateMessageReactionDto: ForumUpdateMessageReactionDto;
+}
+
 export interface ForumControllerUpdateThreadRequest {
     id: string;
     forumUpdateThreadDTO: ForumUpdateThreadDTO;
@@ -92,6 +105,54 @@ export interface ForumControllerUpdateUserRequest {
  *
  */
 export class ForumApi extends runtime.BaseAPI {
+
+    /**
+     */
+    forumControllerAllEmoticonsContext(requestParameters: ForumControllerAllEmoticonsRequest): runtime.RequestOpts {
+        const queryParameters: any = {};
+
+        if (requestParameters.steamId !== undefined) {
+            queryParameters['steam_id'] = requestParameters.steamId;
+        }
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        return {
+            path: `/forum/emoticons`,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        };
+    }
+
+    /**
+     */
+    forumControllerAllEmoticons = async (steamId?: string): Promise<Array<ForumEmoticonDto>> => {
+        const response = await this.forumControllerAllEmoticonsRaw({ steamId: steamId });
+        return await response.value();
+    }
+
+    /**
+     */
+    forumControllerGetUserContext(requestParameters: ForumControllerGetUserRequest): runtime.RequestOpts {
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        return {
+            path: `/forum/user/{id}`.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters.id))),
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        };
+    }
+
+    /**
+     */
+    forumControllerGetUser = async (id: string): Promise<ForumForumUserDTO> => {
+        const response = await this.forumControllerGetUserRaw({ id: id });
+        return await response.value();
+    }
 
     /**
      */
@@ -232,28 +293,6 @@ export class ForumApi extends runtime.BaseAPI {
 
     /**
      */
-    forumControllerGetUserContext(requestParameters: ForumControllerGetUserRequest): runtime.RequestOpts {
-        const queryParameters: any = {};
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-        return {
-            path: `/forum/user/{id}`.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters.id))),
-            method: 'GET',
-            headers: headerParameters,
-            query: queryParameters,
-        };
-    }
-
-    /**
-     */
-    forumControllerGetUser = async (id: string): Promise<ForumForumUserDTO> => {
-        const response = await this.forumControllerGetUserRaw({ id: id });
-        return await response.value();
-    }
-
-    /**
-     */
     private async forumControllerGetUserRaw(requestParameters: ForumControllerGetUserRequest): Promise<runtime.ApiResponse<ForumForumUserDTO>> {
         this.forumControllerGetUserValidation(requestParameters);
         const context = this.forumControllerGetUserContext(requestParameters);
@@ -261,6 +300,8 @@ export class ForumApi extends runtime.BaseAPI {
 
         return new runtime.JSONApiResponse(response, (jsonValue) => ForumForumUserDTOFromJSON(jsonValue));
     }
+
+
 
     /**
      */
@@ -272,30 +313,25 @@ export class ForumApi extends runtime.BaseAPI {
 
     /**
      */
-    private async forumControllerHealthcheckRaw(): Promise<runtime.ApiResponse<string>> {
-        this.forumControllerHealthcheckValidation();
-        const context = this.forumControllerHealthcheckContext();
-        const response = await this.request(context);
-
-        return new runtime.TextApiResponse(response) as any;
-    }
-
-
-
-    /**
-     */
-    private forumControllerHealthcheckValidation() {
-    }
-
-    /**
-     */
-    forumControllerHealthcheckContext(): runtime.RequestOpts {
+    forumControllerMessagesContext(requestParameters: ForumControllerMessagesRequest): runtime.RequestOpts {
         const queryParameters: any = {};
+
+        if (requestParameters.cursor !== undefined) {
+            queryParameters['cursor'] = requestParameters.cursor;
+        }
+
+        if (requestParameters.limit !== undefined) {
+            queryParameters['limit'] = requestParameters.limit;
+        }
+
+        if (requestParameters.order !== undefined) {
+            queryParameters['order'] = requestParameters.order;
+        }
 
         const headerParameters: runtime.HTTPHeaders = {};
 
         return {
-            path: `/forum/healthcheck`,
+            path: `/forum/thread/{id}/messages`.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters.id))),
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
@@ -304,8 +340,8 @@ export class ForumApi extends runtime.BaseAPI {
 
     /**
      */
-    forumControllerHealthcheck = async (): Promise<string> => {
-        const response = await this.forumControllerHealthcheckRaw();
+    forumControllerMessages = async (id: string, cursor?: string, limit?: number, order?: ForumSortOrder): Promise<Array<ForumMessageDTO>> => {
+        const response = await this.forumControllerMessagesRaw({ id: id, cursor: cursor, limit: limit, order: order });
         return await response.value();
     }
 
@@ -331,35 +367,26 @@ export class ForumApi extends runtime.BaseAPI {
 
     /**
      */
-    forumControllerMessagesContext(requestParameters: ForumControllerMessagesRequest): runtime.RequestOpts {
+    forumControllerToggleReactionContext(requestParameters: ForumControllerToggleReactionRequest): runtime.RequestOpts {
         const queryParameters: any = {};
-
-        if (requestParameters.after !== undefined) {
-            queryParameters['after'] = requestParameters.after;
-        }
-
-        if (requestParameters.limit !== undefined) {
-            queryParameters['limit'] = requestParameters.limit;
-        }
-
-        if (requestParameters.order !== undefined) {
-            queryParameters['order'] = requestParameters.order;
-        }
 
         const headerParameters: runtime.HTTPHeaders = {};
 
+        headerParameters['Content-Type'] = 'application/json';
+
         return {
-            path: `/forum/thread/{id}/messages`.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters.id))),
-            method: 'GET',
+            path: `/forum/message/{id}/react`.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters.id))),
+            method: 'POST',
             headers: headerParameters,
             query: queryParameters,
+            body: ForumUpdateMessageReactionDtoToJSON(requestParameters.forumUpdateMessageReactionDto),
         };
     }
 
     /**
      */
-    forumControllerMessages = async (id: string, after?: number, limit?: number, order?: ForumSortOrder): Promise<Array<ForumMessageDTO>> => {
-        const response = await this.forumControllerMessagesRaw({ id: id, after: after, limit: limit, order: order });
+    forumControllerToggleReaction = async (id: string, forumUpdateMessageReactionDto: ForumUpdateMessageReactionDto): Promise<ForumMessageDTO> => {
+        const response = await this.forumControllerToggleReactionRaw({ id: id, forumUpdateMessageReactionDto: forumUpdateMessageReactionDto });
         return await response.value();
     }
 
@@ -516,6 +543,42 @@ export class ForumApi extends runtime.BaseAPI {
     forumControllerThreads = async (page: number, perPage?: number, threadType?: ForumThreadType): Promise<ForumThreadPageDto> => {
         const response = await this.forumControllerThreadsRaw({ page: page, perPage: perPage, threadType: threadType });
         return await response.value();
+    }
+
+    /**
+     */
+    private async forumControllerAllEmoticonsRaw(requestParameters: ForumControllerAllEmoticonsRequest): Promise<runtime.ApiResponse<Array<ForumEmoticonDto>>> {
+        this.forumControllerAllEmoticonsValidation(requestParameters);
+        const context = this.forumControllerAllEmoticonsContext(requestParameters);
+        const response = await this.request(context);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(ForumEmoticonDtoFromJSON));
+    }
+
+    /**
+     */
+    private forumControllerAllEmoticonsValidation(requestParameters: ForumControllerAllEmoticonsRequest) {
+    }
+
+    /**
+     */
+    private async forumControllerToggleReactionRaw(requestParameters: ForumControllerToggleReactionRequest): Promise<runtime.ApiResponse<ForumMessageDTO>> {
+        this.forumControllerToggleReactionValidation(requestParameters);
+        const context = this.forumControllerToggleReactionContext(requestParameters);
+        const response = await this.request(context);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => ForumMessageDTOFromJSON(jsonValue));
+    }
+
+    /**
+     */
+    private forumControllerToggleReactionValidation(requestParameters: ForumControllerToggleReactionRequest) {
+        if (requestParameters.id === null || requestParameters.id === undefined) {
+            throw new runtime.RequiredError('id','Required parameter requestParameters.id was null or undefined when calling forumControllerToggleReaction.');
+        }
+        if (requestParameters.forumUpdateMessageReactionDto === null || requestParameters.forumUpdateMessageReactionDto === undefined) {
+            throw new runtime.RequiredError('forumUpdateMessageReactionDto','Required parameter requestParameters.forumUpdateMessageReactionDto was null or undefined when calling forumControllerToggleReaction.');
+        }
     }
 
     /**

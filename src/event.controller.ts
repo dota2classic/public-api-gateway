@@ -3,7 +3,6 @@ import { EventPattern } from "@nestjs/microservices";
 import { UserCreatedEvent } from "./gateway/events/user/user-created.event";
 import { Constructor, EventBus } from "@nestjs/cqrs";
 import { GameResultsEvent } from "./gateway/events/gs/game-results.event";
-import { MessageCreatedEvent } from "./gateway/events/message-created.event";
 import { MatchFinishedEvent } from "./gateway/events/match-finished.event";
 import { ReadyCheckStartedEvent } from "./gateway/events/ready-check-started.event";
 import { LiveMatchUpdateEvent } from "./gateway/events/gs/live-match-update.event";
@@ -49,11 +48,6 @@ export class EventController {
   @EventPattern(GameResultsEvent.name)
   async GameResultsEvent(data: GameResultsEvent) {
     this.event(GameResultsEvent, data);
-  }
-
-  @EventPattern(MessageCreatedEvent.name)
-  async MessageCreatedEvent(data: MessageCreatedEvent) {
-    this.event(MessageCreatedEvent, data);
   }
 
   @EventPattern("QueueUpdatedEvent")

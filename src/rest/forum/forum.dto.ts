@@ -5,6 +5,18 @@ import { UserDTO } from "../shared.dto";
 import { ThreadType } from "../../gateway/shared-types/thread-type";
 import { MinLength } from "class-validator";
 
+export class EmoticonDto {
+  id: number;
+  code: string;
+
+  src: string;
+}
+
+export class ReactionEntry {
+  emoticon: EmoticonDto;
+  reacted: UserDTO[];
+}
+
 export enum SortOrder {
   ASC = "ASC",
   DESC = "DESC",
@@ -18,6 +30,7 @@ export class ThreadMessageDTO {
   content: string;
   createdAt: string;
   deleted: boolean;
+  reactions: ReactionEntry[];
 }
 
 export class ThreadMessagePageDTO extends Page<ThreadMessageDTO> {
@@ -82,4 +95,8 @@ export class ForumUserDto {
   user: UserDTO;
   mutedUntil: string;
   messages: number;
+}
+
+export class UpdateMessageReactionDto {
+  emoticonId: number;
 }
