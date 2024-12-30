@@ -78,6 +78,8 @@ export class SteamController {
     console.log("STEAM AUTH CALLBACK: COOKIES");
     console.log(req.cookies);
 
+    this.logger.log("Login: cookies", req.cookies);
+
     this.ebus.publish(
       new UserLoggedInEvent(
         new PlayerId(steam32id),
