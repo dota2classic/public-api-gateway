@@ -2,6 +2,7 @@ import { Injectable, NestMiddleware } from "@nestjs/common";
 import { Counter, Gauge } from "prom-client";
 import { InjectMetric } from "@willsoto/nestjs-prometheus";
 import { NextFunction, Request, Response } from "express";
+import { Cron, CronExpression } from "@nestjs/schedule";
 
 @Injectable()
 export class CustomMetricsMiddleware implements NestMiddleware {
@@ -24,6 +25,12 @@ export class CustomMetricsMiddleware implements NestMiddleware {
       help: "app_usage_metrics_to_detect_errors",
       labelNames: ["app_method", "app_origin", "app_status"],
     });
+  }
+
+  @Cron(CronExpression.EVERY_4_HOURS)
+  private async resetMetrics() {
+    this.customDurationGauge.reset();
+    this.appGauge.reset();
   }
 
   use(req: Request, res: Response, next: NextFunction) {
