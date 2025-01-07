@@ -104,6 +104,7 @@ import { LobbyMapper } from "./rest/lobby/lobby.mapper";
 import { LobbyService } from "./rest/lobby/lobby.service";
 import { SocketFullDisconnectHandler } from "./socket/event-handler/scoekt-full-disconnect.handler";
 import { LeaveLobbySocketDisconnectHandler } from "./rest/lobby/event-handler/leave-lobby-socket-disconnect.handler";
+import { S3Module, S3ModuleOptions } from "nestjs-s3";
 
 const OPENAPI_GENERATED: Provider[] = [
   {
@@ -190,6 +191,23 @@ const OPENAPI_GENERATED: Provider[] = [
       },
       imports: [],
       inject: [ConfigService],
+    }),
+    S3Module.forRootAsync({
+      useFactory(config: ConfigService): S3ModuleOptions {
+        return {
+          config: {
+            credentials: {
+              accessKeyId: config.get("s3.accessKeyId"),
+              secretAccessKey: config.get("s3.accessKeySecret"),
+            },
+            region: "any",
+            endpoint: config.get("s3.endpoint"),
+            forcePathStyle: true,
+          },
+        };
+      },
+      inject: [ConfigService],
+      imports: [],
     }),
     ThrottlerModule.forRoot([
       {

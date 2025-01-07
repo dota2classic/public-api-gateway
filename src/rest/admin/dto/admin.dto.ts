@@ -119,6 +119,7 @@ export class CrimeLogDto {
 
   readonly created_at: string;
   readonly ban_duration: number;
+  readonly match_id?: number;
 }
 export class CrimeLogPageDto extends Page<CrimeLogDto> {
   data: CrimeLogDto[];

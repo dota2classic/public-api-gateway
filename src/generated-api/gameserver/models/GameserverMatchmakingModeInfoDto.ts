@@ -13,15 +13,15 @@
  */
 
 import {
-    GameserverDotaGameMode,
-    GameserverDotaGameModeFromJSON,
-    GameserverDotaGameModeToJSON,
-    GameserverDotaMap,
-    GameserverDotaMapFromJSON,
-    GameserverDotaMapToJSON,
-    GameserverMatchmakingMode,
-    GameserverMatchmakingModeFromJSON,
-    GameserverMatchmakingModeToJSON,
+  GameserverDotaGameMode,
+  GameserverDotaGameModeFromJSON,
+  GameserverDotaGameModeToJSON,
+  GameserverDotaMap,
+  GameserverDotaMapFromJSON,
+  GameserverDotaMapToJSON,
+  GameserverMatchmakingMode,
+  GameserverMatchmakingModeFromJSON,
+  GameserverMatchmakingModeToJSON,
 } from './';
 
 /**

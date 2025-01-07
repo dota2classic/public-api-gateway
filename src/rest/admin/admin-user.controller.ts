@@ -38,6 +38,7 @@ import { NullableIntPipe } from "../../utils/pipes";
 import { AdminMapper } from "./admin.mapper";
 import { WithPagination } from "../../utils/decorator/pagination";
 import { MatchmakingInfo } from "../stats/dto/stats.dto";
+import { InjectS3, S3 } from "nestjs-s3";
 
 @Controller("admin/users")
 @ApiTags("admin")
@@ -50,6 +51,7 @@ export class AdminUserController {
     private readonly mapper: AdminMapper,
     private readonly api: CrimeApi,
     private readonly infoApi: InfoApi,
+    @InjectS3() private readonly s3: S3,
   ) {}
 
   @ModeratorGuard()
@@ -168,5 +170,17 @@ export class AdminUserController {
         entries: t.entries.map((z) => ({ ...z, steam_id: z.playerId.value })),
       })),
     );
+  }
+
+  @ModeratorGuard()
+  @WithUser()
+  @Get("logFile")
+  public async logFile(@Query("id") id: string): Promise<string> {
+    const res = await this.s3.getObject({
+      Bucket: "logs",
+      Key: `${id}.log`,
+    });
+
+    return res.Body.transformToString();
   }
 }
