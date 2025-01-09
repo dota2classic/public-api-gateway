@@ -12,6 +12,7 @@
  * Do not edit the class manually.
  */
 
+import { exists } from '../runtime';
 import { ForumMessageDTO, ForumMessageDTOFromJSON, ForumMessageDTOToJSON } from './';
 
 /**
@@ -44,6 +45,12 @@ export class ForumMessagePageDTO {
      * @memberof ForumMessagePageDTO
      */
     pages: number;
+    /**
+     *
+     * @type {string}
+     * @memberof ForumMessagePageDTO
+     */
+    cursor?: string;
 }
 
 export function ForumMessagePageDTOFromJSON(json: any): ForumMessagePageDTO {
@@ -60,6 +67,7 @@ export function ForumMessagePageDTOFromJSONTyped(json: any, ignoreDiscriminator:
         'perPage': json['perPage'],
         'page': json['page'],
         'pages': json['pages'],
+        'cursor': !exists(json, 'cursor') ? undefined : json['cursor'],
     };
 }
 
@@ -76,6 +84,7 @@ export function ForumMessagePageDTOToJSON(value?: ForumMessagePageDTO | null): a
         'perPage': value.perPage,
         'page': value.page,
         'pages': value.pages,
+        'cursor': value.cursor,
     };
 }
 

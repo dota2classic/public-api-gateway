@@ -23,6 +23,7 @@ import { UserRepository } from "../../cache/user/user.repository";
 import {
   CreateMessageDTO,
   CreateThreadDTO,
+  EditMessageDto,
   EmoticonDto,
   ForumUserDto,
   SortOrder,
@@ -52,7 +53,6 @@ import { WithPagination } from "../../utils/decorator/pagination";
 import { PlayerId } from "../../gateway/shared-types/player-id";
 import { ReqLoggingInterceptor } from "../../middleware/req-logging.interceptor";
 import { LiveMatchService } from "../../cache/live-match.service";
-import { tap } from "rxjs/operators";
 
 @UseInterceptors(ReqLoggingInterceptor)
 @Controller("forum")
@@ -120,6 +120,46 @@ export class ForumController {
     name: "id",
     required: true,
   })
+  @ApiQuery({
+    name: "perPage",
+    required: false,
+  })
+  @ApiParam({
+    name: "threadType",
+    required: false,
+    enum: ThreadType,
+    enumName: "ThreadType",
+  })
+  @Get("thread/:id/:threadType/latestPage")
+  async getLatestPage(
+    @Param("id") id: string,
+    @Param("threadType") threadType: ThreadType,
+    @Query("perPage", NullableIntPipe) perPage: number = 15,
+  ): Promise<ThreadMessagePageDTO> {
+    const pg = await this.api.forumControllerGetLatestPage(
+      `${threadType}_${id}`,
+      perPage,
+    );
+
+    return await makePage(
+      pg.data,
+      pg.pages * pg.perPage,
+      pg.page,
+      pg.perPage,
+      this.mapper.mapApiMessage,
+      pg.cursor,
+    );
+  }
+
+  @ApiParam({
+    name: "id",
+    required: true,
+  })
+  @ApiQuery({
+    name: "cursor",
+    required: false,
+    type: "string",
+  })
   @ApiParam({
     name: "threadType",
     required: false,
@@ -132,11 +172,13 @@ export class ForumController {
     @Param("id") id: string,
     @Param("threadType") threadType: ThreadType,
     @Query("page", NullableIntPipe) page: number,
+    @Query("cursor") cursor?: string,
     @Query("per_page", NullableIntPipe) perPage: number = 15,
   ): Promise<ThreadMessagePageDTO> {
     const pg = await this.api.forumControllerMessagesPage(
       `${threadType}_${id}`,
       page,
+      cursor,
       perPage,
     );
 
@@ -261,14 +303,31 @@ export class ForumController {
 
     return this.ebus.pipe(
       filter((it) => it instanceof MessageUpdatedEvent),
-      tap((e) => {
-        console.log("MessageUpdtedEVent", e);
-      }),
       filter((mce: MessageUpdatedEvent) => mce.threadId === externalThreadId),
       asyncMap(async (mce: MessageUpdatedEvent) => {
         return { data: await this.mapper.mapApiMessage(mce) };
       }, 1),
     );
+  }
+
+  @Patch("thread/message/:id")
+  @UseGuards(CustomThrottlerGuard)
+  @WithUser()
+  async editMessage(
+    @Param("id") id: string,
+    @Body() content: EditMessageDto,
+    @CurrentUser() user: CurrentUserDto,
+  ): Promise<ThreadMessageDTO> {
+    try {
+      return await this.api
+        .forumControllerEditMessage(id, {
+          content: content.content,
+          author: user,
+        })
+        .then(this.mapper.mapApiMessage);
+    } catch (response) {
+      throw new HttpException("Muted", response.status);
+    }
   }
 
   @Post("thread/message")
@@ -283,6 +342,7 @@ export class ForumController {
         .forumControllerPostMessage(content.threadId, {
           author: user,
           content: content.content,
+          replyMessageId: content.replyMessageId,
         })
         .then(this.mapper.mapApiMessage);
     } catch (response) {

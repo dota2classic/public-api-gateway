@@ -12,39 +12,31 @@
  * Do not edit the class manually.
  */
 
-import { exists } from '../runtime';
-
 /**
  *
  * @export
- * @interface ForumCreateMessageDTO
+ * @interface ForumEditMessageDTO
  */
-export class ForumCreateMessageDTO {
+export class ForumEditMessageDTO {
     /**
      *
      * @type {object}
-     * @memberof ForumCreateMessageDTO
+     * @memberof ForumEditMessageDTO
      */
     author: object;
     /**
      *
      * @type {string}
-     * @memberof ForumCreateMessageDTO
+     * @memberof ForumEditMessageDTO
      */
     content: string;
-    /**
-     *
-     * @type {string}
-     * @memberof ForumCreateMessageDTO
-     */
-    replyMessageId?: string;
 }
 
-export function ForumCreateMessageDTOFromJSON(json: any): ForumCreateMessageDTO {
-    return ForumCreateMessageDTOFromJSONTyped(json, false);
+export function ForumEditMessageDTOFromJSON(json: any): ForumEditMessageDTO {
+    return ForumEditMessageDTOFromJSONTyped(json, false);
 }
 
-export function ForumCreateMessageDTOFromJSONTyped(json: any, ignoreDiscriminator: boolean): ForumCreateMessageDTO {
+export function ForumEditMessageDTOFromJSONTyped(json: any, ignoreDiscriminator: boolean): ForumEditMessageDTO {
     if ((json === undefined) || (json === null)) {
         return json;
     }
@@ -52,11 +44,10 @@ export function ForumCreateMessageDTOFromJSONTyped(json: any, ignoreDiscriminato
 
         'author': json['author'],
         'content': json['content'],
-        'replyMessageId': !exists(json, 'replyMessageId') ? undefined : json['replyMessageId'],
     };
 }
 
-export function ForumCreateMessageDTOToJSON(value?: ForumCreateMessageDTO | null): any {
+export function ForumEditMessageDTOToJSON(value?: ForumEditMessageDTO | null): any {
     if (value === undefined) {
         return undefined;
     }
@@ -67,7 +58,6 @@ export function ForumCreateMessageDTOToJSON(value?: ForumCreateMessageDTO | null
 
         'author': value.author,
         'content': value.content,
-        'replyMessageId': value.replyMessageId,
     };
 }
 

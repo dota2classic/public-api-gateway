@@ -35,13 +35,18 @@ export class ForumMapper {
       threadId: msg.threadId,
       content: msg.content,
       createdAt: msg.createdAt,
+      updatedAt: msg.updatedAt,
       deleted: msg.deleted,
+      edited: msg.edited,
       reactions: await Promise.all(
         msg.reactions.map(async (reaction) => ({
           emoticon: this.mapEmoticon(reaction.emoticon),
           reacted: await Promise.all(reaction.reacted.map(this.urepo.userDto)),
         })),
       ),
+      reply: msg.repliedMessage
+        ? await this.mapApiMessage(msg.repliedMessage)
+        : undefined,
 
       author: await this.urepo.userDto(msg.author),
     };

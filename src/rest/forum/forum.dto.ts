@@ -29,15 +29,20 @@ export class ThreadMessageDTO {
   messageId: string;
   content: string;
   createdAt: string;
+  updatedAt: string;
   deleted: boolean;
+  edited: boolean;
   reactions: ReactionEntry[];
+
+  reply?: ThreadMessageDTO;
 }
 
-export class ThreadMessagePageDTO extends Page<ThreadMessageDTO> {
+export class ThreadMessagePageDTO extends Page<ThreadMessageDTO, string> {
   readonly data: ThreadMessageDTO[];
   readonly page: number;
   readonly perPage: number;
   readonly pages: number;
+  readonly cursor?: string;
 }
 
 export class ThreadDTO {
@@ -57,11 +62,12 @@ export class ThreadDTO {
   readonly lastMessage?: ThreadMessageDTO;
 }
 
-export class ThreadPageDTO extends Page<ThreadDTO> {
+export class ThreadPageDTO extends Page<ThreadDTO, string> {
   readonly data: ThreadDTO[];
   readonly page: number;
   readonly perPage: number;
   readonly pages: number;
+  readonly cursor?: string;
 }
 
 export class ThreadMessageSseDto extends MessageObjectDto<ThreadMessageDTO> {
@@ -73,6 +79,13 @@ export class CreateMessageDTO {
   content: string;
 
   threadId: string;
+
+  replyMessageId?: string;
+}
+
+export class EditMessageDto {
+  @MinLength(1)
+  content: string;
 }
 
 export class CreateThreadDTO {

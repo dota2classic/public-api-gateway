@@ -52,10 +52,28 @@ export class ForumMessageDTO {
     createdAt: string;
     /**
      *
+     * @type {string}
+     * @memberof ForumMessageDTO
+     */
+    updatedAt: string;
+    /**
+     *
      * @type {boolean}
      * @memberof ForumMessageDTO
      */
     deleted: boolean;
+    /**
+     *
+     * @type {boolean}
+     * @memberof ForumMessageDTO
+     */
+    edited: boolean;
+    /**
+     *
+     * @type {ForumMessageDTO}
+     * @memberof ForumMessageDTO
+     */
+    repliedMessage: ForumMessageDTO;
     /**
      *
      * @type {Array<ForumReactionEntry>}
@@ -79,7 +97,10 @@ export function ForumMessageDTOFromJSONTyped(json: any, ignoreDiscriminator: boo
         'content': json['content'],
         'author': json['author'],
         'createdAt': json['createdAt'],
+        'updatedAt': json['updatedAt'],
         'deleted': json['deleted'],
+        'edited': json['edited'],
+        'repliedMessage': ForumMessageDTOFromJSON(json['repliedMessage']),
         'reactions': ((json['reactions'] as Array<any>).map(ForumReactionEntryFromJSON)),
     };
 }
@@ -98,7 +119,10 @@ export function ForumMessageDTOToJSON(value?: ForumMessageDTO | null): any {
         'content': value.content,
         'author': value.author,
         'createdAt': value.createdAt,
+        'updatedAt': value.updatedAt,
         'deleted': value.deleted,
+        'edited': value.edited,
+        'repliedMessage': ForumMessageDTOToJSON(value.repliedMessage),
         'reactions': ((value.reactions as Array<any>).map(ForumReactionEntryToJSON)),
     };
 }
