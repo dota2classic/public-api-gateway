@@ -45,7 +45,8 @@ export class ReqLoggingInterceptor implements NestInterceptor {
     const res: Response = context.switchToHttp().getResponse();
 
     const handler = context.getHandler();
-    const path = Reflect.getMetadata(PATH_METADATA, handler);
+    const controller = Reflect.getMetadata(PATH_METADATA, context.getClass());
+    const path = controller + Reflect.getMetadata(PATH_METADATA, handler);
 
     const isSSE = Reflect.getMetadata(SSE_METADATA, handler);
 

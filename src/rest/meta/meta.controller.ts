@@ -24,7 +24,7 @@ export class MetaController {
     private readonly ms: MetaApi,
   ) {}
 
-  @CacheTTL(10)
+  @CacheTTL(60 * 30) // 30m cache
   @Get("heroes")
   public async heroes(): Promise<HeroSummaryDto[]> {
     return this.ms.metaControllerHeroes().then((t) => t);
@@ -45,7 +45,7 @@ export class MetaController {
     return this.ms.metaControllerItems();
   }
 
-  @CacheTTL(1000)
+  @CacheTTL(60 * 30) // 30m cache
   @Get("hero/:hero/players")
   public async heroPlayers(
     @Param("hero") hero: string,
