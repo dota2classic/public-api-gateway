@@ -49,6 +49,7 @@ import { ThrottlerModule } from "@nestjs/throttler";
 import { GetQueueStateQuery } from "./gateway/queries/QueueState/get-queue-state.query";
 import {
   makeCounterProvider,
+  makeGaugeProvider,
   PrometheusModule,
 } from "@willsoto/nestjs-prometheus";
 import { CustomMetricsMiddleware } from "./middleware/custom-metrics.middleware";
@@ -370,6 +371,11 @@ const OPENAPI_GENERATED: Provider[] = [
       name: "my_app_requests",
       help: "The number of requests processed by the application",
       labelNames: ["status"],
+    }),
+    makeGaugeProvider({
+      name: "app_duration_metrics",
+      help: "app_concurrent_metrics_help",
+      labelNames: ["app_method", "app_origin"],
     }),
   ],
 })
