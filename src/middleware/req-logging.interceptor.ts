@@ -14,6 +14,7 @@ import { Cron, CronExpression } from "@nestjs/schedule";
 import { InjectMetric } from "@willsoto/nestjs-prometheus";
 import { Gauge } from "prom-client";
 import { PATH_METADATA, SSE_METADATA } from "@nestjs/common/constants";
+import * as path from "path";
 
 @Injectable()
 export class ReqLoggingInterceptor implements NestInterceptor {
@@ -46,14 +47,18 @@ export class ReqLoggingInterceptor implements NestInterceptor {
 
     const handler = context.getHandler();
     const controller = Reflect.getMetadata(PATH_METADATA, context.getClass());
-    const path = controller + Reflect.getMetadata(PATH_METADATA, handler);
+
+    const requestPath = path.join(
+      controller,
+      Reflect.getMetadata(PATH_METADATA, handler),
+    );
 
     const isSSE = Reflect.getMetadata(SSE_METADATA, handler);
 
     res.on("finish", () => {
       const durationMillis = Date.now() - req["start"];
       this.customDurationGauge
-        .labels(req.method, path, isSSE ? "sse" : "request")
+        .labels(req.method, requestPath, isSSE ? "sse" : "request")
         .set(durationMillis);
     });
 
