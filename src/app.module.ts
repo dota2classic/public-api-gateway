@@ -375,7 +375,7 @@ const OPENAPI_GENERATED: Provider[] = [
     makeGaugeProvider({
       name: "app_duration_metrics",
       help: "app_concurrent_metrics_help",
-      labelNames: ["app_method", "app_origin"],
+      labelNames: ["app_method", "app_origin", "request_type"],
     }),
   ],
 })
