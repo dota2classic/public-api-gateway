@@ -43,10 +43,11 @@ export class StatsController {
     const ses = sessions as GameserverGameSessionDto[];
 
     const perMode: PerModePlayersDto[] = MatchmakingModes.map((mode) => {
-      const session = ses.find((t) => t.info.mode === mode);
-      const playerCount = session
-        ? session.info.radiant.length + session.info.dire.length
-        : 0;
+      const sessions = ses.filter((t) => t.info.mode === mode);
+      const playerCount = sessions.reduce(
+        (a, b) => a + b.info.radiant.length + b.info.dire.length,
+        0,
+      );
 
       return {
         lobby_type: mode,

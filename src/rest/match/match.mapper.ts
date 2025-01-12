@@ -15,6 +15,7 @@ import {
 import { MATCH_REPORT_TIMEOUT } from "../../gateway/shared-types/timings";
 import { GetReportsAvailableQueryResult } from "../../gateway/queries/GetReportsAvailable/get-reports-available-query.result";
 import { ConfigService } from "@nestjs/config";
+import { MatchmakingMode } from "../../gateway/shared-types/matchmaking-mode";
 
 export interface PlayerMappableResource
   extends GetReportsAvailableQueryResult {}
@@ -64,7 +65,10 @@ export class MatchMapper {
       reportable: isReportable,
       radiant: await Promise.all(it.radiant.map(this.mapPlayerInMatch)),
       dire: await Promise.all(it.dire.map(this.mapPlayerInMatch)),
-      replayUrl: `${this.configService.get("api.replayUrl")}${it.id}.dem`,
+      replayUrl:
+        it.id > 16500 && it.mode !== MatchmakingMode.BOTS
+          ? `${this.configService.get("api.replayUrl")}${it.id}.dem`
+          : undefined,
     };
   };
 
