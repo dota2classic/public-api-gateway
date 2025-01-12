@@ -7,10 +7,14 @@ import { PlayerId } from "../../gateway/shared-types/player-id";
 import { GetUserInfoQueryResult } from "../../gateway/queries/GetUserInfo/get-user-info-query.result";
 import { Role } from "../../gateway/shared-types/roles";
 import { UserDTO } from "../../rest/shared.dto";
+import { SocketDelivery } from "../../socket/socket-delivery";
 
 @Injectable()
 export class UserRepository extends RuntimeRepository<UserModel, "id"> {
-  constructor(private readonly qbus: QueryBus) {
+  constructor(
+    private readonly qbus: QueryBus,
+    private readonly onlineService: SocketDelivery,
+  ) {
     super(86400);
   }
 

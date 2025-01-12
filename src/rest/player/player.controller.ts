@@ -44,6 +44,8 @@ import { WithPagination } from "../../utils/decorator/pagination";
 import { NullableIntPipe } from "../../utils/pipes";
 import { PartyService } from "../party.service";
 import { ReqLoggingInterceptor } from "../../middleware/req-logging.interceptor";
+import { UserModel } from "../../cache/user/user.model";
+import { SocketDelivery } from "../../socket/socket-delivery";
 
 @UseInterceptors(ReqLoggingInterceptor)
 @Controller("player")
@@ -56,6 +58,7 @@ export class PlayerController {
     @Inject("QueryCore") private readonly redisEventQueue: ClientProxy,
     private readonly partyService: PartyService,
     private readonly ms: PlayerApi,
+    private readonly socketDelivery: SocketDelivery,
   ) {}
 
   // @Post("upload")
@@ -193,12 +196,18 @@ export class PlayerController {
   @Get("/search")
   async search(
     @Query("name") name: string,
+    @Query("count", NullableIntPipe) count: number = 30,
     @CurrentUser() user: D2CUser,
   ): Promise<UserDTO[]> {
-    //TODO!!! WE NEED TO MAKE THIS GOOD NOT BAD :wicked:
+    const online = this.socketDelivery.getOnline();
+    const isOnline = (steamId: string) => {
+      return online.includes(steamId);
+    };
+    const score = (a: UserModel) => (isOnline(a.id) ? 10000 : 1);
     return (await this.userRepository.all())
       .filter((t) => t.name.toLowerCase().includes(name.toLowerCase()))
-      .slice(0, 100)
+      .sort((a, b) => score(b) - score(a))
+      .slice(0, count)
       .map((it) => ({
         steamId: it.id,
         name: it.name,

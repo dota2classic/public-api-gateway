@@ -7,6 +7,8 @@ export class CurrentOnlineDto {
   inGame: number;
   sessions: number;
   servers: number;
+
+  perMode: PerModePlayersDto[];
 }
 
 export class MatchmakingInfo {
@@ -20,4 +22,11 @@ export class MatchmakingInfo {
   dota_map: Dota_Map;
 
   enabled: boolean;
+}
+
+export class PerModePlayersDto {
+  @ApiProperty({ enum: MatchmakingMode, enumName: "MatchmakingMode" })
+  lobby_type: MatchmakingMode;
+
+  playerCount: number;
 }

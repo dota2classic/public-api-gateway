@@ -12,6 +12,8 @@
  * Do not edit the class manually.
  */
 
+import { GameserverMatchmakingMode, GameserverMatchmakingModeFromJSON, GameserverMatchmakingModeToJSON } from './';
+
 /**
  *
  * @export
@@ -20,10 +22,10 @@
 export class GameserverMatchInfoDto {
     /**
      *
-     * @type {number}
+     * @type {GameserverMatchmakingMode}
      * @memberof GameserverMatchInfoDto
      */
-    mode: GameserverMatchInfoDtoModeEnum;
+    mode: GameserverMatchmakingMode;
     /**
      *
      * @type {string}
@@ -66,7 +68,7 @@ export function GameserverMatchInfoDtoFromJSONTyped(json: any, ignoreDiscriminat
     }
     return {
 
-        'mode': json['mode'],
+        'mode': GameserverMatchmakingModeFromJSON(json['mode']),
         'roomId': json['roomId'],
         'radiant': json['radiant'],
         'dire': json['dire'],
@@ -84,7 +86,7 @@ export function GameserverMatchInfoDtoToJSON(value?: GameserverMatchInfoDto | nu
     }
     return {
 
-        'mode': value.mode,
+        'mode': GameserverMatchmakingModeToJSON(value.mode),
         'roomId': value.roomId,
         'radiant': value.radiant,
         'dire': value.dire,
@@ -93,24 +95,6 @@ export function GameserverMatchInfoDtoToJSON(value?: GameserverMatchInfoDto | nu
     };
 }
 
-/**
-* @export
-* @enum {string}
-*/
-export enum GameserverMatchInfoDtoModeEnum {
-    NUMBER_0 = 0,
-    NUMBER_1 = 1,
-    NUMBER_2 = 2,
-    NUMBER_3 = 3,
-    NUMBER_4 = 4,
-    NUMBER_5 = 5,
-    NUMBER_6 = 6,
-    NUMBER_7 = 7,
-    NUMBER_8 = 8,
-    NUMBER_9 = 9,
-    NUMBER_10 = 10,
-    NUMBER_11 = 11
-}
 /**
 * @export
 * @enum {string}

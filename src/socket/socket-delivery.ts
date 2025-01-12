@@ -48,4 +48,13 @@ export class SocketDelivery {
     targets.forEach((socket) => socket.emit(key, payload));
     return targets.length;
   }
+
+  // TODO: this maybe very shit in performance with scale
+  public getOnline(): string[] {
+    return Array.from(this.server.sockets.sockets.values())
+      .filter((it: PlayerSocket) => !!it.steamId)
+      .map((it: PlayerSocket) => it.steamId);
+  }
+
+  isOnline = (steamId: string) => this.getOnline().includes(steamId);
 }
