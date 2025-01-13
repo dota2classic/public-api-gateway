@@ -45,6 +45,12 @@ export class MeDto {
   reportsAvailable: number;
 }
 
+export class GamemodeAccessMap {
+  education: boolean;
+  simpleModes: boolean;
+  humanGames: boolean;
+}
+
 export class PlayerSummaryDto {
   user: UserDTO;
 
@@ -60,6 +66,8 @@ export class PlayerSummaryDto {
 
   wins: number;
   loss: number;
+
+  accessMap: GamemodeAccessMap;
 
   // asdfsa
 }

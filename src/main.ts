@@ -5,18 +5,13 @@ import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 import * as cookieParser from "cookie-parser";
 import { Transport } from "@nestjs/microservices";
 import { INestApplication, Logger, ValidationPipe } from "@nestjs/common";
-import { EventBus, QueryBus } from "@nestjs/cqrs";
+import { EventBus } from "@nestjs/cqrs";
 import { LiveMatchUpdateEvent } from "./gateway/events/gs/live-match-update.event";
-import { GetPlayerInfoQueryResult } from "./gateway/queries/GetPlayerInfo/get-player-info-query.result";
-import { Dota2Version } from "./gateway/shared-types/dota2version";
-import { PlayerId } from "./gateway/shared-types/player-id";
-import { GetPlayerInfoQuery } from "./gateway/queries/GetPlayerInfo/get-player-info.query";
-import { UserRepository } from "./cache/user/user.repository";
-import * as fs from "fs";
 import { WinstonWrapper } from "./utils/logger";
 import configuration from "./config/configuration";
 import { ConfigService } from "@nestjs/config";
-import { MainService } from "./main.service";
+import { DataSource } from "typeorm";
+import { getS3ConnectionToken, S3 } from "nestjs-s3";
 
 async function bootstrap() {
   // Start SDK before nestjs factory create
@@ -75,61 +70,31 @@ async function bootstrap() {
 
   await app.startAllMicroservices();
 
-  await app.get<MainService>(MainService).actualizeServers();
-
+  // await app.get<MainService>(MainService).actualizeServers();
   console.log("Started api gateway");
-
-  // await test(app);
+  // await tmp(app);
 }
 
-async function test(app: INestApplication<any>) {
-  // const ids: string[] = shuffle(await app.get(UserRepository).all().then(all => all.map(it => it.id))).slice(0, 500)
+async function tmp(app: INestApplication<any>) {
+  const ds = app.get(DataSource);
+  const ids: { id: number }[] = await ds.query(`select fm.id::int
+from finished_match fm
+where fm.id > 16500 and fm.id < 20000 and fm.matchmaking_mode = 7`);
 
-  const ids = [
-    "1177028171",
-    "1316075080",
-    "148928588",
-    "120980252",
-    "59565811",
-    "160048904",
-    "1840854962",
-    "253323011",
-    "1247368846",
-    "1044738317",
-    "116514945",
-    "1127420281",
-    "176708734",
-  ];
+  const s3: S3 = app.get(getS3ConnectionToken(undefined));
 
-  const qbus = await app.get(QueryBus);
-  // @ts-ignore
-  const results: GetPlayerInfoQueryResult[] = await Promise.all(
-    ids.map((it) =>
-      qbus.execute(
-        new GetPlayerInfoQuery(new PlayerId(it), Dota2Version.Dota_684),
-      ),
-    ),
-  );
+  for (let i = 0; i < ids.length; i++) {
+    const id = ids[i].id;
+    try {
+      await s3.deleteObject({
+        Bucket: "replays",
+        Key: `${id}.dem`,
+      });
+    } catch (e) {
+      console.error(e);
+    }
 
-  console.log("Result received");
-  // @ts-ignore
-
-  const json = JSON.stringify(
-    results
-      .map((it) =>
-        it
-          ? {
-              ...it,
-              name:
-                app.get(UserRepository).getSync(it.playerId.value)?.name ||
-                "noname",
-            }
-          : null,
-      )
-      .filter(Boolean),
-    null,
-    2,
-  );
-  fs.writeFileSync("./entries.json", json);
+    console.log(`${i} / ${ids.length} Done`);
+  }
 }
 bootstrap();

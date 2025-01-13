@@ -47,6 +47,12 @@ export class GameserverPlayerSummaryDto {
      * @type {number}
      * @memberof GameserverPlayerSummaryDto
      */
+    accessLevel: GameserverPlayerSummaryDtoAccessLevelEnum;
+    /**
+     *
+     * @type {number}
+     * @memberof GameserverPlayerSummaryDto
+     */
     rank: number | null;
     /**
      *
@@ -112,6 +118,7 @@ export function GameserverPlayerSummaryDtoFromJSONTyped(json: any, ignoreDiscrim
         'playedAnyGame': json['playedAnyGame'],
         'calibrationGamesLeft': json['calibrationGamesLeft'],
         'hasUnrankedAccess': json['hasUnrankedAccess'],
+        'accessLevel': json['accessLevel'],
         'rank': json['rank'],
         'steam_id': json['steam_id'],
         'mmr': json['mmr'],
@@ -137,6 +144,7 @@ export function GameserverPlayerSummaryDtoToJSON(value?: GameserverPlayerSummary
         'playedAnyGame': value.playedAnyGame,
         'calibrationGamesLeft': value.calibrationGamesLeft,
         'hasUnrankedAccess': value.hasUnrankedAccess,
+        'accessLevel': value.accessLevel,
         'rank': value.rank,
         'steam_id': value.steam_id,
         'mmr': value.mmr,
@@ -147,6 +155,16 @@ export function GameserverPlayerSummaryDtoToJSON(value?: GameserverPlayerSummary
         'assists': value.assists,
         'play_time': value.play_time,
     };
+}
+
+/**
+* @export
+* @enum {string}
+*/
+export enum GameserverPlayerSummaryDtoAccessLevelEnum {
+    NUMBER_0 = 0,
+    NUMBER_1 = 1,
+    NUMBER_2 = 2
 }
 
 

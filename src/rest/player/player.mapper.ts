@@ -4,10 +4,12 @@ import {
   GameserverBanStatusDto,
   GameserverLeaderboardEntryDto,
   GameserverPlayerSummaryDto,
+  GameserverPlayerSummaryDtoAccessLevelEnum,
   GameserverPlayerTeammateDto,
 } from "../../generated-api/gameserver/models";
 import { UserRepository } from "../../cache/user/user.repository";
 import {
+  GamemodeAccessMap,
   LeaderboardEntryDto,
   MeDto,
   PlayerSummaryDto,
@@ -97,8 +99,17 @@ export class PlayerMapper {
       games_played: it.games,
       calibrationGamesLeft: it.calibrationGamesLeft,
       hasHumanGamesAccess: it.hasUnrankedAccess,
+      accessMap: this.mapAccessLevel(it.accessLevel),
     };
   };
+
+  public mapAccessLevel = (
+    it: GameserverPlayerSummaryDtoAccessLevelEnum,
+  ): GamemodeAccessMap => ({
+    education: true,
+    simpleModes: it !== 0,
+    humanGames: it == 2,
+  });
 
   public mapParty = async (
     party: GetPartyQueryResult,
