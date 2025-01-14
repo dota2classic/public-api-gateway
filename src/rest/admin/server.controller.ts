@@ -76,7 +76,7 @@ export class ServerController {
       .then((t) => t.map(this.mapper.mapGameServer));
   }
 
-  @AdminGuard()
+  @ModeratorGuard()
   @WithUser()
   @Post(`/stop_server`)
   async stopServer(@Body() url: StopServerDto) {

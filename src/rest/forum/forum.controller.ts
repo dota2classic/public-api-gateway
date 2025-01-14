@@ -38,7 +38,11 @@ import {
 } from "./forum.dto";
 import { ForumApi, ForumSortOrder } from "../../generated-api/forum";
 import { NullableIntPipe } from "../../utils/pipes";
-import { AdminGuard, WithUser } from "../../utils/decorator/with-user";
+import {
+  AdminGuard,
+  ModeratorGuard,
+  WithUser,
+} from "../../utils/decorator/with-user";
 import {
   CurrentUser,
   CurrentUserDto,
@@ -376,7 +380,7 @@ export class ForumController {
   }
 
   @Delete("thread/message/:id")
-  @AdminGuard()
+  @ModeratorGuard()
   @WithUser()
   async deleteMessage(@Param("id") id: string): Promise<ThreadMessageDTO> {
     return this.api
@@ -397,7 +401,7 @@ export class ForumController {
   }
 
   @Patch("user/:id")
-  @AdminGuard()
+  @ModeratorGuard()
   @WithUser()
   async updateUser(
     @Param("id") steamId: string,
@@ -451,7 +455,7 @@ export class ForumController {
   }
 
   @Get("user/:id")
-  @AdminGuard()
+  @ModeratorGuard()
   @WithUser()
   public async getUser(@Param("id") steamId: string): Promise<ForumUserDto> {
     const user = await this.api.forumControllerGetUser(steamId);
