@@ -1,11 +1,11 @@
 import { EventsHandler, IEventHandler, QueryBus } from "@nestjs/cqrs";
 import { QueueUpdatedEvent } from "../../gateway/events/queue-updated.event";
-import { GetQueueStateQuery } from "../../gateway/queries/QueueState/get-queue-state.query";
-import { GetQueueStateQueryResult } from "../../gateway/queries/QueueState/get-queue-state-query.result";
 import { inspect } from "util";
 import { SocketDelivery } from "../socket-delivery";
 import { MessageTypeS2C } from "../messages/s2c/message-type.s2c";
 import { QueueStateMessageS2C } from "../messages/s2c/queue-state-message.s2c";
+import { Dota2Version } from "../../gateway/shared-types/dota2version";
+import { MatchmakingModes } from "../../gateway/shared-types/matchmaking-mode";
 
 @EventsHandler(QueueUpdatedEvent)
 export class QueueUpdatedHandler implements IEventHandler<QueueUpdatedEvent> {
@@ -16,18 +16,30 @@ export class QueueUpdatedHandler implements IEventHandler<QueueUpdatedEvent> {
 
   async handle(event: QueueUpdatedEvent) {
     try {
-      const qs: GetQueueStateQueryResult = await this.qbus.execute(
-        new GetQueueStateQuery(event.mode, event.version),
+      await Promise.all(
+        MatchmakingModes.map((mode) =>
+          this.delivery.broadcastAll(
+            MessageTypeS2C.QUEUE_STATE,
+            new QueueStateMessageS2C(
+              mode,
+              Dota2Version.Dota_684,
+              event.modes.find((mapping) => mapping.lobby === mode)?.count || 0,
+            ),
+          ),
+        ),
       );
-
-      const inQueue = qs.entries
-        .map((t) => t.players.length)
-        .reduce((a, b) => a + b, 0);
-
-      await this.delivery.broadcastAll(
-        MessageTypeS2C.QUEUE_STATE,
-        new QueueStateMessageS2C(event.mode, event.version, inQueue),
-      );
+      // await Promise.all(
+      //   event.modes.map((mode) =>
+      //     this.delivery.broadcastAll(
+      //       MessageTypeS2C.QUEUE_STATE,
+      //       new QueueStateMessageS2C(
+      //         mode.lobby,
+      //         Dota2Version.Dota_684,
+      //         mode.count,
+      //       ),
+      //     ),
+      //   ),
+      // );
     } catch (e) {
       console.log(inspect(e));
     }

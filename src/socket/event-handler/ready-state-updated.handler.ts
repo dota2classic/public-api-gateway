@@ -18,12 +18,12 @@ export class ReadyStateUpdatedHandler
       event.roomID,
       event.mode,
       event.entries.map(
-        (entry) => new PlayerRoomEntry(entry.playerId.value, entry.readyState),
+        (entry) => new PlayerRoomEntry(entry.steamId, entry.readyState),
       ),
     );
 
     await this.delivery.broadcastAuthorized(
-      event.entries.map((it) => it.playerId.value),
+      event.entries.map((it) => it.steamId),
       () => [MessageTypeS2C.PLAYER_ROOM_STATE, state],
     );
   }

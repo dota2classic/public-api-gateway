@@ -19,10 +19,10 @@ export class PartyInviteCreatedHandler
     const message = new PartyInviteReceivedMessageS2C(
       event.partyId,
       event.id,
-      await this.userRepository.userDto(event.leaderId.value),
+      await this.userRepository.userDto(event.leaderId),
     );
     await this.delivery.deliver(
-      event.invited.value,
+      event.invited,
       MessageTypeS2C.PARTY_INVITE_RECEIVED,
       message,
     );

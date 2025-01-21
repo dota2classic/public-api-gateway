@@ -17,11 +17,6 @@ import { MessageTypeC2S } from "./messages/c2s/message-type.c2s";
 import { Inject, Logger } from "@nestjs/common";
 import { ClientProxy } from "@nestjs/microservices";
 import { EnterQueueMessageC2S } from "./messages/c2s/enter-queue-message.c2s";
-import { PlayerEnterQueueCommand } from "../gateway/commands/player-enter-queue.command";
-import { PlayerId } from "../gateway/shared-types/player-id";
-import { MatchmakingModes } from "../gateway/shared-types/matchmaking-mode";
-import { PlayerLeaveQueueCommand } from "../gateway/commands/player-leave-queue.command";
-import { Dota2Version } from "../gateway/shared-types/dota2version";
 import { SetReadyCheckMessageC2S } from "./messages/c2s/set-ready-check-message.c2s";
 import {
   ReadyState,
@@ -35,6 +30,8 @@ import { InviteToPartyMessageC2S } from "./messages/c2s/invite-to-party-message.
 import { OnlineUpdateMessageS2C } from "./messages/s2c/online-update-message.s2c";
 import { EventBus } from "@nestjs/cqrs";
 import { SocketFullDisconnectEvent } from "./event/socket-full-disconnect.event";
+import { PlayerEnterQueueRequestedEvent } from "../gateway/events/mm/player-enter-queue-requested.event";
+import { PlayerLeaveQueueRequestedEvent } from "../gateway/events/mm/player-leave-queue-requested.event";
 
 @WebSocketGateway({ cors: "*" })
 export class SocketGateway implements OnGatewayDisconnect, OnGatewayConnection {
@@ -57,6 +54,7 @@ export class SocketGateway implements OnGatewayDisconnect, OnGatewayConnection {
 
   async handleConnection(client: PlayerSocket, ...args) {
     const authToken = client.handshake.auth?.token;
+
     try {
       const parsed = this.jwtService.verify<{ sub: string }>(authToken);
 
@@ -88,34 +86,22 @@ export class SocketGateway implements OnGatewayDisconnect, OnGatewayConnection {
     @MessageBody() data: EnterQueueMessageC2S,
     @ConnectedSocket() client: PlayerSocket,
   ) {
-    console.log(data, client.steamId);
     await this.redis
       .emit(
-        PlayerEnterQueueCommand.name,
-        new PlayerEnterQueueCommand(
-          new PlayerId(client.steamId),
-          data.mode,
-          data.version,
-        ),
+        PlayerEnterQueueRequestedEvent.name,
+        new PlayerEnterQueueRequestedEvent(client.steamId, data.modes),
       )
       .toPromise();
   }
 
   @SubscribeMessage(MessageTypeC2S.LEAVE_ALL_QUEUES)
   async leaveAllQueues(@ConnectedSocket() client: PlayerSocket) {
-    const cmds = MatchmakingModes.map((mode) =>
-      this.redis
-        .emit(
-          PlayerLeaveQueueCommand.name,
-          new PlayerLeaveQueueCommand(
-            new PlayerId(client.steamId),
-            mode,
-            Dota2Version.Dota_684,
-          ),
-        )
-        .toPromise(),
-    );
-    await Promise.all(cmds);
+    await this.redis
+      .emit(
+        PlayerLeaveQueueRequestedEvent.name,
+        new PlayerLeaveQueueRequestedEvent(client.steamId),
+      )
+      .toPromise();
   }
 
   @SubscribeMessage(MessageTypeC2S.SET_READY_CHECK)
@@ -126,7 +112,7 @@ export class SocketGateway implements OnGatewayDisconnect, OnGatewayConnection {
     this.redis.emit(
       ReadyStateReceivedEvent.name,
       new ReadyStateReceivedEvent(
-        new PlayerId(client.steamId),
+        client.steamId,
         data.roomId,
         data.accept ? ReadyState.READY : ReadyState.DECLINE,
       ),
@@ -141,10 +127,7 @@ export class SocketGateway implements OnGatewayDisconnect, OnGatewayConnection {
     await this.redis
       .emit(
         PartyInviteRequestedEvent.name,
-        new PartyInviteRequestedEvent(
-          new PlayerId(client.steamId),
-          new PlayerId(data.invitedPlayerId),
-        ),
+        new PartyInviteRequestedEvent(client.steamId, data.invitedPlayerId),
       )
       .toPromise();
   }
@@ -157,11 +140,7 @@ export class SocketGateway implements OnGatewayDisconnect, OnGatewayConnection {
     await this.redis
       .emit(
         PartyInviteAcceptedEvent.name,
-        new PartyInviteAcceptedEvent(
-          data.inviteId,
-          new PlayerId(client.steamId),
-          data.accept,
-        ),
+        new PartyInviteAcceptedEvent(data.inviteId, data.accept),
       )
       .toPromise();
   }
@@ -171,7 +150,7 @@ export class SocketGateway implements OnGatewayDisconnect, OnGatewayConnection {
     await this.redis
       .emit(
         PartyLeaveRequestedEvent.name,
-        new PartyLeaveRequestedEvent(new PlayerId(client.steamId)),
+        new PartyLeaveRequestedEvent(client.steamId),
       )
       .toPromise();
   }

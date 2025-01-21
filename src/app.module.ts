@@ -77,12 +77,10 @@ import { SocketDelivery } from "./socket/socket-delivery";
 import { SocketMessageService } from "./socket/socket-message.service";
 import { GetUserRoomQuery } from "./gateway/queries/GetUserRoom/get-user-room.query";
 import { GetPartyInvitationsQuery } from "./gateway/queries/GetPartyInvitations/get-party-invitations.query";
-import { PartyQueueStateUpdatedHandler } from "./socket/event-handler/party-queue-state-updated.handler";
 import { RoomNotReadyHandler } from "./socket/event-handler/room-not-ready.handler";
 import { MatchFinishedHandler as SocketMatchFinishedHandler } from "./socket/event-handler/match-finished.handler";
 import { RoomReadyHandler } from "./socket/event-handler/room-ready.handler";
 import { PartyInvalidatedHandler } from "./socket/event-handler/party-invalidated.handler";
-import { GetUserQueueQuery } from "./gateway/queries/GetUserQueue/get-user-queue.query";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import configuration from "./config/configuration";
 import { outerQueryNew } from "./utils/outerQueryNew";
@@ -314,7 +312,6 @@ const OPENAPI_GENERATED: Provider[] = [
     outerQueryNew(GetSessionByUserQuery, "QueryCore"),
     outerQueryNew(GetUserRoomQuery, "QueryCore"),
     outerQueryNew(GetPartyInvitationsQuery, "QueryCore"),
-    outerQueryNew(GetUserQueueQuery, "QueryCore"),
 
     SteamStrategy,
     JwtStrategy,
@@ -359,7 +356,6 @@ const OPENAPI_GENERATED: Provider[] = [
     SocketFullDisconnectHandler,
     LeaveLobbySocketDisconnectHandler,
     GameResultsHandler,
-    PartyQueueStateUpdatedHandler,
     RoomNotReadyHandler,
     RoomReadyHandler,
     PartyInvalidatedHandler,

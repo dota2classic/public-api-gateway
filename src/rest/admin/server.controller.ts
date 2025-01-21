@@ -3,7 +3,7 @@ import {
   EventAdminDto,
   GameServerDto,
   GameSessionDto,
-  QueueStateDTO,
+  QueueEntryDTO,
   StopServerDto,
 } from "./dto/admin.dto";
 import { ClientProxy } from "@nestjs/microservices";
@@ -14,10 +14,6 @@ import { KillServerRequestedEvent } from "../../gateway/events/gs/kill-server-re
 import { timeout } from "rxjs/operators";
 import { InfoApi } from "../../generated-api/gameserver";
 import { GetQueueStateQuery } from "../../gateway/queries/QueueState/get-queue-state.query";
-import {
-  MatchmakingMode,
-  MatchmakingModes,
-} from "../../gateway/shared-types/matchmaking-mode";
 import { Dota2Version } from "../../gateway/shared-types/dota2version";
 import { GetQueueStateQueryResult } from "../../gateway/queries/QueueState/get-queue-state-query.result";
 import { UserRepository } from "../../cache/user/user.repository";
@@ -40,29 +36,19 @@ export class ServerController {
   ) {}
 
   @Get("/queues")
-  async queues(): Promise<QueueStateDTO[]> {
-    const some = await Promise.all(
-      MatchmakingModes.map((mode: MatchmakingMode) =>
-        this.qBus.execute<GetQueueStateQuery, GetQueueStateQueryResult>(
-          new GetQueueStateQuery(mode, Dota2Version.Dota_684),
-        ),
-      ),
-    );
+  async queues(): Promise<QueueEntryDTO[]> {
+    const some = await this.qBus.execute<
+      GetQueueStateQuery,
+      GetQueueStateQueryResult
+    >(new GetQueueStateQuery(Dota2Version.Dota_684));
 
     return Promise.all(
-      some.map(async (t) => {
-        const k: QueueStateDTO = {
-          mode: t.mode,
-          entries: await Promise.all(
-            t.entries.map(async (entry) => ({
-              partyId: entry.partyID,
-              players: await Promise.all(
-                entry.players.map((x) => this.urepo.userDto(x.value)),
-              ),
-            })),
-          ),
+      some.entries.map(async (entry) => {
+        return {
+          partyId: entry.partyID,
+          modes: entry.modes,
+          players: await Promise.all(entry.players.map(this.urepo.userDto)),
         };
-        return k;
       }),
     );
   }

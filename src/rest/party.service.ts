@@ -20,27 +20,27 @@ export class PartyService {
 
   public async getParty(steamId: string): Promise<PartyDto> {
     const party = await this.qbus.execute<GetPartyQuery, GetPartyQueryResult>(
-      new GetPartyQuery(new PlayerId(steamId)),
+      new GetPartyQuery(steamId),
     );
 
     const banStatuses = await Promise.all(
-      party.players.map(({ value }) => this.api.playerControllerBanInfo(value)),
+      party.players.map((steamId) => this.api.playerControllerBanInfo(steamId)),
     );
 
     const sessions = await Promise.all(
-      party.players.map((pid) =>
+      party.players.map((steamId) =>
         this.qbus
           .execute<
             GetSessionByUserQuery,
             GetSessionByUserQueryResult
-          >(new GetSessionByUserQuery(pid))
-          .then((result) => ({ pid, result })),
+          >(new GetSessionByUserQuery(new PlayerId(steamId)))
+          .then((result) => ({ steamId, result })),
       ),
     );
 
     const summaries = await Promise.all(
-      party.players.map(({ value }) =>
-        this.api.playerControllerPlayerSummary(Dota2Version.Dota_684, value),
+      party.players.map((steamId) =>
+        this.api.playerControllerPlayerSummary(Dota2Version.Dota_684, steamId),
       ),
     );
     return this.mapper.mapParty(party, banStatuses, summaries, sessions);

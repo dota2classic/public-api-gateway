@@ -77,20 +77,21 @@ export class NotificationService {
     mode: MatchmakingMode,
   ): Promise<[any, WebpushSubscriptionEntity[]]> {
     const qs: GetQueueStateQueryResult = await this.qbus.execute(
-      new GetQueueStateQuery(mode, Dota2Version.Dota_684),
+      new GetQueueStateQuery(Dota2Version.Dota_684),
     );
     const inQueue = qs.entries
-      .flatMap((t) => t.players.length)
-      .reduce((a, b) => a + b, 0);
+      .filter((t) => t.modes.includes(mode))
+      .reduce((a, b) => a + b.players.length, 0);
+
+    const alreadyInQueue = qs.entries
+      .filter((t) => t.modes.includes(mode))
+      .flatMap((t) => t.players);
+
     const evt = {
       type: "TIME_TO_QUEUE",
       inQueue: inQueue,
       mode: mode,
     };
-
-    const alreadyInQueue = qs.entries
-      .flatMap((t) => t.players)
-      .map((it) => it.value);
 
     const eligible = await this.webpushSubscriptionEntityRepository.find({
       where: {
@@ -110,7 +111,7 @@ export class NotificationService {
     };
     const eligible = await this.webpushSubscriptionEntityRepository.find({
       where: {
-        steam_id: In(evt.entries.map((it) => it.playerId.value)),
+        steam_id: In(evt.entries.map((it) => it.steamId)),
       },
     });
 
@@ -119,15 +120,15 @@ export class NotificationService {
 
   public async notifyOnliners(mode: MatchmakingMode) {
     const qs: GetQueueStateQueryResult = await this.qbus.execute(
-      new GetQueueStateQuery(mode, Dota2Version.Dota_684),
+      new GetQueueStateQuery(Dota2Version.Dota_684),
     );
     const inQueue = qs.entries
-      .flatMap((t) => t.players.length)
-      .reduce((a, b) => a + b, 0);
+      .filter((t) => t.modes.includes(mode))
+      .reduce((a, b) => a + b.players.length, 0);
 
     const alreadyInQueue = qs.entries
-      .flatMap((t) => t.players)
-      .map((it) => it.value);
+      .filter((t) => t.modes.includes(mode))
+      .flatMap((t) => t.players);
 
     return await this.delivery.broadcastPredicate(
       (steamId) => !alreadyInQueue.includes(steamId),
