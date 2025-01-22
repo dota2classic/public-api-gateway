@@ -12,7 +12,7 @@ export class PartyInviteExpiredHandler
 
   async handle(event: PartyInviteExpiredEvent) {
     await this.delivery.deliver(
-      event.invited.value,
+      event.invited,
       MessageTypeS2C.PARTY_INVITE_EXPIRED,
       new PartyInviteExpiredMessageS2C(event.id),
     );

@@ -1,9 +1,9 @@
 import { MatchmakingMode } from "../../../gateway/shared-types/matchmaking-mode";
-import { Dota2Version } from "../../../gateway/shared-types/dota2version";
 
 export class PlayerQueueStateMessageS2C {
   constructor(
-    public readonly mode: MatchmakingMode,
-    public readonly version: Dota2Version,
+    public readonly partyId: string,
+    public readonly modes: MatchmakingMode[],
+    public readonly inQueue: boolean,
   ) {}
 }

@@ -1,9 +1,6 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { QueryBus } from "@nestjs/cqrs";
-import { GetUserQueueQuery } from "../gateway/queries/GetUserQueue/get-user-queue.query";
 import { PlayerId } from "../gateway/shared-types/player-id";
-import { GetUserQueueQueryResult } from "../gateway/queries/GetUserQueue/get-user-queue-query.result";
-import { PlayerQueueStateMessageS2C } from "./messages/s2c/player-queue-state-message.s2c";
 import { WebSocketServer } from "@nestjs/websockets";
 import { Server as WSServer } from "socket.io";
 import { GetUserRoomQuery } from "../gateway/queries/GetUserRoom/get-user-room.query";
@@ -25,6 +22,9 @@ import { GetQueueStateQueryResult } from "../gateway/queries/QueueState/get-queu
 import { Dota2Version } from "../gateway/shared-types/dota2version";
 import { MatchmakingModes } from "../gateway/shared-types/matchmaking-mode";
 import { QueueStateMessageS2C } from "./messages/s2c/queue-state-message.s2c";
+import { GetPartyQuery } from "../gateway/queries/GetParty/get-party.query";
+import { GetPartyQueryResult } from "../gateway/queries/GetParty/get-party-query.result";
+import { PlayerQueueStateMessageS2C } from "./messages/s2c/player-queue-state-message.s2c";
 
 @Injectable()
 export class SocketMessageService {
@@ -38,27 +38,6 @@ export class SocketMessageService {
     private readonly userRepo: UserRepository,
   ) {}
 
-  public async playerQueueState(
-    steamId: string,
-  ): Promise<PlayerQueueStateMessageS2C | undefined> {
-    try {
-      const result = await this.qbus.execute<
-        GetUserQueueQuery,
-        GetUserQueueQueryResult
-      >(new GetUserQueueQuery(new PlayerId(steamId)));
-
-      if (result.version && result.mode)
-        return new PlayerQueueStateMessageS2C(result.mode, result.version);
-    } catch (e) {
-      this.logger.error("Couldn't resolve queue state", {
-        steam_id: steamId,
-        error: e,
-      });
-    }
-
-    return undefined;
-  }
-
   async playerRoomState(
     steamId: string,
   ): Promise<PlayerRoomStateMessageS2C | undefined> {
@@ -66,14 +45,14 @@ export class SocketMessageService {
     const roomState = await this.qbus.execute<
       GetUserRoomQuery,
       GetUserRoomQueryResult
-    >(new GetUserRoomQuery(new PlayerId(steamId)));
+    >(new GetUserRoomQuery(steamId));
     if (!roomState.info) return undefined;
 
     return new PlayerRoomStateMessageS2C(
       roomState.info.roomId,
       roomState.info.mode,
       roomState.info.entries.map(
-        (it) => new PlayerRoomEntry(it.playerId.value, it.readyState),
+        (it) => new PlayerRoomEntry(it.steamId, it.readyState),
       ),
     );
   }
@@ -84,7 +63,7 @@ export class SocketMessageService {
     const invitations = await this.qbus.execute<
       GetPartyInvitationsQuery,
       GetPartyInvitationsQueryResult
-    >(new GetPartyInvitationsQuery(new PlayerId(steamId)));
+    >(new GetPartyInvitationsQuery(steamId));
 
     return new PlayerPartyInvitationsMessageS2C(
       await Promise.all(
@@ -93,7 +72,7 @@ export class SocketMessageService {
             new PartyInviteReceivedMessageS2C(
               it.partyId,
               it.id,
-              await this.userRepo.userDto(it.leaderId.value),
+              await this.userRepo.userDto(it.leaderId),
             ),
         ),
       ),
@@ -114,24 +93,24 @@ export class SocketMessageService {
   }
 
   async queues(): Promise<QueueStateMessageS2C[]> {
-    return Promise.all(
-      MatchmakingModes.map((mode) =>
-        this.qbus
-          .execute<
-            GetQueueStateQuery,
-            GetQueueStateQueryResult
-          >(new GetQueueStateQuery(mode, Dota2Version.Dota_684))
-          .then(
-            (result) =>
-              new QueueStateMessageS2C(
-                mode,
-                Dota2Version.Dota_684,
-                result.entries
-                  .map((entry) => entry.players.length)
-                  .reduce((a, b) => a + b, 0),
-              ),
-          ),
-      ),
+    const res = await this.qbus.execute<
+      GetQueueStateQuery,
+      GetQueueStateQueryResult
+    >(new GetQueueStateQuery(Dota2Version.Dota_684));
+
+    return MatchmakingModes.map((mode) => {
+      const inQueue = res.entries
+        .filter((t) => t.modes.includes(mode))
+        .reduce((a, b) => a + b.players.length, 0);
+
+      return new QueueStateMessageS2C(mode, Dota2Version.Dota_684, inQueue);
+    });
+  }
+
+  async playerQueueState(steamId: string) {
+    const res = await this.qbus.execute<GetPartyQuery, GetPartyQueryResult>(
+      new GetPartyQuery(steamId),
     );
+    return new PlayerQueueStateMessageS2C(res.partyId, res.modes, res.inQueue);
   }
 }

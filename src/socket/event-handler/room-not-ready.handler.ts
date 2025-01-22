@@ -8,8 +8,7 @@ export class RoomNotReadyHandler implements IEventHandler<RoomNotReadyEvent> {
   constructor(private delivery: SocketDelivery) {}
 
   async handle(event: RoomNotReadyEvent) {
-    const ids = event.players.map((t) => t.value);
-    await this.delivery.broadcastAuthorized(ids, () => [
+    await this.delivery.broadcastAuthorized(event.players, () => [
       MessageTypeS2C.PLAYER_ROOM_STATE,
       undefined,
     ]);

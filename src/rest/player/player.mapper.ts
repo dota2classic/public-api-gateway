@@ -18,7 +18,6 @@ import {
 import { numSteamId } from "../../utils/steamIds";
 import { GetPartyQueryResult } from "../../gateway/queries/GetParty/get-party-query.result";
 import { PartyDto, PartyMemberDTO } from "./dto/party.dto";
-import { PlayerId } from "../../gateway/shared-types/player-id";
 import { GetReportsAvailableQueryResult } from "../../gateway/queries/GetReportsAvailable/get-reports-available-query.result";
 import { TournamentTeamDto } from "../../generated-api/tournament/models";
 import { UserDTO } from "../shared.dto";
@@ -115,16 +114,16 @@ export class PlayerMapper {
     party: GetPartyQueryResult,
     banStatuses: GameserverBanStatusDto[],
     summaries: GameserverPlayerSummaryDto[],
-    sessions: { result: GetSessionByUserQueryResult; pid: PlayerId }[],
+    sessions: { result: GetSessionByUserQueryResult; steamId: string }[],
   ): Promise<PartyDto> => {
     return {
-      id: party.id,
-      leader: await this.mapPlayerInParty(party.leader),
+      id: party.partyId,
+      leader: await this.mapPlayerInParty(party.leaderId),
       players: await Promise.all(
         party.players.map(async (plr) => {
-          const status = banStatuses.find((t) => t.steam_id === plr.value);
-          const summary = summaries.find((t) => t.steam_id === plr.value);
-          const session = sessions.find((t) => t.pid.value === plr.value);
+          const status = banStatuses.find((t) => t.steam_id === plr);
+          const summary = summaries.find((t) => t.steam_id === plr);
+          const session = sessions.find((t) => t.steamId === plr);
 
           return {
             banStatus: {
@@ -140,8 +139,8 @@ export class PlayerMapper {
     };
   };
 
-  public mapPlayerInParty = async (pid: PlayerId): Promise<UserDTO> => {
-    return this.userRepository.userDto(pid.value);
+  public mapPlayerInParty = async (steamId: string): Promise<UserDTO> => {
+    return this.userRepository.userDto(steamId);
   };
 
   public mapAchievement = async (

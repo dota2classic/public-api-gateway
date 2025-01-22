@@ -96,14 +96,13 @@ export class StopServerDto {
 
 export class QueueEntryDTO {
   partyId: string;
+  @ApiProperty({
+    enum: MatchmakingMode,
+    enumName: "MatchmakingMode",
+    isArray: true,
+  })
+  modes: MatchmakingMode[];
   players: UserDTO[];
-}
-
-export class QueueStateDTO {
-  @ApiProperty({ enum: MatchmakingMode, enumName: "MatchmakingMode" })
-  mode: MatchmakingMode;
-
-  entries: QueueEntryDTO[];
 }
 
 export class CrimeLogDto {
