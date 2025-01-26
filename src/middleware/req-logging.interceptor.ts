@@ -57,6 +57,7 @@ export class ReqLoggingInterceptor implements NestInterceptor {
 
     res.on("finish", () => {
       const durationMillis = Date.now() - req["start"];
+      this.appGauge.inc();
       this.customDurationGauge
         .labels(req.method, requestPath, isSSE ? "sse" : "request")
         .set(durationMillis);
