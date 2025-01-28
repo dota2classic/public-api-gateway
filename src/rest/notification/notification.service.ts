@@ -14,6 +14,8 @@ import { SocketDelivery } from "../../socket/socket-delivery";
 import { MessageTypeS2C } from "../../socket/messages/s2c/message-type.s2c";
 import { PleaseEnterQueueMessageS2C } from "../../socket/messages/s2c/please-enter-queue-message.s2c";
 import { ConfigService } from "@nestjs/config";
+import { NotificationEntity } from "../../entity/notification.entity";
+import { Cron, CronExpression } from "@nestjs/schedule";
 
 @Injectable()
 export class NotificationService {
@@ -24,6 +26,8 @@ export class NotificationService {
     private qbus: QueryBus,
     private readonly delivery: SocketDelivery,
     private readonly config: ConfigService,
+    @InjectRepository(NotificationEntity)
+    private readonly notificationEntityRepository: Repository<NotificationEntity>,
   ) {
     webpush.setVapidDetails(
       "mailto:enchantinggg4@gmail.com",
@@ -135,5 +139,40 @@ export class NotificationService {
       MessageTypeS2C.GO_QUEUE,
       new PleaseEnterQueueMessageS2C(mode, Dota2Version.Dota_684, inQueue),
     );
+  }
+
+  @Cron(CronExpression.EVERY_10_SECONDS)
+  public async expireNotifications() {
+    const ur = await this.notificationEntityRepository
+      .createQueryBuilder("n")
+      .update<NotificationEntity>(NotificationEntity)
+      .set({ acknowledged: true })
+      .where("created_at + ttl <= now()")
+      .execute();
+    this.logger.log(`Expired ${ur.affected} notifications`);
+  }
+
+  public async getNotifications(steamId: string, cnt: number = 20) {
+    return this.notificationEntityRepository.find({
+      where: {
+        steamId,
+      },
+      order: {
+        createdAt: "DESC",
+      },
+      take: cnt,
+    });
+  }
+
+  async acknowledge(id: string, steamId: string) {
+    const not = await this.notificationEntityRepository.findOneOrFail({
+      where: {
+        id,
+        steamId,
+      },
+    });
+
+    not.acknowledged = true;
+    return this.notificationEntityRepository.save(not);
   }
 }

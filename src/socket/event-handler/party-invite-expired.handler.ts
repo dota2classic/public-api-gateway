@@ -11,6 +11,7 @@ export class PartyInviteExpiredHandler
   constructor(private readonly delivery: SocketDelivery) {}
 
   async handle(event: PartyInviteExpiredEvent) {
+    console.log(event);
     await this.delivery.deliver(
       event.invited,
       MessageTypeS2C.PARTY_INVITE_EXPIRED,
