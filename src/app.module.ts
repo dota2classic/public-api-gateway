@@ -191,7 +191,11 @@ const OPENAPI_GENERATED: Provider[] = [
           password: config.get("postgres.password"),
           entities: Entities,
           synchronize: false,
-          // dropSchema:true,
+          dropSchema: false,
+
+          migrations: ["dist/database/migrations/*.*"],
+          migrationsRun: true,
+          migrationsTableName: "api_gateway_migrations",
 
           ssl: false,
         };
