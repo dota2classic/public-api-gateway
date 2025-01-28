@@ -60,7 +60,7 @@ export class UserRepository extends RuntimeRepository<UserModel, "id"> {
     }
     return {
       steamId,
-      name: u.name,
+      name: u.name || steamId,
       avatar: u.avatar,
       avatarSmall: (u.avatar || "").replace("_full", "_medium"),
       roles: u.roles,

@@ -2,11 +2,18 @@ import {
   Body,
   Controller,
   Delete,
+  Get,
+  Param,
+  Patch,
   Post,
   UseInterceptors,
 } from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
-import { SubscriptionDto, TagPlayerForQueue } from "./notification.dto";
+import {
+  NotificationDto,
+  SubscriptionDto,
+  TagPlayerForQueue,
+} from "./notification.dto";
 import { AdminGuard, WithUser } from "../../utils/decorator/with-user";
 import {
   CurrentUser,
@@ -14,12 +21,16 @@ import {
 } from "../../utils/decorator/current-user";
 import { NotificationService } from "./notification.service";
 import { ReqLoggingInterceptor } from "../../middleware/req-logging.interceptor";
+import { NotificationMapper } from "./notification.mapper";
 
 @UseInterceptors(ReqLoggingInterceptor)
 @Controller("notification")
 @ApiTags("notification")
 export class NotificationController {
-  constructor(private readonly notificationService: NotificationService) {}
+  constructor(
+    private readonly notificationService: NotificationService,
+    private readonly mapper: NotificationMapper,
+  ) {}
 
   @Delete("/subscribe")
   @WithUser()
@@ -56,5 +67,26 @@ export class NotificationController {
       successful,
       viaSocket,
     };
+  }
+
+  @Patch("/:id")
+  @WithUser()
+  public async acknowledge(
+    @Param("id") id: string,
+    @CurrentUser() user: CurrentUserDto,
+  ): Promise<NotificationDto> {
+    return this.notificationService
+      .acknowledge(id, user.steam_id)
+      .then(this.mapper.mapNotification);
+  }
+
+  @Get("/all")
+  @WithUser()
+  public async getNotifications(
+    @CurrentUser() user: CurrentUserDto,
+  ): Promise<NotificationDto[]> {
+    return this.notificationService
+      .getNotifications(user.steam_id)
+      .then((all) => all.map(this.mapper.mapNotification));
   }
 }

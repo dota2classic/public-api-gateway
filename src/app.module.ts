@@ -104,6 +104,13 @@ import { LobbyService } from "./rest/lobby/lobby.service";
 import { SocketFullDisconnectHandler } from "./socket/event-handler/scoekt-full-disconnect.handler";
 import { LeaveLobbySocketDisconnectHandler } from "./rest/lobby/event-handler/leave-lobby-socket-disconnect.handler";
 import { S3Module, S3ModuleOptions } from "nestjs-s3";
+import { FeedbackService } from "./rest/feedback/feedback.service";
+import { FeedbackController } from "./rest/feedback/feedback.controller";
+import { FeedbackMapper } from "./rest/feedback/feedback.mapper";
+import { NotificationMapper } from "./rest/notification/notification.mapper";
+import { FeedbackCreatedHandler } from "./rest/notification/event-handler/feedback-created.handler";
+import { NotificationCreatedHandler } from "./socket/event-handler/notification-created.handler";
+import { PlayerNotLoadedHandler } from "./rest/notification/event-handler/player-not-loaded.handler";
 
 const OPENAPI_GENERATED: Provider[] = [
   {
@@ -183,7 +190,12 @@ const OPENAPI_GENERATED: Provider[] = [
           username: config.get("postgres.username"),
           password: config.get("postgres.password"),
           entities: Entities,
-          synchronize: true,
+          synchronize: false,
+          dropSchema: false,
+
+          migrations: ["dist/database/migrations/*.*"],
+          migrationsRun: true,
+          migrationsTableName: "api_gateway_migrations",
 
           ssl: false,
         };
@@ -282,6 +294,7 @@ const OPENAPI_GENERATED: Provider[] = [
     PrometheusGuardedController,
     AuthController,
     NotificationController,
+    FeedbackController,
   ],
   providers: [
     ...OPENAPI_GENERATED,
@@ -320,6 +333,7 @@ const OPENAPI_GENERATED: Provider[] = [
     LiveMatchService,
     LobbyService,
 
+    FeedbackService,
     AuthService,
     NotificationService,
 
@@ -329,6 +343,8 @@ const OPENAPI_GENERATED: Provider[] = [
     AdminMapper,
     ForumMapper,
     LobbyMapper,
+    NotificationMapper,
+    FeedbackMapper,
 
     UserRepository,
     UserCreatedHandler,
@@ -338,6 +354,7 @@ const OPENAPI_GENERATED: Provider[] = [
 
     GameResultsHandler,
     MatchFinishedHandler,
+    FeedbackCreatedHandler,
 
     // API
     PartyService,
@@ -361,6 +378,11 @@ const OPENAPI_GENERATED: Provider[] = [
     PartyInvalidatedHandler,
     SocketDelivery,
     SocketMessageService,
+    NotificationCreatedHandler,
+
+    // Feedback
+
+    PlayerNotLoadedHandler,
 
     // grafana
     makeCounterProvider({
