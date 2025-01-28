@@ -190,7 +190,7 @@ const OPENAPI_GENERATED: Provider[] = [
           username: config.get("postgres.username"),
           password: config.get("postgres.password"),
           entities: Entities,
-          synchronize: true,
+          synchronize: false,
           // dropSchema:true,
 
           ssl: false,
