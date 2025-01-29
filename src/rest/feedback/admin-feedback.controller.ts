@@ -53,6 +53,9 @@ export class AdminFeedbackController {
   ): Promise<PlayerFeedbackPageDto> {
     const [data, count] =
       await this.playerFeedbackEntityRepository.findAndCount({
+        where: {
+          finished: true,
+        },
         order: {
           createdAt: "ASC",
         },
