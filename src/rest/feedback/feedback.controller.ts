@@ -4,7 +4,6 @@ import {
   Get,
   Param,
   ParseIntPipe,
-  Patch,
   Post,
 } from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
@@ -13,9 +12,9 @@ import { Repository } from "typeorm";
 import { InjectRepository } from "@nestjs/typeorm";
 import { PlayerFeedbackEntity } from "../../entity/player-feedback.entity";
 import { FeedbackMapper } from "./feedback.mapper";
-import { SubmitFeedbackDto, UpdateFeedbackDto } from "./feedback.dto";
+import { SubmitFeedbackDto } from "./feedback.dto";
 import { FeedbackService } from "./feedback.service";
-import { AdminGuard, WithUser } from "../../utils/decorator/with-user";
+import { WithUser } from "../../utils/decorator/with-user";
 import {
   CurrentUser,
   CurrentUserDto,
@@ -62,15 +61,5 @@ export class FeedbackController {
     return this.feedbackService
       .getFeedback(feedbackId, user.steam_id)
       .then(this.mapper.mapFeedback);
-  }
-
-  @AdminGuard()
-  @WithUser()
-  @Patch(":tag")
-  public async updateFeedback(
-    @Param("tag") tag: string,
-    @Body() b: UpdateFeedbackDto,
-  ) {
-    await this.feedbackService.updateFeedback(tag, b);
   }
 }

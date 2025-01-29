@@ -148,18 +148,12 @@ export class NotificationService {
       .update<NotificationEntity>(NotificationEntity)
       .set({ acknowledged: true })
       .where("created_at + ttl <= now()")
+      .andWhere("acknowledged = false")
       .execute();
     this.logger.log(`Expired ${ur.affected} notifications`);
   }
 
   public async getNotifications(steamId: string, cnt: number = 20) {
-    // console.log(
-    //   this.getBaseNotificationQuery()
-    //     .where("n.steam_id = :steamId", { steamId })
-    //     .orderBy("n.created_at", "DESC")
-    //     .take(cnt)
-    //     .getSql(),
-    // );
     return this.getBaseNotificationQuery()
       .where("n.steam_id = :steamId", { steamId })
       .orderBy("n.createdAt", "DESC")

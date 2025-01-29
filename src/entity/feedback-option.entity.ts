@@ -2,12 +2,10 @@ import {
   Column,
   Entity,
   JoinColumn,
-  ManyToMany,
   ManyToOne,
   PrimaryGeneratedColumn,
   Relation,
 } from "typeorm";
-import { PlayerFeedbackOptionResultEntity } from "./player-feedback-option-result.entity";
 import { FeedbackEntity } from "./feedback.entity";
 
 @Entity({
@@ -24,16 +22,16 @@ export class FeedbackOptionEntity {
     eager: false,
   })
   @JoinColumn({
-    referencedColumnName: "tag",
-    name: "feedback_tag",
+    referencedColumnName: "id",
+    name: "feedback_id",
   })
   feedbacks: Relation<FeedbackEntity>[];
 
-  @Column({ name: "feedback_tag" })
-  feedbackTag: string;
+  @Column({ name: "feedback_id" })
+  feedbackId: number;
 
-  @ManyToMany(() => PlayerFeedbackOptionResultEntity, (t) => t.feedbackOption, {
-    eager: false,
-  })
-  submittedOptions: Relation<PlayerFeedbackOptionResultEntity>[];
+  constructor(option: string, feedbackId: number) {
+    this.option = option;
+    this.feedbackId = feedbackId;
+  }
 }

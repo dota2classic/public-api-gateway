@@ -21,6 +21,7 @@ import { RoomReadyEvent } from "./gateway/events/room-ready.event";
 import { MessageUpdatedEvent } from "./gateway/events/message-updated.event";
 import { PlayerNotLoadedEvent } from "./gateway/events/bans/player-not-loaded.event";
 import { AchievementCompleteEvent } from "./gateway/events/gs/achievement-complete.event";
+import { PlayerAbandonedEvent } from "./gateway/events/bans/player-abandoned.event";
 
 @Controller()
 export class EventController {
@@ -131,5 +132,9 @@ export class EventController {
   @EventPattern(AchievementCompleteEvent.name)
   async AchievementCompleteEvent(data: AchievementCompleteEvent) {
     this.event(AchievementCompleteEvent, data);
+  }
+  @EventPattern(PlayerAbandonedEvent.name)
+  async PlayerAbandonedEvent(data: PlayerAbandonedEvent) {
+    this.event(PlayerAbandonedEvent, data);
   }
 }

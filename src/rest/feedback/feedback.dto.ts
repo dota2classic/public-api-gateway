@@ -1,6 +1,9 @@
+import { UserDTO } from "../shared.dto";
+import { Page } from "../../gateway/shared-types/page";
+
 export class FeedbackOptionDto {
   id: number;
-  name: string;
+  option: string;
   checked: boolean;
 }
 export class FeedbackDto {
@@ -13,6 +16,7 @@ export class FeedbackDto {
 
 export class SubmittedFeedbackOptionDto {
   id: number;
+  option: string;
   checked: boolean;
 }
 
@@ -22,6 +26,42 @@ export class SubmitFeedbackDto {
 }
 
 export class UpdateFeedbackDto {
+  tag: string;
   title: string;
-  options: Omit<FeedbackOptionDto, "checked">[];
+}
+
+export class CreateFeedbackDto {
+  tag: string;
+  title: string;
+}
+
+export class CreateFeedbackOptionDto {
+  option: string;
+}
+
+export class FeedbackTemplateOptionDto {
+  id: number;
+  option: string;
+}
+
+export class FeedbackTemplateDto {
+  id: number;
+  tag: string;
+  title: string;
+  options: FeedbackTemplateOptionDto[];
+}
+
+export class PlayerFeedbackDto {
+  id: number;
+  user: UserDTO;
+  title: string;
+  comment: string;
+  options: SubmittedFeedbackOptionDto[];
+}
+
+export class PlayerFeedbackPageDto extends Page<PlayerFeedbackDto> {
+  page: number;
+  pages: number;
+  perPage: number;
+  data: PlayerFeedbackDto[];
 }
