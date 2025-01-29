@@ -2,7 +2,9 @@ import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn } from "typeorm";
 import { FeedbackOptionEntity } from "./feedback-option.entity";
 import { PlayerFeedbackEntity } from "./player-feedback.entity";
 
-@Entity()
+@Entity({
+  name: "player_feedback_option_result_entity",
+})
 export class PlayerFeedbackOptionResultEntity {
   @ManyToOne(
     () => PlayerFeedbackEntity,

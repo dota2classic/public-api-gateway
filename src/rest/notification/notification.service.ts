@@ -2,7 +2,7 @@ import { Injectable, Logger } from "@nestjs/common";
 import { SubscriptionDto } from "./notification.dto";
 import { InjectRepository } from "@nestjs/typeorm";
 import { WebpushSubscriptionEntity } from "../../entity/webpush-subscription.entity";
-import { In, Not, Repository } from "typeorm";
+import { In, Not, Repository, SelectQueryBuilder } from "typeorm";
 import { QueryBus } from "@nestjs/cqrs";
 import * as webpush from "web-push";
 import { MatchmakingMode } from "../../gateway/shared-types/matchmaking-mode";
@@ -153,26 +153,53 @@ export class NotificationService {
   }
 
   public async getNotifications(steamId: string, cnt: number = 20) {
-    return this.notificationEntityRepository.find({
-      where: {
-        steamId,
-      },
-      order: {
-        createdAt: "DESC",
-      },
-      take: cnt,
-    });
+    // console.log(
+    //   this.getBaseNotificationQuery()
+    //     .where("n.steam_id = :steamId", { steamId })
+    //     .orderBy("n.created_at", "DESC")
+    //     .take(cnt)
+    //     .getSql(),
+    // );
+    return this.getBaseNotificationQuery()
+      .where("n.steam_id = :steamId", { steamId })
+      .orderBy("n.createdAt", "DESC")
+      .take(cnt)
+      .getMany();
   }
 
   async acknowledge(id: string, steamId: string) {
-    const not = await this.notificationEntityRepository.findOneOrFail({
-      where: {
+    await this.notificationEntityRepository.update(
+      {
         id,
         steamId,
       },
-    });
+      {
+        acknowledged: true,
+      },
+    );
+    return this.getFullNotification(id);
+  }
 
-    not.acknowledged = true;
-    return this.notificationEntityRepository.save(not);
+  async getFullNotification(id: string) {
+    return this.getBaseNotificationQuery().where({ id }).getOneOrFail();
+  }
+
+  private getBaseNotificationQuery(): SelectQueryBuilder<NotificationEntity> {
+    return this.notificationEntityRepository
+      .createQueryBuilder("n")
+      .leftJoinAndMapOne(
+        "n.playerFeedback",
+        "player_feedback_entity",
+        "pfe",
+        `pfe.id = n.entity_id`,
+      )
+      .leftJoinAndMapOne(
+        "n.feedback",
+        "feedback_entity",
+        "fe",
+        "fe.tag = pfe.feedback_tag",
+      )
+      .addSelect("n.created_at + n.ttl", "expiresAt")
+      .printSql();
   }
 }

@@ -5,7 +5,9 @@ import { PlayerFeedbackEntity } from './player-feedback.entity';
 /**
  * Placeholder entity for a feedback
  */
-@Entity()
+@Entity({
+  name: "feedback_entity"
+})
 export class FeedbackEntity {
   @PrimaryColumn({ type: "text", name: "tag", unique: true })
   tag: string;

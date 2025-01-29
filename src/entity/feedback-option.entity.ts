@@ -10,7 +10,9 @@ import {
 import { PlayerFeedbackOptionResultEntity } from "./player-feedback-option-result.entity";
 import { FeedbackEntity } from "./feedback.entity";
 
-@Entity()
+@Entity({
+  name: "feedback_option_entity",
+})
 export class FeedbackOptionEntity {
   @PrimaryGeneratedColumn("increment")
   id: number;

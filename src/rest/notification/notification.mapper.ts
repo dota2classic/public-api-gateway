@@ -1,5 +1,8 @@
 import { Injectable } from "@nestjs/common";
-import { NotificationEntity } from "../../entity/notification.entity";
+import {
+  NotificationEntity,
+  NotificationEntityType,
+} from "../../entity/notification.entity";
 import { NotificationDto } from "./notification.dto";
 import { FeedbackMapper } from "../feedback/feedback.mapper";
 
@@ -10,16 +13,25 @@ export class NotificationMapper {
   public mapNotification = (
     notification: NotificationEntity,
   ): NotificationDto => {
-    const feedback =
-      notification.feedback &&
-      this.feedbackMapper.mapFeedback(notification.feedback);
+    let title: string = "Уведомление";
+    let content: string = "Содержание";
 
+    if (notification.feedback) {
+      title = notification.feedback.title;
+      content = "Расскажи, что пошло не по плану";
+    } else if (notification.entityType == NotificationEntityType.ACHIEVEMENT) {
+    }
     return {
       id: notification.id,
       acknowledged: notification.acknowledged,
       createdAt: notification.createdAt.toISOString(),
+      expiresAt: notification.expiresAt.toISOString(),
       steamId: notification.steamId,
-      feedback,
+      // feedback
+      entityId: notification.entityId,
+      entityType: notification.entityType,
+      title,
+      content,
     };
   };
 }

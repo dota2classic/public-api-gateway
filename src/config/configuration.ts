@@ -3,7 +3,6 @@ import * as yaml from "js-yaml";
 import { join } from "path";
 
 const YAML_CONFIG_FILENAME = "config.yaml";
-const YAML_CONFIG_FALLBACK_FILENAME = "config.example.yaml";
 
 export interface ExpectedConfig {
   webpush: {

@@ -20,3 +20,8 @@ export class SubmitFeedbackDto {
   comment?: string;
   options: SubmittedFeedbackOptionDto[];
 }
+
+export class UpdateFeedbackDto {
+  title: string;
+  options: Omit<FeedbackOptionDto, "checked">[];
+}

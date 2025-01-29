@@ -4,9 +4,10 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { DataSource, Repository } from "typeorm";
 import { PlayerFeedbackEntity } from "../../entity/player-feedback.entity";
 import { PlayerFeedbackOptionResultEntity } from "../../entity/player-feedback-option-result.entity";
-import { SubmittedFeedbackOptionDto } from "./feedback.dto";
+import { SubmittedFeedbackOptionDto, UpdateFeedbackDto } from "./feedback.dto";
 import { EventBus } from "@nestjs/cqrs";
 import { FeedbackCreatedEvent } from "./event/feedback-created.event";
+import { FeedbackOptionEntity } from "../../entity/feedback-option.entity";
 
 @Injectable()
 export class FeedbackService implements OnApplicationBootstrap {
@@ -16,6 +17,10 @@ export class FeedbackService implements OnApplicationBootstrap {
     private readonly feedbackEntityRepository: Repository<FeedbackEntity>,
     @InjectRepository(PlayerFeedbackEntity)
     private readonly playerFeedbackEntityRepository: Repository<PlayerFeedbackEntity>,
+    @InjectRepository(PlayerFeedbackOptionResultEntity)
+    private readonly playerFeedbackOptionResultEntityRepository: Repository<PlayerFeedbackOptionResultEntity>,
+    @InjectRepository(FeedbackOptionEntity)
+    private readonly feedbackOptionEntityRepository: Repository<FeedbackOptionEntity>,
     private readonly ebus: EventBus,
   ) {}
 
@@ -55,15 +60,25 @@ export class FeedbackService implements OnApplicationBootstrap {
     // console.log(fb);
   }
 
+  public async getFeedback(id: number, steamId: string) {
+    return this.playerFeedbackEntityRepository.findOneOrFail({
+      where: {
+        id,
+        steamId,
+      },
+    });
+  }
+
   async submitFeedbackResult(
     feedbackId: number,
     options: SubmittedFeedbackOptionDto[],
     comment: string,
+    steamId: string,
   ): Promise<PlayerFeedbackEntity> {
     return this.datasource.transaction(async (em) => {
       const playerFeedback =
         await this.playerFeedbackEntityRepository.findOneOrFail({
-          where: { id: feedbackId, finished: false },
+          where: { id: feedbackId, finished: false, steamId: steamId },
         });
 
       // Update checks
@@ -106,5 +121,21 @@ export class FeedbackService implements OnApplicationBootstrap {
         },
       });
     });
+  }
+
+  async updateFeedback(tag: string, dto: UpdateFeedbackDto) {
+    const fe = await this.feedbackEntityRepository.findOneOrFail({
+      where: {
+        tag,
+      },
+    });
+    fe.title = dto.title;
+
+    for (let option of fe.options) {
+      option.option =
+        dto.options.find((t) => t.id === option.id)?.name || option.option;
+    }
+    await this.feedbackEntityRepository.save(fe);
+    await this.feedbackOptionEntityRepository.save(fe.options);
   }
 }

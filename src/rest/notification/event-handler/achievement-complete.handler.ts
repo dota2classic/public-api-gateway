@@ -1,32 +1,33 @@
 import { EventBus, EventsHandler, IEventHandler } from "@nestjs/cqrs";
-import { FeedbackCreatedEvent } from "../../feedback/event/feedback-created.event";
-import { NotificationService } from "../notification.service";
+import { AchievementCompleteEvent } from "../../../gateway/events/gs/achievement-complete.event";
 import {
   NotificationEntity,
   NotificationEntityType,
 } from "../../../entity/notification.entity";
 import { InjectRepository } from "@nestjs/typeorm";
+import { NotificationService } from "../notification.service";
 import { Repository } from "typeorm";
-import { NotificationCreatedEvent } from "../event/notification-created.event";
 import { NotificationMapper } from "../notification.mapper";
+import { NotificationCreatedEvent } from "../event/notification-created.event";
 
-@EventsHandler(FeedbackCreatedEvent)
-export class FeedbackCreatedHandler
-  implements IEventHandler<FeedbackCreatedEvent>
+@EventsHandler(AchievementCompleteEvent)
+export class AchievementCompleteHandler
+  implements IEventHandler<AchievementCompleteEvent>
 {
   constructor(
-    private readonly notificationService: NotificationService,
     @InjectRepository(NotificationEntity)
     private readonly notificationEntityRepository: Repository<NotificationEntity>,
+    private readonly notificationService: NotificationService,
     private readonly ebus: EventBus,
     private readonly mapper: NotificationMapper,
   ) {}
 
-  async handle(event: FeedbackCreatedEvent) {
+  async handle(event: AchievementCompleteEvent) {
     let ne = new NotificationEntity(
-      event.steamId,
-      event.playerFeedbackId,
-      NotificationEntityType.FEEDBACK,
+      event.playerId,
+      event.achievement,
+      NotificationEntityType.ACHIEVEMENT,
+      "1m",
     );
     ne = await this.notificationEntityRepository.save(ne);
     ne = await this.notificationService.getFullNotification(ne.id);
