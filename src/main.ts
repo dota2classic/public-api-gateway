@@ -13,6 +13,8 @@ import { ConfigService } from "@nestjs/config";
 import { DataSource } from "typeorm";
 import { getS3ConnectionToken, S3 } from "nestjs-s3";
 
+// import duration from 'dayjs/plugin/duration' // ES 2015
+
 async function bootstrap() {
   // Start SDK before nestjs factory create
   await otelSDK.start();
@@ -72,7 +74,12 @@ async function bootstrap() {
 
   // await app.get<MainService>(MainService).actualizeServers();
   console.log("Started api gateway");
+  await tmp2(app);
   // await tmp(app);
+}
+
+async function tmp2(app: INestApplication<any>) {
+  // console.log(await app.get(NotificationService).getNotifications('116514945'))
 }
 
 async function tmp(app: INestApplication<any>) {

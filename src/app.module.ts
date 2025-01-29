@@ -111,6 +111,9 @@ import { NotificationMapper } from "./rest/notification/notification.mapper";
 import { FeedbackCreatedHandler } from "./rest/notification/event-handler/feedback-created.handler";
 import { NotificationCreatedHandler } from "./socket/event-handler/notification-created.handler";
 import { PlayerNotLoadedHandler } from "./rest/notification/event-handler/player-not-loaded.handler";
+import { AchievementCompleteHandler } from "./rest/notification/event-handler/achievement-complete.handler";
+import { PlayerAbandonedHandler } from "./rest/notification/event-handler/player-abandoned.handler";
+import { AdminFeedbackController } from "./rest/feedback/admin-feedback.controller";
 
 const OPENAPI_GENERATED: Provider[] = [
   {
@@ -295,6 +298,7 @@ const OPENAPI_GENERATED: Provider[] = [
     AuthController,
     NotificationController,
     FeedbackController,
+    AdminFeedbackController,
   ],
   providers: [
     ...OPENAPI_GENERATED,
@@ -355,6 +359,8 @@ const OPENAPI_GENERATED: Provider[] = [
     GameResultsHandler,
     MatchFinishedHandler,
     FeedbackCreatedHandler,
+    AchievementCompleteHandler,
+    PlayerAbandonedHandler,
 
     // API
     PartyService,

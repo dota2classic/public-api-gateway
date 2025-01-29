@@ -5,18 +5,18 @@ import {
   JoinColumn,
   ManyToOne,
   OneToMany,
-  OneToOne,
   PrimaryGeneratedColumn,
   Relation,
 } from 'typeorm';
 import { FeedbackEntity } from './feedback.entity';
 import { PlayerFeedbackOptionResultEntity } from './player-feedback-option-result.entity';
-import { NotificationEntity } from './notification.entity';
 
 /**
  * Actual submitted feedback
  */
-@Entity()
+@Entity({
+  name: "player_feedback_entity"
+})
 export class PlayerFeedbackEntity {
   @PrimaryGeneratedColumn()
   id: number;
@@ -45,14 +45,8 @@ export class PlayerFeedbackEntity {
   @Column({ name: "finished", default: false })
   finished: boolean;
 
-  @CreateDateColumn({ type: "timestamptz", default: () => "now()" })
+  @CreateDateColumn({ name: "created_at", type: "timestamptz", default: () => "now()" })
   createdAt: Date;
-
-  @OneToOne(() => NotificationEntity, (ne) => ne.feedback, {
-    nullable: true,
-    eager: false,
-  })
-  notification?: Relation<NotificationEntity>;
 
   constructor(feedbackTag: string, steamId: string) {
     this.feedbackTag = feedbackTag;

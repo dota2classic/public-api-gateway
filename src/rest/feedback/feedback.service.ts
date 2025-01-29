@@ -7,6 +7,7 @@ import { PlayerFeedbackOptionResultEntity } from "../../entity/player-feedback-o
 import { SubmittedFeedbackOptionDto } from "./feedback.dto";
 import { EventBus } from "@nestjs/cqrs";
 import { FeedbackCreatedEvent } from "./event/feedback-created.event";
+import { FeedbackOptionEntity } from "../../entity/feedback-option.entity";
 
 @Injectable()
 export class FeedbackService implements OnApplicationBootstrap {
@@ -16,6 +17,10 @@ export class FeedbackService implements OnApplicationBootstrap {
     private readonly feedbackEntityRepository: Repository<FeedbackEntity>,
     @InjectRepository(PlayerFeedbackEntity)
     private readonly playerFeedbackEntityRepository: Repository<PlayerFeedbackEntity>,
+    @InjectRepository(PlayerFeedbackOptionResultEntity)
+    private readonly playerFeedbackOptionResultEntityRepository: Repository<PlayerFeedbackOptionResultEntity>,
+    @InjectRepository(FeedbackOptionEntity)
+    private readonly feedbackOptionEntityRepository: Repository<FeedbackOptionEntity>,
     private readonly ebus: EventBus,
   ) {}
 
@@ -38,7 +43,10 @@ export class FeedbackService implements OnApplicationBootstrap {
         PlayerFeedbackOptionResultEntity,
         fb.options.map(
           (option) =>
-            new PlayerFeedbackOptionResultEntity(playerFeedback.id, option.id),
+            new PlayerFeedbackOptionResultEntity(
+              playerFeedback.id,
+              option.option,
+            ),
         ),
       );
 
@@ -55,15 +63,25 @@ export class FeedbackService implements OnApplicationBootstrap {
     // console.log(fb);
   }
 
+  public async getFeedback(id: number, steamId: string) {
+    return this.playerFeedbackEntityRepository.findOneOrFail({
+      where: {
+        id,
+        steamId,
+      },
+    });
+  }
+
   async submitFeedbackResult(
     feedbackId: number,
     options: SubmittedFeedbackOptionDto[],
     comment: string,
+    steamId: string,
   ): Promise<PlayerFeedbackEntity> {
     return this.datasource.transaction(async (em) => {
       const playerFeedback =
         await this.playerFeedbackEntityRepository.findOneOrFail({
-          where: { id: feedbackId, finished: false },
+          where: { id: feedbackId, finished: false, steamId: steamId },
         });
 
       // Update checks
@@ -74,12 +92,11 @@ export class FeedbackService implements OnApplicationBootstrap {
             PlayerFeedbackOptionResultEntity,
             {
               playerFeedbackId: option.playerFeedbackId,
-              feedbackOptionId: option.feedbackOptionId,
+              id: option.id,
             },
             {
               checked:
-                options.find((it) => it.id === option.feedbackOptionId)
-                  ?.checked || false,
+                options.find((it) => it.id === option.id)?.checked || false,
             },
           );
         }),
@@ -105,6 +122,77 @@ export class FeedbackService implements OnApplicationBootstrap {
           id: feedbackId,
         },
       });
+    });
+  }
+
+  async updateFeedback(id: number, title: string, tag: string) {
+    const fe = await this.feedbackEntityRepository.findOneOrFail({
+      where: {
+        id,
+      },
+      relations: ["options"],
+    });
+
+    fe.title = title;
+    fe.tag = tag;
+
+    return this.feedbackEntityRepository.save(fe);
+  }
+
+  async createFeedbackOption(id: number, option: string) {
+    let nOption = await this.feedbackOptionEntityRepository.save(
+      new FeedbackOptionEntity(option, id),
+    );
+
+    return await this.feedbackEntityRepository.findOneOrFail({
+      where: { id },
+      relations: ["options"],
+    });
+  }
+
+  async editFeedbackOption(feedbackId: number, id: number, option: string) {
+    await this.feedbackOptionEntityRepository.update(
+      {
+        id,
+        feedbackId,
+      },
+      {
+        option,
+      },
+    );
+
+    return await this.feedbackEntityRepository.findOneOrFail({
+      where: { id: feedbackId },
+      relations: ["options"],
+    });
+  }
+
+  async createFeedback(tag: string, title: string) {
+    let fe = new FeedbackEntity();
+    fe.tag = tag;
+    fe.title = title;
+    fe = await this.feedbackEntityRepository.save(fe);
+    return this.feedbackEntityRepository.findOneOrFail({
+      where: { id: fe.id },
+      relations: ["options"],
+    });
+  }
+
+  public async deleteFeedbackOption(feedbackId: number, id: number) {
+    await this.feedbackOptionEntityRepository.delete({
+      feedbackId,
+      id,
+    });
+
+    return this.feedbackEntityRepository.findOneOrFail({
+      where: { id: feedbackId },
+      relations: ["options"],
+    });
+  }
+
+  async deleteFeedback(id: number) {
+    await this.feedbackEntityRepository.delete({
+      id,
     });
   }
 }

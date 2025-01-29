@@ -1,13 +1,22 @@
-import { Column, Entity, OneToMany, PrimaryColumn, Relation } from 'typeorm';
+import { Column, Entity, Index, OneToMany, PrimaryGeneratedColumn, Relation } from 'typeorm';
 import { FeedbackOptionEntity } from './feedback-option.entity';
 import { PlayerFeedbackEntity } from './player-feedback.entity';
 
 /**
  * Placeholder entity for a feedback
  */
-@Entity()
+@Entity({
+  name: "feedback_entity",
+})
+@Index("unique_tag", ["tag"], { unique: true })
 export class FeedbackEntity {
-  @PrimaryColumn({ type: "text", name: "tag", unique: true })
+  @PrimaryGeneratedColumn("increment")
+  id: number;
+
+  @Column({
+    type: "text",
+    name: "tag",
+  })
   tag: string;
 
   @OneToMany(() => FeedbackOptionEntity, (t) => t.feedbacks, { eager: false })
