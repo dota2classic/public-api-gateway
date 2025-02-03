@@ -19,6 +19,8 @@ import {
   CurrentUser,
   CurrentUserDto,
 } from "../../utils/decorator/current-user";
+import { ForumApi } from "../../generated-api/forum";
+import { EventBus } from "@nestjs/cqrs";
 
 @Controller("feedback")
 @ApiTags("feedback")
@@ -30,6 +32,8 @@ export class FeedbackController {
     private readonly playerFeedbackEntityRepository: Repository<PlayerFeedbackEntity>,
     private readonly mapper: FeedbackMapper,
     private readonly feedbackService: FeedbackService,
+    private readonly forumApi: ForumApi,
+    private readonly ebus: EventBus,
   ) {}
 
   @Get("test")
@@ -48,7 +52,14 @@ export class FeedbackController {
     @Body() dto: SubmitFeedbackDto,
   ) {
     return this.feedbackService
-      .submitFeedbackResult(feedbackId, dto.options, dto.comment, user.steam_id)
+      .submitFeedbackResult(
+        feedbackId,
+        dto.options,
+        dto.comment,
+        user.steam_id,
+        dto.createTicket,
+        user,
+      )
       .then(this.mapper.mapFeedback);
   }
 

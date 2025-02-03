@@ -110,10 +110,12 @@ import { FeedbackMapper } from "./rest/feedback/feedback.mapper";
 import { NotificationMapper } from "./rest/notification/notification.mapper";
 import { FeedbackCreatedHandler } from "./rest/notification/event-handler/feedback-created.handler";
 import { NotificationCreatedHandler } from "./socket/event-handler/notification-created.handler";
-import { PlayerNotLoadedHandler } from "./rest/notification/event-handler/player-not-loaded.handler";
+import { PlayerNotLoadedHandler } from "./rest/feedback/event-handler/player-not-loaded.handler";
+import { PlayerAbandonedHandler } from "./rest/feedback/event-handler/player-abandoned.handler";
 import { AchievementCompleteHandler } from "./rest/notification/event-handler/achievement-complete.handler";
-import { PlayerAbandonedHandler } from "./rest/notification/event-handler/player-abandoned.handler";
 import { AdminFeedbackController } from "./rest/feedback/admin-feedback.controller";
+import { PlayerFeedbackThreadCreatedHandler } from "./rest/notification/event-handler/player-feedback-thread-created.handler";
+import { NewTicketMessageCreatedHandler } from "./rest/feedback/event-handler/new-ticket-message-created.handler";
 
 const OPENAPI_GENERATED: Provider[] = [
   {
@@ -387,8 +389,9 @@ const OPENAPI_GENERATED: Provider[] = [
     NotificationCreatedHandler,
 
     // Feedback
-
     PlayerNotLoadedHandler,
+    PlayerFeedbackThreadCreatedHandler,
+    NewTicketMessageCreatedHandler,
 
     // grafana
     makeCounterProvider({

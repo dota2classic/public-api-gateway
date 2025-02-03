@@ -3,7 +3,7 @@ import { SubscriptionDto } from "./notification.dto";
 import { InjectRepository } from "@nestjs/typeorm";
 import { WebpushSubscriptionEntity } from "../../entity/webpush-subscription.entity";
 import { In, Not, Repository, SelectQueryBuilder } from "typeorm";
-import { QueryBus } from "@nestjs/cqrs";
+import { EventBus, QueryBus } from "@nestjs/cqrs";
 import * as webpush from "web-push";
 import { MatchmakingMode } from "../../gateway/shared-types/matchmaking-mode";
 import { GetQueueStateQueryResult } from "../../gateway/queries/QueueState/get-queue-state-query.result";
@@ -14,8 +14,14 @@ import { SocketDelivery } from "../../socket/socket-delivery";
 import { MessageTypeS2C } from "../../socket/messages/s2c/message-type.s2c";
 import { PleaseEnterQueueMessageS2C } from "../../socket/messages/s2c/please-enter-queue-message.s2c";
 import { ConfigService } from "@nestjs/config";
-import { NotificationEntity } from "../../entity/notification.entity";
+import {
+  NotificationEntity,
+  NotificationEntityType,
+  NotificationType,
+} from "../../entity/notification.entity";
 import { Cron, CronExpression } from "@nestjs/schedule";
+import { NotificationCreatedEvent } from "./event/notification-created.event";
+import { NotificationMapper } from "./notification.mapper";
 
 @Injectable()
 export class NotificationService {
@@ -28,6 +34,8 @@ export class NotificationService {
     private readonly config: ConfigService,
     @InjectRepository(NotificationEntity)
     private readonly notificationEntityRepository: Repository<NotificationEntity>,
+    private readonly ebus: EventBus,
+    private readonly mapper: NotificationMapper,
   ) {
     webpush.setVapidDetails(
       "mailto:enchantinggg4@gmail.com",
@@ -178,6 +186,21 @@ export class NotificationService {
     return this.getBaseNotificationQuery().where({ id }).getOneOrFail();
   }
 
+  public async createNotification(
+    steamId: string,
+    entityId: string,
+    entityType: NotificationEntityType,
+    type: NotificationType,
+    ttl: string = "1day",
+  ) {
+    let ne = new NotificationEntity(steamId, entityId, entityType, type, ttl);
+    ne = await this.notificationEntityRepository.save(ne);
+    ne = await this.getFullNotification(ne.id);
+    this.ebus.publish(
+      new NotificationCreatedEvent(this.mapper.mapNotification(ne)),
+    );
+  }
+
   private getBaseNotificationQuery(): SelectQueryBuilder<NotificationEntity> {
     return this.notificationEntityRepository
       .createQueryBuilder("n")
@@ -185,7 +208,8 @@ export class NotificationService {
         "n.playerFeedback",
         "player_feedback_entity",
         "pfe",
-        `pfe.id = n.entity_id`,
+        `n.entity_type = :feedbackType and pfe.id = convert_to_integer(n.entity_id)`,
+        { feedbackType: NotificationEntityType.FEEDBACK },
       )
       .leftJoinAndMapOne(
         "n.feedback",

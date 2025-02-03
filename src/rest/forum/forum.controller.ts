@@ -57,6 +57,7 @@ import { WithPagination } from "../../utils/decorator/pagination";
 import { PlayerId } from "../../gateway/shared-types/player-id";
 import { ReqLoggingInterceptor } from "../../middleware/req-logging.interceptor";
 import { LiveMatchService } from "../../cache/live-match.service";
+import { WithOptionalUser } from "../../utils/decorator/with-optional-user";
 
 @UseInterceptors(ReqLoggingInterceptor)
 @Controller("forum")
@@ -202,15 +203,20 @@ export class ForumController {
     enum: ThreadType,
     enumName: "ThreadType",
   })
+  @WithOptionalUser()
   @Get("threads")
   async threads(
     @Req() req: any,
     @Query("page", NullableIntPipe) page: number,
     @Query("per_page", NullableIntPipe) perPage: number = 25,
     @Query("threadType") threadType?: ThreadType,
+    @Query("only_authored") onlyAuthored: boolean = false,
+    @CurrentUser() u?: CurrentUserDto,
   ): Promise<ThreadPageDTO> {
+    console.log("AAAAA", onlyAuthored ? u?.steam_id : undefined, u);
     const threads = await this.api.forumControllerThreads(
       page,
+      onlyAuthored ? u?.steam_id : undefined,
       perPage,
       threadType,
     );
@@ -238,7 +244,7 @@ export class ForumController {
     @Param("id") id: string,
     @Param("threadType") threadType: ThreadType,
   ) {
-    if (threadType === ThreadType.FORUM) {
+    if (threadType === ThreadType.FORUM || threadType === ThreadType.TICKET) {
       return this.api
         .forumControllerGetThread(`${threadType}_${id}`)
         .then(this.mapper.mapThread);

@@ -12,6 +12,8 @@
  * Do not edit the class manually.
  */
 
+import { ForumJwtPayload, ForumJwtPayloadFromJSON, ForumJwtPayloadToJSON } from './';
+
 /**
  *
  * @export
@@ -20,10 +22,10 @@
 export class ForumEditMessageDTO {
     /**
      *
-     * @type {object}
+     * @type {ForumJwtPayload}
      * @memberof ForumEditMessageDTO
      */
-    author: object;
+    author: ForumJwtPayload;
     /**
      *
      * @type {string}
@@ -42,7 +44,7 @@ export function ForumEditMessageDTOFromJSONTyped(json: any, ignoreDiscriminator:
     }
     return {
 
-        'author': json['author'],
+        'author': ForumJwtPayloadFromJSON(json['author']),
         'content': json['content'],
     };
 }
@@ -56,7 +58,7 @@ export function ForumEditMessageDTOToJSON(value?: ForumEditMessageDTO | null): a
     }
     return {
 
-        'author': value.author,
+        'author': ForumJwtPayloadToJSON(value.author),
         'content': value.content,
     };
 }

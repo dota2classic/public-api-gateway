@@ -3,12 +3,12 @@ import { AchievementCompleteEvent } from "../../../gateway/events/gs/achievement
 import {
   NotificationEntity,
   NotificationEntityType,
+  NotificationType,
 } from "../../../entity/notification.entity";
 import { InjectRepository } from "@nestjs/typeorm";
 import { NotificationService } from "../notification.service";
 import { Repository } from "typeorm";
 import { NotificationMapper } from "../notification.mapper";
-import { NotificationCreatedEvent } from "../event/notification-created.event";
 
 @EventsHandler(AchievementCompleteEvent)
 export class AchievementCompleteHandler
@@ -23,16 +23,12 @@ export class AchievementCompleteHandler
   ) {}
 
   async handle(event: AchievementCompleteEvent) {
-    let ne = new NotificationEntity(
+    await this.notificationService.createNotification(
       event.playerId,
-      event.achievement,
+      event.achievement.toString(),
       NotificationEntityType.ACHIEVEMENT,
+      NotificationType.ACHIEVEMENT_COMPLETE,
       "1m",
-    );
-    ne = await this.notificationEntityRepository.save(ne);
-    ne = await this.notificationService.getFullNotification(ne.id);
-    this.ebus.publish(
-      new NotificationCreatedEvent(this.mapper.mapNotification(ne)),
     );
   }
 }

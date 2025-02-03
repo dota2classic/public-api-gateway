@@ -30,6 +30,7 @@ export class NotificationMapper {
       // feedback
       entityId: notification.entityId,
       entityType: notification.entityType,
+      notificationType: notification.notificationType,
       title,
       content,
     };

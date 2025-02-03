@@ -95,6 +95,7 @@ export interface ForumControllerPostMessageRequest {
 
 export interface ForumControllerThreadsRequest {
     page: number;
+    steamId?: string;
     perPage?: number;
     threadType?: ForumThreadType;
 }
@@ -445,26 +446,39 @@ export class ForumApi extends runtime.BaseAPI {
 
     /**
      */
-    forumControllerToggleReactionContext(requestParameters: ForumControllerToggleReactionRequest): runtime.RequestOpts {
+    forumControllerThreadsContext(requestParameters: ForumControllerThreadsRequest): runtime.RequestOpts {
         const queryParameters: any = {};
+
+        if (requestParameters.page !== undefined) {
+            queryParameters['page'] = requestParameters.page;
+        }
+
+        if (requestParameters.steamId !== undefined) {
+            queryParameters['steamId'] = requestParameters.steamId;
+        }
+
+        if (requestParameters.perPage !== undefined) {
+            queryParameters['perPage'] = requestParameters.perPage;
+        }
+
+        if (requestParameters.threadType !== undefined) {
+            queryParameters['threadType'] = requestParameters.threadType;
+        }
 
         const headerParameters: runtime.HTTPHeaders = {};
 
-        headerParameters['Content-Type'] = 'application/json';
-
         return {
-            path: `/forum/message/{id}/react`.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters.id))),
-            method: 'POST',
+            path: `/forum/threads`,
+            method: 'GET',
             headers: headerParameters,
             query: queryParameters,
-            body: ForumUpdateMessageReactionDtoToJSON(requestParameters.forumUpdateMessageReactionDto),
         };
     }
 
     /**
      */
-    forumControllerToggleReaction = async (id: string, forumUpdateMessageReactionDto: ForumUpdateMessageReactionDto): Promise<ForumMessageDTO> => {
-        const response = await this.forumControllerToggleReactionRaw({ id: id, forumUpdateMessageReactionDto: forumUpdateMessageReactionDto });
+    forumControllerThreads = async (page: number, steamId?: string, perPage?: number, threadType?: ForumThreadType): Promise<ForumThreadPageDto> => {
+        const response = await this.forumControllerThreadsRaw({ page: page, steamId: steamId, perPage: perPage, threadType: threadType });
         return await response.value();
     }
 
@@ -490,17 +504,27 @@ export class ForumApi extends runtime.BaseAPI {
 
     /**
      */
-    private async forumControllerAllEmoticonsRaw(requestParameters: ForumControllerAllEmoticonsRequest): Promise<runtime.ApiResponse<Array<ForumEmoticonDto>>> {
-        this.forumControllerAllEmoticonsValidation(requestParameters);
-        const context = this.forumControllerAllEmoticonsContext(requestParameters);
-        const response = await this.request(context);
+    forumControllerToggleReactionContext(requestParameters: ForumControllerToggleReactionRequest): runtime.RequestOpts {
+        const queryParameters: any = {};
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(ForumEmoticonDtoFromJSON));
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+        return {
+            path: `/forum/message/{id}/react`.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters.id))),
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+            body: ForumUpdateMessageReactionDtoToJSON(requestParameters.forumUpdateMessageReactionDto),
+        };
     }
 
     /**
      */
-    private forumControllerAllEmoticonsValidation(requestParameters: ForumControllerAllEmoticonsRequest) {
+    forumControllerToggleReaction = async (id: string, forumUpdateMessageReactionDto: ForumUpdateMessageReactionDto): Promise<ForumMessageDTO> => {
+        const response = await this.forumControllerToggleReactionRaw({ id: id, forumUpdateMessageReactionDto: forumUpdateMessageReactionDto });
+        return await response.value();
     }
 
     /**
@@ -528,23 +552,17 @@ export class ForumApi extends runtime.BaseAPI {
 
     /**
      */
-    private async forumControllerEditMessageRaw(requestParameters: ForumControllerEditMessageRequest): Promise<runtime.ApiResponse<ForumMessageDTO>> {
-        this.forumControllerEditMessageValidation(requestParameters);
-        const context = this.forumControllerEditMessageContext(requestParameters);
+    private async forumControllerAllEmoticonsRaw(requestParameters: ForumControllerAllEmoticonsRequest): Promise<runtime.ApiResponse<Array<ForumEmoticonDto>>> {
+        this.forumControllerAllEmoticonsValidation(requestParameters);
+        const context = this.forumControllerAllEmoticonsContext(requestParameters);
         const response = await this.request(context);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => ForumMessageDTOFromJSON(jsonValue));
+        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(ForumEmoticonDtoFromJSON));
     }
 
     /**
      */
-    private forumControllerEditMessageValidation(requestParameters: ForumControllerEditMessageRequest) {
-        if (requestParameters.id === null || requestParameters.id === undefined) {
-            throw new runtime.RequiredError('id','Required parameter requestParameters.id was null or undefined when calling forumControllerEditMessage.');
-        }
-        if (requestParameters.forumEditMessageDTO === null || requestParameters.forumEditMessageDTO === undefined) {
-            throw new runtime.RequiredError('forumEditMessageDTO','Required parameter requestParameters.forumEditMessageDTO was null or undefined when calling forumControllerEditMessage.');
-        }
+    private forumControllerAllEmoticonsValidation(requestParameters: ForumControllerAllEmoticonsRequest) {
     }
 
     /**
@@ -617,36 +635,23 @@ export class ForumApi extends runtime.BaseAPI {
 
     /**
      */
-    forumControllerThreadsContext(requestParameters: ForumControllerThreadsRequest): runtime.RequestOpts {
-        const queryParameters: any = {};
+    private async forumControllerEditMessageRaw(requestParameters: ForumControllerEditMessageRequest): Promise<runtime.ApiResponse<ForumMessageDTO>> {
+        this.forumControllerEditMessageValidation(requestParameters);
+        const context = this.forumControllerEditMessageContext(requestParameters);
+        const response = await this.request(context);
 
-        if (requestParameters.page !== undefined) {
-            queryParameters['page'] = requestParameters.page;
-        }
-
-        if (requestParameters.perPage !== undefined) {
-            queryParameters['perPage'] = requestParameters.perPage;
-        }
-
-        if (requestParameters.threadType !== undefined) {
-            queryParameters['threadType'] = requestParameters.threadType;
-        }
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-        return {
-            path: `/forum/threads`,
-            method: 'GET',
-            headers: headerParameters,
-            query: queryParameters,
-        };
+        return new runtime.JSONApiResponse(response, (jsonValue) => ForumMessageDTOFromJSON(jsonValue));
     }
 
     /**
      */
-    forumControllerThreads = async (page: number, perPage?: number, threadType?: ForumThreadType): Promise<ForumThreadPageDto> => {
-        const response = await this.forumControllerThreadsRaw({ page: page, perPage: perPage, threadType: threadType });
-        return await response.value();
+    private forumControllerEditMessageValidation(requestParameters: ForumControllerEditMessageRequest) {
+        if (requestParameters.id === null || requestParameters.id === undefined) {
+            throw new runtime.RequiredError('id','Required parameter requestParameters.id was null or undefined when calling forumControllerEditMessage.');
+        }
+        if (requestParameters.forumEditMessageDTO === null || requestParameters.forumEditMessageDTO === undefined) {
+            throw new runtime.RequiredError('forumEditMessageDTO','Required parameter requestParameters.forumEditMessageDTO was null or undefined when calling forumControllerEditMessage.');
+        }
     }
 
     /**

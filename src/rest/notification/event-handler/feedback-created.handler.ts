@@ -4,10 +4,10 @@ import { NotificationService } from "../notification.service";
 import {
   NotificationEntity,
   NotificationEntityType,
+  NotificationType,
 } from "../../../entity/notification.entity";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
-import { NotificationCreatedEvent } from "../event/notification-created.event";
 import { NotificationMapper } from "../notification.mapper";
 
 @EventsHandler(FeedbackCreatedEvent)
@@ -23,15 +23,12 @@ export class FeedbackCreatedHandler
   ) {}
 
   async handle(event: FeedbackCreatedEvent) {
-    let ne = new NotificationEntity(
+    await this.notificationService.createNotification(
       event.steamId,
-      event.playerFeedbackId,
+      event.playerFeedbackId.toString(),
       NotificationEntityType.FEEDBACK,
-    );
-    ne = await this.notificationEntityRepository.save(ne);
-    ne = await this.notificationService.getFullNotification(ne.id);
-    this.ebus.publish(
-      new NotificationCreatedEvent(this.mapper.mapNotification(ne)),
+      NotificationType.FEEDBACK_CREATED,
+      "10m",
     );
   }
 }

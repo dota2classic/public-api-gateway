@@ -8,6 +8,10 @@ import { SubmittedFeedbackOptionDto } from "./feedback.dto";
 import { EventBus } from "@nestjs/cqrs";
 import { FeedbackCreatedEvent } from "./event/feedback-created.event";
 import { FeedbackOptionEntity } from "../../entity/feedback-option.entity";
+import { ThreadType } from "../../gateway/shared-types/thread-type";
+import { CurrentUserDto } from "../../utils/decorator/current-user";
+import { PlayerFeedbackThreadCreatedEvent } from "./event/player-feedback-thread-created.event";
+import { ForumApi } from "../../generated-api/forum";
 
 @Injectable()
 export class FeedbackService implements OnApplicationBootstrap {
@@ -22,6 +26,7 @@ export class FeedbackService implements OnApplicationBootstrap {
     @InjectRepository(FeedbackOptionEntity)
     private readonly feedbackOptionEntityRepository: Repository<FeedbackOptionEntity>,
     private readonly ebus: EventBus,
+    private readonly forumApi: ForumApi,
   ) {}
 
   public async createFeedbackForPlayer(
@@ -77,52 +82,82 @@ export class FeedbackService implements OnApplicationBootstrap {
     options: SubmittedFeedbackOptionDto[],
     comment: string,
     steamId: string,
+    createTicket: boolean,
+    user: CurrentUserDto,
   ): Promise<PlayerFeedbackEntity> {
-    return this.datasource.transaction(async (em) => {
-      const playerFeedback =
-        await this.playerFeedbackEntityRepository.findOneOrFail({
-          where: { id: feedbackId, finished: false, steamId: steamId },
+    const feedback = await this.datasource.transaction<PlayerFeedbackEntity>(
+      async (em) => {
+        const playerFeedback =
+          await this.playerFeedbackEntityRepository.findOneOrFail({
+            where: { id: feedbackId, finished: false, steamId: steamId },
+          });
+
+        // Update checks
+        await Promise.all(
+          playerFeedback.optionResults.map(async (option) => {
+            console.log(option);
+            await em.update(
+              PlayerFeedbackOptionResultEntity,
+              {
+                playerFeedbackId: option.playerFeedbackId,
+                id: option.id,
+              },
+              {
+                checked:
+                  options.find((it) => it.id === option.id)?.checked || false,
+              },
+            );
+          }),
+        );
+
+        // Update stuff
+        playerFeedback.finished = true;
+        playerFeedback.comment = comment;
+
+        await em.update(
+          PlayerFeedbackEntity,
+          {
+            id: feedbackId,
+          },
+          {
+            finished: true,
+            comment: comment,
+          },
+        );
+
+        return em.findOne(PlayerFeedbackEntity, {
+          where: {
+            id: feedbackId,
+          },
         });
+      },
+    );
 
-      // Update checks
-      await Promise.all(
-        playerFeedback.optionResults.map(async (option) => {
-          console.log(option);
-          await em.update(
-            PlayerFeedbackOptionResultEntity,
-            {
-              playerFeedbackId: option.playerFeedbackId,
-              id: option.id,
-            },
-            {
-              checked:
-                options.find((it) => it.id === option.id)?.checked || false,
-            },
-          );
-        }),
-      );
-
-      // Update stuff
-      playerFeedback.finished = true;
-      playerFeedback.comment = comment;
-
-      await em.update(
-        PlayerFeedbackEntity,
-        {
-          id: feedbackId,
-        },
-        {
-          finished: true,
-          comment: comment,
-        },
-      );
-
-      return em.findOne(PlayerFeedbackEntity, {
-        where: {
-          id: feedbackId,
-        },
+    if (createTicket) {
+      const thread = await this.forumApi.forumControllerGetThreadForKey({
+        threadType: ThreadType.TICKET,
+        externalId: feedbackId.toString(),
+        title: `Тикет ${feedbackId}: ${feedback.feedback.title}`,
+        op: feedback.steamId,
       });
-    });
+      await this.forumApi.forumControllerPostMessage(thread.id, {
+        author: user,
+        content: `
+${options
+  .filter((it) => it.checked)
+  .map((opt) => `- ${opt.option}`)
+  .join("\n")}
+Комментарий:
+${comment}
+        `,
+      });
+
+      this.ebus.publish(
+        new PlayerFeedbackThreadCreatedEvent(thread.id, user.steam_id),
+      );
+    }
+
+    return feedback;
   }
 
   async updateFeedback(id: number, title: string, tag: string) {

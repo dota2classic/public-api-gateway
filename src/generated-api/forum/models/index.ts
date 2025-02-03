@@ -3,6 +3,7 @@ export * from './ForumCreateThreadDTO';
 export * from './ForumEditMessageDTO';
 export * from './ForumEmoticonDto';
 export * from './ForumForumUserDTO';
+export * from './ForumJwtPayload';
 export * from './ForumMessageDTO';
 export * from './ForumMessagePageDTO';
 export * from './ForumReactionEntry';

@@ -12,6 +12,14 @@ import { FeedbackEntity } from "./feedback.entity";
 export enum NotificationEntityType {
   FEEDBACK = "FEEDBACK",
   ACHIEVEMENT = "ACHIEVEMENT",
+  FEEDBACK_TICKET = "FEEDBACK_TICKET",
+}
+
+export enum NotificationType {
+  ACHIEVEMENT_COMPLETE = "ACHIEVEMENT_COMPLETE",
+  FEEDBACK_CREATED = "FEEDBACK_CREATED",
+  TICKET_CREATED = "TICKET_CREATED",
+  TICKET_NEW_MESSAGE = "TICKET_NEW_MESSAGE",
 }
 
 @Entity()
@@ -35,8 +43,8 @@ export class NotificationEntity {
   @Column({ name: "acknowledged", default: false })
   acknowledged: boolean;
 
-  @Column({ name: "entity_id", nullable: false })
-  entityId: number;
+  @Column({ name: "entity_id", nullable: false, type: "text" })
+  entityId: string;
 
   @Column({
     enum: NotificationEntityType,
@@ -45,6 +53,14 @@ export class NotificationEntity {
     name: "entity_type",
   })
   entityType: NotificationEntityType;
+
+  @Column({
+    enum: NotificationType,
+    enumName: "notification_type",
+    nullable: false,
+    name: "notification_type",
+  })
+  notificationType: NotificationType;
 
   @VirtualColumn2("playerFeedback", (t) => t)
   playerFeedback?: PlayerFeedbackEntity;
@@ -57,13 +73,15 @@ export class NotificationEntity {
 
   constructor(
     steamId: string,
-    entityId: number,
+    entityId: string,
     entityType: NotificationEntityType,
+    notificationType: NotificationType,
     ttl: string = "1day",
   ) {
     this.steamId = steamId;
     this.entityId = entityId;
     this.entityType = entityType;
+    this.notificationType = notificationType;
     this.ttl = ttl;
   }
 }

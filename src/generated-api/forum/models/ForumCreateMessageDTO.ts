@@ -13,6 +13,7 @@
  */
 
 import { exists } from '../runtime';
+import { ForumJwtPayload, ForumJwtPayloadFromJSON, ForumJwtPayloadToJSON } from './';
 
 /**
  *
@@ -22,10 +23,10 @@ import { exists } from '../runtime';
 export class ForumCreateMessageDTO {
     /**
      *
-     * @type {object}
+     * @type {ForumJwtPayload}
      * @memberof ForumCreateMessageDTO
      */
-    author: object;
+    author: ForumJwtPayload;
     /**
      *
      * @type {string}
@@ -50,7 +51,7 @@ export function ForumCreateMessageDTOFromJSONTyped(json: any, ignoreDiscriminato
     }
     return {
 
-        'author': json['author'],
+        'author': ForumJwtPayloadFromJSON(json['author']),
         'content': json['content'],
         'replyMessageId': !exists(json, 'replyMessageId') ? undefined : json['replyMessageId'],
     };
@@ -65,7 +66,7 @@ export function ForumCreateMessageDTOToJSON(value?: ForumCreateMessageDTO | null
     }
     return {
 
-        'author': value.author,
+        'author': ForumJwtPayloadToJSON(value.author),
         'content': value.content,
         'replyMessageId': value.replyMessageId,
     };

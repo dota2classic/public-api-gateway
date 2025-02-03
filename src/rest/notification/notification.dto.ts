@@ -1,7 +1,10 @@
 import { PushSubscription } from "web-push";
 import { MatchmakingMode } from "../../gateway/shared-types/matchmaking-mode";
 import { ApiProperty } from "@nestjs/swagger";
-import { NotificationEntityType } from "../../entity/notification.entity";
+import {
+  NotificationEntityType,
+  NotificationType,
+} from "../../entity/notification.entity";
 
 export class SubscriptionDto implements PushSubscription {
   endpoint: string;
@@ -22,7 +25,10 @@ export class NotificationDto {
   steamId: string;
 
   entityType: NotificationEntityType;
-  entityId: number;
+  entityId: string;
+
+  @ApiProperty({ enum: NotificationType, enumName: "NotificationType" })
+  notificationType: NotificationType;
 
   title: string;
   content: string;

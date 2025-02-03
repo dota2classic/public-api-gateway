@@ -23,6 +23,8 @@ export class SubmittedFeedbackOptionDto {
 export class SubmitFeedbackDto {
   comment?: string;
   options: SubmittedFeedbackOptionDto[];
+
+  createTicket: boolean;
 }
 
 export class UpdateFeedbackDto {
