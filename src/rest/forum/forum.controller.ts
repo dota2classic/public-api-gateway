@@ -6,6 +6,7 @@ import {
   HttpException,
   NotFoundException,
   Param,
+  ParseBoolPipe,
   Patch,
   Post,
   Query,
@@ -203,6 +204,11 @@ export class ForumController {
     enum: ThreadType,
     enumName: "ThreadType",
   })
+  @ApiQuery({
+    name: "only_authored",
+    required: true,
+    type: Boolean,
+  })
   @WithOptionalUser()
   @Get("threads")
   async threads(
@@ -210,7 +216,7 @@ export class ForumController {
     @Query("page", NullableIntPipe) page: number,
     @Query("per_page", NullableIntPipe) perPage: number = 25,
     @Query("threadType") threadType?: ThreadType,
-    @Query("only_authored") onlyAuthored: boolean = false,
+    @Query("only_authored", ParseBoolPipe) onlyAuthored: boolean = false,
     @CurrentUser() u?: CurrentUserDto,
   ): Promise<ThreadPageDTO> {
     const threads = await this.api.forumControllerThreads(
