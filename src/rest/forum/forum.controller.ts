@@ -213,7 +213,6 @@ export class ForumController {
     @Query("only_authored") onlyAuthored: boolean = false,
     @CurrentUser() u?: CurrentUserDto,
   ): Promise<ThreadPageDTO> {
-    console.log("AAAAA", onlyAuthored ? u?.steam_id : undefined, u);
     const threads = await this.api.forumControllerThreads(
       page,
       onlyAuthored ? u?.steam_id : undefined,
