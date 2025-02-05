@@ -115,7 +115,9 @@ import { PlayerAbandonedHandler } from "./rest/feedback/event-handler/player-aba
 import { AchievementCompleteHandler } from "./rest/notification/event-handler/achievement-complete.handler";
 import { AdminFeedbackController } from "./rest/feedback/admin-feedback.controller";
 import { PlayerFeedbackThreadCreatedHandler } from "./rest/notification/event-handler/player-feedback-thread-created.handler";
-import { NewTicketMessageCreatedHandler } from "./rest/feedback/event-handler/new-ticket-message-created.handler";
+import * as TelegramBot from "node-telegram-bot-api";
+import { TelegramNotificationService } from "./rest/notification/telegram-notification.service";
+import { NewTicketMessageCreatedHandler } from "./rest/notification/event-handler/new-ticket-message-created.handler";
 
 const OPENAPI_GENERATED: Provider[] = [
   {
@@ -392,6 +394,16 @@ const OPENAPI_GENERATED: Provider[] = [
     PlayerNotLoadedHandler,
     PlayerFeedbackThreadCreatedHandler,
     NewTicketMessageCreatedHandler,
+    TelegramNotificationService,
+
+    // Telegram
+    {
+      provide: "Telegram",
+      useFactory(config: ConfigService) {
+        return new TelegramBot(config.get("telegram.token"));
+      },
+      inject: [ConfigService],
+    },
 
     // grafana
     makeCounterProvider({

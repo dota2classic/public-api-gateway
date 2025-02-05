@@ -12,6 +12,7 @@ import { EventBus, ofType, QueryBus } from "@nestjs/cqrs";
 import { ClientProxy } from "@nestjs/microservices";
 import { UserLoggedInEvent } from "./gateway/events/user/user-logged-in.event";
 import { LobbyReadyEvent } from "./gateway/events/lobby-ready.event";
+import { TelegramNotificationService } from "./rest/notification/telegram-notification.service";
 
 @Injectable()
 export class MainService implements OnApplicationBootstrap {
@@ -22,6 +23,7 @@ export class MainService implements OnApplicationBootstrap {
     private readonly ebus: EventBus,
     private readonly userRepository: UserRepository,
     @Inject("QueryCore") private readonly redisEventQueue: ClientProxy,
+    private readonly t: TelegramNotificationService,
   ) {}
 
   async onApplicationBootstrap() {
@@ -37,6 +39,10 @@ export class MainService implements OnApplicationBootstrap {
     this.ebus
       .pipe(ofType(...publicEvents))
       .subscribe((t) => this.redisEventQueue.emit(t.constructor.name, t));
+
+    // await this.t.notifyFeedback(
+    //   "amogus"
+    // )
   }
 
   // @Cron("*/30 * * * * *")

@@ -153,7 +153,11 @@ ${comment}
       });
 
       this.ebus.publish(
-        new PlayerFeedbackThreadCreatedEvent(thread.id, user.steam_id),
+        new PlayerFeedbackThreadCreatedEvent(
+          thread.id,
+          user.steam_id,
+          thread.title,
+        ),
       );
     }
 

@@ -57,7 +57,7 @@ export class FeedbackController {
         dto.options,
         dto.comment,
         user.steam_id,
-        dto.createTicket,
+        true,
         user,
       )
       .then(this.mapper.mapFeedback);

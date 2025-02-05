@@ -10,6 +10,8 @@ import { PlayerFeedbackEntity } from "../../../entity/player-feedback.entity";
 import { ThreadType } from "../../../gateway/shared-types/thread-type";
 import { Logger } from "@nestjs/common";
 import { NotificationService } from "../../notification/notification.service";
+import { TelegramNotificationService } from "../telegram-notification.service";
+import { UserRepository } from "../../../cache/user/user.repository";
 
 @EventsHandler(MessageUpdatedEvent)
 export class NewTicketMessageCreatedHandler
@@ -20,10 +22,11 @@ export class NewTicketMessageCreatedHandler
     private readonly notificationService: NotificationService,
     @InjectRepository(PlayerFeedbackEntity)
     private readonly playerFeedbackEntityRepository: Repository<PlayerFeedbackEntity>,
+    private readonly telegram: TelegramNotificationService,
+    private readonly urep: UserRepository,
   ) {}
 
   async handle(event: MessageUpdatedEvent) {
-    console.log("ooo", event);
     if (event.createdAt !== event.updatedAt) return;
 
     const [threadType, threadId] = event.threadId.split("_");
@@ -47,6 +50,7 @@ export class NewTicketMessageCreatedHandler
     }
 
     if (event.author === pFeedback.steamId) {
+      await this.notifyNewMessage(event);
       // From player
       return;
     }
@@ -57,6 +61,14 @@ export class NewTicketMessageCreatedHandler
       NotificationEntityType.FEEDBACK_TICKET,
       NotificationType.TICKET_NEW_MESSAGE,
       "1day",
+    );
+  }
+
+  private async notifyNewMessage(event: MessageUpdatedEvent) {
+    await this.telegram.notifyFeedback(
+      `Новое сообщение в обращении:\n
+${await this.urep.name(event.author)}: ${event.content}
+https://dotaclassic.ru/forum/ticket/${event.threadId.replace(/\D/g, "")}`,
     );
   }
 }
