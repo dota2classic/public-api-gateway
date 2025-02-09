@@ -32,6 +32,8 @@ import { EventBus } from "@nestjs/cqrs";
 import { SocketFullDisconnectEvent } from "./event/socket-full-disconnect.event";
 import { PlayerEnterQueueRequestedEvent } from "../gateway/events/mm/player-enter-queue-requested.event";
 import { PlayerLeaveQueueRequestedEvent } from "../gateway/events/mm/player-leave-queue-requested.event";
+import { Cron, CronExpression } from "@nestjs/schedule";
+import { MetricsService } from "../metrics.service";
 
 @WebSocketGateway({ cors: "*" })
 export class SocketGateway implements OnGatewayDisconnect, OnGatewayConnection {
@@ -50,6 +52,7 @@ export class SocketGateway implements OnGatewayDisconnect, OnGatewayConnection {
     private readonly delivery: SocketDelivery,
     private readonly ebus: EventBus,
     @Inject("QueryCore") private readonly redis: ClientProxy,
+    private readonly metrics: MetricsService,
   ) {}
 
   async handleConnection(client: PlayerSocket, ...args) {
@@ -200,6 +203,19 @@ export class SocketGateway implements OnGatewayDisconnect, OnGatewayConnection {
         Array.from(authorizedClients.values()),
         uniqueUsers.size,
       ) as any,
+    );
+  }
+
+  @Cron(CronExpression.EVERY_MINUTE)
+  public async collectMetrics() {
+    this.metrics.recordOnline(this.getOnlineUsers().size);
+  }
+
+  private getOnlineUsers() {
+    return new Set(
+      Array.from(this.server.sockets.sockets.values()).map(
+        (it: PlayerSocket) => it.steamId,
+      ),
     );
   }
 

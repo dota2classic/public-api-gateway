@@ -118,6 +118,7 @@ import { PlayerFeedbackThreadCreatedHandler } from "./rest/notification/event-ha
 import * as TelegramBot from "node-telegram-bot-api";
 import { TelegramNotificationService } from "./rest/notification/telegram-notification.service";
 import { NewTicketMessageCreatedHandler } from "./rest/notification/event-handler/new-ticket-message-created.handler";
+import { MetricsService } from "./metrics.service";
 
 const OPENAPI_GENERATED: Provider[] = [
   {
@@ -395,7 +396,6 @@ const OPENAPI_GENERATED: Provider[] = [
     PlayerFeedbackThreadCreatedHandler,
     NewTicketMessageCreatedHandler,
     TelegramNotificationService,
-
     // Telegram
     {
       provide: "Telegram",
@@ -416,6 +416,7 @@ const OPENAPI_GENERATED: Provider[] = [
       help: "app_concurrent_metrics_help",
       labelNames: ["app_method", "app_origin", "request_type"],
     }),
+    MetricsService,
   ],
 })
 export class AppModule implements NestModule {
