@@ -22,6 +22,7 @@ import {
 import { Cron, CronExpression } from "@nestjs/schedule";
 import { NotificationCreatedEvent } from "./event/notification-created.event";
 import { NotificationMapper } from "./notification.mapper";
+import { InfoApi } from "../../generated-api/gameserver";
 
 @Injectable()
 export class NotificationService {
@@ -36,6 +37,8 @@ export class NotificationService {
     private readonly notificationEntityRepository: Repository<NotificationEntity>,
     private readonly ebus: EventBus,
     private readonly mapper: NotificationMapper,
+
+    private readonly ms: InfoApi,
   ) {
     webpush.setVapidDetails(
       "mailto:enchantinggg4@gmail.com",
@@ -134,16 +137,25 @@ export class NotificationService {
     const qs: GetQueueStateQueryResult = await this.qbus.execute(
       new GetQueueStateQuery(Dota2Version.Dota_684),
     );
+
+    const inGame: string[] = await this.ms
+      .infoControllerGameSessions()
+      .then((it) =>
+        it.flatMap((ses) => [...ses.info.radiant, ...ses.info.dire]),
+      );
+
+    const alreadyInQueue: string[] = qs.entries
+      .filter((t) => t.modes.includes(mode))
+      .flatMap((t) => t.players);
+
+    const ignorePing = new Set([...inGame, ...alreadyInQueue]);
+
     const inQueue = qs.entries
       .filter((t) => t.modes.includes(mode))
       .reduce((a, b) => a + b.players.length, 0);
 
-    const alreadyInQueue = qs.entries
-      .filter((t) => t.modes.includes(mode))
-      .flatMap((t) => t.players);
-
     return await this.delivery.broadcastPredicate(
-      (steamId) => !alreadyInQueue.includes(steamId),
+      (steamId) => !ignorePing.has(steamId),
       MessageTypeS2C.GO_QUEUE,
       new PleaseEnterQueueMessageS2C(mode, Dota2Version.Dota_684, inQueue),
     );
