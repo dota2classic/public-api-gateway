@@ -35,7 +35,6 @@ import * as redisStore from "cache-manager-redis-store";
 import { MetaController } from "./rest/meta/meta.controller";
 import { HttpCacheInterceptor } from "./utils/cache-key-track";
 import { GetReportsAvailableQuery } from "./gateway/queries/GetReportsAvailable/get-reports-available.query";
-import { MulterModule } from "@nestjs/platform-express";
 import { ScheduleModule } from "@nestjs/schedule";
 import { MainService } from "./main.service";
 import { Entities } from "./db.config";
@@ -119,6 +118,8 @@ import * as TelegramBot from "node-telegram-bot-api";
 import { TelegramNotificationService } from "./rest/notification/telegram-notification.service";
 import { NewTicketMessageCreatedHandler } from "./rest/notification/event-handler/new-ticket-message-created.handler";
 import { MetricsService } from "./metrics.service";
+import { StorageController } from "./rest/storage/storage.controller";
+import { StorageMapper } from "./rest/storage/storage.mapper";
 
 const OPENAPI_GENERATED: Provider[] = [
   {
@@ -240,9 +241,6 @@ const OPENAPI_GENERATED: Provider[] = [
       rootPath: join(__dirname, "./upload"),
       serveRoot: "/static/",
     }),
-    MulterModule.register({
-      dest: "./dist/upload",
-    }),
     JwtModule.registerAsync({
       useFactory(config: ConfigService): JwtModuleOptions {
         return {
@@ -304,6 +302,8 @@ const OPENAPI_GENERATED: Provider[] = [
     NotificationController,
     FeedbackController,
     AdminFeedbackController,
+
+    StorageController,
   ],
   providers: [
     ...OPENAPI_GENERATED,
@@ -354,6 +354,7 @@ const OPENAPI_GENERATED: Provider[] = [
     LobbyMapper,
     NotificationMapper,
     FeedbackMapper,
+    StorageMapper,
 
     UserRepository,
     UserCreatedHandler,
