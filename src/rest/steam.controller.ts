@@ -25,6 +25,7 @@ import { AuthService } from "./auth/auth.service";
 import { WithUser } from "../utils/decorator/with-user";
 import { ConfigService } from "@nestjs/config";
 import { EventBus } from "@nestjs/cqrs";
+import { SteamAuthGuard } from "./strategy/steam-auth.guard";
 
 @Controller("auth/steam")
 @ApiTags("auth")
@@ -68,15 +69,12 @@ export class SteamController {
 
   @Get("callback")
   @ApiExcludeEndpoint()
-  @UseGuards(AuthGuard("steam"))
+  @UseGuards(SteamAuthGuard)
   async steamAuthRequest(
     @Req() req: Request & { user?: any },
     @Res() res: Response,
   ) {
     const steam32id = steam64to32(req.user!!._json.steamid);
-
-    console.log("STEAM AUTH CALLBACK: COOKIES");
-    console.log(req.cookies);
 
     this.logger.log("Login: cookies", req.cookies);
 

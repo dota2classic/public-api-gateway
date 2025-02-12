@@ -20,25 +20,11 @@ import * as path from "path";
 export class ReqLoggingInterceptor implements NestInterceptor {
   private readonly logger = new Logger("HTTP_REQUEST");
 
-  // public customDurationGauge: Gauge<string>;
-  // public customErrorsCounter: Counter<string>;
-
   constructor(
     @InjectMetric("my_app_requests") public appGauge: Gauge<string>,
     @InjectMetric("app_duration_metrics")
     public customDurationGauge: Gauge<string>,
-  ) {
-    // this.customDurationGauge = new Gauge<string>({
-    //   name: "app_duration_metrics",
-    //   help: "app_concurrent_metrics_help",
-    //   labelNames: ["app_method", "app_origin"],
-    // });
-    // this.customErrorsCounter = new Counter<string>({
-    //   name: "app_error_metrics",
-    //   help: "app_usage_metrics_to_detect_errors",
-    //   labelNames: ["app_method", "app_origin", "app_status"],
-    // });
-  }
+  ) {}
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     // Extract request and response objects
@@ -94,6 +80,5 @@ export class ReqLoggingInterceptor implements NestInterceptor {
   @Cron(CronExpression.EVERY_4_HOURS)
   private async resetMetrics() {
     this.customDurationGauge.reset();
-    this.appGauge.reset();
   }
 }
