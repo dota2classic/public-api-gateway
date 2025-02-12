@@ -21,7 +21,7 @@ export class SteamAuthGuard extends AuthGuard("steam") {
 
     const isSteamFuckFest = (
       typeof err["message"] === "string" ? err["message"] : ""
-    ).includes("Invalid assertion response from provider");
+    ).includes("Failed to verify assertion");
     if (isSteamFuckFest) {
       res
         .status(302)
