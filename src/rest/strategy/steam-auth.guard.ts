@@ -19,7 +19,10 @@ export class SteamAuthGuard extends AuthGuard("steam") {
   ) {
     const res = context.switchToHttp().getResponse() as Response;
 
-    if ("Invalid assertion response from provider" in err["message"]) {
+    const isSteamFuckFest = (
+      typeof err["message"] === "string" ? err["message"] : ""
+    ).includes("Invalid assertion response from provider");
+    if (isSteamFuckFest) {
       res
         .status(302)
         .redirect(`${this.config.get("api.frontUrl")}/steam-auth-error`);
