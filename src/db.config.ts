@@ -6,6 +6,7 @@ import { FeedbackOptionEntity } from "./entity/feedback-option.entity";
 import { FeedbackEntity } from "./entity/feedback.entity";
 import { PlayerFeedbackEntity } from "./entity/player-feedback.entity";
 import { NotificationEntity } from "./entity/notification.entity";
+import { BlogpostEntity } from "./entity/blogpost.entity";
 
 export const Entities = [
   WebpushSubscriptionEntity,
@@ -16,4 +17,5 @@ export const Entities = [
   FeedbackOptionEntity,
   FeedbackEntity,
   NotificationEntity,
+  BlogpostEntity,
 ];

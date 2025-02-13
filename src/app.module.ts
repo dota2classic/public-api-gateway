@@ -120,6 +120,8 @@ import { NewTicketMessageCreatedHandler } from "./rest/notification/event-handle
 import { MetricsService } from "./metrics.service";
 import { StorageController } from "./rest/storage/storage.controller";
 import { StorageMapper } from "./rest/storage/storage.mapper";
+import { BlogpostController } from "./rest/blogpost/blogpost.controller";
+import { BlogpostMapper } from "./rest/blogpost/blogpost.mapper";
 
 const OPENAPI_GENERATED: Provider[] = [
   {
@@ -199,6 +201,9 @@ const OPENAPI_GENERATED: Provider[] = [
           username: config.get("postgres.username"),
           password: config.get("postgres.password"),
           entities: Entities,
+
+          // synchronize: true,
+
           synchronize: false,
           dropSchema: false,
 
@@ -304,6 +309,7 @@ const OPENAPI_GENERATED: Provider[] = [
     AdminFeedbackController,
 
     StorageController,
+    BlogpostController,
   ],
   providers: [
     ...OPENAPI_GENERATED,
@@ -355,6 +361,7 @@ const OPENAPI_GENERATED: Provider[] = [
     NotificationMapper,
     FeedbackMapper,
     StorageMapper,
+    BlogpostMapper,
 
     UserRepository,
     UserCreatedHandler,

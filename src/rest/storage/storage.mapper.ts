@@ -8,5 +8,6 @@ export class StorageMapper {
 
   public mapS3Item = (key: string): UploadedImageDto => ({
     url: `${this.config.get("api.s3root")}/${this.config.get("s3.bucket")}/${key}`,
+    key: key,
   });
 }

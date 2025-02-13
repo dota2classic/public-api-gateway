@@ -1,5 +1,6 @@
 export class UploadedImageDto {
   url: string;
+  key: string;
 }
 
 export class UploadedImagePageDto {
