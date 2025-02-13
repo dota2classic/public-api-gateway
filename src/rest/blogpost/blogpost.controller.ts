@@ -86,6 +86,19 @@ export class BlogpostController {
       .then(this.mapper.mapPost);
   }
 
+  @ModeratorGuard()
+  @WithUser()
+  @Get("/draft/:id")
+  public async getBlogpostDraft(
+    @Param("id", ParseIntPipe) id: number,
+  ): Promise<BlogpostDto> {
+    return this.blogpostEntityRepository
+      .findOne({
+        where: { id, published: false },
+      })
+      .then(this.mapper.mapPost);
+  }
+
   @WithPagination()
   @Get()
   public async blogPage(
