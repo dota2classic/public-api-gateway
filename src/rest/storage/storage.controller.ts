@@ -18,6 +18,7 @@ import {
 import { ConfigService } from "@nestjs/config";
 import { UploadedImageDto, UploadedImagePageDto } from "./storage.dto";
 import { StorageMapper } from "./storage.mapper";
+import { v4 } from "uuid";
 
 interface IFile {
   fieldname: string;
@@ -57,7 +58,9 @@ export class StorageController {
   public async uploadImage(
     @UploadedFile() file: IFile,
   ): Promise<UploadedImageDto> {
-    const Key = this.config.get("s3.uploadPrefix") + file.originalname;
+    const hash = v4();
+    const Key =
+      this.config.get("s3.uploadPrefix") + hash + "_" + file.originalname;
 
     const putObjectCommandInput: PutObjectCommandInput = {
       Bucket: this.config.get("s3.bucket"),
