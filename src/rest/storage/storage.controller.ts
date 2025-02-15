@@ -58,7 +58,7 @@ export class StorageController {
   public async uploadImage(
     @UploadedFile() file: IFile,
   ): Promise<UploadedImageDto> {
-    const hash = calculateHashForBuffer(file.buffer);
+    const hash = await calculateHashForBuffer(file.buffer);
     const extension = file.originalname.split(".").pop();
 
     const Key = this.config.get("s3.uploadPrefix") + `${hash}.${extension}`;

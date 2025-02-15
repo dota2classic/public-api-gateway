@@ -1,5 +1,5 @@
 // node.js
-import crypto from "node:crypto";
+import * as crypto from "node:crypto";
 
 export async function calculateHashForArrayBuffer(
   data: ArrayBuffer,
