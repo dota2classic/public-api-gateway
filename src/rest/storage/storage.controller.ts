@@ -18,7 +18,7 @@ import {
 import { ConfigService } from "@nestjs/config";
 import { UploadedImageDto, UploadedImagePageDto } from "./storage.dto";
 import { StorageMapper } from "./storage.mapper";
-import { v4 } from "uuid";
+import { calculateHashForBuffer } from "../../utils/hashbuffer";
 
 interface IFile {
   fieldname: string;
@@ -58,9 +58,10 @@ export class StorageController {
   public async uploadImage(
     @UploadedFile() file: IFile,
   ): Promise<UploadedImageDto> {
-    const hash = v4();
-    const Key =
-      this.config.get("s3.uploadPrefix") + hash + "_" + file.originalname;
+    const hash = calculateHashForBuffer(file.buffer);
+    const extension = file.originalname.split(".").pop();
+
+    const Key = this.config.get("s3.uploadPrefix") + `${hash}.${extension}`;
 
     const putObjectCommandInput: PutObjectCommandInput = {
       Bucket: this.config.get("s3.bucket"),
