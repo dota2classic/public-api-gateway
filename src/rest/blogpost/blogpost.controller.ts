@@ -26,6 +26,8 @@ import { BlogpostMapper } from "./blogpost.mapper";
 import { WithPagination } from "../../utils/decorator/pagination";
 import { NullableIntPipe } from "../../utils/pipes";
 import { makePage } from "../../gateway/util/make-page";
+import { ForumApi } from "../../generated-api/forum";
+import { ThreadType } from "../../gateway/shared-types/thread-type";
 
 @Controller("blog")
 @ApiTags("blog")
@@ -34,6 +36,7 @@ export class BlogpostController {
     @InjectRepository(BlogpostEntity)
     private readonly blogpostEntityRepository: Repository<BlogpostEntity>,
     private readonly mapper: BlogpostMapper,
+    private readonly forumApi: ForumApi,
   ) {}
 
   @ModeratorGuard()
@@ -45,16 +48,20 @@ export class BlogpostController {
   ): Promise<BlogpostDto> {
     let blogpost: BlogpostEntity;
     if (dto.id) {
-      blogpost = await this.blogpostEntityRepository.findOne({
+      blogpost = await this.blogpostEntityRepository.findOneOrFail({
         where: { id: dto.id },
       });
     } else {
       blogpost = new BlogpostEntity();
       blogpost.author = user.steam_id;
+      blogpost.imageKey = `upload/dotaold.jpg`; // Very bad hack but wcyd
     }
     blogpost.content = dto.content;
-    blogpost.imageKey = dto.imageKey;
+    if (dto.imageKey) {
+      blogpost.imageKey = dto.imageKey;
+    }
     blogpost.title = dto.title;
+    blogpost.shortDescription = dto.shortDescription;
 
     return this.blogpostEntityRepository
       .save(blogpost)
@@ -68,10 +75,19 @@ export class BlogpostController {
     @CurrentUser() user: CurrentUserDto,
     @Param("id", ParseIntPipe) id: number,
   ): Promise<BlogpostDto> {
-    const blog = await this.blogpostEntityRepository.findOne({ where: { id } });
+    const blog = await this.blogpostEntityRepository.findOneOrFail({
+      where: { id },
+    });
+
+    if (blog.published) return this.mapper.mapPost(blog);
 
     blog.published = true;
     blog.publishedAt = new Date();
+    await this.forumApi.forumControllerGetThreadForKey({
+      threadType: ThreadType.BLOGPOST,
+      externalId: blog.id.toString(),
+      title: blog.title,
+    });
     return this.blogpostEntityRepository.save(blog).then(this.mapper.mapPost);
   }
 
@@ -80,7 +96,7 @@ export class BlogpostController {
     @Param("id", ParseIntPipe) id: number,
   ): Promise<BlogpostDto> {
     return this.blogpostEntityRepository
-      .findOne({
+      .findOneOrFail({
         where: { id, published: true },
       })
       .then(this.mapper.mapPost);
@@ -94,7 +110,7 @@ export class BlogpostController {
   ): Promise<BlogpostDto> {
     return this.blogpostEntityRepository
       .findOne({
-        where: { id, published: false },
+        where: { id },
       })
       .then(this.mapper.mapPost);
   }

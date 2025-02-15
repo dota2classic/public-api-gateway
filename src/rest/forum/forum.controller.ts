@@ -59,6 +59,9 @@ import { PlayerId } from "../../gateway/shared-types/player-id";
 import { ReqLoggingInterceptor } from "../../middleware/req-logging.interceptor";
 import { LiveMatchService } from "../../cache/live-match.service";
 import { WithOptionalUser } from "../../utils/decorator/with-optional-user";
+import { BlogpostEntity } from "../../entity/blogpost.entity";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Repository } from "typeorm";
 
 @UseInterceptors(ReqLoggingInterceptor)
 @Controller("forum")
@@ -71,6 +74,8 @@ export class ForumController {
     private readonly api: ForumApi,
     private readonly matchApi: MatchApi,
     private readonly liveMatchService: LiveMatchService,
+    @InjectRepository(BlogpostEntity)
+    private readonly blogpostEntityRepository: Repository<BlogpostEntity>,
   ) {}
 
   @ApiParam({
@@ -252,6 +257,21 @@ export class ForumController {
     if (threadType === ThreadType.FORUM || threadType === ThreadType.TICKET) {
       return this.api
         .forumControllerGetThread(`${threadType}_${id}`)
+        .then(this.mapper.mapThread);
+    } else if (threadType === ThreadType.BLOGPOST) {
+      await this.blogpostEntityRepository.findOneOrFail({
+        where: {
+          id: Number(id),
+          published: true,
+        },
+      });
+      return this.api
+        .forumControllerGetThreadForKey({
+          threadType: ThreadType.BLOGPOST,
+          externalId: id,
+          title: `Пост ${id}`,
+          op: undefined, // Make player author of its own thread
+        })
         .then(this.mapper.mapThread);
     } else if (threadType === ThreadType.LOBBY) {
       return this.api

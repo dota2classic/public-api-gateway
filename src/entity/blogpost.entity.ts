@@ -20,6 +20,13 @@ export class BlogpostEntity {
 
   @Column({
     type: "text",
+    name: "short_description",
+    default: "",
+  })
+  shortDescription: string;
+
+  @Column({
+    type: "text",
     name: "content",
   })
   content: string;

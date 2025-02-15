@@ -17,6 +17,7 @@ export class BlogpostMapper {
     id: post.id,
     content: post.content,
     title: post.title,
+    shortDescription: post.shortDescription,
     image: this.storageMapper.mapS3Item(post.imageKey),
 
     published: post.published,

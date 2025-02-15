@@ -7,13 +7,15 @@ export class UpdateBlogpostDraftDto {
 
   content: string;
   title: string;
-  imageKey: string;
+  shortDescription: string;
+  imageKey?: string;
 }
 
 export class BlogpostDto {
   id: number;
   content: string;
   title: string;
+  shortDescription: string;
   image: UploadedImageDto;
 
   published: boolean;

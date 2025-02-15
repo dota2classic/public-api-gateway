@@ -88,7 +88,9 @@ export class StorageController {
       Bucket: this.config.get("s3.bucket"),
       Prefix: this.config.get("s3.uploadPrefix"),
       ContinuationToken: ctoken,
+      MaxKeys: 50,
     } satisfies ListObjectsV2CommandInput);
+    console.log(response.KeyCount, response.Contents.length);
 
     return {
       items: response.Contents.map((it) => it.Key).map(this.mapper.mapS3Item),
