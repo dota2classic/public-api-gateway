@@ -122,6 +122,7 @@ import { StorageController } from "./rest/storage/storage.controller";
 import { StorageMapper } from "./rest/storage/storage.mapper";
 import { BlogpostController } from "./rest/blogpost/blogpost.controller";
 import { BlogpostMapper } from "./rest/blogpost/blogpost.mapper";
+import { StorageService } from "./rest/storage/storage.service";
 
 const OPENAPI_GENERATED: Provider[] = [
   {
@@ -351,6 +352,7 @@ const OPENAPI_GENERATED: Provider[] = [
     FeedbackService,
     AuthService,
     NotificationService,
+    StorageService,
 
     MatchMapper,
     PlayerMapper,

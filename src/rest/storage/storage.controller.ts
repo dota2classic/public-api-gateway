@@ -19,6 +19,7 @@ import { ConfigService } from "@nestjs/config";
 import { UploadedImageDto, UploadedImagePageDto } from "./storage.dto";
 import { StorageMapper } from "./storage.mapper";
 import { calculateHashForBuffer } from "../../utils/hashbuffer";
+import { StorageService } from "./storage.service";
 
 interface IFile {
   fieldname: string;
@@ -37,6 +38,7 @@ export class StorageController {
     @InjectS3() private readonly s3: S3,
     private readonly config: ConfigService,
     private readonly mapper: StorageMapper,
+    private readonly storageService: StorageService,
   ) {}
 
   @ApiBody({
@@ -56,17 +58,19 @@ export class StorageController {
   @UseInterceptors(FileInterceptor("file"))
   @Post("upload")
   public async uploadImage(
+    // @Query("width", NullableIntPipe) width: number,
     @UploadedFile() file: IFile,
   ): Promise<UploadedImageDto> {
     const hash = await calculateHashForBuffer(file.buffer);
-    const extension = file.originalname.split(".").pop();
 
-    const Key = this.config.get("s3.uploadPrefix") + `${hash}.${extension}`;
+    const newBody = await this.storageService.prepareImage(file.buffer);
+
+    const Key = this.config.get("s3.uploadPrefix") + `${hash}.webp`;
 
     const putObjectCommandInput: PutObjectCommandInput = {
       Bucket: this.config.get("s3.bucket"),
       Key,
-      Body: file.buffer,
+      Body: newBody,
       ContentType: file.mimetype,
       ACL: "public-read",
 

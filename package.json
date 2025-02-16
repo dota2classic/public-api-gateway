@@ -88,6 +88,7 @@
     "rimraf": "^3.0.2",
     "rxjs": "^7.8.1",
     "rxjs-async-map": "^0.3.0-preview.0",
+    "sharp": "^0.33.5",
     "swagger-ui-express": "^4.1.4",
     "typeorm": "^0.3.20",
     "web-push": "^3.6.7",
