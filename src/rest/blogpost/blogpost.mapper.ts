@@ -16,6 +16,7 @@ export class BlogpostMapper {
   public mapPost = async (post: BlogpostEntity): Promise<BlogpostDto> => ({
     id: post.id,
     content: post.content,
+    renderedContentHtml: post.renderedContentHtml,
     title: post.title,
     shortDescription: post.shortDescription,
     image: this.storageMapper.mapS3Item(post.imageKey),

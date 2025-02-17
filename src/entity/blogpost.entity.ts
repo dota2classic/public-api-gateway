@@ -31,6 +31,13 @@ export class BlogpostEntity {
   })
   content: string;
 
+  @Column({
+    type: "text",
+    name: "rendered_content_html",
+    default: "",
+  })
+  renderedContentHtml: string;
+
   @Column()
   author: string;
 

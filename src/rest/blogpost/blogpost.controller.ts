@@ -57,6 +57,7 @@ export class BlogpostController {
       blogpost.imageKey = `upload/dotaold.jpg`; // Very bad hack but wcyd
     }
     blogpost.content = dto.content;
+    blogpost.renderedContentHtml = dto.renderedContentHtml;
     if (dto.imageKey) {
       blogpost.imageKey = dto.imageKey;
     }

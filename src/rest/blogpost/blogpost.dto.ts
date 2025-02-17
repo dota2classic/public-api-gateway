@@ -6,6 +6,7 @@ export class UpdateBlogpostDraftDto {
   id?: number;
 
   content: string;
+  renderedContentHtml: string;
   title: string;
   shortDescription: string;
   imageKey?: string;
@@ -14,6 +15,7 @@ export class UpdateBlogpostDraftDto {
 export class BlogpostDto {
   id: number;
   content: string;
+  renderedContentHtml: string;
   title: string;
   shortDescription: string;
   image: UploadedImageDto;
