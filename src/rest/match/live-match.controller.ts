@@ -16,6 +16,7 @@ import {
 import { Observable, scan } from "rxjs";
 import { map } from "rxjs/operators";
 import { ReqLoggingInterceptor } from "../../middleware/req-logging.interceptor";
+import { getLobbyTypePriority } from "../../utils/getLobbyTypePriority";
 
 function wrapSse<A>() {
   return (source: A): MessageObjectDto<A> => ({
@@ -31,7 +32,13 @@ export class LiveMatchController {
 
   @Get("/list")
   async listMatches(): Promise<LiveMatchDto[]> {
-    return this.ls.list();
+    return this.ls
+      .list()
+      .sort(
+        (a, b) =>
+          getLobbyTypePriority(a.matchmakingMode) -
+          getLobbyTypePriority(b.matchmakingMode),
+      );
   }
 
   @ApiParam({
