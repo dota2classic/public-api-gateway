@@ -90,6 +90,7 @@ import {
   MatchApi,
   MetaApi,
   PlayerApi,
+  RecordApi,
 } from "./generated-api/gameserver";
 import { Provider } from "@nestjs/common/interfaces/modules/provider.interface";
 import {
@@ -123,6 +124,8 @@ import { StorageMapper } from "./rest/storage/storage.mapper";
 import { BlogpostController } from "./rest/blogpost/blogpost.controller";
 import { BlogpostMapper } from "./rest/blogpost/blogpost.mapper";
 import { StorageService } from "./rest/storage/storage.service";
+import { RecordController } from "./rest/record/record.controller";
+import { RecordMapper } from "./rest/record/record.mapper";
 
 const OPENAPI_GENERATED: Provider[] = [
   {
@@ -170,7 +173,15 @@ const OPENAPI_GENERATED: Provider[] = [
     },
     inject: [ConfigService],
   },
-
+  {
+    provide: RecordApi,
+    useFactory: (config: ConfigService) => {
+      return new RecordApi(
+        new GSConfiguration({ basePath: config.get("api.gameserverApiUrl") }),
+      );
+    },
+    inject: [ConfigService],
+  },
   {
     provide: ForumApi,
     useFactory: (config: ConfigService) => {
@@ -298,6 +309,8 @@ const OPENAPI_GENERATED: Provider[] = [
     AdminUserController,
     LobbyController,
 
+    RecordController,
+
     MetaController,
     StatsController,
     SteamController,
@@ -364,6 +377,7 @@ const OPENAPI_GENERATED: Provider[] = [
     FeedbackMapper,
     StorageMapper,
     BlogpostMapper,
+    RecordMapper,
 
     UserRepository,
     UserCreatedHandler,
