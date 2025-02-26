@@ -11,7 +11,6 @@ import {
 } from "@nestjs/common";
 import { CacheTTL } from "@nestjs/cache-manager";
 import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
-import { Dota2Version } from "../../gateway/shared-types/dota2version";
 import { PlayerApi } from "../../generated-api/gameserver";
 import { PlayerMapper } from "./player.mapper";
 import {
@@ -91,10 +90,7 @@ export class PlayerController {
   @WithUser()
   @CacheTTL(60)
   async me(@CurrentUser() user: CurrentUserDto): Promise<MeDto> {
-    const rawData = await this.ms.playerControllerPlayerSummary(
-      Dota2Version.Dota_681,
-      user.steam_id,
-    );
+    const rawData = await this.ms.playerControllerPlayerSummary(user.steam_id);
 
     const res = await this.ms.playerControllerBanInfo(user.steam_id);
 
@@ -165,10 +161,7 @@ export class PlayerController {
   async playerSummary(
     @Param("id") steam_id: string,
   ): Promise<PlayerSummaryDto> {
-    const rawData = await this.ms.playerControllerPlayerSummary(
-      Dota2Version.Dota_681,
-      steam_id,
-    );
+    const rawData = await this.ms.playerControllerPlayerSummary(steam_id);
 
     this.redisEventQueue.emit(
       UserMightExistEvent.name,
@@ -187,10 +180,7 @@ export class PlayerController {
   @UseInterceptors(HttpCacheInterceptor)
   @Get("/summary/hero/:id")
   async heroSummary(@Param("id") steam_id: string): Promise<HeroStatsDto[]> {
-    return this.ms.playerControllerPlayerHeroSummary(
-      Dota2Version.Dota_681,
-      steam_id,
-    );
+    return this.ms.playerControllerPlayerHeroSummary(steam_id);
   }
 
   @Get("/search")

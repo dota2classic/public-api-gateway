@@ -57,9 +57,9 @@ export class PlayerSummaryDto {
   id: string;
   mmr?: number;
   rank?: number;
-  unrankedGamesLeft: number;
-  playedAnyGame: boolean;
-  hasHumanGamesAccess: boolean;
+  // unrankedGamesLeft: number;
+  // playedAnyGame: boolean;
+  // hasHumanGamesAccess: boolean;
   calibrationGamesLeft: number;
 
   games_played: number;

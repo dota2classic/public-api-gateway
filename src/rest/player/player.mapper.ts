@@ -91,13 +91,10 @@ export class PlayerMapper {
       mmr: it.mmr,
       id: numSteamId(it.steam_id),
       rank: it.rank,
-      unrankedGamesLeft: it.newbieUnrankedGamesLeft,
-      playedAnyGame: it.playedAnyGame,
       wins: it.wins,
       loss: it.games - it.wins,
       games_played: it.games,
       calibrationGamesLeft: it.calibrationGamesLeft,
-      hasHumanGamesAccess: it.hasUnrankedAccess,
       accessMap: this.mapAccessLevel(it.accessLevel),
     };
   };

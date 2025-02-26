@@ -16,6 +16,8 @@
 import * as runtime from "../runtime";
 
 import {
+  GameserverGameSeasonDto,
+  GameserverGameSeasonDtoFromJSON,
   GameserverGameServerDto,
   GameserverGameServerDtoFromJSON,
   GameserverGameSessionDto,
@@ -116,26 +118,24 @@ export class InfoApi extends runtime.BaseAPI {
 
     /**
      */
-    infoControllerUpdateGamemodeContext(requestParameters: InfoControllerUpdateGamemodeRequest): runtime.RequestOpts {
+    infoControllerGetSeasonsContext(): runtime.RequestOpts {
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
 
-        headerParameters['Content-Type'] = 'application/json';
-
         return {
-            path: `/info/gamemode/{mode}`.replace(`{${"mode"}}`, encodeURIComponent(String(requestParameters.mode))),
-            method: 'PUT',
+            path: `/info/seasons`,
+            method: 'GET',
             headers: headerParameters,
             query: queryParameters,
-            body: GameserverUpdateGamemodeDtoToJSON(requestParameters.gameserverUpdateGamemodeDto),
         };
     }
 
     /**
      */
-    infoControllerUpdateGamemode = async (mode: number, gameserverUpdateGamemodeDto: GameserverUpdateGamemodeDto): Promise<void> => {
-        await this.infoControllerUpdateGamemodeRaw({ mode: mode, gameserverUpdateGamemodeDto: gameserverUpdateGamemodeDto });
+    infoControllerGetSeasons = async (): Promise<Array<GameserverGameSeasonDto>> => {
+        const response = await this.infoControllerGetSeasonsRaw();
+        return await response.value();
     }
 
     /**
@@ -201,6 +201,45 @@ export class InfoApi extends runtime.BaseAPI {
 
     /**
      */
+    infoControllerUpdateGamemodeContext(requestParameters: InfoControllerUpdateGamemodeRequest): runtime.RequestOpts {
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+        return {
+            path: `/info/gamemode/{mode}`.replace(`{${"mode"}}`, encodeURIComponent(String(requestParameters.mode))),
+            method: 'PUT',
+            headers: headerParameters,
+            query: queryParameters,
+            body: GameserverUpdateGamemodeDtoToJSON(requestParameters.gameserverUpdateGamemodeDto),
+        };
+    }
+
+    /**
+     */
+    infoControllerUpdateGamemode = async (mode: number, gameserverUpdateGamemodeDto: GameserverUpdateGamemodeDto): Promise<void> => {
+        await this.infoControllerUpdateGamemodeRaw({ mode: mode, gameserverUpdateGamemodeDto: gameserverUpdateGamemodeDto });
+    }
+
+    /**
+     */
+    private async infoControllerGamemodesRaw(): Promise<runtime.ApiResponse<Array<GameserverMatchmakingModeInfoDto>>> {
+        this.infoControllerGamemodesValidation();
+        const context = this.infoControllerGamemodesContext();
+        const response = await this.request(context);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(GameserverMatchmakingModeInfoDtoFromJSON));
+    }
+
+    /**
+     */
+    private infoControllerGamemodesValidation() {
+    }
+
+    /**
+     */
     private async infoControllerUpdateGamemodeRaw(requestParameters: InfoControllerUpdateGamemodeRequest): Promise<runtime.ApiResponse<void>> {
         this.infoControllerUpdateGamemodeValidation(requestParameters);
         const context = this.infoControllerUpdateGamemodeContext(requestParameters);
@@ -224,17 +263,17 @@ export class InfoApi extends runtime.BaseAPI {
 
     /**
      */
-    private async infoControllerGamemodesRaw(): Promise<runtime.ApiResponse<Array<GameserverMatchmakingModeInfoDto>>> {
-        this.infoControllerGamemodesValidation();
-        const context = this.infoControllerGamemodesContext();
+    private async infoControllerGetSeasonsRaw(): Promise<runtime.ApiResponse<Array<GameserverGameSeasonDto>>> {
+        this.infoControllerGetSeasonsValidation();
+        const context = this.infoControllerGetSeasonsContext();
         const response = await this.request(context);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(GameserverMatchmakingModeInfoDtoFromJSON));
+        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(GameserverGameSeasonDtoFromJSON));
     }
 
     /**
      */
-    private infoControllerGamemodesValidation() {
+    private infoControllerGetSeasonsValidation() {
     }
 
 }

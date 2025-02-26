@@ -23,25 +23,7 @@ export class GameserverPlayerSummaryDto {
      * @type {number}
      * @memberof GameserverPlayerSummaryDto
      */
-    newbieUnrankedGamesLeft: number;
-    /**
-     *
-     * @type {boolean}
-     * @memberof GameserverPlayerSummaryDto
-     */
-    playedAnyGame: boolean;
-    /**
-     *
-     * @type {number}
-     * @memberof GameserverPlayerSummaryDto
-     */
     calibrationGamesLeft: number;
-    /**
-     *
-     * @type {boolean}
-     * @memberof GameserverPlayerSummaryDto
-     */
-    hasUnrankedAccess: boolean;
     /**
      *
      * @type {number}
@@ -59,7 +41,7 @@ export class GameserverPlayerSummaryDto {
      * @type {string}
      * @memberof GameserverPlayerSummaryDto
      */
-    steam_id: string;
+    steamId: string;
     /**
      *
      * @type {number}
@@ -72,6 +54,12 @@ export class GameserverPlayerSummaryDto {
      * @memberof GameserverPlayerSummaryDto
      */
     games: number;
+    /**
+     *
+     * @type {number}
+     * @memberof GameserverPlayerSummaryDto
+     */
+    seasonGames: number;
     /**
      *
      * @type {number}
@@ -101,7 +89,7 @@ export class GameserverPlayerSummaryDto {
      * @type {number}
      * @memberof GameserverPlayerSummaryDto
      */
-    play_time: number;
+    playtime: number;
 }
 
 export function GameserverPlayerSummaryDtoFromJSON(json: any): GameserverPlayerSummaryDto {
@@ -114,20 +102,18 @@ export function GameserverPlayerSummaryDtoFromJSONTyped(json: any, ignoreDiscrim
     }
     return {
 
-        'newbieUnrankedGamesLeft': json['newbieUnrankedGamesLeft'],
-        'playedAnyGame': json['playedAnyGame'],
         'calibrationGamesLeft': json['calibrationGamesLeft'],
-        'hasUnrankedAccess': json['hasUnrankedAccess'],
         'accessLevel': json['accessLevel'],
         'rank': json['rank'],
-        'steam_id': json['steam_id'],
+        'steamId': json['steamId'],
         'mmr': json['mmr'],
         'games': json['games'],
+        'seasonGames': json['seasonGames'],
         'wins': json['wins'],
         'kills': json['kills'],
         'deaths': json['deaths'],
         'assists': json['assists'],
-        'play_time': json['play_time'],
+        'playtime': json['playtime'],
     };
 }
 
@@ -140,20 +126,18 @@ export function GameserverPlayerSummaryDtoToJSON(value?: GameserverPlayerSummary
     }
     return {
 
-        'newbieUnrankedGamesLeft': value.newbieUnrankedGamesLeft,
-        'playedAnyGame': value.playedAnyGame,
         'calibrationGamesLeft': value.calibrationGamesLeft,
-        'hasUnrankedAccess': value.hasUnrankedAccess,
         'accessLevel': value.accessLevel,
         'rank': value.rank,
-        'steam_id': value.steam_id,
+        'steamId': value.steamId,
         'mmr': value.mmr,
         'games': value.games,
+        'seasonGames': value.seasonGames,
         'wins': value.wins,
         'kills': value.kills,
         'deaths': value.deaths,
         'assists': value.assists,
-        'play_time': value.play_time,
+        'playtime': value.playtime,
     };
 }
 

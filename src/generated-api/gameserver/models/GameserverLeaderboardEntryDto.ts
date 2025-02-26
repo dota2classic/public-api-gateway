@@ -29,7 +29,7 @@ export class GameserverLeaderboardEntryDto {
      * @type {string}
      * @memberof GameserverLeaderboardEntryDto
      */
-    steam_id: string;
+    steamId: string;
     /**
      *
      * @type {number}
@@ -42,6 +42,12 @@ export class GameserverLeaderboardEntryDto {
      * @memberof GameserverLeaderboardEntryDto
      */
     games: number;
+    /**
+     *
+     * @type {number}
+     * @memberof GameserverLeaderboardEntryDto
+     */
+    seasonGames: number;
     /**
      *
      * @type {number}
@@ -71,7 +77,7 @@ export class GameserverLeaderboardEntryDto {
      * @type {number}
      * @memberof GameserverLeaderboardEntryDto
      */
-    play_time: number;
+    playtime: number;
 }
 
 export function GameserverLeaderboardEntryDtoFromJSON(json: any): GameserverLeaderboardEntryDto {
@@ -85,14 +91,15 @@ export function GameserverLeaderboardEntryDtoFromJSONTyped(json: any, ignoreDisc
     return {
 
         'rank': json['rank'],
-        'steam_id': json['steam_id'],
+        'steamId': json['steamId'],
         'mmr': json['mmr'],
         'games': json['games'],
+        'seasonGames': json['seasonGames'],
         'wins': json['wins'],
         'kills': json['kills'],
         'deaths': json['deaths'],
         'assists': json['assists'],
-        'play_time': json['play_time'],
+        'playtime': json['playtime'],
     };
 }
 
@@ -106,14 +113,15 @@ export function GameserverLeaderboardEntryDtoToJSON(value?: GameserverLeaderboar
     return {
 
         'rank': value.rank,
-        'steam_id': value.steam_id,
+        'steamId': value.steamId,
         'mmr': value.mmr,
         'games': value.games,
+        'seasonGames': value.seasonGames,
         'wins': value.wins,
         'kills': value.kills,
         'deaths': value.deaths,
         'assists': value.assists,
-        'play_time': value.play_time,
+        'playtime': value.playtime,
     };
 }
 
