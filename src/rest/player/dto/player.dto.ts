@@ -40,7 +40,6 @@ export class MeDto {
   @ApiProperty({ enum: Role, enumName: "Role" })
   roles: Role[];
   rank: number;
-  unrankedGamesLeft: number;
   banStatus: BanStatusDto;
   reportsAvailable: number;
 }

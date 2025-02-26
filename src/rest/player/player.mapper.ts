@@ -48,15 +48,15 @@ export class PlayerMapper {
   ): Promise<LeaderboardEntryDto> => {
     return {
       mmr: it.mmr,
-      id: numSteamId(it.steam_id),
-      user: await this.userRepository.userDto(it.steam_id),
+      id: numSteamId(it.steamId),
+      user: await this.userRepository.userDto(it.steamId),
 
       games: it.games,
       kills: it.kills,
       deaths: it.deaths,
       assists: it.assists,
       wins: it.wins,
-      play_time: it.play_time,
+      play_time: it.playtime,
       rank: it.rank,
     };
   };
@@ -69,11 +69,10 @@ export class PlayerMapper {
   ): Promise<MeDto> => {
     return {
       mmr: it.mmr,
-      user: await this.userRepository.userDto(it.steam_id),
-      roles: await this.userRepository.roles(it.steam_id),
-      id: numSteamId(it.steam_id),
+      user: await this.userRepository.userDto(it.steamId),
+      roles: await this.userRepository.roles(it.steamId),
+      id: numSteamId(it.steamId),
       rank: it.rank,
-      unrankedGamesLeft: it.newbieUnrankedGamesLeft,
       banStatus: {
         isBanned: status.isBanned,
         bannedUntil: status.bannedUntil,
@@ -87,9 +86,9 @@ export class PlayerMapper {
     it: GameserverPlayerSummaryDto,
   ): Promise<PlayerSummaryDto> => {
     return {
-      user: await this.userRepository.userDto(it.steam_id),
+      user: await this.userRepository.userDto(it.steamId),
       mmr: it.mmr,
-      id: numSteamId(it.steam_id),
+      id: numSteamId(it.steamId),
       rank: it.rank,
       wins: it.wins,
       loss: it.games - it.wins,
@@ -119,7 +118,7 @@ export class PlayerMapper {
       players: await Promise.all(
         party.players.map(async (plr) => {
           const status = banStatuses.find((t) => t.steam_id === plr);
-          const summary = summaries.find((t) => t.steam_id === plr);
+          const summary = summaries.find((t) => t.steamId === plr);
           const session = sessions.find((t) => t.steamId === plr);
 
           return {

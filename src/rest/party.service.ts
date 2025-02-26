@@ -4,7 +4,6 @@ import { GetPartyQueryResult } from "../gateway/queries/GetParty/get-party-query
 import { PlayerId } from "../gateway/shared-types/player-id";
 import { GetSessionByUserQuery } from "../gateway/queries/GetSessionByUser/get-session-by-user.query";
 import { GetSessionByUserQueryResult } from "../gateway/queries/GetSessionByUser/get-session-by-user-query.result";
-import { Dota2Version } from "../gateway/shared-types/dota2version";
 import { QueryBus } from "@nestjs/cqrs";
 import { PlayerApi } from "../generated-api/gameserver";
 import { PlayerMapper } from "./player/player.mapper";
@@ -40,7 +39,7 @@ export class PartyService {
 
     const summaries = await Promise.all(
       party.players.map((steamId) =>
-        this.api.playerControllerPlayerSummary(Dota2Version.Dota_684, steamId),
+        this.api.playerControllerPlayerSummary(steamId),
       ),
     );
     return this.mapper.mapParty(party, banStatuses, summaries, sessions);
