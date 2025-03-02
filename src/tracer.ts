@@ -9,7 +9,9 @@ import { UndiciInstrumentation } from "@opentelemetry/instrumentation-undici";
 import { NestInstrumentation } from "@opentelemetry/instrumentation-nestjs-core";
 import { ExpressInstrumentation } from "@opentelemetry/instrumentation-express";
 import configuration from "./config/configuration";
-// import { FetchInstrumentation } from "@onreza/opentelemetry-instrumentation-fetch-bun";
+import { getNodeAutoInstrumentations } from "@opentelemetry/auto-instrumentations-node";
+import { HttpInstrumentation } from "@opentelemetry/instrumentation-http";
+
 const cfg = configuration();
 const exporterOptions = {
   url: cfg.telemetry.jaeger.url, // grcp
@@ -21,11 +23,8 @@ export const otelSDK = new NodeSDK({
   traceExporter,
   // spanProcessor: new SimpleSpanProcessor(consoleSpanExporter),
   instrumentations: [
-    // new FetchInstrumentation({
-    //   propagateTraceHeaderCorsUrls: new RegExp(".*"),
-    // }),
-    // getNodeAutoInstrumentations(),
-    // new HttpInstrumentation(),
+    getNodeAutoInstrumentations(),
+    new HttpInstrumentation(),
     new ExpressInstrumentation(),
     new NestInstrumentation(),
   ],
