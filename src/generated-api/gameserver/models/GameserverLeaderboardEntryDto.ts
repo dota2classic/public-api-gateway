@@ -35,6 +35,12 @@ export class GameserverLeaderboardEntryDto {
      * @type {number}
      * @memberof GameserverLeaderboardEntryDto
      */
+    seasonId: number;
+    /**
+     *
+     * @type {number}
+     * @memberof GameserverLeaderboardEntryDto
+     */
     mmr: number;
     /**
      *
@@ -42,12 +48,6 @@ export class GameserverLeaderboardEntryDto {
      * @memberof GameserverLeaderboardEntryDto
      */
     games: number;
-    /**
-     *
-     * @type {number}
-     * @memberof GameserverLeaderboardEntryDto
-     */
-    seasonGames: number;
     /**
      *
      * @type {number}
@@ -92,9 +92,9 @@ export function GameserverLeaderboardEntryDtoFromJSONTyped(json: any, ignoreDisc
 
         'rank': json['rank'],
         'steamId': json['steamId'],
+        'seasonId': json['seasonId'],
         'mmr': json['mmr'],
         'games': json['games'],
-        'seasonGames': json['seasonGames'],
         'wins': json['wins'],
         'kills': json['kills'],
         'deaths': json['deaths'],
@@ -114,9 +114,9 @@ export function GameserverLeaderboardEntryDtoToJSON(value?: GameserverLeaderboar
 
         'rank': value.rank,
         'steamId': value.steamId,
+        'seasonId': value.seasonId,
         'mmr': value.mmr,
         'games': value.games,
-        'seasonGames': value.seasonGames,
         'wins': value.wins,
         'kills': value.kills,
         'deaths': value.deaths,

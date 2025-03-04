@@ -5,10 +5,10 @@ import {
   InfoApi,
 } from "../../generated-api/gameserver";
 import {
-  CurrentOnlineDto,
+  CurrentOnlineDto, GameSeasonDto,
   MatchmakingInfo,
   PerModePlayersDto,
-} from "./dto/stats.dto";
+} from './dto/stats.dto';
 import { CacheTTL } from "@nestjs/cache-manager";
 import { ReqLoggingInterceptor } from "../../middleware/req-logging.interceptor";
 import { MatchmakingModes } from "../../gateway/shared-types/matchmaking-mode";
@@ -22,6 +22,12 @@ export class StatsController {
   @Get("/matchmaking")
   async getMatchmakingInfo(): Promise<MatchmakingInfo[]> {
     return this.ms.infoControllerGamemodes();
+  }
+
+
+  @Get("/seasons")
+  async getGameSeasons(): Promise<GameSeasonDto[]> {
+    return this.ms.infoControllerGetSeasons();
   }
 
   @Get("/servers")

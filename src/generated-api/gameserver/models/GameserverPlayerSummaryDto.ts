@@ -47,6 +47,12 @@ export class GameserverPlayerSummaryDto {
      * @type {number}
      * @memberof GameserverPlayerSummaryDto
      */
+    seasonId: number;
+    /**
+     *
+     * @type {number}
+     * @memberof GameserverPlayerSummaryDto
+     */
     mmr: number;
     /**
      *
@@ -54,12 +60,6 @@ export class GameserverPlayerSummaryDto {
      * @memberof GameserverPlayerSummaryDto
      */
     games: number;
-    /**
-     *
-     * @type {number}
-     * @memberof GameserverPlayerSummaryDto
-     */
-    seasonGames: number;
     /**
      *
      * @type {number}
@@ -106,9 +106,9 @@ export function GameserverPlayerSummaryDtoFromJSONTyped(json: any, ignoreDiscrim
         'accessLevel': json['accessLevel'],
         'rank': json['rank'],
         'steamId': json['steamId'],
+        'seasonId': json['seasonId'],
         'mmr': json['mmr'],
         'games': json['games'],
-        'seasonGames': json['seasonGames'],
         'wins': json['wins'],
         'kills': json['kills'],
         'deaths': json['deaths'],
@@ -130,9 +130,9 @@ export function GameserverPlayerSummaryDtoToJSON(value?: GameserverPlayerSummary
         'accessLevel': value.accessLevel,
         'rank': value.rank,
         'steamId': value.steamId,
+        'seasonId': value.seasonId,
         'mmr': value.mmr,
         'games': value.games,
-        'seasonGames': value.seasonGames,
         'wins': value.wins,
         'kills': value.kills,
         'deaths': value.deaths,

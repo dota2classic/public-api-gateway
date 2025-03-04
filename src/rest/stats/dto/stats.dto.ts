@@ -30,3 +30,11 @@ export class PerModePlayersDto {
 
   playerCount: number;
 }
+
+
+export class GameSeasonDto {
+  id: number;
+  startTimestamp: string;
+  isActive: boolean;
+}
+

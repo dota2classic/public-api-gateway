@@ -53,6 +53,7 @@ export interface PlayerControllerGetHeroPlayersRequest {
 export interface PlayerControllerLeaderboardRequest {
     page: number;
     perPage?: number;
+    seasonId?: number;
 }
 
 export interface PlayerControllerPlayerAchievementsRequest {
@@ -199,6 +200,10 @@ export class PlayerApi extends runtime.BaseAPI {
             queryParameters['per_page'] = requestParameters.perPage;
         }
 
+        if (requestParameters.seasonId !== undefined) {
+            queryParameters['season_id'] = requestParameters.seasonId;
+        }
+
         const headerParameters: runtime.HTTPHeaders = {};
 
         return {
@@ -211,8 +216,8 @@ export class PlayerApi extends runtime.BaseAPI {
 
     /**
      */
-    playerControllerLeaderboard = async (page: number, perPage?: number): Promise<GameserverLeaderboardEntryPageDto> => {
-        const response = await this.playerControllerLeaderboardRaw({ page: page, perPage: perPage });
+    playerControllerLeaderboard = async (page: number, perPage?: number, seasonId?: number): Promise<GameserverLeaderboardEntryPageDto> => {
+        const response = await this.playerControllerLeaderboardRaw({ page: page, perPage: perPage, seasonId: seasonId });
         return await response.value();
     }
 

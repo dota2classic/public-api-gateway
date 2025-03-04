@@ -10,7 +10,7 @@ import {
   UseInterceptors,
 } from "@nestjs/common";
 import { CacheTTL } from "@nestjs/cache-manager";
-import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
+import { ApiBearerAuth, ApiQuery, ApiTags } from "@nestjs/swagger";
 import { PlayerApi } from "../../generated-api/gameserver";
 import { PlayerMapper } from "./player.mapper";
 import {
@@ -114,11 +114,20 @@ export class PlayerController {
   @CacheTTL(60 * 30)
   @Get("/leaderboard")
   @WithPagination()
+  @ApiQuery({
+    name: "season_id",
+    required: false,
+  })
   async leaderboard(
     @Query("page") page: number,
     @Query("per_page", NullableIntPipe) perPage: number = 25,
+    @Query("season_id", NullableIntPipe) seasonId?: number,
   ): Promise<LeaderboardEntryPageDto> {
-    const rawPage = await this.ms.playerControllerLeaderboard(page, perPage);
+    const rawPage = await this.ms.playerControllerLeaderboard(
+      page,
+      perPage,
+      seasonId,
+    );
 
     return {
       data: await Promise.all(
