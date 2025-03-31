@@ -1,10 +1,8 @@
 import {
-  Body,
   Controller,
   Get,
   Inject,
   Param,
-  Post,
   Query,
   UseGuards,
   UseInterceptors,
@@ -34,7 +32,6 @@ import { UserMightExistEvent } from "../../gateway/events/user/user-might-exist.
 import { ClientProxy } from "@nestjs/microservices";
 import { HeroStatsDto } from "./dto/hero.dto";
 import { HttpCacheInterceptor } from "../../utils/cache-key-track";
-import { ReportDto } from "./dto/report.dto";
 import { GetReportsAvailableQuery } from "../../gateway/queries/GetReportsAvailable/get-reports-available.query";
 import { GetReportsAvailableQueryResult } from "../../gateway/queries/GetReportsAvailable/get-reports-available-query.result";
 import { UserDTO } from "../shared.dto";
@@ -214,26 +211,5 @@ export class PlayerController {
         roles: it.roles,
         avatarSmall: it.avatar && it.avatar.replace("_full", "_medium"),
       }));
-  }
-
-  @Post("/report")
-  @WithUser()
-  async reportPlayer(
-    @CurrentUser() user: CurrentUserDto,
-    @Body() dto: ReportDto,
-  ): Promise<boolean> {
-    try {
-      await this.ms.playerControllerReportPlayer({
-        reported: new PlayerId(dto.reported),
-        reporter: new PlayerId(user.steam_id),
-        matchId: dto.matchId,
-        text: dto.text.substr(0, 500),
-      });
-      return true;
-    } catch (e) {
-      return false;
-    } finally {
-      console.log("hehehehe", dto.matchId);
-    }
   }
 }

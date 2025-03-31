@@ -55,6 +55,8 @@ export class MatchMapper {
         it.dire.find((z) => z.steam_id === mapFor.id.value)) &&
       timeDiff <= MATCH_REPORT_TIMEOUT &&
       mapFor.available > 0;
+
+    console.log("Reportable?", timeDiff <= MATCH_REPORT_TIMEOUT, mapFor);
     return {
       id: it.id,
       mode: it.mode,

@@ -5,4 +5,5 @@ export * from "./Dota_Map";
 export * from "./GameserverAchievementKey";
 export * from "./BanReason";
 export * from "./Role";
+export * from "./PlayerAspect";
 

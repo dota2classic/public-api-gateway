@@ -1,16 +1,18 @@
 import {
+  Body,
   Controller,
   Get,
   NotFoundException,
   Param,
+  Put,
   Query,
   UseInterceptors,
 } from "@nestjs/common";
 import { CacheTTL } from "@nestjs/cache-manager";
 import { ApiParam, ApiQuery, ApiTags } from "@nestjs/swagger";
 import { MatchmakingMode } from "../../gateway/shared-types/matchmaking-mode";
-import { MatchApi } from "../../generated-api/gameserver";
-import { MatchDto, MatchPageDto } from "./dto/match.dto";
+import { MatchApi, PlayerApi } from "../../generated-api/gameserver";
+import { MatchDto, MatchPageDto, ReportPlayerDto } from "./dto/match.dto";
 import { MatchMapper } from "./match.mapper";
 import { WithOptionalUser } from "../../utils/decorator/with-optional-user";
 import {
@@ -24,6 +26,7 @@ import { GetReportsAvailableQuery } from "../../gateway/queries/GetReportsAvaila
 import { GetReportsAvailableQueryResult } from "../../gateway/queries/GetReportsAvailable/get-reports-available-query.result";
 import { WithPagination } from "../../utils/decorator/pagination";
 import { ReqLoggingInterceptor } from "../../middleware/req-logging.interceptor";
+import { WithUser } from "../../utils/decorator/with-user";
 
 @UseInterceptors(ReqLoggingInterceptor)
 @Controller("match")
@@ -33,6 +36,7 @@ export class MatchController {
     private readonly mapper: MatchMapper,
     private readonly qbus: QueryBus,
     private readonly ms: MatchApi,
+    private readonly ps: PlayerApi,
   ) {}
 
   @UseInterceptors(HttpCacheInterceptor)
@@ -124,5 +128,20 @@ export class MatchController {
     return this.ms
       .matchControllerPlayerMatches(steam_id, page, perPage, mode, hero)
       .then((t) => this.mapper.mapMatchPage(t));
+  }
+
+  @WithUser()
+  @Put("/report")
+  public async reportPlayerInMatch(
+    @CurrentUser() user: CurrentUserDto,
+    @Body() dto: ReportPlayerDto,
+  ) {
+    await this.ps.playerControllerReportPlayer({
+      reporterSteamId: user.steam_id,
+      reportedSteamId: dto.steamId,
+      text: dto.comment,
+      aspect: dto.aspect,
+      matchId: dto.matchId,
+    });
   }
 }

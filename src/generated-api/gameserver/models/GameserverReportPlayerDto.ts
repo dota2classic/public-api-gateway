@@ -12,6 +12,8 @@
  * Do not edit the class manually.
  */
 
+import { GameserverPlayerAspect, GameserverPlayerAspectFromJSON, GameserverPlayerAspectToJSON } from './';
+
 /**
  *
  * @export
@@ -20,16 +22,22 @@
 export class GameserverReportPlayerDto {
     /**
      *
-     * @type {object}
+     * @type {GameserverPlayerAspect}
      * @memberof GameserverReportPlayerDto
      */
-    reported: object;
+    aspect: GameserverPlayerAspect;
     /**
      *
-     * @type {object}
+     * @type {string}
      * @memberof GameserverReportPlayerDto
      */
-    reporter: object;
+    reportedSteamId: string;
+    /**
+     *
+     * @type {string}
+     * @memberof GameserverReportPlayerDto
+     */
+    reporterSteamId: string;
     /**
      *
      * @type {string}
@@ -54,8 +62,9 @@ export function GameserverReportPlayerDtoFromJSONTyped(json: any, ignoreDiscrimi
     }
     return {
 
-        'reported': json['reported'],
-        'reporter': json['reporter'],
+        'aspect': GameserverPlayerAspectFromJSON(json['aspect']),
+        'reportedSteamId': json['reportedSteamId'],
+        'reporterSteamId': json['reporterSteamId'],
         'text': json['text'],
         'matchId': json['matchId'],
     };
@@ -70,8 +79,9 @@ export function GameserverReportPlayerDtoToJSON(value?: GameserverReportPlayerDt
     }
     return {
 
-        'reported': value.reported,
-        'reporter': value.reporter,
+        'aspect': GameserverPlayerAspectToJSON(value.aspect),
+        'reportedSteamId': value.reportedSteamId,
+        'reporterSteamId': value.reporterSteamId,
         'text': value.text,
         'matchId': value.matchId,
     };
