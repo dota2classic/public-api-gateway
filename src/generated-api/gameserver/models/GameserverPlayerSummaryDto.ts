@@ -13,9 +13,12 @@
  */
 
 import {
-    GameserverPlayerAspectCountDto,
-    GameserverPlayerAspectCountDtoFromJSON,
-    GameserverPlayerAspectCountDtoToJSON,
+  GameserverMatchAccessLevel,
+  GameserverMatchAccessLevelFromJSON,
+  GameserverMatchAccessLevelToJSON,
+  GameserverPlayerAspectCountDto,
+  GameserverPlayerAspectCountDtoFromJSON,
+  GameserverPlayerAspectCountDtoToJSON,
 } from './';
 
 /**
@@ -26,16 +29,16 @@ import {
 export class GameserverPlayerSummaryDto {
     /**
      *
-     * @type {number}
+     * @type {GameserverMatchAccessLevel}
      * @memberof GameserverPlayerSummaryDto
      */
-    calibrationGamesLeft: number;
+    accessLevel: GameserverMatchAccessLevel;
     /**
      *
      * @type {number}
      * @memberof GameserverPlayerSummaryDto
      */
-    accessLevel: GameserverPlayerSummaryDtoAccessLevelEnum;
+    calibrationGamesLeft: number;
     /**
      *
      * @type {Array<GameserverPlayerAspectCountDto>}
@@ -114,8 +117,8 @@ export function GameserverPlayerSummaryDtoFromJSONTyped(json: any, ignoreDiscrim
     }
     return {
 
+        'accessLevel': GameserverMatchAccessLevelFromJSON(json['accessLevel']),
         'calibrationGamesLeft': json['calibrationGamesLeft'],
-        'accessLevel': json['accessLevel'],
         'reports': ((json['reports'] as Array<any>).map(GameserverPlayerAspectCountDtoFromJSON)),
         'rank': json['rank'],
         'steamId': json['steamId'],
@@ -139,8 +142,8 @@ export function GameserverPlayerSummaryDtoToJSON(value?: GameserverPlayerSummary
     }
     return {
 
+        'accessLevel': GameserverMatchAccessLevelToJSON(value.accessLevel),
         'calibrationGamesLeft': value.calibrationGamesLeft,
-        'accessLevel': value.accessLevel,
         'reports': ((value.reports as Array<any>).map(GameserverPlayerAspectCountDtoToJSON)),
         'rank': value.rank,
         'steamId': value.steamId,
@@ -153,16 +156,6 @@ export function GameserverPlayerSummaryDtoToJSON(value?: GameserverPlayerSummary
         'assists': value.assists,
         'playtime': value.playtime,
     };
-}
-
-/**
-* @export
-* @enum {string}
-*/
-export enum GameserverPlayerSummaryDtoAccessLevelEnum {
-    NUMBER_0 = 0,
-    NUMBER_1 = 1,
-    NUMBER_2 = 2
 }
 
 

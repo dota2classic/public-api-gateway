@@ -6,4 +6,5 @@ export * from "./GameserverAchievementKey";
 export * from "./BanReason";
 export * from "./Role";
 export * from "./PlayerAspect";
+export * from "./MatchAccessLevel";
 

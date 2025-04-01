@@ -4,7 +4,6 @@ import {
   GameserverBanStatusDto,
   GameserverLeaderboardEntryDto,
   GameserverPlayerSummaryDto,
-  GameserverPlayerSummaryDtoAccessLevelEnum,
   GameserverPlayerTeammateDto,
 } from "../../generated-api/gameserver/models";
 import { UserRepository } from "../../cache/user/user.repository";
@@ -24,6 +23,7 @@ import { UserDTO } from "../shared.dto";
 import { AchievementDto } from "./dto/achievement.dto";
 import { MatchMapper } from "../match/match.mapper";
 import { GetSessionByUserQueryResult } from "../../gateway/queries/GetSessionByUser/get-session-by-user-query.result";
+import { MatchAccessLevel } from "../../gateway/shared-types/match-access-level";
 
 @Injectable()
 export class PlayerMapper {
@@ -106,9 +106,7 @@ export class PlayerMapper {
     };
   };
 
-  public mapAccessLevel = (
-    it: GameserverPlayerSummaryDtoAccessLevelEnum,
-  ): GamemodeAccessMap => ({
+  public mapAccessLevel = (it: MatchAccessLevel): GamemodeAccessMap => ({
     education: true,
     simpleModes: it !== 0,
     humanGames: it == 2,
