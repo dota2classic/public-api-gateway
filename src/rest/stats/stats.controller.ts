@@ -5,15 +5,17 @@ import {
   InfoApi,
 } from "../../generated-api/gameserver";
 import {
-  CurrentOnlineDto, GameSeasonDto,
+  CurrentOnlineDto,
+  GameSeasonDto,
   MatchmakingInfo,
   PerModePlayersDto,
-} from './dto/stats.dto';
+} from "./dto/stats.dto";
 import { CacheTTL } from "@nestjs/cache-manager";
 import { ReqLoggingInterceptor } from "../../middleware/req-logging.interceptor";
 import { MatchmakingModes } from "../../gateway/shared-types/matchmaking-mode";
+import { HttpCacheInterceptor } from "../../utils/cache-key-track";
 
-@UseInterceptors(ReqLoggingInterceptor)
+@UseInterceptors(ReqLoggingInterceptor, HttpCacheInterceptor)
 @Controller("stats")
 @ApiTags("stats")
 export class StatsController {
@@ -24,7 +26,7 @@ export class StatsController {
     return this.ms.infoControllerGamemodes();
   }
 
-
+  @CacheTTL(60_000)
   @Get("/seasons")
   async getGameSeasons(): Promise<GameSeasonDto[]> {
     return this.ms.infoControllerGetSeasons();
@@ -38,7 +40,7 @@ export class StatsController {
   }
 
   @Get("/online")
-  @CacheTTL(10)
+  @CacheTTL(1000)
   async online(): Promise<CurrentOnlineDto> {
     const [online, sessions, servers] = await Promise.all<any>([
       this.ms.infoControllerGetCurrentOnline(),
