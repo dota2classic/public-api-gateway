@@ -4,6 +4,7 @@ import { BanStatusDto } from "../../admin/dto/admin.dto";
 import { UserDTO } from "../../shared.dto";
 import { ApiProperty } from "@nestjs/swagger";
 import { Page } from "../../../gateway/shared-types/page";
+import { PlayerAspect } from "../../../gateway/shared-types/player-aspect";
 
 export class LeaderboardEntryDto {
   user: UserDTO;
@@ -50,15 +51,19 @@ export class GamemodeAccessMap {
   humanGames: boolean;
 }
 
+export class PlayerAspectDto {
+  @ApiProperty({ enum: PlayerAspect, enumName: "PlayerAspect" })
+  aspect: PlayerAspect;
+
+  count: number;
+}
+
 export class PlayerSummaryDto {
   user: UserDTO;
 
   id: string;
   mmr?: number;
   rank?: number;
-  // unrankedGamesLeft: number;
-  // playedAnyGame: boolean;
-  // hasHumanGamesAccess: boolean;
   calibrationGamesLeft: number;
 
   games_played: number;
@@ -66,7 +71,14 @@ export class PlayerSummaryDto {
   wins: number;
   loss: number;
 
+  kills: number;
+  deaths: number;
+  assists: number;
+
+  playtime: number;
+
   accessMap: GamemodeAccessMap;
+  aspects: PlayerAspectDto[];
 
   // asdfsa
 }

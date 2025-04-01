@@ -85,7 +85,7 @@ export class PlayerMapper {
   public mapPlayerSummary = async (
     it: GameserverPlayerSummaryDto,
   ): Promise<PlayerSummaryDto> => {
-    console.log(it)
+    console.log(it);
     return {
       user: await this.userRepository.userDto(it.steamId),
       mmr: it.mmr,
@@ -96,6 +96,13 @@ export class PlayerMapper {
       games_played: it.games,
       calibrationGamesLeft: it.calibrationGamesLeft,
       accessMap: this.mapAccessLevel(it.accessLevel),
+      aspects: it.reports,
+
+      kills: it.kills,
+      deaths: it.deaths,
+      assists: it.assists,
+
+      playtime: it.playtime,
     };
   };
 

@@ -13,12 +13,9 @@ import {
   PlayerInMatchDto,
 } from "./dto/match.dto";
 import { MATCH_REPORT_TIMEOUT } from "../../gateway/shared-types/timings";
-import { GetReportsAvailableQueryResult } from "../../gateway/queries/GetReportsAvailable/get-reports-available-query.result";
 import { ConfigService } from "@nestjs/config";
 import { MatchmakingMode } from "../../gateway/shared-types/matchmaking-mode";
 
-export interface PlayerMappableResource
-  extends GetReportsAvailableQueryResult {}
 @Injectable()
 export class MatchMapper {
   constructor(
@@ -46,17 +43,15 @@ export class MatchMapper {
 
   public mapMatch = async (
     it: GameserverMatchDto,
-    mapFor?: PlayerMappableResource,
+    mapForSteamId?: string,
   ): Promise<MatchDto> => {
     const timeDiff = new Date().getTime() - new Date(it.timestamp).getTime();
     const isReportable =
-      mapFor !== undefined &&
-      (it.radiant.find((z) => z.steam_id === mapFor.id.value) ||
-        it.dire.find((z) => z.steam_id === mapFor.id.value)) &&
-      timeDiff <= MATCH_REPORT_TIMEOUT &&
-      mapFor.available > 0;
+      mapForSteamId !== undefined &&
+      (it.radiant.find((z) => z.steam_id === mapForSteamId) ||
+        it.dire.find((z) => z.steam_id === mapForSteamId)) &&
+      timeDiff <= MATCH_REPORT_TIMEOUT;
 
-    console.log("Reportable?", timeDiff <= MATCH_REPORT_TIMEOUT, mapFor);
     return {
       id: it.id,
       mode: it.mode,
@@ -76,11 +71,13 @@ export class MatchMapper {
 
   public mapMatchPage = async (
     it: GameserverMatchPageDto,
-    mapFor?: PlayerMappableResource,
+    mapForSteamId?: string,
   ): Promise<MatchPageDto> => {
     return {
       ...it,
-      data: await Promise.all(it.data.map((t) => this.mapMatch(t, mapFor))),
+      data: await Promise.all(
+        it.data.map((t) => this.mapMatch(t, mapForSteamId)),
+      ),
     };
   };
 }

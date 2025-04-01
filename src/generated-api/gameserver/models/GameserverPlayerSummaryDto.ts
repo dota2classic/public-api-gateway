@@ -12,6 +12,12 @@
  * Do not edit the class manually.
  */
 
+import {
+    GameserverPlayerAspectCountDto,
+    GameserverPlayerAspectCountDtoFromJSON,
+    GameserverPlayerAspectCountDtoToJSON,
+} from './';
+
 /**
  *
  * @export
@@ -30,6 +36,12 @@ export class GameserverPlayerSummaryDto {
      * @memberof GameserverPlayerSummaryDto
      */
     accessLevel: GameserverPlayerSummaryDtoAccessLevelEnum;
+    /**
+     *
+     * @type {Array<GameserverPlayerAspectCountDto>}
+     * @memberof GameserverPlayerSummaryDto
+     */
+    reports: Array<GameserverPlayerAspectCountDto>;
     /**
      *
      * @type {number}
@@ -104,6 +116,7 @@ export function GameserverPlayerSummaryDtoFromJSONTyped(json: any, ignoreDiscrim
 
         'calibrationGamesLeft': json['calibrationGamesLeft'],
         'accessLevel': json['accessLevel'],
+        'reports': ((json['reports'] as Array<any>).map(GameserverPlayerAspectCountDtoFromJSON)),
         'rank': json['rank'],
         'steamId': json['steamId'],
         'seasonId': json['seasonId'],
@@ -128,6 +141,7 @@ export function GameserverPlayerSummaryDtoToJSON(value?: GameserverPlayerSummary
 
         'calibrationGamesLeft': value.calibrationGamesLeft,
         'accessLevel': value.accessLevel,
+        'reports': ((value.reports as Array<any>).map(GameserverPlayerAspectCountDtoToJSON)),
         'rank': value.rank,
         'steamId': value.steamId,
         'seasonId': value.seasonId,

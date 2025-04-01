@@ -17,6 +17,7 @@ export * from './GameserverMatchInfoDto';
 export * from './GameserverMatchPageDto';
 export * from './GameserverMatchmakingModeInfoDto';
 export * from './GameserverMmrChangeDto';
+export * from './GameserverPlayerAspectCountDto';
 export * from './GameserverPlayerHeroPerformance';
 export * from './GameserverPlayerInMatchDto';
 export * from './GameserverPlayerRecordDto';

@@ -19,11 +19,8 @@ import {
   CurrentUser,
   CurrentUserDto,
 } from "../../utils/decorator/current-user";
-import { PlayerId } from "../../gateway/shared-types/player-id";
 import { HttpCacheInterceptor } from "../../utils/cache-key-track";
 import { QueryBus } from "@nestjs/cqrs";
-import { GetReportsAvailableQuery } from "../../gateway/queries/GetReportsAvailable/get-reports-available.query";
-import { GetReportsAvailableQueryResult } from "../../gateway/queries/GetReportsAvailable/get-reports-available-query.result";
 import { WithPagination } from "../../utils/decorator/pagination";
 import { ReqLoggingInterceptor } from "../../middleware/req-logging.interceptor";
 import { WithUser } from "../../utils/decorator/with-user";
@@ -87,16 +84,10 @@ export class MatchController {
     @Param("id") id: number,
   ): Promise<MatchDto> {
     try {
-      const pid = (user && new PlayerId(user.steam_id)) || undefined;
-
-      const u =
-        pid &&
-        (await this.qbus.execute<
-          GetReportsAvailableQuery,
-          GetReportsAvailableQueryResult
-        >(new GetReportsAvailableQuery(pid)));
-
-      return this.mapper.mapMatch(await this.ms.matchControllerGetMatch(id), u);
+      return this.mapper.mapMatch(
+        await this.ms.matchControllerGetMatch(id),
+        user?.steam_id,
+      );
     } catch (e) {
       throw new NotFoundException();
     }
