@@ -58,30 +58,38 @@ export class FeedbackAssistantService {
   public async getGptResponse(
     context: string,
   ): Promise<{ answer?: string; unknown?: boolean }> {
-    const request: CompletionRequest = {
-      model: "gpt-4o-mini",
-      response_format: { type: "json_object" },
-      messages: [
-        {
-          role: "system",
-          content: this.system,
-        },
-        {
-          role: "user",
-          content: context,
-        },
-      ],
-    };
+    try {
+      const request: CompletionRequest = {
+        model: "gpt-4o-mini",
+        response_format: { type: "json_object" },
+        messages: [
+          {
+            role: "system",
+            content: this.system,
+          },
+          {
+            role: "user",
+            content: context,
+          },
+        ],
+      };
 
-    const res = await this.api.post<CompletionResponse>(
-      `/v1/chat/completions`,
-      request,
-    );
+      const res = await this.api.post<CompletionResponse>(
+        `/v1/chat/completions`,
+        request,
+      );
 
-    if (res.ok) {
-      return JSON.parse(res.data.choices[0].message.content);
+      if (res.ok) {
+        return JSON.parse(res.data.choices[0].message.content);
+      }
+
+      return {
+        unknown: true,
+      };
+    } catch (e) {
+      return {
+        unknown: true,
+      };
     }
-
-    throw "fdf";
   }
 }
