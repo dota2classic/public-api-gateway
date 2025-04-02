@@ -9,12 +9,12 @@ import { ApiTags } from "@nestjs/swagger";
 import { RecordApi } from "../../generated-api/gameserver";
 import { PlayerRecordsResponse } from "./record.dto";
 import { RecordMapper } from "./record.mapper";
-import { HttpCacheInterceptor } from "../../utils/cache-key-track";
+import { UserHttpCacheInterceptor } from "../../utils/cache-key-track";
 import { CacheTTL } from "@nestjs/cache-manager";
 
 @Controller("record")
 @ApiTags("record")
-@UseInterceptors(HttpCacheInterceptor)
+@UseInterceptors(UserHttpCacheInterceptor)
 export class RecordController {
   private logger = new Logger(RecordController.name);
 

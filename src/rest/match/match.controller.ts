@@ -19,7 +19,7 @@ import {
   CurrentUser,
   CurrentUserDto,
 } from "../../utils/decorator/current-user";
-import { HttpCacheInterceptor } from "../../utils/cache-key-track";
+import { UserHttpCacheInterceptor } from "../../utils/cache-key-track";
 import { QueryBus } from "@nestjs/cqrs";
 import { WithPagination } from "../../utils/decorator/pagination";
 import { ReqLoggingInterceptor } from "../../middleware/req-logging.interceptor";
@@ -36,7 +36,7 @@ export class MatchController {
     private readonly ps: PlayerApi,
   ) {}
 
-  @UseInterceptors(HttpCacheInterceptor)
+  @UseInterceptors(UserHttpCacheInterceptor)
   @WithPagination()
   @ApiQuery({
     name: "mode",
@@ -54,7 +54,7 @@ export class MatchController {
       .then(this.mapper.mapMatchPage);
   }
 
-  @UseInterceptors(HttpCacheInterceptor)
+  @UseInterceptors(UserHttpCacheInterceptor)
   @WithPagination()
   @ApiQuery({
     name: "hero",
@@ -71,7 +71,7 @@ export class MatchController {
       .then(this.mapper.mapMatchPage);
   }
 
-  @UseInterceptors(HttpCacheInterceptor)
+  @UseInterceptors(UserHttpCacheInterceptor)
   @CacheTTL(10)
   @ApiParam({
     name: "id",
@@ -93,7 +93,7 @@ export class MatchController {
     }
   }
 
-  @UseInterceptors(HttpCacheInterceptor)
+  @UseInterceptors(UserHttpCacheInterceptor)
   @ApiParam({
     name: "id",
     required: true,

@@ -10,8 +10,9 @@ import { FeedbackCreatedEvent } from "./event/feedback-created.event";
 import { FeedbackOptionEntity } from "../../entity/feedback-option.entity";
 import { ThreadType } from "../../gateway/shared-types/thread-type";
 import { CurrentUserDto } from "../../utils/decorator/current-user";
-import { PlayerFeedbackThreadCreatedEvent } from "./event/player-feedback-thread-created.event";
 import { ForumApi } from "../../generated-api/forum";
+import { FeedbackAssistantService } from "./feedback-assistant.service";
+import { Role } from "../../gateway/shared-types/roles";
 
 @Injectable()
 export class FeedbackService implements OnApplicationBootstrap {
@@ -27,6 +28,7 @@ export class FeedbackService implements OnApplicationBootstrap {
     private readonly feedbackOptionEntityRepository: Repository<FeedbackOptionEntity>,
     private readonly ebus: EventBus,
     private readonly forumApi: ForumApi,
+    private readonly feedbackAssistant: FeedbackAssistantService,
   ) {}
 
   public async createFeedbackForPlayer(
@@ -68,7 +70,10 @@ export class FeedbackService implements OnApplicationBootstrap {
     // console.log(fb);
   }
 
-  public async getFeedback(id: number, steamId: string) {
+  public async getFeedback(
+    id: number,
+    steamId: string,
+  ): Promise<PlayerFeedbackEntity> {
     return this.playerFeedbackEntityRepository.findOneOrFail({
       where: {
         id,
@@ -84,7 +89,7 @@ export class FeedbackService implements OnApplicationBootstrap {
     steamId: string,
     createTicket: boolean,
     user: CurrentUserDto,
-  ): Promise<PlayerFeedbackEntity> {
+  ): Promise<[PlayerFeedbackEntity, string | undefined]> {
     const feedback = await this.datasource.transaction<PlayerFeedbackEntity>(
       async (em) => {
         const playerFeedback =
@@ -95,7 +100,6 @@ export class FeedbackService implements OnApplicationBootstrap {
         // Update checks
         await Promise.all(
           playerFeedback.optionResults.map(async (option) => {
-            console.log(option);
             await em.update(
               PlayerFeedbackOptionResultEntity,
               {
@@ -133,16 +137,34 @@ export class FeedbackService implements OnApplicationBootstrap {
       },
     );
 
+    let ticketId: string | undefined = undefined;
     if (createTicket) {
-      const thread = await this.forumApi.forumControllerGetThreadForKey({
-        threadType: ThreadType.TICKET,
-        externalId: feedbackId.toString(),
-        title: `Тикет ${feedbackId}: ${feedback.feedback.title}`,
-        op: feedback.steamId,
-      });
-      await this.forumApi.forumControllerPostMessage(thread.id, {
-        author: user,
-        content: `
+      ticketId = await this.handleCreateTicket(
+        feedback,
+        user,
+        options,
+        comment,
+      );
+    }
+
+    return [feedback, ticketId];
+  }
+
+  private async handleCreateTicket(
+    feedback: PlayerFeedbackEntity,
+    user: CurrentUserDto,
+    options: SubmittedFeedbackOptionDto[],
+    comment: string,
+  ) {
+    const thread = await this.forumApi.forumControllerGetThreadForKey({
+      threadType: ThreadType.TICKET,
+      externalId: feedback.id.toString(),
+      title: `Тикет ${feedback.id}: ${feedback.feedback.title}`,
+      op: feedback.steamId,
+    });
+    const msg = await this.forumApi.forumControllerPostMessage(thread.id, {
+      author: user,
+      content: `
 ${options
   .filter((it) => it.checked)
   .map((opt) => `- ${opt.option}`)
@@ -150,18 +172,38 @@ ${options
 Комментарий:
 ${comment}
         `,
-      });
+    });
 
-      this.ebus.publish(
-        new PlayerFeedbackThreadCreatedEvent(
-          thread.id,
-          user.steam_id,
-          thread.title,
-        ),
-      );
-    }
+    // this.ebus.publish(
+    //   new PlayerFeedbackThreadCreatedEvent(
+    //     thread.id,
+    //     user.steam_id,
+    //     thread.title,
+    //   ),
+    // );
 
-    return feedback;
+    const response = await this.feedbackAssistant
+      .getGptResponse(`Ответ пользователя на вопрос ${feedback.feedback.title}:
+    Возникшие проблемы: ${options
+      .filter((it) => it.checked)
+      .map((it) => it.option)
+      .join(", ")}
+    Комментарий: ${comment || "Без комментария"}.
+    Подскажи, как можно решить проблему пользователя, ответ формулируй, как будто объясняешь пользователю, а не мне.`);
+
+    console.log(response);
+
+    await this.forumApi.forumControllerPostMessage(thread.id, {
+      author: {
+        steam_id: "1177028171",
+        roles: [Role.ADMIN],
+      },
+      content: response?.unknown
+        ? "Не могу выдать быстрый ответ. Спроси в чате или ожидай ответа от администрации"
+        : response?.answer || "Неизвестная ошибка",
+    });
+
+    return thread.id;
   }
 
   async updateFeedback(id: number, title: string, tag: string) {

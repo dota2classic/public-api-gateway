@@ -11,11 +11,15 @@ import { UserRepository } from "../../cache/user/user.repository";
 @Injectable()
 export class FeedbackMapper {
   constructor(private readonly uRep: UserRepository) {}
-  public mapFeedback = (it: PlayerFeedbackEntity): FeedbackDto => ({
+  public mapFeedback = (
+    it: PlayerFeedbackEntity,
+    ticketId?: string,
+  ): FeedbackDto => ({
     id: it.id,
     title: it.feedback.title,
     finished: it.finished,
     comment: it.comment,
+    ticketId: ticketId,
     options: it.optionResults.map((option) => ({
       id: option.id,
       option: option.option,

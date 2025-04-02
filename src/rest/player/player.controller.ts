@@ -31,7 +31,7 @@ import { WithUser } from "../../utils/decorator/with-user";
 import { UserMightExistEvent } from "../../gateway/events/user/user-might-exist.event";
 import { ClientProxy } from "@nestjs/microservices";
 import { HeroStatsDto } from "./dto/hero.dto";
-import { HttpCacheInterceptor } from "../../utils/cache-key-track";
+import { UserHttpCacheInterceptor } from "../../utils/cache-key-track";
 import { GetReportsAvailableQuery } from "../../gateway/queries/GetReportsAvailable/get-reports-available.query";
 import { GetReportsAvailableQueryResult } from "../../gateway/queries/GetReportsAvailable/get-reports-available-query.result";
 import { UserDTO } from "../shared.dto";
@@ -107,7 +107,7 @@ export class PlayerController {
     return {};
   }
 
-  @UseInterceptors(HttpCacheInterceptor)
+  @UseInterceptors(UserHttpCacheInterceptor)
   @CacheTTL(60 * 30)
   @Get("/leaderboard")
   @WithPagination()
@@ -183,7 +183,7 @@ export class PlayerController {
     return this.partyService.getParty(user.steam_id);
   }
 
-  @UseInterceptors(HttpCacheInterceptor)
+  @UseInterceptors(UserHttpCacheInterceptor)
   @Get("/summary/hero/:id")
   async heroSummary(@Param("id") steam_id: string): Promise<HeroStatsDto[]> {
     return this.ms.playerControllerPlayerHeroSummary(steam_id);

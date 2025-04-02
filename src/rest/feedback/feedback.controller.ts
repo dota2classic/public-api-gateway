@@ -36,13 +36,6 @@ export class FeedbackController {
     private readonly ebus: EventBus,
   ) {}
 
-  @Get("test")
-  public async getAll() {
-    return this.playerFeedbackEntityRepository
-      .find()
-      .then((all) => all.map(this.mapper.mapFeedback));
-  }
-
   // TODO: with user
   @Post(":id")
   @WithUser()
@@ -60,7 +53,9 @@ export class FeedbackController {
         true,
         user,
       )
-      .then(this.mapper.mapFeedback);
+      .then(([feedback, ticketId]) =>
+        this.mapper.mapFeedback(feedback, ticketId),
+      );
   }
 
   @Get(":id")

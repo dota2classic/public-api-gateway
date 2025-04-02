@@ -12,6 +12,8 @@ export class FeedbackDto {
   finished: boolean;
   comment: string;
   options: FeedbackOptionDto[];
+
+  ticketId?: string;
 }
 
 export class SubmittedFeedbackOptionDto {

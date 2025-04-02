@@ -13,9 +13,9 @@ import {
 import { CacheTTL } from "@nestjs/cache-manager";
 import { ReqLoggingInterceptor } from "../../middleware/req-logging.interceptor";
 import { MatchmakingModes } from "../../gateway/shared-types/matchmaking-mode";
-import { HttpCacheInterceptor } from "../../utils/cache-key-track";
+import { UserHttpCacheInterceptor } from "../../utils/cache-key-track";
 
-@UseInterceptors(ReqLoggingInterceptor, HttpCacheInterceptor)
+@UseInterceptors(ReqLoggingInterceptor, UserHttpCacheInterceptor)
 @Controller("stats")
 @ApiTags("stats")
 export class StatsController {

@@ -33,7 +33,7 @@ import { GetPlayerInfoQuery } from "./gateway/queries/GetPlayerInfo/get-player-i
 import { StatsController } from "./rest/stats/stats.controller";
 import * as redisStore from "cache-manager-redis-store";
 import { MetaController } from "./rest/meta/meta.controller";
-import { HttpCacheInterceptor } from "./utils/cache-key-track";
+import { UserHttpCacheInterceptor } from "./utils/cache-key-track";
 import { GetReportsAvailableQuery } from "./gateway/queries/GetReportsAvailable/get-reports-available.query";
 import { ScheduleModule } from "@nestjs/schedule";
 import { MainService } from "./main.service";
@@ -126,6 +126,7 @@ import { BlogpostMapper } from "./rest/blogpost/blogpost.mapper";
 import { StorageService } from "./rest/storage/storage.service";
 import { RecordController } from "./rest/record/record.controller";
 import { RecordMapper } from "./rest/record/record.mapper";
+import { FeedbackAssistantService } from "./rest/feedback/feedback-assistant.service";
 
 const OPENAPI_GENERATED: Provider[] = [
   {
@@ -328,7 +329,7 @@ const OPENAPI_GENERATED: Provider[] = [
   providers: [
     ...OPENAPI_GENERATED,
     ReqLoggingInterceptor,
-    HttpCacheInterceptor,
+    UserHttpCacheInterceptor,
     MainService,
 
     {
@@ -420,6 +421,7 @@ const OPENAPI_GENERATED: Provider[] = [
     PlayerFeedbackThreadCreatedHandler,
     NewTicketMessageCreatedHandler,
     TelegramNotificationService,
+    FeedbackAssistantService,
     // Telegram
     {
       provide: "Telegram",

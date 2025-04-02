@@ -60,6 +60,7 @@
     "@opentelemetry/sdk-node": "^0.54.2",
     "@opentelemetry/sdk-trace-base": "^1.27.0",
     "@willsoto/nestjs-prometheus": "^6.0.1",
+    "apisauce": "^3.1.1",
     "axios": "^1.7.5",
     "cache-manager": "^5.7.6",
     "cache-manager-redis-store": "^2.0.0",
