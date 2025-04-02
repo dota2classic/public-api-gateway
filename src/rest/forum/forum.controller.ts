@@ -63,9 +63,8 @@ import { BlogpostEntity } from "../../entity/blogpost.entity";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { CacheTTL } from "@nestjs/cache-manager";
-import { GlobalHttpCacheInterceptor } from "../../utils/cache-global";
 
-@UseInterceptors(ReqLoggingInterceptor, GlobalHttpCacheInterceptor)
+@UseInterceptors(ReqLoggingInterceptor)
 @Controller("forum")
 @ApiTags("forum")
 export class ForumController {
