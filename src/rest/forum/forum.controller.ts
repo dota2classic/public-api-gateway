@@ -62,8 +62,10 @@ import { WithOptionalUser } from "../../utils/decorator/with-optional-user";
 import { BlogpostEntity } from "../../entity/blogpost.entity";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
+import { HttpCacheInterceptor } from "../../utils/cache-key-track";
+import { CacheTTL } from "@nestjs/cache-manager";
 
-@UseInterceptors(ReqLoggingInterceptor)
+@UseInterceptors(ReqLoggingInterceptor, HttpCacheInterceptor)
 @Controller("forum")
 @ApiTags("forum")
 export class ForumController {
@@ -106,6 +108,7 @@ export class ForumController {
     required: false,
   })
   @Get("thread/:id/:threadType/messages")
+  @CacheTTL(500)
   async getMessages(
     @Param("id") _id: string,
     @Param("threadType") threadType: ThreadType,
@@ -142,6 +145,7 @@ export class ForumController {
     enumName: "ThreadType",
   })
   @Get("thread/:id/:threadType/latestPage")
+  @CacheTTL(1000)
   async getLatestPage(
     @Param("id") id: string,
     @Param("threadType") threadType: ThreadType,
@@ -179,6 +183,7 @@ export class ForumController {
   })
   @WithPagination()
   @Get("thread/:id/:threadType/page")
+  @CacheTTL(1000)
   async messagesPage(
     @Param("id") id: string,
     @Param("threadType") threadType: ThreadType,
@@ -216,6 +221,7 @@ export class ForumController {
   })
   @WithOptionalUser()
   @Get("threads")
+  @CacheTTL(5000)
   async threads(
     @Req() req: any,
     @Query("page", NullableIntPipe) page: number,
@@ -250,6 +256,7 @@ export class ForumController {
     enumName: "ThreadType",
   })
   @Get("thread/:id/:threadType")
+  @CacheTTL(5000)
   async getThread(
     @Param("id") id: string,
     @Param("threadType") threadType: ThreadType,
