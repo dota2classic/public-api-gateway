@@ -24,7 +24,6 @@ export class PlayerFeedbackThreadCreatedHandler
   ) {}
 
   async handle(event: PlayerFeedbackThreadCreatedEvent) {
-    console.log(event);
     await this.notificationService.createNotification(
       event.steamId,
       event.threadId,

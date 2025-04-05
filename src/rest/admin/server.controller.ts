@@ -42,7 +42,6 @@ export class ServerController {
       GetQueueStateQuery,
       GetQueueStateQueryResult
     >(new GetQueueStateQuery(Dota2Version.Dota_684));
-    console.log(some);
     const plrs = some.entries
       .filter((t) => t.modes.includes(MatchmakingMode.UNRANKED))
       .flatMap((it) => it.players);
@@ -83,7 +82,6 @@ export class ServerController {
   @WithUser()
   @Post(`/stop_server`)
   async stopServer(@Body() url: StopServerDto) {
-    console.log("sad kek");
     this.rq.emit(
       KillServerRequestedEvent.name,
       new KillServerRequestedEvent(url.url),

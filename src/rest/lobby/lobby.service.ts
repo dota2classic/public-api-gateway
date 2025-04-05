@@ -1,9 +1,4 @@
-import {
-  ForbiddenException,
-  HttpException,
-  Injectable,
-  NotFoundException,
-} from "@nestjs/common";
+import { ForbiddenException, HttpException, Injectable } from "@nestjs/common";
 import { LobbyEntity } from "../../entity/lobby.entity";
 import { LobbySlotEntity } from "../../entity/lobby-slot.entity";
 import { InjectRepository } from "@nestjs/typeorm";
@@ -34,6 +29,28 @@ export class LobbyService {
     private readonly ebus: EventBus,
   ) {}
 
+  public async createLobby(user: CurrentUserDto): Promise<LobbyEntity> {
+    // Leave from all lobbies
+    const lobbies = await this.lobbySlotEntityRepository.find({
+      where: { steamId: user.steam_id },
+    });
+    await Promise.all(
+      lobbies.map((lobby) => this.leaveLobby(lobby.lobbyId, user)),
+    );
+    // Delete all hosted lobbies
+    const hostedLobbies = await this.lobbyEntityRepository.find({
+      where: { ownerSteamId: user.steam_id },
+    });
+    await Promise.all(hostedLobbies.map((l) => this.closeLobby(l.id, user)));
+
+    let lobby = new LobbyEntity(user.steam_id);
+    lobby = await this.lobbyEntityRepository.save(lobby);
+    const lse = new LobbySlotEntity(lobby.id, user.steam_id, 0);
+    await this.lobbySlotEntityRepository.save(lse);
+
+    return this.getLobby(lobby.id, user).then(this.lobbyUpdated);
+  }
+
   public async getLobby(
     id: string,
     askedBy?: CurrentUserDto,
@@ -60,29 +77,35 @@ export class LobbyService {
     return q.getOneOrFail();
   }
 
-  public async createLobby(user: CurrentUserDto): Promise<LobbyEntity> {
-    // Leave from all lobbies
-    const lobbies = await this.lobbySlotEntityRepository.find({
-      where: { steamId: user.steam_id },
+  public async joinLobby(
+    id: string,
+    user: CurrentUserDto,
+    password: string,
+  ): Promise<LobbyEntity> {
+    const lobby = await this.lobbyEntityRepository.findOneOrFail({
+      where: { id },
     });
-    await Promise.all(
-      lobbies.map((lobby) => this.leaveLobby(lobby.lobbyId, user)),
-    );
-    // Delete all hosted lobbies
-    const hostedLobbies = await this.lobbyEntityRepository.find({
-      where: { ownerSteamId: user.steam_id },
-    });
-    await Promise.all(hostedLobbies.map((l) => this.closeLobby(l.id, user)));
 
-    let lobby = new LobbyEntity(user.steam_id);
-    lobby = await this.lobbyEntityRepository.save(lobby);
-    const lse = new LobbySlotEntity(lobby.id, user.steam_id, 0);
-    await this.lobbySlotEntityRepository.save(lse);
-
-    return this.getLobby(lobby.id, user).then((lobby) => {
-      this.ebus.publish(new LobbyUpdatedEvent(lobby));
+    if (
+      lobby.slots.findIndex((slot) => slot.steamId === user.steam_id) !== -1
+    ) {
+      // throw new HttpException("Already in lobby", HttpStatusCode.Conflict);
+      // It's ok, just return it
       return lobby;
-    });
+    }
+
+    if (lobby.password !== null && lobby.password !== password) {
+      throw new ForbiddenException("Wrong password");
+    }
+
+    const lse = await this.lobbySlotEntityRepository.save(
+      new LobbySlotEntity(lobby.id, user.steam_id, 0),
+    );
+
+    lobby.slots.push(lse);
+
+    this.lobbyUpdated(lobby);
+    return lobby;
   }
 
   //
@@ -115,37 +138,6 @@ export class LobbyService {
     }
   }
 
-  public async joinLobby(
-    id: string,
-    user: CurrentUserDto,
-    password: string,
-  ): Promise<LobbyEntity> {
-    const lobby = await this.lobbyEntityRepository.findOneOrFail({
-      where: { id },
-    });
-
-    if (
-      lobby.slots.findIndex((slot) => slot.steamId === user.steam_id) !== -1
-    ) {
-      // throw new HttpException("Already in lobby", HttpStatusCode.Conflict);
-      // It's ok, just return it
-      return lobby;
-    }
-
-    if (lobby.password !== null && lobby.password !== password) {
-      throw new ForbiddenException("Wrong password");
-    }
-
-    const lse = await this.lobbySlotEntityRepository.save(
-      new LobbySlotEntity(lobby.id, user.steam_id, 0),
-    );
-
-    lobby.slots.push(lse);
-
-    this.ebus.publish(new LobbyUpdatedEvent(lobby));
-    return lobby;
-  }
-
   public async leaveLobby(id: string, user: CurrentUserDto): Promise<void> {
     const lobby = await this.lobbyEntityRepository.findOneOrFail({
       where: { id },
@@ -171,7 +163,7 @@ export class LobbyService {
       1,
     );
 
-    this.ebus.publish(new LobbyUpdatedEvent(lobby));
+    this.lobbyUpdated(lobby);
   }
 
   public async updateLobby(
@@ -201,10 +193,22 @@ export class LobbyService {
 
     await this.lobbyEntityRepository.save(lobby);
 
-    return this.getLobby(id, user).then((lobby) => {
-      this.ebus.publish(new LobbyUpdatedEvent(lobby));
-      return lobby;
-    });
+    return this.getLobby(id, user).then(this.lobbyUpdated);
+  }
+
+  public async kickPlayer(
+    lobbyId: string,
+    user: CurrentUserDto,
+    steamId: string,
+  ) {
+    const lobby = await this.getLobby(lobbyId, user);
+    if (lobby.ownerSteamId !== user.steam_id) {
+      throw new ForbiddenException("Only lobby owner can kick players");
+    }
+
+    await this.leaveLobby(lobbyId, { steam_id: steamId, roles: [] });
+
+    return this.getLobby(lobbyId, user).then(this.lobbyUpdated);
   }
 
   // TODO: make start only by owner
@@ -242,28 +246,6 @@ export class LobbyService {
     );
   }
 
-  public async kickPlayer(
-    lobbyId: string,
-    user: CurrentUserDto,
-    steamId: string,
-  ) {
-    const lobby = await this.getLobby(lobbyId, user);
-    if (lobby.ownerSteamId !== user.steam_id) {
-      throw new ForbiddenException("Only lobby owner can kick players");
-    }
-
-    const delCount = await this.lobbySlotEntityRepository.delete({
-      lobbyId,
-      steamId,
-    });
-
-    if (delCount.affected == 0) {
-      throw new NotFoundException("Lobby slot not found");
-    }
-
-    return this.getLobby(lobbyId, user);
-  }
-
   public async changeTeam(
     id: string,
     user: CurrentUserDto,
@@ -299,11 +281,13 @@ export class LobbyService {
     lse.indexInTeam = index;
     await this.lobbySlotEntityRepository.save(lse);
 
-    return this.getLobby(id, user).then((lobby) => {
-      this.ebus.publish(new LobbyUpdatedEvent(lobby));
-      return lobby;
-    });
+    return this.getLobby(id, user).then(this.lobbyUpdated);
   }
+
+  private lobbyUpdated = (lobby: LobbyEntity): LobbyEntity => {
+    this.ebus.publish(new LobbyUpdatedEvent(lobby));
+    return lobby;
+  };
 
   public async allLobbies(): Promise<LobbyEntity[]> {
     return this.lobbyEntityRepository.find();

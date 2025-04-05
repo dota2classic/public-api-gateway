@@ -85,7 +85,6 @@ export class PlayerMapper {
   public mapPlayerSummary = async (
     it: GameserverPlayerSummaryDto,
   ): Promise<PlayerSummaryDto> => {
-    console.log(it);
     return {
       user: await this.userRepository.userDto(it.steamId),
       mmr: it.mmr,
