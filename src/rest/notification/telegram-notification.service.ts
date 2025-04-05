@@ -18,4 +18,17 @@ export class TelegramNotificationService {
       },
     );
   }
+
+
+  public async notifyMarkdown(text: string) {
+    await this.telegram.sendMessage(
+      this.config.get("telegram.notifyChatId"),
+      text,
+      {
+        message_thread_id: this.config.get("telegram.notifyThreadId"),
+        parse_mode: "Markdown"
+      },
+    );
+  }
+
 }

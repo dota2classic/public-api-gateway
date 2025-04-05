@@ -27,5 +27,6 @@ export * from './GameserverPlayerTeammateDto';
 export * from './GameserverPlayerTeammatePage';
 export * from './GameserverRecordType';
 export * from './GameserverReportPlayerDto';
+export * from './GameserverSmurfData';
 export * from './GameserverUpdateGamemodeDto';
 export * from "../../mapped-models"

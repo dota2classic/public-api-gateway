@@ -127,6 +127,7 @@ import { StorageService } from "./rest/storage/storage.service";
 import { RecordController } from "./rest/record/record.controller";
 import { RecordMapper } from "./rest/record/record.mapper";
 import { FeedbackAssistantService } from "./rest/feedback/feedback-assistant.service";
+import { PlayerSmurfDetectedHandler } from "./rest/notification/event-handler/player-smurf-detected.handler";
 
 const OPENAPI_GENERATED: Provider[] = [
   {
@@ -415,6 +416,7 @@ const OPENAPI_GENERATED: Provider[] = [
     SocketDelivery,
     SocketMessageService,
     NotificationCreatedHandler,
+    PlayerSmurfDetectedHandler,
 
     // Feedback
     PlayerNotLoadedHandler,

@@ -126,3 +126,8 @@ export class CrimeLogPageDto extends Page<CrimeLogDto> {
   perPage: number;
   page: number;
 }
+
+export class SmurfData {
+  user: UserDTO;
+  ban: BanStatusDto;
+}

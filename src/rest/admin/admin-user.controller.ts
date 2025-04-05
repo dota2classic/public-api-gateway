@@ -9,12 +9,13 @@ import {
 } from "@nestjs/common";
 import { ClientProxy } from "@nestjs/microservices";
 import { EventBus, QueryBus } from "@nestjs/cqrs";
-import { CrimeApi, InfoApi } from "../../generated-api/gameserver";
+import { CrimeApi, InfoApi, PlayerApi } from "../../generated-api/gameserver";
 import { ApiQuery, ApiTags } from "@nestjs/swagger";
 import {
   BanHammerDto,
   CrimeLogDto,
   CrimeLogPageDto,
+  SmurfData,
   UpdateModeDTO,
   UpdateRolesDto,
   UserBanSummaryDto,
@@ -51,6 +52,7 @@ export class AdminUserController {
     private readonly mapper: AdminMapper,
     private readonly api: CrimeApi,
     private readonly infoApi: InfoApi,
+    private readonly playerApi: PlayerApi,
     @InjectS3() private readonly s3: S3,
   ) {}
 
@@ -136,6 +138,25 @@ export class AdminUserController {
       steam_id: res.playerId.value,
       banStatus: res.banStatus,
     };
+  }
+
+  @ModeratorGuard()
+  @WithUser()
+  @Get("smurf/:steam_id")
+  public async smurfOf(
+    @Param("steam_id") steamId: string,
+  ): Promise<SmurfData[]> {
+    const data = await this.playerApi.playerControllerSmurfData(steamId);
+    return Promise.all(
+      data.relatedBans.map(async (rb) => ({
+        user: await this.urep.userDto(rb.steam_id),
+        ban: {
+          isBanned: rb.isBanned,
+          bannedUntil: rb.bannedUntil,
+          status: rb.status,
+        },
+      })),
+    );
   }
 
   @ModeratorGuard()
