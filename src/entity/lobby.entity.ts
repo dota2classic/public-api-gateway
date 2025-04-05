@@ -23,7 +23,20 @@ export class LobbyEntity {
   @Column({ default: Dota_Map.DOTA })
   public map: Dota_Map;
 
+  @Column({ name: "name", type: "text", default: "Лобби" })
+  public name: string;
+
+  @Column({ name: "password", nullable: true, type: "text" })
+  public password?: string;
+
+  @Column({ name: "fill_bots", default: false })
+  public fillBots: boolean;
+
+  @Column({ name: "enable_cheats", default: false })
+  public enableCheats: boolean;
+
   constructor(ownerSteamId: string) {
     this.ownerSteamId = ownerSteamId;
+    this.name = "Лобби";
   }
 }

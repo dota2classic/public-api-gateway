@@ -16,11 +16,21 @@ export class LobbyMapper {
     index: slot.indexInTeam,
   });
 
-  public mapLobby = async (lobby: LobbyEntity): Promise<LobbyDto> => ({
-    owner: await this.uRep.userDto(lobby.ownerSteamId),
-    id: lobby.id,
-    gameMode: lobby.gameMode,
-    map: lobby.map,
-    slots: await Promise.all(lobby.slots.map(this.mapLobbySlot)),
-  });
+  public mapLobby = async (
+    lobby: LobbyEntity,
+    mapFor?: string,
+  ): Promise<LobbyDto> => {
+    return {
+      owner: await this.uRep.userDto(lobby.ownerSteamId),
+      id: lobby.id,
+      name: lobby.name,
+      gameMode: lobby.gameMode,
+      map: lobby.map,
+      slots: await Promise.all(lobby.slots.map(this.mapLobbySlot)),
+      requiresPassword: lobby.password !== null,
+      password: mapFor === lobby.ownerSteamId ? lobby.password : "****",
+      enableCheats: lobby.enableCheats,
+      fillBots: lobby.fillBots,
+    };
+  };
 }

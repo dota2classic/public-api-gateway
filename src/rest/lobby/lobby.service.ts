@@ -1,4 +1,9 @@
-import { ForbiddenException, HttpException, Injectable } from "@nestjs/common";
+import {
+  ForbiddenException,
+  HttpException,
+  Injectable,
+  NotFoundException,
+} from "@nestjs/common";
 import { LobbyEntity } from "../../entity/lobby.entity";
 import { LobbySlotEntity } from "../../entity/lobby-slot.entity";
 import { InjectRepository } from "@nestjs/typeorm";
@@ -56,13 +61,19 @@ export class LobbyService {
   }
 
   public async createLobby(user: CurrentUserDto): Promise<LobbyEntity> {
+    // Leave from all lobbies
     const lobbies = await this.lobbySlotEntityRepository.find({
       where: { steamId: user.steam_id },
     });
     await Promise.all(
       lobbies.map((lobby) => this.leaveLobby(lobby.lobbyId, user)),
     );
-    // Need to leave from all other lobbies
+    // Delete all hosted lobbies
+    const hostedLobbies = await this.lobbyEntityRepository.find({
+      where: { ownerSteamId: user.steam_id },
+    });
+    await Promise.all(hostedLobbies.map((l) => this.closeLobby(l.id, user)));
+
     let lobby = new LobbyEntity(user.steam_id);
     lobby = await this.lobbyEntityRepository.save(lobby);
     const lse = new LobbySlotEntity(lobby.id, user.steam_id, 0);
@@ -107,6 +118,7 @@ export class LobbyService {
   public async joinLobby(
     id: string,
     user: CurrentUserDto,
+    password: string,
   ): Promise<LobbyEntity> {
     const lobby = await this.lobbyEntityRepository.findOneOrFail({
       where: { id },
@@ -118,6 +130,10 @@ export class LobbyService {
       // throw new HttpException("Already in lobby", HttpStatusCode.Conflict);
       // It's ok, just return it
       return lobby;
+    }
+
+    if (lobby.password !== null && lobby.password !== password) {
+      throw new ForbiddenException("Wrong password");
     }
 
     const lse = await this.lobbySlotEntityRepository.save(
@@ -163,6 +179,10 @@ export class LobbyService {
     user: CurrentUserDto,
     gameMode: Dota_GameMode | undefined,
     map: Dota_Map | undefined,
+    password: string,
+    name: string,
+    enableCheats: boolean,
+    fillBots: boolean,
   ): Promise<LobbyEntity> {
     let lobby = await this.getLobby(id, user);
 
@@ -174,6 +194,11 @@ export class LobbyService {
 
     lobby.gameMode = gameMode;
     lobby.map = map;
+    lobby.password = password;
+    lobby.name = name;
+    lobby.fillBots = fillBots;
+    lobby.enableCheats = enableCheats;
+
     await this.lobbyEntityRepository.save(lobby);
 
     return this.getLobby(id, user).then((lobby) => {
@@ -182,6 +207,7 @@ export class LobbyService {
     });
   }
 
+  // TODO: make start only by owner
   public async startLobby(id: string, user: CurrentUserDto) {
     const lobby = await this.getLobby(id, user);
 
@@ -214,6 +240,28 @@ export class LobbyService {
         ),
       ),
     );
+  }
+
+  public async kickPlayer(
+    lobbyId: string,
+    user: CurrentUserDto,
+    steamId: string,
+  ) {
+    const lobby = await this.getLobby(lobbyId, user);
+    if (lobby.ownerSteamId !== user.steam_id) {
+      throw new ForbiddenException("Only lobby owner can kick players");
+    }
+
+    const delCount = await this.lobbySlotEntityRepository.delete({
+      lobbyId,
+      steamId,
+    });
+
+    if (delCount.affected == 0) {
+      throw new NotFoundException("Lobby slot not found");
+    }
+
+    return this.getLobby(lobbyId, user);
   }
 
   public async changeTeam(
@@ -268,10 +316,7 @@ export class LobbyService {
       },
     });
     if (lse) {
-      await this.lobbySlotEntityRepository.delete(lse);
-      this.getLobby(lse.lobbyId).then((lobby) =>
-        this.ebus.publish(new LobbyUpdatedEvent(lobby)),
-      );
+      await this.leaveLobby(lse.lobbyId, { steam_id: steamId, roles: [] });
     }
   }
 }

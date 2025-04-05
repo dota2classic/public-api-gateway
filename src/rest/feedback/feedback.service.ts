@@ -195,7 +195,7 @@ ${comment}
 
     await this.forumApi.forumControllerPostMessage(thread.id, {
       author: {
-        steam_id: "1177028171",
+        steam_id: "159907143",
         roles: [Role.ADMIN],
       },
       content: response?.unknown

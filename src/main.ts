@@ -12,6 +12,7 @@ import configuration from "./config/configuration";
 import { ConfigService } from "@nestjs/config";
 import { DataSource } from "typeorm";
 import { getS3ConnectionToken, S3 } from "nestjs-s3";
+import { EntityNotFoundErrorFilter } from "./middleware/typeorm-error-filter";
 
 // import duration from 'dayjs/plugin/duration' // ES 2015
 
@@ -29,6 +30,7 @@ async function bootstrap() {
     ),
   });
   app.setGlobalPrefix("v1");
+  app.useGlobalFilters(new EntityNotFoundErrorFilter());
 
   const options = new DocumentBuilder()
     .setTitle("Public REST api for dota2classic")

@@ -11,13 +11,15 @@ import {
 } from "@nestjs/common";
 import { LobbyService } from "./lobby.service";
 import { LobbyMapper } from "./lobby.mapper";
-import { ModeratorGuard, WithUser } from "../../utils/decorator/with-user";
+import { OldGuard, WithUser } from "../../utils/decorator/with-user";
 import {
   CurrentUser,
   CurrentUserDto,
 } from "../../utils/decorator/current-user";
 import {
   ChangeTeamInLobbyDto,
+  JoinLobbyDto,
+  KickPlayerDto,
   LobbyDto,
   LobbyUpdateDto,
   UpdateLobbyDto,
@@ -41,39 +43,52 @@ export class LobbyController {
     private readonly ebus: EventBus,
   ) {}
 
-  @ModeratorGuard()
-  @WithUser()
   @Get("/")
-  public async listLobbies(
-    @CurrentUser() user: CurrentUserDto,
-  ): Promise<LobbyDto[]> {
+  public async listLobbies(): Promise<LobbyDto[]> {
     return this.lobbyService
       .allLobbies()
-      .then((ls) => Promise.all(ls.map(this.lobbyMapper.mapLobby)));
+      .then((ls) =>
+        Promise.all(ls.map((item) => this.lobbyMapper.mapLobby(item))),
+      );
   }
 
-  @ModeratorGuard()
+  @OldGuard()
   @WithUser()
   @Post("/")
   public async createLobby(
     @CurrentUser() user: CurrentUserDto,
   ): Promise<LobbyDto> {
-    return this.lobbyService.createLobby(user).then(this.lobbyMapper.mapLobby);
+    return this.lobbyService
+      .createLobby(user)
+      .then((item) => this.lobbyMapper.mapLobby(item, user.steam_id));
   }
 
   @WithUser()
   @Post("/:id/join")
   public async joinLobby(
     @Param("id") id: string,
+    @Body() dto: JoinLobbyDto,
     @CurrentUser() user: CurrentUserDto,
   ): Promise<LobbyDto> {
     return this.lobbyService
-      .joinLobby(id, user)
-      .then(this.lobbyMapper.mapLobby);
+      .joinLobby(id, user, dto.password)
+      .then((item) => this.lobbyMapper.mapLobby(item, user.steam_id));
   }
 
+  @Post("/:id/kickPlayer")
   @WithUser()
+  public async kickPlayer(
+    @Param("id") id: string,
+    @CurrentUser() user: CurrentUserDto,
+    @Body() dto: KickPlayerDto,
+  ): Promise<LobbyDto> {
+    return this.lobbyService
+      .kickPlayer(id, user, dto.steamId)
+      .then((item) => this.lobbyMapper.mapLobby(item, user.steam_id));
+  }
+
   @Post("/:id/changeTeam")
+  @WithUser()
   public async changeTeam(
     @Param("id") id: string,
     @CurrentUser() user: CurrentUserDto,
@@ -81,11 +96,11 @@ export class LobbyController {
   ): Promise<LobbyDto> {
     return this.lobbyService
       .changeTeam(id, user, dto.steamId, dto.team, dto.index || 0)
-      .then(this.lobbyMapper.mapLobby);
+      .then((item) => this.lobbyMapper.mapLobby(item, user.steam_id));
   }
 
-  @WithUser()
   @Post("/:id/leave")
+  @WithUser()
   public async leaveLobby(
     @Param("id") id: string,
     @CurrentUser() user: CurrentUserDto,
@@ -93,8 +108,8 @@ export class LobbyController {
     await this.lobbyService.leaveLobby(id, user);
   }
 
-  @WithUser()
   @Post("/:id/start")
+  @WithUser()
   public async startLobby(
     @Param("id") id: string,
     @CurrentUser() user: CurrentUserDto,
@@ -102,25 +117,36 @@ export class LobbyController {
     await this.lobbyService.startLobby(id, user);
   }
 
-  @WithUser()
   @Patch("/:id")
+  @WithUser()
   public async updateLobby(
     @Param("id") id: string,
     @CurrentUser() user: CurrentUserDto,
     @Body() dto: UpdateLobbyDto,
   ): Promise<LobbyDto> {
     return this.lobbyService
-      .updateLobby(id, user, dto.gameMode, dto.map)
-      .then(this.lobbyMapper.mapLobby);
+      .updateLobby(
+        id,
+        user,
+        dto.gameMode,
+        dto.map,
+        dto.password,
+        dto.name,
+        dto.enableCheats,
+        dto.fillBots,
+      )
+      .then((item) => this.lobbyMapper.mapLobby(item, user.steam_id));
   }
 
-  @WithUser()
   @Get("/:id")
+  @WithUser()
   public async getLobby(
     @Param("id") id: string,
     @CurrentUser() user: CurrentUserDto,
   ): Promise<LobbyDto> {
-    return this.lobbyService.getLobby(id, user).then(this.lobbyMapper.mapLobby);
+    return this.lobbyService
+      .getLobby(id, user)
+      .then((item) => this.lobbyMapper.mapLobby(item, user.steam_id));
   }
 
   @ApiParam({
@@ -128,7 +154,11 @@ export class LobbyController {
     required: true,
   })
   @Sse("/sse/:id")
-  public lobbyUpdates(@Param("id") id: string): Observable<LobbyUpdateDto> {
+  @WithUser()
+  public lobbyUpdates(
+    @Param("id") id: string,
+    @CurrentUser() user: CurrentUserDto,
+  ): Observable<LobbyUpdateDto> {
     return this.ebus.pipe(
       filter(
         (it) =>
@@ -137,7 +167,10 @@ export class LobbyController {
       filter((it: LobbyEvent) => it.lobbyId === id),
       asyncMap(async (mce: LobbyUpdatedEvent | LobbyClosedEvent) => {
         if ("lobbyEntity" in mce) {
-          const dto = await this.lobbyMapper.mapLobby(mce.lobbyEntity);
+          const dto = await this.lobbyMapper.mapLobby(
+            mce.lobbyEntity,
+            user.steam_id,
+          );
           return {
             data: { data: dto, lobbyId: dto.id },
           } satisfies LobbyUpdateDto;
