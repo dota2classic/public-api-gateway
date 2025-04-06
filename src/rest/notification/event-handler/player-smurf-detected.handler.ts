@@ -14,12 +14,33 @@ export class PlayerSmurfDetectedHandler
     private readonly uRepo: UserRepository,
   ) {}
 
+  private static mapUsername = (raw: string): string =>
+    raw
+      .replace(/\_/g, "\\_")
+      .replace(/\*/g, "\\*")
+      .replace(/\[/g, "\\[")
+      .replace(/\]/g, "\\]")
+      .replace(/\(/g, "\\(")
+      .replace(/\)/g, "\\)")
+      .replace(/\~/g, "\\~")
+      .replace(/\`/g, "\\`")
+      .replace(/\>/g, "\\>")
+      .replace(/\#/g, "\\#")
+      .replace(/\+/g, "\\+")
+      .replace(/\-/g, "\\-")
+      .replace(/\=/g, "\\=")
+      .replace(/\|/g, "\\|")
+      .replace(/\{/g, "\\{")
+      .replace(/\}/g, "\\}")
+      .replace(/\./g, "\\.")
+      .replace(/\!/g, "\\!");
+
   async handle(event: PlayerSmurfDetectedEvent) {
     const names = (
       await Promise.all(
         event.steamIds.map(
           async (it) =>
-            `- [${await this.uRepo.name(it)}](https://dotaclassic.ru/players/${it})`,
+            `- [${await this.uRepo.name(it).then(PlayerSmurfDetectedHandler.mapUsername)}](https://dotaclassic.ru/players/${it})`,
         ),
       )
     ).join("\n");
@@ -31,7 +52,7 @@ export class PlayerSmurfDetectedHandler
       )
       .join("\n");
     const text = `[ОБНАРУЖЕН СМУРФ]
-Новый аккаунт: [${await this.uRepo.name(event.steamId)}](https://dotaclassic.ru/players/${event.steamId})
+Новый аккаунт: [${await this.uRepo.name(event.steamId).then(PlayerSmurfDetectedHandler.mapUsername)}](https://dotaclassic.ru/players/${event.steamId})
 Аккаунты:
 ${names}
 Баны:
