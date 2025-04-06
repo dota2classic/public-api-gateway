@@ -3,7 +3,7 @@ import { PlayerSmurfDetectedEvent } from "../../../gateway/events/bans/player-sm
 import { TelegramNotificationService } from "../telegram-notification.service";
 import { UserRepository } from "../../../cache/user/user.repository";
 import { BanReason } from "../../../gateway/shared-types/ban";
-import { fullDate } from '../../../utils/format-date';
+import { fullDate } from "../../../utils/format-date";
 
 @EventsHandler(PlayerSmurfDetectedEvent)
 export class PlayerSmurfDetectedHandler
@@ -31,6 +31,7 @@ export class PlayerSmurfDetectedHandler
       )
       .join("\n");
     const text = `[ОБНАРУЖЕН СМУРФ]
+Новый аккаунт: [${await this.uRepo.name(event.steamId)}](https://dotaclassic.ru/players/${event.steamId})
 Аккаунты:
 ${names}
 Баны:
