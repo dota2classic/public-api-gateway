@@ -14,7 +14,7 @@ import {
   SubscriptionDto,
   TagPlayerForQueue,
 } from "./notification.dto";
-import { AdminGuard, WithUser } from "../../utils/decorator/with-user";
+import { ModeratorGuard, WithUser } from "../../utils/decorator/with-user";
 import {
   CurrentUser,
   CurrentUserDto,
@@ -49,7 +49,7 @@ export class NotificationController {
     return 200;
   }
 
-  @AdminGuard()
+  @ModeratorGuard()
   @WithUser()
   @Post("suggest_queue")
   async notifyAboutQueue(@Body() dto: TagPlayerForQueue) {
