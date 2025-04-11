@@ -15,8 +15,6 @@ import { AuthService } from "../auth/auth.service";
 import { LobbyDto, UpdateLobbyDto } from "./lobby.dto";
 import { Role } from "../../gateway/shared-types/roles";
 import { Dota_GameMode } from "../../gateway/shared-types/dota-game-mode";
-import { UserRepository } from "../../cache/user/user.repository";
-import { UserModel } from "../../cache/user/user.model";
 import { EventBus, QueryBus } from "@nestjs/cqrs";
 import { getRepositoryToken, TypeOrmModule } from "@nestjs/typeorm";
 import { JwtModule } from "@nestjs/jwt";
@@ -31,6 +29,7 @@ import { Repository } from "typeorm";
 import { DotaTeam } from "../../gateway/shared-types/dota-team";
 import { Dota_Map } from "../../gateway/shared-types/dota-map";
 import { UserProfileService } from "../../user-profile/service/user-profile.service";
+import Keyv from "keyv";
 
 describe("LobbyController", () => {
   jest.setTimeout(60000);
@@ -42,7 +41,14 @@ describe("LobbyController", () => {
   let controller: LobbyController;
   let mapper: LobbyMapper;
 
-  let urep = new UserRepository(undefined);
+  // @ts-ignore
+  let urep = new UserProfileService(
+    new Keyv(),
+    undefined,
+    undefined,
+    undefined,
+    undefined,
+  );
 
   const createUser = async (
     steamId: string,
@@ -114,7 +120,7 @@ describe("LobbyController", () => {
         AuthService,
         JwtStrategy,
         {
-          provide: UserRepository,
+          provide: UserProfileService,
           useValue: urep,
         },
         {
@@ -136,9 +142,14 @@ describe("LobbyController", () => {
     mapper = module.get(LobbyMapper);
     app = module.createNestApplication();
 
-    urep.resolve = (steamId) =>
-      Promise.resolve(new UserModel(steamId, "", "", []));
-
+    urep.userDto = (steamId) =>
+      Promise.resolve({
+        steamId,
+        avatar: "",
+        avatarSmall: "",
+        name: "",
+        roles: [],
+      });
     await app.init();
   });
 
