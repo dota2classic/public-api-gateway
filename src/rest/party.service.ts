@@ -42,6 +42,6 @@ export class PartyService {
         this.api.playerControllerPlayerSummary(steamId),
       ),
     );
-    return this.mapper.mapParty(party, banStatuses, summaries, sessions);
+    return this.mapper.mapParty(party, sessions);
   }
 }

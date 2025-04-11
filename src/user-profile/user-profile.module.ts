@@ -1,0 +1,34 @@
+import { Module } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
+import Keyv from "keyv";
+import KeyvRedis from "@keyv/redis";
+import { UserUpdatedHandler } from "./event-handler/user-updated.handler";
+import { UserProfileService } from "./service/user-profile.service";
+import { CqrsModule } from "@nestjs/cqrs";
+import { GameServerAdapter } from "./adapter/gameserver.adapter";
+
+@Module({
+  imports: [CqrsModule],
+  providers: [
+    GameServerAdapter,
+    UserUpdatedHandler,
+    {
+      provide: Keyv,
+      async useFactory(config: ConfigService) {
+        return new Keyv(
+          new KeyvRedis({
+            url: `redis://${config.get("redis.host")}:6379`,
+            password: config.get<string>("redis.password"),
+          }),
+          {
+            namespace: "user-profile-full",
+          },
+        );
+      },
+      inject: [ConfigService],
+    },
+    UserProfileService,
+  ],
+  exports: [UserProfileService],
+})
+export class UserProfileModule {}

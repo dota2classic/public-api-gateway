@@ -24,18 +24,20 @@ import { AchievementDto } from "./dto/achievement.dto";
 import { MatchMapper } from "../match/match.mapper";
 import { GetSessionByUserQueryResult } from "../../gateway/queries/GetSessionByUser/get-session-by-user-query.result";
 import { MatchAccessLevel } from "../../gateway/shared-types/match-access-level";
+import { UserProfileDto } from '../../user-profile/dto/user-profile.dto';
+import { UserProfileService } from '../../user-profile/service/user-profile.service';
 
 @Injectable()
 export class PlayerMapper {
   constructor(
-    private readonly userRepository: UserRepository,
     private readonly matchMapper: MatchMapper,
+    private readonly userProfile: UserProfileService,
   ) {}
 
   public mapTeammate = async (
     it: GameserverPlayerTeammateDto,
   ): Promise<PlayerTeammateDto> => ({
-    user: await this.userRepository.userDto(it.steam_id),
+    user: await this.userProfile.userDto(it.steam_id),
 
     games: it.games,
     wins: it.wins,
@@ -48,8 +50,8 @@ export class PlayerMapper {
   ): Promise<LeaderboardEntryDto> => {
     return {
       mmr: it.mmr,
-      id: numSteamId(it.steamId),
-      user: await this.userRepository.userDto(it.steamId),
+      id: it.steamId,
+      user: await this.userProfile.userDto(it.steamId),
 
       games: it.games,
       kills: it.kills,
@@ -61,47 +63,38 @@ export class PlayerMapper {
     };
   };
 
-  public mapMe = async (
-    it: GameserverPlayerSummaryDto,
-    status: GameserverBanStatusDto,
-    team: TournamentTeamDto | undefined,
-    reports: GetReportsAvailableQueryResult,
-  ): Promise<MeDto> => {
+  public mapMe = async (it: UserProfileDto): Promise<MeDto> => {
     return {
-      mmr: it.mmr,
-      user: await this.userRepository.userDto(it.steamId),
-      roles: await this.userRepository.roles(it.steamId),
-      id: numSteamId(it.steamId),
-      rank: it.rank,
-      banStatus: {
-        isBanned: status.isBanned,
-        bannedUntil: status.bannedUntil,
-        status: status.status,
-      },
-      reportsAvailable: reports.available,
+      mmr: it.player.mmr,
+      user: it.asUserDto(),
+      roles: it.user.roles,
+      id: it.user.id,
+      rank: it.player.rank,
+      banStatus: it.player.ban,
+      reportsAvailable: it.reports.reportsAvailable,
     };
   };
 
   public mapPlayerSummary = async (
-    it: GameserverPlayerSummaryDto,
+    it: UserProfileDto,
   ): Promise<PlayerSummaryDto> => {
     return {
-      user: await this.userRepository.userDto(it.steamId),
-      mmr: it.mmr,
-      id: numSteamId(it.steamId),
-      rank: it.rank,
-      wins: it.wins,
-      loss: it.games - it.wins,
-      games_played: it.games,
-      calibrationGamesLeft: it.calibrationGamesLeft,
-      accessMap: this.mapAccessLevel(it.accessLevel),
-      aspects: it.reports,
+      user: it.asUserDto(),
+      mmr: it.player.mmr,
+      id: it.user.id,
+      rank: it.player.rank,
+      wins: it.player.win,
+      loss: it.player.loss,
+      games_played: it.player.games,
+      calibrationGamesLeft: it.player.calibrationGamesLeft,
+      accessMap: this.mapAccessLevel(it.player.accessLevel),
+      aspects: it.player.aspects,
 
-      kills: it.kills,
-      deaths: it.deaths,
-      assists: it.assists,
+      kills: it.player.kills,
+      deaths: it.player.deaths,
+      assists: it.player.assists,
 
-      playtime: it.playtime,
+      playtime: it.player.playtime,
     };
   };
 
@@ -113,8 +106,6 @@ export class PlayerMapper {
 
   public mapParty = async (
     party: GetPartyQueryResult,
-    banStatuses: GameserverBanStatusDto[],
-    summaries: GameserverPlayerSummaryDto[],
     sessions: { result: GetSessionByUserQueryResult; steamId: string }[],
   ): Promise<PartyDto> => {
     return {
@@ -122,18 +113,13 @@ export class PlayerMapper {
       leader: await this.mapPlayerInParty(party.leaderId),
       players: await Promise.all(
         party.players.map(async (plr) => {
-          const status = banStatuses.find((t) => t.steam_id === plr);
-          const summary = summaries.find((t) => t.steamId === plr);
+          const profile = await this.userProfile.get(plr);
           const session = sessions.find((t) => t.steamId === plr);
 
           return {
-            banStatus: {
-              isBanned: status.isBanned,
-              bannedUntil: status.bannedUntil,
-              status: status.status,
-            },
+            banStatus: profile.player.ban,
             session: session?.result?.serverUrl,
-            summary: await this.mapPlayerSummary(summary),
+            summary: await this.mapPlayerSummary(profile),
           } satisfies PartyMemberDTO;
         }),
       ),
@@ -141,7 +127,7 @@ export class PlayerMapper {
   };
 
   public mapPlayerInParty = async (steamId: string): Promise<UserDTO> => {
-    return this.userRepository.userDto(steamId);
+    return this.userProfile.userDto(steamId);
   };
 
   public mapAchievement = async (
@@ -149,7 +135,7 @@ export class PlayerMapper {
   ): Promise<AchievementDto> => {
     return {
       key: ach.key,
-      user: await this.userRepository.userDto(ach.steamId),
+      user: await this.userProfile.userDto(ach.steamId),
 
       isComplete: ach.isComplete,
       progress: ach.progress,

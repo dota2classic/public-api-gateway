@@ -83,20 +83,6 @@ import { PartyInvalidatedHandler } from "./socket/event-handler/party-invalidate
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import configuration from "./config/configuration";
 import { outerQueryNew } from "./utils/outerQueryNew";
-import {
-  Configuration as GSConfiguration,
-  CrimeApi,
-  InfoApi,
-  MatchApi,
-  MetaApi,
-  PlayerApi,
-  RecordApi,
-} from "./generated-api/gameserver";
-import { Provider } from "@nestjs/common/interfaces/modules/provider.interface";
-import {
-  Configuration as FConfiguratin,
-  ForumApi,
-} from "./generated-api/forum";
 import { ReqLoggingInterceptor } from "./middleware/req-logging.interceptor";
 import { LobbyController } from "./rest/lobby/lobby.controller";
 import { LobbyMapper } from "./rest/lobby/lobby.mapper";
@@ -128,72 +114,8 @@ import { RecordController } from "./rest/record/record.controller";
 import { RecordMapper } from "./rest/record/record.mapper";
 import { FeedbackAssistantService } from "./rest/feedback/feedback-assistant.service";
 import { PlayerSmurfDetectedHandler } from "./rest/notification/event-handler/player-smurf-detected.handler";
-
-const OPENAPI_GENERATED: Provider[] = [
-  {
-    provide: MatchApi,
-    useFactory: (config: ConfigService) => {
-      return new MatchApi(
-        new GSConfiguration({ basePath: config.get("api.gameserverApiUrl") }),
-      );
-    },
-    inject: [ConfigService],
-  },
-  {
-    provide: MetaApi,
-    useFactory: (config: ConfigService) => {
-      return new MetaApi(
-        new GSConfiguration({ basePath: config.get("api.gameserverApiUrl") }),
-      );
-    },
-    inject: [ConfigService],
-  },
-  {
-    provide: CrimeApi,
-    useFactory: (config: ConfigService) => {
-      return new CrimeApi(
-        new GSConfiguration({ basePath: config.get("api.gameserverApiUrl") }),
-      );
-    },
-    inject: [ConfigService],
-  },
-  {
-    provide: PlayerApi,
-    useFactory: (config: ConfigService) => {
-      return new PlayerApi(
-        new GSConfiguration({ basePath: config.get("api.gameserverApiUrl") }),
-      );
-    },
-    inject: [ConfigService],
-  },
-  {
-    provide: InfoApi,
-    useFactory: (config: ConfigService) => {
-      return new InfoApi(
-        new GSConfiguration({ basePath: config.get("api.gameserverApiUrl") }),
-      );
-    },
-    inject: [ConfigService],
-  },
-  {
-    provide: RecordApi,
-    useFactory: (config: ConfigService) => {
-      return new RecordApi(
-        new GSConfiguration({ basePath: config.get("api.gameserverApiUrl") }),
-      );
-    },
-    inject: [ConfigService],
-  },
-  {
-    provide: ForumApi,
-    useFactory: (config: ConfigService) => {
-      return new ForumApi(
-        new FConfiguratin({ basePath: config.get("api.forumApiUrl") }),
-      );
-    },
-    inject: [ConfigService],
-  },
-];
+import { ApiModule } from "./api/api.module";
+import { UserProfileModule } from "./user-profile/user-profile.module";
 
 @Module({
   imports: [
@@ -301,6 +223,8 @@ const OPENAPI_GENERATED: Provider[] = [
         imports: [],
       },
     ]),
+    ApiModule,
+    UserProfileModule,
   ],
   controllers: [
     MatchController,
@@ -328,7 +252,6 @@ const OPENAPI_GENERATED: Provider[] = [
     BlogpostController,
   ],
   providers: [
-    ...OPENAPI_GENERATED,
     ReqLoggingInterceptor,
     UserHttpCacheInterceptor,
     MainService,

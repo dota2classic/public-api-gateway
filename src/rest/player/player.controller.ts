@@ -32,8 +32,6 @@ import { UserMightExistEvent } from "../../gateway/events/user/user-might-exist.
 import { ClientProxy } from "@nestjs/microservices";
 import { HeroStatsDto } from "./dto/hero.dto";
 import { UserHttpCacheInterceptor } from "../../utils/cache-key-track";
-import { GetReportsAvailableQuery } from "../../gateway/queries/GetReportsAvailable/get-reports-available.query";
-import { GetReportsAvailableQueryResult } from "../../gateway/queries/GetReportsAvailable/get-reports-available-query.result";
 import { UserDTO } from "../shared.dto";
 import { AchievementDto } from "./dto/achievement.dto";
 import { WithPagination } from "../../utils/decorator/pagination";
@@ -42,6 +40,7 @@ import { PartyService } from "../party.service";
 import { ReqLoggingInterceptor } from "../../middleware/req-logging.interceptor";
 import { UserModel } from "../../cache/user/user.model";
 import { SocketDelivery } from "../../socket/socket-delivery";
+import { UserProfileService } from "../../user-profile/service/user-profile.service";
 
 @UseInterceptors(ReqLoggingInterceptor)
 @Controller("player")
@@ -55,48 +54,15 @@ export class PlayerController {
     private readonly partyService: PartyService,
     private readonly ms: PlayerApi,
     private readonly socketDelivery: SocketDelivery,
+    private readonly userProfile: UserProfileService,
   ) {}
-
-  // @Post("upload")
-  // @WithUser()
-  // @UseInterceptors(
-  //   FileInterceptor("image", {
-  //     storage: diskStorage({
-  //       destination: "./dist/upload",
-  //       filename: (req, file, cb) => {
-  //         // Generating a 32 random chars long string
-  //         const randomName = Array(32)
-  //           .fill(null)
-  //           .map(() => Math.round(Math.random() * 16).toString(16))
-  //           .join("");
-  //         //Calling the callback passing the random name generated with the original extension name
-  //         cb(null, `${randomName}${extname(file.originalname)}`);
-  //       },
-  //     }),
-  //   }),
-  // )
-  // public async uploadImage(@UploadedFile() file) {
-  //   // console.log(`upload hehe`, file)
-  //   //.split('.').slice(0, -1).join('.');
-  //   // img.path = file.filename;
-  //   // await rep.save(img);
-  //   return file.filename;
-  // }
 
   @Get("/me")
   @WithUser()
   @CacheTTL(60)
   async me(@CurrentUser() user: CurrentUserDto): Promise<MeDto> {
-    const rawData = await this.ms.playerControllerPlayerSummary(user.steam_id);
-
-    const res = await this.ms.playerControllerBanInfo(user.steam_id);
-
-    const u = await this.qbus.execute<
-      GetReportsAvailableQuery,
-      GetReportsAvailableQueryResult
-    >(new GetReportsAvailableQuery(new PlayerId(user.steam_id)));
-
-    return this.mapper.mapMe(rawData, res, undefined, u);
+    const profile = await this.userProfile.get(user.steam_id);
+    return this.mapper.mapMe(profile);
   }
 
   @Get("/connections")
@@ -165,15 +131,14 @@ export class PlayerController {
 
   @Get("/:id/summary")
   async playerSummary(
-    @Param("id") steam_id: string,
+    @Param("id") steamId: string,
   ): Promise<PlayerSummaryDto> {
-    const rawData = await this.ms.playerControllerPlayerSummary(steam_id);
-
     this.redisEventQueue.emit(
       UserMightExistEvent.name,
-      new UserMightExistEvent(new PlayerId(steam_id)),
+      new UserMightExistEvent(new PlayerId(steamId)),
     );
-    return this.mapper.mapPlayerSummary(rawData);
+    const summary = await this.userProfile.get(steamId)
+    return this.mapper.mapPlayerSummary(summary);
   }
 
   @Get("/party")
