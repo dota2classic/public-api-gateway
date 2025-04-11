@@ -113,6 +113,7 @@ export class UserProfileService {
   }
 
   private async save(u: _UserProfileDataJson) {
+    this.logger.log(`Updated user profile ${u.user.id}`);
     await this.keyv.set(u.user.id, u);
     (
       this.get as unknown as Memoized<(sid: string) => Promise<UserProfileDto>>

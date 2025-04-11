@@ -23,6 +23,7 @@ import { PlayerNotLoadedEvent } from "./gateway/events/bans/player-not-loaded.ev
 import { AchievementCompleteEvent } from "./gateway/events/gs/achievement-complete.event";
 import { PlayerAbandonedEvent } from "./gateway/events/bans/player-abandoned.event";
 import { PlayerSmurfDetectedEvent } from "./gateway/events/bans/player-smurf-detected.event";
+import { MatchRecordedEvent } from "./gateway/events/gs/match-recorded.event";
 
 @Controller()
 export class EventController {
@@ -83,6 +84,11 @@ export class EventController {
   @EventPattern(MatchStartedEvent.name)
   async MatchStartedEvent(data: MatchStartedEvent) {
     this.event(MatchStartedEvent, data);
+  }
+
+  @EventPattern(MatchRecordedEvent.name)
+  async MatchRecordedEvent(data: MatchRecordedEvent) {
+    this.event(MatchRecordedEvent, data);
   }
 
   @EventPattern(MatchFinishedEvent.name)
