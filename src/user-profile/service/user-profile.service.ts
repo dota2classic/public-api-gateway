@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, Logger } from "@nestjs/common";
 import Keyv from "keyv";
 import {
   _UserProfileDataJson,
@@ -12,8 +12,6 @@ import { UserEntry } from "../../gateway/queries/GetAll/get-all-query.result";
 import { PlayerApi } from "../../generated-api/gameserver";
 import { MatchAccessLevel } from "../../gateway/shared-types/match-access-level";
 import { QueryBus } from "@nestjs/cqrs";
-import { GetUserInfoQuery } from "../../gateway/queries/GetUserInfo/get-user-info.query";
-import { GetUserInfoQueryResult } from "../../gateway/queries/GetUserInfo/get-user-info-query.result";
 import { PlayerId } from "../../gateway/shared-types/player-id";
 import { DeepPartial } from "typeorm";
 import { mergeDeep } from "../../utils/merge";
@@ -21,16 +19,23 @@ import { GetReportsAvailableQuery } from "../../gateway/queries/GetReportsAvaila
 import { GetReportsAvailableQueryResult } from "../../gateway/queries/GetReportsAvailable/get-reports-available-query.result";
 import { GameServerAdapter } from "../adapter/gameserver.adapter";
 import { validateAgainstGood } from "../../utils/validate-basic-json";
+import { UserAdapter } from "../adapter/user.adapter";
+import { memoize2 } from "../../utils/memoize";
+import { Memoized } from "memoizee";
 
 @Injectable()
 export class UserProfileService {
+  private logger = new Logger(UserProfileService.name);
+
   constructor(
     private readonly keyv: Keyv,
     private readonly playerApi: PlayerApi,
     private readonly qbus: QueryBus,
     private readonly gsAdapter: GameServerAdapter,
+    private readonly userAdapter: UserAdapter,
   ) {}
 
+  @memoize2({ maxAge: 10_000, preFetch: true })
   public async get(steamId: string): Promise<UserProfileDto> {
     let profile = await this.keyv.get<_UserProfileDataJson>(steamId);
     if (profile) {
@@ -39,7 +44,7 @@ export class UserProfileService {
           return wrapJSON(profile);
         }
       } catch (e) {
-        console.warn("Stale json schema in redis, revalidating");
+        this.logger.warn("Stale json schema in redis, revalidating", steamId);
         // outdated invalid json
         profile = undefined;
       }
@@ -55,7 +60,7 @@ export class UserProfileService {
     return wrapJSON(profile);
   }
 
-  public async updateSteamProfile(entry: UserEntry) {
+  public updateSteamProfile = async (entry: UserEntry) => {
     const profile = await this.get(entry.id.value);
     profile.user = {
       ...profile.user,
@@ -64,47 +69,40 @@ export class UserProfileService {
       name: entry.name,
     };
     await this.save(profile);
-  }
+  };
 
-  public async createFullProfileFromScratch(
+  public createFullProfileFromScratch = async (
     steamId: string,
-  ): Promise<_UserProfileDataJson> {
-    const res = await this.qbus.execute<
-      GetUserInfoQuery,
-      GetUserInfoQueryResult
-    >(new GetUserInfoQuery(new PlayerId(steamId)));
-
+  ): Promise<_UserProfileDataJson> => {
     const u = await this.qbus.execute<
       GetReportsAvailableQuery,
       GetReportsAvailableQueryResult
     >(new GetReportsAvailableQuery(new PlayerId(steamId)));
 
+    const userData = await this.userAdapter.resolveUser(steamId);
     const gsData = await this.gsAdapter.resolveSummary(steamId);
 
     return {
-      user: {
-        id: steamId,
-        name: res.name,
-        avatar: res.avatar,
-        roles: res.roles,
-      },
+      user: userData.user,
       reports: {
         reportsAvailable: u.available,
       },
       player: gsData.player,
       forum: {},
     };
-  }
+  };
 
-  public async updateSummary(steamId: string) {
+  public updateSummary = async (steamId: string) => {
     this.gsAdapter
       .resolveSummary(steamId)
       .then((data) => this.merge(steamId, data));
-  }
+  };
 
-  public async userDto(steamId: string) {
-    return this.get(steamId).then((it) => it.asUserDto());
-  }
+  public userDto = async (steamId: string) =>
+    this.get(steamId).then((it) => it.asUserDto());
+
+  public name = async (steamId: string) =>
+    this.get(steamId).then((it) => it.user.name);
 
   private validateJsonAgainstDefault(json: _UserProfileDataJson) {
     const good = this.makeProfile("123");
@@ -116,6 +114,9 @@ export class UserProfileService {
 
   private async save(u: _UserProfileDataJson) {
     await this.keyv.set(u.user.id, u);
+    (
+      this.get as unknown as Memoized<(sid: string) => Promise<UserProfileDto>>
+    ).delete(u.user.id);
   }
 
   private async merge(id: string, u: DeepPartial<UserProfileDto>) {

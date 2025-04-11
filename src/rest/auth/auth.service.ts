@@ -1,8 +1,8 @@
 import { Injectable } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
-import { UserRepository } from "../../cache/user/user.repository";
 import { Role } from "../../gateway/shared-types/roles";
-import { UserModel } from "../../cache/user/user.model";
+import { UserProfileService } from "../../user-profile/service/user-profile.service";
+import { UserDTO } from "../shared.dto";
 
 export interface JwtPayload {
   sub: string;
@@ -18,7 +18,7 @@ export class AuthService {
   public static REFRESH_TOKEN_EXPIRES_IN = "4d";
   constructor(
     private readonly jwtService: JwtService,
-    private readonly userRepository: UserRepository,
+    private readonly user: UserProfileService,
   ) {}
 
   public async refreshToken(token: string) {
@@ -47,8 +47,7 @@ export class AuthService {
     name?: string,
     avatar?: string,
   ): Promise<JwtPayload> {
-    const u: UserModel | undefined =
-      await this.userRepository.resolve(steam_id);
+    const u: UserDTO | undefined = await this.user.userDto(steam_id);
     return {
       sub: steam_id,
       roles: u?.roles || [Role.PLAYER],

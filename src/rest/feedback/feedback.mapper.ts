@@ -6,11 +6,11 @@ import {
   PlayerFeedbackDto,
 } from "./feedback.dto";
 import { FeedbackEntity } from "../../entity/feedback.entity";
-import { UserRepository } from "../../cache/user/user.repository";
+import { UserProfileService } from "../../user-profile/service/user-profile.service";
 
 @Injectable()
 export class FeedbackMapper {
-  constructor(private readonly uRep: UserRepository) {}
+  constructor(private readonly user: UserProfileService) {}
   public mapFeedback = (
     it: PlayerFeedbackEntity,
     ticketId?: string,
@@ -42,7 +42,7 @@ export class FeedbackMapper {
     id: it.id,
     title: it.feedback.title,
     comment: it.comment,
-    user: await this.uRep.userDto(it.steamId),
+    user: await this.user.userDto(it.steamId),
     options: it.optionResults.map((option) => ({
       id: option.id,
       option: option.option,

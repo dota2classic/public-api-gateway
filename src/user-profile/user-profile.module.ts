@@ -6,12 +6,16 @@ import { UserUpdatedHandler } from "./event-handler/user-updated.handler";
 import { UserProfileService } from "./service/user-profile.service";
 import { CqrsModule } from "@nestjs/cqrs";
 import { GameServerAdapter } from "./adapter/gameserver.adapter";
+import { UserAdapter } from "./adapter/user.adapter";
+import { UserCreatedHandler } from "./event-handler/user-created.handler";
 
 @Module({
   imports: [CqrsModule],
   providers: [
     GameServerAdapter,
+    UserAdapter,
     UserUpdatedHandler,
+    UserCreatedHandler,
     {
       provide: Keyv,
       async useFactory(config: ConfigService) {

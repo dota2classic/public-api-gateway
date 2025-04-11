@@ -4,10 +4,6 @@ import {
   Logger,
   OnApplicationBootstrap,
 } from "@nestjs/common";
-import { GetAllQuery } from "./gateway/queries/GetAll/get-all.query";
-import { GetAllQueryResult } from "./gateway/queries/GetAll/get-all-query.result";
-import { UserRepository } from "./cache/user/user.repository";
-import { UserModel } from "./cache/user/user.model";
 import { EventBus, ofType, QueryBus } from "@nestjs/cqrs";
 import { ClientProxy } from "@nestjs/microservices";
 import { UserLoggedInEvent } from "./gateway/events/user/user-logged-in.event";
@@ -21,7 +17,6 @@ export class MainService implements OnApplicationBootstrap {
   constructor(
     private readonly qbus: QueryBus,
     private readonly ebus: EventBus,
-    private readonly userRepository: UserRepository,
     @Inject("QueryCore") private readonly redisEventQueue: ClientProxy,
     private readonly t: TelegramNotificationService,
   ) {}
@@ -43,19 +38,5 @@ export class MainService implements OnApplicationBootstrap {
     // await this.t.notifyFeedback(
     //   "amogus"
     // )
-  }
-
-  // @Cron("*/30 * * * * *")
-  async actualizeServers() {
-    const res = await this.qbus.execute<GetAllQuery, GetAllQueryResult>(
-      new GetAllQuery(),
-    );
-
-    res.entries.forEach((a) => {
-      this.userRepository.save(
-        a.id.value,
-        new UserModel(a.id.value, a.name, a.avatar, a.roles),
-      );
-    });
   }
 }

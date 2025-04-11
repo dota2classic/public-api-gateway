@@ -1,13 +1,13 @@
 import { Injectable } from "@nestjs/common";
 import { PlayerRecordDto } from "./record.dto";
 import { GameserverPlayerRecordDto } from "../../generated-api/gameserver";
-import { UserRepository } from "../../cache/user/user.repository";
 import { MatchMapper } from "../match/match.mapper";
+import { UserProfileService } from "../../user-profile/service/user-profile.service";
 
 @Injectable()
 export class RecordMapper {
   constructor(
-    private readonly urepo: UserRepository,
+    private readonly urepo: UserProfileService,
     private readonly matchMapper: MatchMapper,
   ) {}
 

@@ -4,8 +4,8 @@ import {
   SlotInfo,
 } from "../../gateway/events/gs/live-match-update.event";
 import { LiveMatchService } from "../live-match.service";
-import { UserRepository } from "../user/user.repository";
 import { MatchSlotInfo } from "../../rest/match/dto/match.dto";
+import { UserProfileService } from "../../user-profile/service/user-profile.service";
 
 @EventsHandler(LiveMatchUpdateEvent)
 export class LiveMatchUpdateHandler
@@ -13,7 +13,7 @@ export class LiveMatchUpdateHandler
 {
   constructor(
     private readonly ls: LiveMatchService,
-    private readonly uRep: UserRepository,
+    private readonly user: UserProfileService,
   ) {}
 
   async handle(event: LiveMatchUpdateEvent) {
@@ -31,7 +31,7 @@ export class LiveMatchUpdateHandler
 
   private mapSlotInfo = async (h: SlotInfo): Promise<MatchSlotInfo> => {
     return {
-      user: await this.uRep.userDto(h.steam_id),
+      user: await this.user.userDto(h.steam_id),
       team: h.team,
       connection: h.connection,
       heroData: h.hero_data && {

@@ -26,7 +26,6 @@ import { AuthGuard } from "@nestjs/passport";
 import { QueryBus } from "@nestjs/cqrs";
 import { D2CUser } from "../strategy/jwt.strategy";
 import { PlayerId } from "../../gateway/shared-types/player-id";
-import { UserRepository } from "../../cache/user/user.repository";
 import { WithUser } from "../../utils/decorator/with-user";
 import { UserMightExistEvent } from "../../gateway/events/user/user-might-exist.event";
 import { ClientProxy } from "@nestjs/microservices";
@@ -49,7 +48,6 @@ export class PlayerController {
   constructor(
     private readonly mapper: PlayerMapper,
     private readonly qbus: QueryBus,
-    private readonly userRepository: UserRepository,
     @Inject("QueryCore") private readonly redisEventQueue: ClientProxy,
     private readonly partyService: PartyService,
     private readonly ms: PlayerApi,
@@ -130,14 +128,12 @@ export class PlayerController {
   }
 
   @Get("/:id/summary")
-  async playerSummary(
-    @Param("id") steamId: string,
-  ): Promise<PlayerSummaryDto> {
+  async playerSummary(@Param("id") steamId: string): Promise<PlayerSummaryDto> {
     this.redisEventQueue.emit(
       UserMightExistEvent.name,
       new UserMightExistEvent(new PlayerId(steamId)),
     );
-    const summary = await this.userProfile.get(steamId)
+    const summary = await this.userProfile.get(steamId);
     return this.mapper.mapPlayerSummary(summary);
   }
 
@@ -165,16 +161,19 @@ export class PlayerController {
       return online.includes(steamId);
     };
     const score = (a: UserModel) => (isOnline(a.id) ? 10000 : 1);
-    return (await this.userRepository.all())
-      .filter((t) => t.name.toLowerCase().includes(name.toLowerCase()))
-      .sort((a, b) => score(b) - score(a))
-      .slice(0, count)
-      .map((it) => ({
-        steamId: it.id,
-        name: it.name,
-        avatar: it.avatar,
-        roles: it.roles,
-        avatarSmall: it.avatar && it.avatar.replace("_full", "_medium"),
-      }));
+
+    // TODO: implement somehow
+    return [];
+    // return (await this.userRepository.all())
+    //   .filter((t) => t.name.toLowerCase().includes(name.toLowerCase()))
+    //   .sort((a, b) => score(b) - score(a))
+    //   .slice(0, count)
+    //   .map((it) => ({
+    //     steamId: it.id,
+    //     name: it.name,
+    //     avatar: it.avatar,
+    //     roles: it.roles,
+    //     avatarSmall: it.avatar && it.avatar.replace("_full", "_medium"),
+    //   }));
   }
 }

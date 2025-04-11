@@ -12,7 +12,6 @@ import { JwtService } from "@nestjs/jwt";
 import { steam64to32 } from "../utils/steamIds";
 import { TOKEN_KEY } from "../utils/env";
 import { ApiExcludeEndpoint, ApiOkResponse, ApiTags } from "@nestjs/swagger";
-import { UserRepository } from "../cache/user/user.repository";
 import { UserLoggedInEvent } from "../gateway/events/user/user-logged-in.event";
 import { PlayerId } from "../gateway/shared-types/player-id";
 import { CookieOptions, Request, Response } from "express";
@@ -37,7 +36,6 @@ export class SteamController {
   };
   constructor(
     private readonly jwtService: JwtService,
-    private readonly userRepository: UserRepository,
     private readonly authService: AuthService,
     private readonly config: ConfigService,
     private readonly ebus: EventBus,

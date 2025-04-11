@@ -9,7 +9,7 @@ import { NotificationService } from "../notification.service";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { TelegramNotificationService } from "../telegram-notification.service";
-import { UserRepository } from "../../../cache/user/user.repository";
+import { UserProfileService } from "../../../user-profile/service/user-profile.service";
 
 @EventsHandler(PlayerFeedbackThreadCreatedEvent)
 export class PlayerFeedbackThreadCreatedHandler
@@ -20,7 +20,7 @@ export class PlayerFeedbackThreadCreatedHandler
     @InjectRepository(NotificationEntity)
     private readonly notificationEntityRepository: Repository<NotificationEntity>,
     private readonly telegram: TelegramNotificationService,
-    private readonly urep: UserRepository,
+    private readonly urep: UserProfileService,
   ) {}
 
   async handle(event: PlayerFeedbackThreadCreatedEvent) {
@@ -38,7 +38,7 @@ export class PlayerFeedbackThreadCreatedHandler
     event: PlayerFeedbackThreadCreatedEvent,
   ) {
     await this.telegram.notifyFeedback(
-      `Новое обращение от пользователя ${await this.urep.name(event.steamId)}
+      `Новое обращение от пользователя ${await this.urep.userDto(event.steamId).then((it) => it.name)}
 ${event.title}
 https://dotaclassic.ru/forum/ticket/${event.threadId.replace(/\D/g, "")}`,
     );

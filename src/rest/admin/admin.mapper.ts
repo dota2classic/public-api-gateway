@@ -7,17 +7,17 @@ import {
 import { CrimeLogDto, GameServerDto, GameSessionDto } from "./dto/admin.dto";
 import { Dota2Version } from "../../gateway/shared-types/dota2version";
 import { MatchmakingMode } from "../../gateway/shared-types/matchmaking-mode";
-import { UserRepository } from "../../cache/user/user.repository";
+import { UserProfileService } from "../../user-profile/service/user-profile.service";
 
 @Injectable()
 export class AdminMapper {
-  constructor(private readonly userRep: UserRepository) {}
+  constructor(private readonly user: UserProfileService) {}
 
   public mapCrimeLog = async (
     t: GameserverCrimeLogDto,
   ): Promise<CrimeLogDto> => ({
     id: t.id,
-    user: await this.userRep.userDto(t.steam_id),
+    user: await this.user.userDto(t.steam_id),
     handled: t.handled,
     crime: t.crime,
     lobby_type: t.lobby_type,
@@ -35,10 +35,10 @@ export class AdminMapper {
     it: GameserverGameSessionDto,
   ): Promise<GameSessionDto> => {
     const radiant = await Promise.all(
-      it.info.radiant.map(async (t) => await this.userRep.userDto(t)),
+      it.info.radiant.map(async (t) => await this.user.userDto(t)),
     );
     const dire = await Promise.all(
-      it.info.dire.map(async (t) => await this.userRep.userDto(t)),
+      it.info.dire.map(async (t) => await this.user.userDto(t)),
     );
 
     return {

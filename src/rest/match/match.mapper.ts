@@ -1,5 +1,4 @@
 import { Injectable } from "@nestjs/common";
-import { UserRepository } from "../../cache/user/user.repository";
 import {
   GameserverMatchDto,
   GameserverMatchPageDto,
@@ -15,11 +14,12 @@ import {
 import { MATCH_REPORT_TIMEOUT } from "../../gateway/shared-types/timings";
 import { ConfigService } from "@nestjs/config";
 import { MatchmakingMode } from "../../gateway/shared-types/matchmaking-mode";
+import { UserProfileService } from "../../user-profile/service/user-profile.service";
 
 @Injectable()
 export class MatchMapper {
   constructor(
-    private readonly userRepository: UserRepository,
+    private readonly user: UserProfileService,
     private readonly configService: ConfigService,
   ) {}
 
@@ -36,7 +36,7 @@ export class MatchMapper {
     const { steam_id, ...dto } = it;
     return {
       ...dto,
-      user: await this.userRepository.userDto(it.steam_id),
+      user: await this.user.userDto(it.steam_id),
       mmr: it.mmr && this.mapMmr(it.mmr),
     };
   };

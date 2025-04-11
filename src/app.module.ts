@@ -6,7 +6,6 @@ import { JwtModule, JwtModuleOptions } from "@nestjs/jwt";
 import { ClientsModule, RedisOptions, Transport } from "@nestjs/microservices";
 import { GetAllQuery } from "./gateway/queries/GetAll/get-all.query";
 import { GetUserInfoQuery } from "./gateway/queries/GetUserInfo/get-user-info.query";
-import { UserRepository } from "./cache/user/user.repository";
 import { CqrsModule } from "@nestjs/cqrs";
 import { MatchMapper } from "./rest/match/match.mapper";
 import { PlayerController } from "./rest/player/player.controller";
@@ -15,9 +14,7 @@ import { JwtStrategy } from "./rest/strategy/jwt.strategy";
 import { GetPartyQuery } from "./gateway/queries/GetParty/get-party.query";
 import { ServerController } from "./rest/admin/server.controller";
 import { AdminMapper } from "./rest/admin/admin.mapper";
-import { UserCreatedHandler } from "./cache/event-handler/user-created.handler";
 import { EventController } from "./event.controller";
-import { UserUpdatedHandler } from "./cache/event-handler/user-updated.handler";
 import { AdminUserController } from "./rest/admin/admin-user.controller";
 import { DiscordController } from "./rest/discord.controller";
 import { DiscordStrategy } from "./rest/strategy/discord.strategy";
@@ -304,9 +301,6 @@ import { UserProfileModule } from "./user-profile/user-profile.module";
     BlogpostMapper,
     RecordMapper,
 
-    UserRepository,
-    UserCreatedHandler,
-    UserUpdatedHandler,
     LiveMatchUpdateHandler,
     ReadyCheckStartedHandler,
 

@@ -1,9 +1,9 @@
 import { EventsHandler, IEventHandler, QueryBus } from "@nestjs/cqrs";
 import { PartyInviteCreatedEvent } from "../../gateway/events/party/party-invite-created.event";
 import { SocketDelivery } from "../socket-delivery";
-import { UserRepository } from "../../cache/user/user.repository";
 import { PartyInviteReceivedMessageS2C } from "../messages/s2c/party-invite-received-message.s2c";
 import { MessageTypeS2C } from "../messages/s2c/message-type.s2c";
+import { UserProfileService } from "../../user-profile/service/user-profile.service";
 
 @EventsHandler(PartyInviteCreatedEvent)
 export class PartyInviteCreatedHandler
@@ -12,7 +12,7 @@ export class PartyInviteCreatedHandler
   constructor(
     private readonly delivery: SocketDelivery,
     private readonly queryBus: QueryBus,
-    private readonly userRepository: UserRepository,
+    private readonly userRepository: UserProfileService,
   ) {}
 
   async handle(event: PartyInviteCreatedEvent) {

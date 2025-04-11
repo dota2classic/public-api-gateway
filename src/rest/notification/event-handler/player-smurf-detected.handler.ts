@@ -1,9 +1,9 @@
 import { EventsHandler, IEventHandler } from "@nestjs/cqrs";
 import { PlayerSmurfDetectedEvent } from "../../../gateway/events/bans/player-smurf-detected.event";
 import { TelegramNotificationService } from "../telegram-notification.service";
-import { UserRepository } from "../../../cache/user/user.repository";
 import { BanReason } from "../../../gateway/shared-types/ban";
 import { fullDate } from "../../../utils/format-date";
+import { UserProfileService } from "../../../user-profile/service/user-profile.service";
 
 @EventsHandler(PlayerSmurfDetectedEvent)
 export class PlayerSmurfDetectedHandler
@@ -11,7 +11,7 @@ export class PlayerSmurfDetectedHandler
 {
   constructor(
     private readonly telegramNotificationService: TelegramNotificationService,
-    private readonly uRepo: UserRepository,
+    private readonly uRepo: UserProfileService,
   ) {}
 
   private static mapUsername = (raw: string): string =>

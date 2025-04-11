@@ -20,7 +20,6 @@ import { filter, Observable } from "rxjs";
 import { EventBus } from "@nestjs/cqrs";
 import { makePage } from "../../gateway/util/make-page";
 import { asyncMap } from "rxjs-async-map";
-import { UserRepository } from "../../cache/user/user.repository";
 import {
   CreateMessageDTO,
   CreateThreadDTO,
@@ -71,7 +70,6 @@ export class ForumController {
   constructor(
     private readonly ebus: EventBus,
     private readonly mapper: ForumMapper,
-    private readonly urepo: UserRepository,
     private readonly api: ForumApi,
     private readonly matchApi: MatchApi,
     private readonly liveMatchService: LiveMatchService,

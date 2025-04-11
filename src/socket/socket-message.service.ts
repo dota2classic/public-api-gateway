@@ -13,7 +13,6 @@ import { GetPartyInvitationsQuery } from "../gateway/queries/GetPartyInvitations
 import { GetPartyInvitationsQueryResult } from "../gateway/queries/GetPartyInvitations/get-party-invitations-query.result";
 import { PlayerPartyInvitationsMessageS2C } from "./messages/s2c/player-party-invitations-message.s2c";
 import { PartyInviteReceivedMessageS2C } from "./messages/s2c/party-invite-received-message.s2c";
-import { UserRepository } from "../cache/user/user.repository";
 import { GetSessionByUserQueryResult } from "../gateway/queries/GetSessionByUser/get-session-by-user-query.result";
 import { GetSessionByUserQuery } from "../gateway/queries/GetSessionByUser/get-session-by-user.query";
 import { PlayerGameStateMessageS2C } from "./messages/s2c/player-game-state-message.s2c";
@@ -25,6 +24,7 @@ import { QueueStateMessageS2C } from "./messages/s2c/queue-state-message.s2c";
 import { GetPartyQuery } from "../gateway/queries/GetParty/get-party.query";
 import { GetPartyQueryResult } from "../gateway/queries/GetParty/get-party-query.result";
 import { PlayerQueueStateMessageS2C } from "./messages/s2c/player-queue-state-message.s2c";
+import { UserProfileService } from "../user-profile/service/user-profile.service";
 
 @Injectable()
 export class SocketMessageService {
@@ -35,7 +35,7 @@ export class SocketMessageService {
 
   constructor(
     private readonly qbus: QueryBus,
-    private readonly userRepo: UserRepository,
+    private readonly user: UserProfileService,
   ) {}
 
   async playerRoomState(
@@ -72,7 +72,7 @@ export class SocketMessageService {
             new PartyInviteReceivedMessageS2C(
               it.partyId,
               it.id,
-              await this.userRepo.userDto(it.leaderId),
+              await this.user.userDto(it.leaderId),
             ),
         ),
       ),

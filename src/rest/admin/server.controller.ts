@@ -16,13 +16,13 @@ import { InfoApi } from "../../generated-api/gameserver";
 import { GetQueueStateQuery } from "../../gateway/queries/QueueState/get-queue-state.query";
 import { Dota2Version } from "../../gateway/shared-types/dota2version";
 import { GetQueueStateQueryResult } from "../../gateway/queries/QueueState/get-queue-state-query.result";
-import { UserRepository } from "../../cache/user/user.repository";
 import {
   AdminGuard,
   ModeratorGuard,
   WithUser,
 } from "../../utils/decorator/with-user";
 import { MatchmakingMode } from "../../gateway/shared-types/matchmaking-mode";
+import { UserProfileService } from "../../user-profile/service/user-profile.service";
 
 @Controller("servers")
 @ApiTags("admin")
@@ -30,7 +30,7 @@ export class ServerController {
   constructor(
     @Inject("QueryCore") private readonly rq: ClientProxy,
     private readonly qBus: QueryBus,
-    private readonly urepo: UserRepository,
+    private readonly user: UserProfileService,
     private readonly mapper: AdminMapper,
     private readonly ebus: EventBus,
     private readonly ms: InfoApi,
@@ -46,7 +46,7 @@ export class ServerController {
       .filter((t) => t.modes.includes(MatchmakingMode.UNRANKED))
       .flatMap((it) => it.players);
 
-    return (await Promise.all(plrs.map(this.urepo.userDto))).map(
+    return (await Promise.all(plrs.map(this.user.userDto))).map(
       (it) => it.name,
     );
   }
@@ -63,7 +63,7 @@ export class ServerController {
         return {
           partyId: entry.partyID,
           modes: entry.modes,
-          players: await Promise.all(entry.players.map(this.urepo.userDto)),
+          players: await Promise.all(entry.players.map(this.user.userDto)),
         };
       }),
     );

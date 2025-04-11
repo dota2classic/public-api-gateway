@@ -11,13 +11,13 @@ import {
   ThreadDTO,
   ThreadMessageDTO,
 } from "./forum.dto";
-import { UserRepository } from "../../cache/user/user.repository";
 import { ConfigService } from "@nestjs/config";
+import { UserProfileService } from "../../user-profile/service/user-profile.service";
 
 @Injectable()
 export class ForumMapper {
   constructor(
-    private readonly urepo: UserRepository,
+    private readonly user: UserProfileService,
     private readonly config: ConfigService,
   ) {}
 
@@ -41,14 +41,14 @@ export class ForumMapper {
       reactions: await Promise.all(
         msg.reactions.map(async (reaction) => ({
           emoticon: this.mapEmoticon(reaction.emoticon),
-          reacted: await Promise.all(reaction.reacted.map(this.urepo.userDto)),
+          reacted: await Promise.all(reaction.reacted.map(this.user.userDto)),
         })),
       ),
       reply: msg.repliedMessage
         ? await this.mapApiMessage(msg.repliedMessage)
         : undefined,
 
-      author: await this.urepo.userDto(msg.author),
+      author: await this.user.userDto(msg.author),
     };
   };
 
@@ -65,14 +65,13 @@ export class ForumMapper {
     newMessageCount: thread.newMessageCount,
 
     originalPoster:
-      thread.originalPoster &&
-      (await this.urepo.userDto(thread.originalPoster)),
+      thread.originalPoster && (await this.user.userDto(thread.originalPoster)),
     lastMessage:
       thread.lastMessage && (await this.mapApiMessage(thread.lastMessage)),
   });
 
   public mapUser = async (user: ForumForumUserDTO): Promise<ForumUserDto> => ({
-    user: await this.urepo.userDto(user.steamId),
+    user: await this.user.userDto(user.steamId),
     messages: user.messages,
     mutedUntil: user.muteUntil,
   });

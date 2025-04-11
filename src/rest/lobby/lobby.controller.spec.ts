@@ -30,6 +30,7 @@ import { LobbyReadyEvent } from "../../gateway/events/lobby-ready.event";
 import { Repository } from "typeorm";
 import { DotaTeam } from "../../gateway/shared-types/dota-team";
 import { Dota_Map } from "../../gateway/shared-types/dota-map";
+import { UserProfileService } from "../../user-profile/service/user-profile.service";
 
 describe("LobbyController", () => {
   jest.setTimeout(60000);
@@ -53,12 +54,16 @@ describe("LobbyController", () => {
     } as CurrentUserDto;
 
     const js = module.get(AuthService);
-    const ue = module.get(UserRepository);
-    const authSpy = jest
-      .spyOn(ue, "resolve")
-      .mockReturnValueOnce(
-        Promise.resolve(new UserModel(steamId, "", "", roles)),
-      );
+    const ue = module.get(UserProfileService);
+    const authSpy = jest.spyOn(ue, "userDto").mockReturnValueOnce(
+      Promise.resolve({
+        steamId,
+        avatar: "",
+        avatarSmall: "",
+        name: "",
+        roles: [],
+      }),
+    );
 
     const token = await js.createToken(
       currentUser.steam_id,

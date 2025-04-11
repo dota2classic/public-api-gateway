@@ -1,17 +1,17 @@
 import { Injectable } from "@nestjs/common";
-import { UserRepository } from "../../cache/user/user.repository";
 import { LobbyEntity } from "../../entity/lobby.entity";
 import { LobbyDto, LobbySlotDto } from "./lobby.dto";
 import { LobbySlotEntity } from "../../entity/lobby-slot.entity";
+import { UserProfileService } from "../../user-profile/service/user-profile.service";
 
 @Injectable()
 export class LobbyMapper {
-  constructor(private readonly uRep: UserRepository) {}
+  constructor(private readonly user: UserProfileService) {}
 
   public mapLobbySlot = async (
     slot: LobbySlotEntity,
   ): Promise<LobbySlotDto> => ({
-    user: await this.uRep.userDto(slot.steamId),
+    user: await this.user.userDto(slot.steamId),
     team: slot.team,
     index: slot.indexInTeam,
   });
@@ -21,7 +21,7 @@ export class LobbyMapper {
     mapFor?: string,
   ): Promise<LobbyDto> => {
     return {
-      owner: await this.uRep.userDto(lobby.ownerSteamId),
+      owner: await this.user.userDto(lobby.ownerSteamId),
       id: lobby.id,
       name: lobby.name,
       gameMode: lobby.gameMode,

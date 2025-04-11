@@ -11,7 +11,7 @@ import { ThreadType } from "../../../gateway/shared-types/thread-type";
 import { Logger } from "@nestjs/common";
 import { NotificationService } from "../../notification/notification.service";
 import { TelegramNotificationService } from "../telegram-notification.service";
-import { UserRepository } from "../../../cache/user/user.repository";
+import { UserProfileService } from "../../../user-profile/service/user-profile.service";
 
 @EventsHandler(MessageUpdatedEvent)
 export class NewTicketMessageCreatedHandler
@@ -23,7 +23,7 @@ export class NewTicketMessageCreatedHandler
     @InjectRepository(PlayerFeedbackEntity)
     private readonly playerFeedbackEntityRepository: Repository<PlayerFeedbackEntity>,
     private readonly telegram: TelegramNotificationService,
-    private readonly urep: UserRepository,
+    private readonly urep: UserProfileService,
   ) {}
 
   async handle(event: MessageUpdatedEvent) {
@@ -67,7 +67,7 @@ export class NewTicketMessageCreatedHandler
   private async notifyNewMessage(event: MessageUpdatedEvent) {
     await this.telegram.notifyFeedback(
       `Новое сообщение в обращении:\n
-${await this.urep.name(event.author)}: ${event.content}
+${await this.urep.userDto(event.author).then((it) => it.name)}: ${event.content}
 https://dotaclassic.ru/forum/ticket/${event.threadId.replace(/\D/g, "")}`,
     );
   }

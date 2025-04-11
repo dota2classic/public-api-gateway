@@ -30,7 +30,6 @@ import {
 } from "../../utils/decorator/with-user";
 import { GetRoleSubscriptionsQuery } from "../../gateway/queries/user/GetRoleSubscriptions/get-role-subscriptions.query";
 import { GetRoleSubscriptionsQueryResult } from "../../gateway/queries/user/GetRoleSubscriptions/get-role-subscriptions-query.result";
-import { UserRepository } from "../../cache/user/user.repository";
 import { GetPlayerInfoQuery } from "../../gateway/queries/GetPlayerInfo/get-player-info.query";
 import { GetPlayerInfoQueryResult } from "../../gateway/queries/GetPlayerInfo/get-player-info-query.result";
 import { Dota2Version } from "../../gateway/shared-types/dota2version";
@@ -40,6 +39,7 @@ import { AdminMapper } from "./admin.mapper";
 import { WithPagination } from "../../utils/decorator/pagination";
 import { MatchmakingInfo } from "../stats/dto/stats.dto";
 import { InjectS3, S3 } from "nestjs-s3";
+import { UserProfileService } from "../../user-profile/service/user-profile.service";
 
 @Controller("admin/users")
 @ApiTags("admin")
@@ -47,7 +47,7 @@ export class AdminUserController {
   constructor(
     @Inject("QueryCore") private readonly rq: ClientProxy,
     private readonly qBus: QueryBus,
-    private readonly urep: UserRepository,
+    private readonly user: UserProfileService,
     private readonly ebus: EventBus,
     private readonly mapper: AdminMapper,
     private readonly api: CrimeApi,
@@ -118,7 +118,7 @@ export class AdminUserController {
       await Promise.all(
         q.entries.map(async (t) => ({
           steam_id: t.steam_id,
-          name: await this.urep.name(t.steam_id),
+          name: (await this.user.userDto(t.steam_id)).name,
           entries: t.entries.map((z) => ({ ...z, steam_id: z.playerId.value })),
         })),
       )
@@ -149,7 +149,7 @@ export class AdminUserController {
     const data = await this.playerApi.playerControllerSmurfData(steamId);
     return Promise.all(
       data.relatedBans.map(async (rb) => ({
-        user: await this.urep.userDto(rb.steam_id),
+        user: await this.user.userDto(rb.steam_id),
         ban: {
           isBanned: rb.isBanned,
           bannedUntil: rb.bannedUntil,
@@ -181,7 +181,7 @@ export class AdminUserController {
     return Promise.all(
       q.entries.map(async (t) => ({
         steam_id: t.steam_id,
-        name: await this.urep.name(t.steam_id),
+        name: (await this.user.userDto(t.steam_id)).name,
         entries: t.entries.map((z) => ({ ...z, steam_id: z.playerId.value })),
       })),
     );
