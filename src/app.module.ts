@@ -113,6 +113,7 @@ import { FeedbackAssistantService } from "./rest/feedback/feedback-assistant.ser
 import { PlayerSmurfDetectedHandler } from "./rest/notification/event-handler/player-smurf-detected.handler";
 import { ApiModule } from "./api/api.module";
 import { UserProfileModule } from "./user-profile/user-profile.module";
+import { FindByNameQuery } from "./gateway/queries/FindByName/find-by-name.query";
 
 @Module({
   imports: [
@@ -276,6 +277,7 @@ import { UserProfileModule } from "./user-profile/user-profile.module";
     outerQueryNew(GetSessionByUserQuery, "QueryCore"),
     outerQueryNew(GetUserRoomQuery, "QueryCore"),
     outerQueryNew(GetPartyInvitationsQuery, "QueryCore"),
+    outerQueryNew(FindByNameQuery, "QueryCore"),
 
     SteamStrategy,
     JwtStrategy,

@@ -20,7 +20,7 @@ export class TelegramNotificationService {
         },
       );
     } catch (e) {
-      this.logger.error(`Error sending to telegram ${text}`, e);
+      this.logger.error(`Error sending to telegram ${text} ${e}`);
     }
   }
 
@@ -35,7 +35,7 @@ export class TelegramNotificationService {
         },
       );
     } catch (e) {
-      this.logger.error(`Error sending to telegram ${text}`, e);
+      this.logger.error(`Error sending to telegram ${text} ${e}`);
     }
   }
 }

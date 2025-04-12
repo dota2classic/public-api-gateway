@@ -37,9 +37,11 @@ import { WithPagination } from "../../utils/decorator/pagination";
 import { NullableIntPipe } from "../../utils/pipes";
 import { PartyService } from "../party.service";
 import { ReqLoggingInterceptor } from "../../middleware/req-logging.interceptor";
-import { UserModel } from "../../cache/user/user.model";
 import { SocketDelivery } from "../../socket/socket-delivery";
 import { UserProfileService } from "../../user-profile/service/user-profile.service";
+import { DataSource } from "typeorm";
+import { FindByNameQuery } from "../../gateway/queries/FindByName/find-by-name.query";
+import { FindByNameQueryResult } from "../../gateway/queries/FindByName/find-by-name-query.result";
 
 @UseInterceptors(ReqLoggingInterceptor)
 @Controller("player")
@@ -53,6 +55,7 @@ export class PlayerController {
     private readonly ms: PlayerApi,
     private readonly socketDelivery: SocketDelivery,
     private readonly userProfile: UserProfileService,
+    private readonly ds: DataSource,
   ) {}
 
   @Get("/me")
@@ -157,23 +160,11 @@ export class PlayerController {
     @CurrentUser() user: D2CUser,
   ): Promise<UserDTO[]> {
     const online = this.socketDelivery.getOnline();
-    const isOnline = (steamId: string) => {
-      return online.includes(steamId);
-    };
-    const score = (a: UserModel) => (isOnline(a.id) ? 10000 : 1);
 
-    // TODO: implement somehow
-    return [];
-    // return (await this.userRepository.all())
-    //   .filter((t) => t.name.toLowerCase().includes(name.toLowerCase()))
-    //   .sort((a, b) => score(b) - score(a))
-    //   .slice(0, count)
-    //   .map((it) => ({
-    //     steamId: it.id,
-    //     name: it.name,
-    //     avatar: it.avatar,
-    //     roles: it.roles,
-    //     avatarSmall: it.avatar && it.avatar.replace("_full", "_medium"),
-    //   }));
+    const result = await this.qbus.execute<
+      FindByNameQuery,
+      FindByNameQueryResult
+    >(new FindByNameQuery(name, 50, online));
+    return Promise.all(result.steamIds.map(this.userProfile.userDto));
   }
 }
