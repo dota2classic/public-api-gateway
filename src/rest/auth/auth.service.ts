@@ -47,7 +47,10 @@ export class AuthService {
     name?: string,
     avatar?: string,
   ): Promise<JwtPayload> {
-    const u: UserDTO | undefined = await this.user.userDto(steam_id);
+    let u: UserDTO | undefined = undefined;
+    try {
+      u = await this.user.userDto(steam_id);
+    } catch (e) {}
     return {
       sub: steam_id,
       roles: u?.roles || [Role.PLAYER],
