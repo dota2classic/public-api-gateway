@@ -9,6 +9,7 @@ import { GameServerAdapter } from "./adapter/gameserver.adapter";
 import { UserAdapter } from "./adapter/user.adapter";
 import { UserCreatedHandler } from "./event-handler/user-created.handler";
 import { MatchRecordedHandler } from "./event-handler/match-recorded.handler";
+import { BanSystemHandler } from "./event-handler/ban-system.handler";
 
 @Module({
   imports: [CqrsModule],
@@ -18,6 +19,7 @@ import { MatchRecordedHandler } from "./event-handler/match-recorded.handler";
     UserUpdatedHandler,
     UserCreatedHandler,
     MatchRecordedHandler,
+    BanSystemHandler,
     {
       provide: Keyv,
       async useFactory(config: ConfigService) {

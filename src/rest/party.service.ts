@@ -22,10 +22,6 @@ export class PartyService {
       new GetPartyQuery(steamId),
     );
 
-    const banStatuses = await Promise.all(
-      party.players.map((steamId) => this.api.playerControllerBanInfo(steamId)),
-    );
-
     const sessions = await Promise.all(
       party.players.map((steamId) =>
         this.qbus
@@ -37,11 +33,6 @@ export class PartyService {
       ),
     );
 
-    const summaries = await Promise.all(
-      party.players.map((steamId) =>
-        this.api.playerControllerPlayerSummary(steamId),
-      ),
-    );
     return this.mapper.mapParty(party, sessions);
   }
 }

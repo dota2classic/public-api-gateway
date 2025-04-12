@@ -24,6 +24,7 @@ import { AchievementCompleteEvent } from "./gateway/events/gs/achievement-comple
 import { PlayerAbandonedEvent } from "./gateway/events/bans/player-abandoned.event";
 import { PlayerSmurfDetectedEvent } from "./gateway/events/bans/player-smurf-detected.event";
 import { MatchRecordedEvent } from "./gateway/events/gs/match-recorded.event";
+import { BanSystemEvent } from "./gateway/events/gs/ban-system.event";
 
 @Controller()
 export class EventController {
@@ -79,6 +80,11 @@ export class EventController {
   @EventPattern(ReadyStateUpdatedEvent.name)
   async ReadyStateUpdatedEvent(data: ReadyStateUpdatedEvent) {
     this.event(ReadyStateUpdatedEvent, data);
+  }
+
+  @EventPattern(BanSystemEvent.name)
+  async BanSystemEvent(data: BanSystemEvent) {
+    this.event(BanSystemEvent, data);
   }
 
   @EventPattern(MatchStartedEvent.name)

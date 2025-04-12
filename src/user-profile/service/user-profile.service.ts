@@ -114,7 +114,7 @@ export class UserProfileService {
 
   private async save(u: _UserProfileDataJson) {
     this.logger.log(`Updated user profile ${u.user.id}`);
-    await this.keyv.set(u.user.id, u);
+    await this.keyv.set(u.user.id, u, 60_000); // 1 min ttl is good enough maybe?
     (
       this.get as unknown as Memoized<(sid: string) => Promise<UserProfileDto>>
     ).delete(u.user.id);
