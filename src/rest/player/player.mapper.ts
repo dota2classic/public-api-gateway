@@ -52,6 +52,7 @@ export class PlayerMapper {
       deaths: it.deaths,
       assists: it.assists,
       wins: it.wins,
+      abandons: it.abandons,
       play_time: it.playtime,
       rank: it.rank,
     };
@@ -79,6 +80,7 @@ export class PlayerMapper {
       rank: it.player.rank,
       wins: it.player.win,
       loss: it.player.loss,
+      abandons: it.player.abandon,
       games_played: it.player.games,
       calibrationGamesLeft: it.player.calibrationGamesLeft,
       accessMap: this.mapAccessLevel(it.player.accessLevel),

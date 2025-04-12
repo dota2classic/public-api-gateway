@@ -13,29 +13,24 @@
  */
 
 
-import * as runtime from '../runtime';
+import * as runtime from "../runtime";
 
 import {
-    GameserverGameSeasonDto,
-    GameserverGameSeasonDtoFromJSON,
-    GameserverGameSeasonDtoToJSON,
-    GameserverGameServerDto,
-    GameserverGameServerDtoFromJSON,
-    GameserverGameServerDtoToJSON,
-    GameserverGameSessionDto,
-    GameserverGameSessionDtoFromJSON,
-    GameserverGameSessionDtoToJSON,
-    GameserverMatchmakingModeInfoDto,
-    GameserverMatchmakingModeInfoDtoFromJSON,
-    GameserverMatchmakingModeInfoDtoToJSON,
-    GameserverUpdateGamemodeDto,
-    GameserverUpdateGamemodeDtoFromJSON,
-    GameserverUpdateGamemodeDtoToJSON,
-} from '../models';
+  GameserverGameSeasonDto,
+  GameserverGameSeasonDtoFromJSON,
+  GameserverGameServerDto,
+  GameserverGameServerDtoFromJSON,
+  GameserverGameSessionDto,
+  GameserverGameSessionDtoFromJSON,
+  GameserverMatchmakingModeInfoDto,
+  GameserverMatchmakingModeInfoDtoFromJSON,
+  GameserverUpdateGamemodeDto,
+  GameserverUpdateGamemodeDtoToJSON,
+} from "../models";
 
 export interface InfoControllerUpdateGamemodeRequest {
-    mode: number;
-    gameserverUpdateGamemodeDto: GameserverUpdateGamemodeDto;
+  mode: number;
+  gameserverUpdateGamemodeDto: GameserverUpdateGamemodeDto;
 }
 
 /**

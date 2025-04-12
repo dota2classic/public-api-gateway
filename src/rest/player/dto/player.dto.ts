@@ -15,6 +15,7 @@ export class LeaderboardEntryDto {
 
   games: number;
   wins: number;
+  abandons: number;
 
   kills: number;
   deaths: number;
@@ -70,6 +71,7 @@ export class PlayerSummaryDto {
 
   wins: number;
   loss: number;
+  abandons: number;
 
   kills: number;
   deaths: number;

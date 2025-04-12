@@ -59,6 +59,12 @@ export class GameserverLeaderboardEntryDto {
      * @type {number}
      * @memberof GameserverLeaderboardEntryDto
      */
+    abandons: number;
+    /**
+     *
+     * @type {number}
+     * @memberof GameserverLeaderboardEntryDto
+     */
     kills: number;
     /**
      *
@@ -96,6 +102,7 @@ export function GameserverLeaderboardEntryDtoFromJSONTyped(json: any, ignoreDisc
         'mmr': json['mmr'],
         'games': json['games'],
         'wins': json['wins'],
+        'abandons': json['abandons'],
         'kills': json['kills'],
         'deaths': json['deaths'],
         'assists': json['assists'],
@@ -118,6 +125,7 @@ export function GameserverLeaderboardEntryDtoToJSON(value?: GameserverLeaderboar
         'mmr': value.mmr,
         'games': value.games,
         'wins': value.wins,
+        'abandons': value.abandons,
         'kills': value.kills,
         'deaths': value.deaths,
         'assists': value.assists,

@@ -23,7 +23,7 @@ export class GameServerAdapter {
 
         win: summary.wins,
         loss: summary.games - summary.wins,
-        abandon: 0,
+        abandon: summary.abandons,
         games: summary.games,
         playtime: summary.playtime,
 

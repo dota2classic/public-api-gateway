@@ -13,40 +13,31 @@
  */
 
 
-import * as runtime from '../runtime';
+import * as runtime from "../runtime";
 
 import {
-    GameserverAchievementDto,
-    GameserverAchievementDtoFromJSON,
-    GameserverAchievementDtoToJSON,
-    GameserverBanStatusDto,
-    GameserverBanStatusDtoFromJSON,
-    GameserverBanStatusDtoToJSON,
-    GameserverHeroStatsDto,
-    GameserverHeroStatsDtoFromJSON,
-    GameserverHeroStatsDtoToJSON,
-    GameserverLeaderboardEntryPageDto,
-    GameserverLeaderboardEntryPageDtoFromJSON,
-    GameserverLeaderboardEntryPageDtoToJSON,
-    GameserverPlayerHeroPerformance,
-    GameserverPlayerHeroPerformanceFromJSON,
-    GameserverPlayerHeroPerformanceToJSON,
-    GameserverPlayerSummaryDto,
-    GameserverPlayerSummaryDtoFromJSON,
-    GameserverPlayerSummaryDtoToJSON,
-    GameserverPlayerTeammatePage,
-    GameserverPlayerTeammatePageFromJSON,
-    GameserverPlayerTeammatePageToJSON,
-    GameserverReportPlayerDto,
-    GameserverReportPlayerDtoFromJSON,
-    GameserverReportPlayerDtoToJSON,
-    GameserverSmurfData,
-    GameserverSmurfDataFromJSON,
-    GameserverSmurfDataToJSON,
-} from '../models';
+  GameserverAchievementDto,
+  GameserverAchievementDtoFromJSON,
+  GameserverBanStatusDto,
+  GameserverBanStatusDtoFromJSON,
+  GameserverHeroStatsDto,
+  GameserverHeroStatsDtoFromJSON,
+  GameserverLeaderboardEntryPageDto,
+  GameserverLeaderboardEntryPageDtoFromJSON,
+  GameserverPlayerHeroPerformance,
+  GameserverPlayerHeroPerformanceFromJSON,
+  GameserverPlayerSummaryDto,
+  GameserverPlayerSummaryDtoFromJSON,
+  GameserverPlayerTeammatePage,
+  GameserverPlayerTeammatePageFromJSON,
+  GameserverReportPlayerDto,
+  GameserverReportPlayerDtoToJSON,
+  GameserverSmurfData,
+  GameserverSmurfDataFromJSON,
+} from "../models";
 
 export interface PlayerControllerBanInfoRequest {
-    id: string;
+  id: string;
 }
 
 export interface PlayerControllerGetHeroPlayersRequest {
@@ -453,6 +444,26 @@ export class PlayerApi extends runtime.BaseAPI {
 
     /**
      */
+    private async playerControllerSmurfDataRaw(requestParameters: PlayerControllerSmurfDataRequest): Promise<runtime.ApiResponse<GameserverSmurfData>> {
+        this.playerControllerSmurfDataValidation(requestParameters);
+        const context = this.playerControllerSmurfDataContext(requestParameters);
+        const response = await this.request(context);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => GameserverSmurfDataFromJSON(jsonValue));
+    }
+
+
+
+    /**
+     */
+    private playerControllerSmurfDataValidation(requestParameters: PlayerControllerSmurfDataRequest) {
+        if (requestParameters.id === null || requestParameters.id === undefined) {
+            throw new runtime.RequiredError('id','Required parameter requestParameters.id was null or undefined when calling playerControllerSmurfData.');
+        }
+    }
+
+    /**
+     */
     playerControllerSmurfDataContext(requestParameters: PlayerControllerSmurfDataRequest): runtime.RequestOpts {
         const queryParameters: any = {};
 
@@ -471,24 +482,6 @@ export class PlayerApi extends runtime.BaseAPI {
     playerControllerSmurfData = async (id: string): Promise<GameserverSmurfData> => {
         const response = await this.playerControllerSmurfDataRaw({ id: id });
         return await response.value();
-    }
-
-    /**
-     */
-    private async playerControllerSmurfDataRaw(requestParameters: PlayerControllerSmurfDataRequest): Promise<runtime.ApiResponse<GameserverSmurfData>> {
-        this.playerControllerSmurfDataValidation(requestParameters);
-        const context = this.playerControllerSmurfDataContext(requestParameters);
-        const response = await this.request(context);
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => GameserverSmurfDataFromJSON(jsonValue));
-    }
-
-    /**
-     */
-    private playerControllerSmurfDataValidation(requestParameters: PlayerControllerSmurfDataRequest) {
-        if (requestParameters.id === null || requestParameters.id === undefined) {
-            throw new runtime.RequiredError('id','Required parameter requestParameters.id was null or undefined when calling playerControllerSmurfData.');
-        }
     }
 
 }

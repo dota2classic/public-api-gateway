@@ -53,6 +53,7 @@ export class UserProfileService {
       try {
         profile = await this.createFullProfileFromScratch(steamId);
       } catch (e) {
+        this.logger.error("Couldn't create full profile from scratch", e)
         profile = this.makeProfile(steamId);
       }
       await this.save(profile);
