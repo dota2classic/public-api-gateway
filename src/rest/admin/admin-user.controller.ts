@@ -15,8 +15,10 @@ import {
   BanHammerDto,
   CrimeLogDto,
   CrimeLogPageDto,
+  PlayerFlagDto,
   SmurfData,
   UpdateModeDTO,
+  UpdatePlayerFlagDto,
   UpdateRolesDto,
   UserBanSummaryDto,
   UserRoleSummaryDto,
@@ -40,6 +42,9 @@ import { WithPagination } from "../../utils/decorator/pagination";
 import { MatchmakingInfo } from "../stats/dto/stats.dto";
 import { InjectS3, S3 } from "nestjs-s3";
 import { UserProfileService } from "../../user-profile/service/user-profile.service";
+import { PlayerFlagsEntity } from "../../entity/player-flags.entity";
+import { Repository } from "typeorm";
+import { InjectRepository } from "@nestjs/typeorm";
 
 @Controller("admin/users")
 @ApiTags("admin")
@@ -53,6 +58,8 @@ export class AdminUserController {
     private readonly api: CrimeApi,
     private readonly infoApi: InfoApi,
     private readonly playerApi: PlayerApi,
+    @InjectRepository(PlayerFlagsEntity)
+    private readonly playerFlagsRepo: Repository<PlayerFlagsEntity>,
     @InjectS3() private readonly s3: S3,
   ) {}
 
@@ -197,5 +204,33 @@ export class AdminUserController {
     });
 
     return res.Body.transformToString();
+  }
+
+  @ModeratorGuard()
+  @WithUser()
+  @Get("/player/:id/flag")
+  public async playerFlags(@Param("id") id: string): Promise<PlayerFlagDto> {
+    const ex = await this.playerFlagsRepo.findOne({ where: { steamId: id } });
+    if (!ex) {
+      return { steamId: id, ignoreSmurf: false };
+    }
+    return ex;
+  }
+
+  @ModeratorGuard()
+  @WithUser()
+  @Post("/player/:id/flag")
+  public async flagPlayer(
+    @Param("id") id: string,
+    @Body() dto: UpdatePlayerFlagDto,
+  ): Promise<PlayerFlagDto> {
+    await this.playerFlagsRepo.upsert(
+      {
+        steamId: id,
+        ignoreSmurf: dto.ignoreSmurf,
+      },
+      ["steamId"],
+    );
+    return this.playerFlagsRepo.findOne({ where: { steamId: id } });
   }
 }

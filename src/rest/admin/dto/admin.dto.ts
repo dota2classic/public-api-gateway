@@ -2,7 +2,7 @@ import { Dota2Version } from "../../../gateway/shared-types/dota2version";
 import { MatchmakingMode } from "../../../gateway/shared-types/matchmaking-mode";
 import { Role } from "../../../gateway/shared-types/roles";
 import { BanReason } from "../../../gateway/shared-types/ban";
-import { ApiProperty } from "@nestjs/swagger";
+import { ApiProperty, PartialType } from "@nestjs/swagger";
 import { UserDTO } from "../../shared.dto";
 import { Page } from "../../../gateway/shared-types/page";
 import { Timestamp } from "../../../gateway/shared-types/dto-types";
@@ -131,3 +131,10 @@ export class SmurfData {
   user: UserDTO;
   ban: BanStatusDto;
 }
+
+export class PlayerFlagDto {
+  steamId: string;
+  ignoreSmurf: boolean;
+}
+
+export class UpdatePlayerFlagDto extends PartialType(PlayerFlagDto) {}
