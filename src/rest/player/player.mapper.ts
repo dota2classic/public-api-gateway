@@ -1,12 +1,9 @@
 import { Injectable } from "@nestjs/common";
 import {
   GameserverAchievementDto,
-  GameserverBanStatusDto,
   GameserverLeaderboardEntryDto,
-  GameserverPlayerSummaryDto,
   GameserverPlayerTeammateDto,
 } from "../../generated-api/gameserver/models";
-import { UserRepository } from "../../cache/user/user.repository";
 import {
   GamemodeAccessMap,
   LeaderboardEntryDto,
@@ -14,18 +11,15 @@ import {
   PlayerSummaryDto,
   PlayerTeammateDto,
 } from "./dto/player.dto";
-import { numSteamId } from "../../utils/steamIds";
 import { GetPartyQueryResult } from "../../gateway/queries/GetParty/get-party-query.result";
 import { PartyDto, PartyMemberDTO } from "./dto/party.dto";
-import { GetReportsAvailableQueryResult } from "../../gateway/queries/GetReportsAvailable/get-reports-available-query.result";
-import { TournamentTeamDto } from "../../generated-api/tournament/models";
 import { UserDTO } from "../shared.dto";
 import { AchievementDto } from "./dto/achievement.dto";
 import { MatchMapper } from "../match/match.mapper";
 import { GetSessionByUserQueryResult } from "../../gateway/queries/GetSessionByUser/get-session-by-user-query.result";
 import { MatchAccessLevel } from "../../gateway/shared-types/match-access-level";
-import { UserProfileDto } from '../../user-profile/dto/user-profile.dto';
-import { UserProfileService } from '../../user-profile/service/user-profile.service';
+import { UserProfileDto } from "../../user-profile/dto/user-profile.dto";
+import { UserProfileService } from "../../user-profile/service/user-profile.service";
 
 @Injectable()
 export class PlayerMapper {
@@ -117,7 +111,11 @@ export class PlayerMapper {
           const session = sessions.find((t) => t.steamId === plr);
 
           return {
-            banStatus: profile.player.ban,
+            banStatus: {
+              ...profile.player.ban,
+              isBanned:
+                new Date(profile.player.ban.bannedUntil).getTime() > Date.now(),
+            },
             session: session?.result?.serverUrl,
             summary: await this.mapPlayerSummary(profile),
           } satisfies PartyMemberDTO;
