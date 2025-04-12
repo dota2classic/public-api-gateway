@@ -38,4 +38,19 @@ export class TelegramNotificationService {
       this.logger.error(`Error sending to telegram ${text} ${e}`);
     }
   }
+
+  public async notifyHtml(text: string) {
+    try {
+      await this.telegram.sendMessage(
+        this.config.get("telegram.notifyChatId"),
+        text,
+        {
+          message_thread_id: this.config.get("telegram.notifyThreadId"),
+          parse_mode: "HTML",
+        },
+      );
+    } catch (e) {
+      this.logger.error(`Error sending to telegram ${text} ${e}`);
+    }
+  }
 }

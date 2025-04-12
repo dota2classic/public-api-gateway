@@ -53,7 +53,7 @@ ${names}
 ${bans}
 `;
 
-    await this.telegramNotificationService.notifyMarkdown(text);
+    await this.telegramNotificationService.notifyHtml(text);
   }
 
   private async shouldHandle(steamId: string): Promise<boolean> {
