@@ -24,6 +24,7 @@ import { QueryBus } from "@nestjs/cqrs";
 import { WithPagination } from "../../utils/decorator/pagination";
 import { ReqLoggingInterceptor } from "../../middleware/req-logging.interceptor";
 import { WithUser } from "../../utils/decorator/with-user";
+import { UserProfileService } from "../../user-profile/service/user-profile.service";
 
 @UseInterceptors(ReqLoggingInterceptor)
 @Controller("match")
@@ -34,6 +35,7 @@ export class MatchController {
     private readonly qbus: QueryBus,
     private readonly ms: MatchApi,
     private readonly ps: PlayerApi,
+    private readonly user: UserProfileService,
   ) {}
 
   @UseInterceptors(UserHttpCacheInterceptor)
@@ -134,5 +136,6 @@ export class MatchController {
       aspect: dto.aspect,
       matchId: dto.matchId,
     });
+    await this.user.updateSummary(user.steam_id);
   }
 }
