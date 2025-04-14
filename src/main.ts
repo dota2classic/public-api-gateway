@@ -8,7 +8,7 @@ import { Transport } from "@nestjs/microservices";
 import { INestApplication, Logger, ValidationPipe } from "@nestjs/common";
 import { EventBus } from "@nestjs/cqrs";
 import { LiveMatchUpdateEvent } from "./gateway/events/gs/live-match-update.event";
-import { WinstonWrapper } from "./utils/logger";
+import { WinstonWrapper } from "@dota2classic/nest_logger";
 import configuration from "./config/configuration";
 import { ConfigService } from "@nestjs/config";
 import { DataSource } from "typeorm";
@@ -27,6 +27,7 @@ async function bootstrap() {
     logger: new WinstonWrapper(
       config.get("fluentbit.host"),
       config.get<number>("fluentbit.port"),
+      config.get<string>("fluentbit.application"),
       config.get<boolean>("fluentbit.disabled"),
     ),
   });

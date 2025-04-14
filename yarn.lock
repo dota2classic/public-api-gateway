@@ -1008,6 +1008,14 @@
     combined-stream "^1.0.8"
     mime-types "^2.1.12"
 
+"@dota2classic/nest_logger@^0.0.9":
+  version "0.0.9"
+  resolved "https://registry.yarnpkg.com/@dota2classic/nest_logger/-/nest_logger-0.0.9.tgz#56ef81ea4b90bcdda5ec17518e50618a6f6ec5a7"
+  integrity sha512-RY4uEpNeHovCZxjQLIaQMIb6qttsRFHFSU5gx/W0ZUjsIm4Isj9n5WybgRklVJ6VS78h9v94VrxT9PiSymQjfA==
+  dependencies:
+    fluent-logger "^3.4.1"
+    winston "^3.17.0"
+
 "@emnapi/runtime@^1.2.0":
   version "1.3.1"
   resolved "https://registry.yarnpkg.com/@emnapi/runtime/-/runtime-1.3.1.tgz#0fcaa575afc31f455fd33534c19381cfce6c6f60"
