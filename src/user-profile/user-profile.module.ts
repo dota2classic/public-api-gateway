@@ -10,6 +10,7 @@ import { UserAdapter } from "./adapter/user.adapter";
 import { UserCreatedHandler } from "./event-handler/user-created.handler";
 import { MatchRecordedHandler } from "./event-handler/match-recorded.handler";
 import { BanSystemHandler } from "./event-handler/ban-system.handler";
+import { UserProfileFastService } from "./service/user-profile-fast.service";
 
 @Module({
   imports: [CqrsModule],
@@ -21,7 +22,7 @@ import { BanSystemHandler } from "./event-handler/ban-system.handler";
     MatchRecordedHandler,
     BanSystemHandler,
     {
-      provide: Keyv,
+      provide: "full-profile",
       async useFactory(config: ConfigService) {
         return new Keyv(
           new KeyvRedis({
@@ -35,8 +36,24 @@ import { BanSystemHandler } from "./event-handler/ban-system.handler";
       },
       inject: [ConfigService],
     },
+    {
+      provide: "fast-user-profile",
+      async useFactory(config: ConfigService) {
+        return new Keyv(
+          new KeyvRedis({
+            url: `redis://${config.get("redis.host")}:6379`,
+            password: config.get<string>("redis.password"),
+          }),
+          {
+            namespace: "user-profile-fast",
+          },
+        );
+      },
+      inject: [ConfigService],
+    },
     UserProfileService,
+    UserProfileFastService,
   ],
-  exports: [UserProfileService],
+  exports: [UserProfileService, UserProfileFastService],
 })
 export class UserProfileModule {}

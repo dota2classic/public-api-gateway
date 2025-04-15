@@ -1,4 +1,4 @@
-import { Injectable, Logger } from "@nestjs/common";
+import { Inject, Injectable, Logger } from "@nestjs/common";
 import Keyv from "keyv";
 import {
   _UserProfileDataJson,
@@ -22,17 +22,19 @@ import { validateAgainstGood } from "../../utils/validate-basic-json";
 import { UserAdapter } from "../adapter/user.adapter";
 import { memoize2 } from "../../utils/memoize";
 import { Memoized } from "memoizee";
+import { UserProfileFastService } from "./user-profile-fast.service";
 
 @Injectable()
 export class UserProfileService {
   private logger = new Logger(UserProfileService.name);
 
   constructor(
-    private readonly keyv: Keyv,
+    @Inject("full-profile") private readonly keyv: Keyv,
     private readonly playerApi: PlayerApi,
     private readonly qbus: QueryBus,
     private readonly gsAdapter: GameServerAdapter,
     private readonly userAdapter: UserAdapter,
+    private readonly fastUserService: UserProfileFastService,
   ) {}
 
   @memoize2({ maxAge: 10_000, preFetch: true })
@@ -53,7 +55,7 @@ export class UserProfileService {
       try {
         profile = await this.createFullProfileFromScratch(steamId);
       } catch (e) {
-        this.logger.error("Couldn't create full profile from scratch", e)
+        this.logger.error("Couldn't create full profile from scratch", e);
         profile = this.makeProfile(steamId);
       }
       await this.save(profile);
@@ -99,8 +101,7 @@ export class UserProfileService {
       .then((data) => this.merge(steamId, data));
   };
 
-  public userDto = async (steamId: string) =>
-    this.get(steamId).then((it) => it.asUserDto());
+  public userDto = async (steamId: string) => this.fastUserService.get(steamId);
 
   public name = async (steamId: string) =>
     this.get(steamId).then((it) => it.user.name);
