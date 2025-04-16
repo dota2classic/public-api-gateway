@@ -22,17 +22,29 @@ export class PartyService {
       new GetPartyQuery(steamId),
     );
 
-    const sessions = await Promise.all(
-      party.players.map((steamId) =>
-        this.qbus
-          .execute<
-            GetSessionByUserQuery,
-            GetSessionByUserQueryResult
-          >(new GetSessionByUserQuery(new PlayerId(steamId)))
-          .then((result) => ({ steamId, result })),
+    const [sessions, banStatuses, summaries] = await Promise.combine([
+      Promise.all(
+        party.players.map((steamId) =>
+          this.qbus
+            .execute<
+              GetSessionByUserQuery,
+              GetSessionByUserQueryResult
+            >(new GetSessionByUserQuery(new PlayerId(steamId)))
+            .then((result) => ({ steamId, result })),
+        ),
       ),
-    );
+      Promise.all(
+        party.players.map((steamId) =>
+          this.api.playerControllerBanInfo(steamId),
+        ),
+      ),
+      Promise.all(
+        party.players.map((steamId) =>
+          this.api.playerControllerPlayerSummary(steamId),
+        ),
+      ),
+    ]);
 
-    return this.mapper.mapParty(party, sessions);
+    return this.mapper.mapParty(party, banStatuses, summaries, sessions);
   }
 }

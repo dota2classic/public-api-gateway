@@ -42,6 +42,8 @@ import { UserProfileService } from "../../user-profile/service/user-profile.serv
 import { DataSource } from "typeorm";
 import { FindByNameQuery } from "../../gateway/queries/FindByName/find-by-name.query";
 import { FindByNameQueryResult } from "../../gateway/queries/FindByName/find-by-name-query.result";
+import { GetReportsAvailableQuery } from "../../gateway/queries/GetReportsAvailable/get-reports-available.query";
+import { GetReportsAvailableQueryResult } from "../../gateway/queries/GetReportsAvailable/get-reports-available-query.result";
 
 @UseInterceptors(ReqLoggingInterceptor)
 @Controller("player")
@@ -62,8 +64,16 @@ export class PlayerController {
   @WithUser()
   @CacheTTL(60)
   async me(@CurrentUser() user: CurrentUserDto): Promise<MeDto> {
-    const profile = await this.userProfile.get(user.steam_id);
-    return this.mapper.mapMe(profile);
+    const rawData = await this.ms.playerControllerPlayerSummary(user.steam_id);
+
+    const res = await this.ms.playerControllerBanInfo(user.steam_id);
+
+    const u = await this.qbus.execute<
+      GetReportsAvailableQuery,
+      GetReportsAvailableQueryResult
+    >(new GetReportsAvailableQuery(new PlayerId(user.steam_id)));
+
+    return this.mapper.mapMe(rawData, res, undefined, u);
   }
 
   @Get("/connections")
@@ -136,8 +146,13 @@ export class PlayerController {
       UserMightExistEvent.name,
       new UserMightExistEvent(new PlayerId(steamId)),
     );
-    const summary = await this.userProfile.get(steamId);
-    return this.mapper.mapPlayerSummary(summary);
+    const rawData = await this.ms.playerControllerPlayerSummary(steamId);
+
+    this.redisEventQueue.emit(
+      UserMightExistEvent.name,
+      new UserMightExistEvent(new PlayerId(steamId)),
+    );
+    return this.mapper.mapPlayerSummary(rawData);
   }
 
   @Get("/party")

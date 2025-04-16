@@ -136,6 +136,5 @@ export class MatchController {
       aspect: dto.aspect,
       matchId: dto.matchId,
     });
-    await this.user.updateSummary(user.steam_id);
   }
 }

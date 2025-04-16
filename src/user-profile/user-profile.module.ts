@@ -2,14 +2,10 @@ import { Module } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import Keyv from "keyv";
 import KeyvRedis from "@keyv/redis";
-import { UserUpdatedHandler } from "./event-handler/user-updated.handler";
 import { UserProfileService } from "./service/user-profile.service";
 import { CqrsModule } from "@nestjs/cqrs";
 import { GameServerAdapter } from "./adapter/gameserver.adapter";
 import { UserAdapter } from "./adapter/user.adapter";
-import { UserCreatedHandler } from "./event-handler/user-created.handler";
-import { MatchRecordedHandler } from "./event-handler/match-recorded.handler";
-import { BanSystemHandler } from "./event-handler/ban-system.handler";
 import { UserProfileModule as UMP } from "@dota2classic/caches";
 
 @Module({
@@ -30,10 +26,6 @@ import { UserProfileModule as UMP } from "@dota2classic/caches";
   providers: [
     GameServerAdapter,
     UserAdapter,
-    UserUpdatedHandler,
-    UserCreatedHandler,
-    MatchRecordedHandler,
-    BanSystemHandler,
     {
       provide: "full-profile",
       async useFactory(config: ConfigService) {
