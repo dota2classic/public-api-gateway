@@ -106,6 +106,7 @@ export class UserProfileService {
   public userDto = async (steamId: string): Promise<UserDTO> =>
     this.fastUserService.get(steamId).then((it) => ({
       ...it,
+      roles: it.roles || [],
       avatarSmall: (it.avatar || "").replace("_full", "_medium"),
     }));
 
