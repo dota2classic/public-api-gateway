@@ -34,7 +34,7 @@
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.722.0",
-    "@dota2classic/caches": "^0.0.16",
+    "@dota2classic/caches": "^0.0.17",
     "@dota2classic/nest_logger": "^0.0.10",
     "@keyv/redis": "^4.3.3",
     "@nestjs/cache-manager": "^2.2.2",
