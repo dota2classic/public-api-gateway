@@ -112,11 +112,23 @@ import { RecordMapper } from "./rest/record/record.mapper";
 import { FeedbackAssistantService } from "./rest/feedback/feedback-assistant.service";
 import { PlayerSmurfDetectedHandler } from "./rest/notification/event-handler/player-smurf-detected.handler";
 import { ApiModule } from "./api/api.module";
-import { UserProfileModule } from "./user-profile/user-profile.module";
+import { UserProfileModule as UPM } from "./user-profile/user-profile.module";
 import { FindByNameQuery } from "./gateway/queries/FindByName/find-by-name.query";
+import { UserProfileModule } from "@dota2classic/caches";
 
 @Module({
   imports: [
+    UserProfileModule.registerAsync({
+      imports: [],
+      useFactory(config: ConfigService) {
+        return {
+          host: config.get("redis.host"),
+          password: config.get("redis.password"),
+          port: 6379,
+        };
+      },
+      inject: [ConfigService],
+    }),
     ConfigModule.forRoot({
       isGlobal: true,
       load: [configuration],
@@ -222,7 +234,7 @@ import { FindByNameQuery } from "./gateway/queries/FindByName/find-by-name.query
       },
     ]),
     ApiModule,
-    UserProfileModule,
+    UPM,
   ],
   controllers: [
     MatchController,
