@@ -22,7 +22,9 @@ import { validateAgainstGood } from "../../utils/validate-basic-json";
 import { UserAdapter } from "../adapter/user.adapter";
 import { memoize2 } from "../../utils/memoize";
 import { Memoized } from "memoizee";
-import { UserProfileFastService } from "./user-profile-fast.service";
+import { UserProfileFastService } from "@dota2classic/caches/dist/service/user-profile-fast.service";
+import { UserFastProfileDto } from "../../gateway/caches/user-fast-profile.dto";
+import { UserDTO } from "../../rest/shared.dto";
 
 @Injectable()
 export class UserProfileService {
@@ -34,7 +36,7 @@ export class UserProfileService {
     private readonly qbus: QueryBus,
     private readonly gsAdapter: GameServerAdapter,
     private readonly userAdapter: UserAdapter,
-    private readonly fastUserService: UserProfileFastService,
+    private readonly fastUserService: UserProfileFastService<UserFastProfileDto>,
   ) {}
 
   @memoize2({ maxAge: 10_000, preFetch: true })
@@ -101,7 +103,11 @@ export class UserProfileService {
       .then((data) => this.merge(steamId, data));
   };
 
-  public userDto = async (steamId: string) => this.fastUserService.get(steamId);
+  public userDto = async (steamId: string): Promise<UserDTO> =>
+    this.fastUserService.get(steamId).then((it) => ({
+      ...it,
+      avatarSmall: (it.avatar || "").replace("_full", "_medium"),
+    }));
 
   public name = async (steamId: string) =>
     this.get(steamId).then((it) => it.user.name);

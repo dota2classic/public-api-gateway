@@ -114,21 +114,9 @@ import { PlayerSmurfDetectedHandler } from "./rest/notification/event-handler/pl
 import { ApiModule } from "./api/api.module";
 import { UserProfileModule as UPM } from "./user-profile/user-profile.module";
 import { FindByNameQuery } from "./gateway/queries/FindByName/find-by-name.query";
-import { UserProfileModule } from "@dota2classic/caches";
 
 @Module({
   imports: [
-    UserProfileModule.registerAsync({
-      imports: [],
-      useFactory(config: ConfigService) {
-        return {
-          host: config.get("redis.host"),
-          password: config.get("redis.password"),
-          port: 6379,
-        };
-      },
-      inject: [ConfigService],
-    }),
     ConfigModule.forRoot({
       isGlobal: true,
       load: [configuration],

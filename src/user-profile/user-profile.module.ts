@@ -10,10 +10,23 @@ import { UserAdapter } from "./adapter/user.adapter";
 import { UserCreatedHandler } from "./event-handler/user-created.handler";
 import { MatchRecordedHandler } from "./event-handler/match-recorded.handler";
 import { BanSystemHandler } from "./event-handler/ban-system.handler";
-import { UserProfileFastService } from "./service/user-profile-fast.service";
+import { UserProfileModule as UMP } from "@dota2classic/caches";
 
 @Module({
-  imports: [CqrsModule],
+  imports: [
+    CqrsModule,
+    UMP.registerAsync({
+      imports: [],
+      useFactory(config: ConfigService) {
+        return {
+          host: config.get("redis.host"),
+          password: config.get("redis.password"),
+          port: 6379,
+        };
+      },
+      inject: [ConfigService],
+    }),
+  ],
   providers: [
     GameServerAdapter,
     UserAdapter,
@@ -52,8 +65,7 @@ import { UserProfileFastService } from "./service/user-profile-fast.service";
       inject: [ConfigService],
     },
     UserProfileService,
-    UserProfileFastService,
   ],
-  exports: [UserProfileService, UserProfileFastService],
+  exports: [UserProfileService],
 })
 export class UserProfileModule {}
