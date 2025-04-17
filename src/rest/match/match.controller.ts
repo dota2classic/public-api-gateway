@@ -12,7 +12,12 @@ import { CacheTTL } from "@nestjs/cache-manager";
 import { ApiParam, ApiQuery, ApiTags } from "@nestjs/swagger";
 import { MatchmakingMode } from "../../gateway/shared-types/matchmaking-mode";
 import { MatchApi, PlayerApi } from "../../generated-api/gameserver";
-import { MatchDto, MatchPageDto, ReportPlayerDto } from "./dto/match.dto";
+import {
+  MatchDto,
+  MatchPageDto,
+  MatchReportInfoDto,
+  ReportPlayerDto,
+} from "./dto/match.dto";
 import { MatchMapper } from "./match.mapper";
 import { WithOptionalUser } from "../../utils/decorator/with-optional-user";
 import {
@@ -95,6 +100,28 @@ export class MatchController {
     }
   }
 
+  @ApiParam({
+    name: "id",
+    required: true,
+  })
+  @Get("/:id/reportMatrix")
+  @WithOptionalUser()
+  async matchReportMatrix(
+    @CurrentUser() user: CurrentUserDto | undefined,
+    @Param("id") id: number,
+  ): Promise<MatchReportInfoDto> {
+    try {
+      if (user) {
+        const matrix = await this.ms.matchControllerGetMatchReportMatrix(id);
+        return this.mapper.mapReportMatrixDto(matrix, user.steam_id);
+      } else {
+        return { reportableSteamIds: [] };
+      }
+    } catch (e) {
+      throw new NotFoundException();
+    }
+  }
+
   @UseInterceptors(UserHttpCacheInterceptor)
   @ApiParam({
     name: "id",
@@ -136,5 +163,6 @@ export class MatchController {
       aspect: dto.aspect,
       matchId: dto.matchId,
     });
+    return this.matchReportMatrix(user, dto.matchId)
   }
 }

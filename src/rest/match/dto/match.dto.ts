@@ -59,10 +59,13 @@ export class MatchDto {
   winner: number;
 
   duration: number;
-  reportable: boolean;
 
   timestamp: string;
   replayUrl?: string;
+}
+
+export class MatchReportInfoDto {
+  reportableSteamIds: string[];
 }
 
 export class MatchPageDto {

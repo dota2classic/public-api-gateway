@@ -114,6 +114,7 @@ import { PlayerSmurfDetectedHandler } from "./rest/notification/event-handler/pl
 import { ApiModule } from "./api/api.module";
 import { UserProfileModule as UPM } from "./user-profile/user-profile.module";
 import { FindByNameQuery } from "./gateway/queries/FindByName/find-by-name.query";
+import { getTypeormConfig } from "./config/typeorm.config";
 
 @Module({
   imports: [
@@ -128,24 +129,11 @@ import { FindByNameQuery } from "./gateway/queries/FindByName/find-by-name.query
     TypeOrmModule.forRootAsync({
       useFactory(config: ConfigService): TypeOrmModuleOptions {
         return {
+          ...getTypeormConfig(config),
           type: "postgres",
-          database: "postgres",
-          host: config.get("postgres.host"),
-          port: 5432,
-          username: config.get("postgres.username"),
-          password: config.get("postgres.password"),
-          entities: Entities,
-
-          // synchronize: true,
-
-          synchronize: false,
-          dropSchema: false,
-
           migrations: ["dist/database/migrations/*.*"],
           migrationsRun: true,
-          migrationsTableName: "api_gateway_migrations",
-
-          ssl: false,
+          logging: undefined,
         };
       },
       imports: [],

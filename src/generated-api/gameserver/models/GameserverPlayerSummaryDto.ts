@@ -13,12 +13,12 @@
  */
 
 import {
-    GameserverMatchAccessLevel,
-    GameserverMatchAccessLevelFromJSON,
-    GameserverMatchAccessLevelToJSON,
-    GameserverPlayerAspectCountDto,
-    GameserverPlayerAspectCountDtoFromJSON,
-    GameserverPlayerAspectCountDtoToJSON,
+  GameserverMatchAccessLevel,
+  GameserverMatchAccessLevelFromJSON,
+  GameserverMatchAccessLevelToJSON,
+  GameserverPlayerAspectCountDto,
+  GameserverPlayerAspectCountDtoFromJSON,
+  GameserverPlayerAspectCountDtoToJSON,
 } from './';
 
 /**

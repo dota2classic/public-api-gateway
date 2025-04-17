@@ -15,6 +15,7 @@ export * from './GameserverLeaderboardEntryPageDto';
 export * from './GameserverMatchDto';
 export * from './GameserverMatchInfoDto';
 export * from './GameserverMatchPageDto';
+export * from './GameserverMatchReportMatrixDto';
 export * from './GameserverMatchmakingModeInfoDto';
 export * from './GameserverMmrChangeDto';
 export * from './GameserverPlayerAspectCountDto';
@@ -27,6 +28,7 @@ export * from './GameserverPlayerTeammateDto';
 export * from './GameserverPlayerTeammatePage';
 export * from './GameserverRecordType';
 export * from './GameserverReportPlayerDto';
+export * from './GameserverReportedMatrixDto';
 export * from './GameserverSmurfData';
 export * from './GameserverUpdateGamemodeDto';
 export * from "../../mapped-models"
