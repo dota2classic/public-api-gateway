@@ -112,7 +112,10 @@ export class MatchController {
   ): Promise<MatchReportInfoDto> {
     try {
       if (user) {
-        const matrix = await this.ms.matchControllerGetMatchReportMatrix(id);
+        const matrix = await this.ms.matchControllerGetMatchReportMatrix(
+          id,
+          user.steam_id || "",
+        );
         return this.mapper.mapReportMatrixDto(matrix, user.steam_id);
       } else {
         return { reportableSteamIds: [] };
@@ -163,6 +166,6 @@ export class MatchController {
       aspect: dto.aspect,
       matchId: dto.matchId,
     });
-    return this.matchReportMatrix(user, dto.matchId)
+    return this.matchReportMatrix(user, dto.matchId);
   }
 }

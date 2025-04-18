@@ -30,6 +30,7 @@ export interface MatchControllerGetMatchRequest {
 
 export interface MatchControllerGetMatchReportMatrixRequest {
     id: number;
+    steamId: string;
 }
 
 export interface MatchControllerHeroMatchesRequest {
@@ -104,6 +105,10 @@ export class MatchApi extends runtime.BaseAPI {
     matchControllerGetMatchReportMatrixContext(requestParameters: MatchControllerGetMatchReportMatrixRequest): runtime.RequestOpts {
         const queryParameters: any = {};
 
+        if (requestParameters.steamId !== undefined) {
+            queryParameters['steamId'] = requestParameters.steamId;
+        }
+
         const headerParameters: runtime.HTTPHeaders = {};
 
         return {
@@ -116,8 +121,8 @@ export class MatchApi extends runtime.BaseAPI {
 
     /**
      */
-    matchControllerGetMatchReportMatrix = async (id: number): Promise<GameserverMatchReportMatrixDto> => {
-        const response = await this.matchControllerGetMatchReportMatrixRaw({ id: id });
+    matchControllerGetMatchReportMatrix = async (id: number, steamId: string): Promise<GameserverMatchReportMatrixDto> => {
+        const response = await this.matchControllerGetMatchReportMatrixRaw({ id: id, steamId: steamId });
         return await response.value();
     }
 
@@ -136,6 +141,9 @@ export class MatchApi extends runtime.BaseAPI {
     private matchControllerGetMatchReportMatrixValidation(requestParameters: MatchControllerGetMatchReportMatrixRequest) {
         if (requestParameters.id === null || requestParameters.id === undefined) {
             throw new runtime.RequiredError('id','Required parameter requestParameters.id was null or undefined when calling matchControllerGetMatchReportMatrix.');
+        }
+        if (requestParameters.steamId === null || requestParameters.steamId === undefined) {
+            throw new runtime.RequiredError('steamId','Required parameter requestParameters.steamId was null or undefined when calling matchControllerGetMatchReportMatrix.');
         }
     }
 
