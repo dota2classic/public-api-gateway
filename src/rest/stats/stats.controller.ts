@@ -9,36 +9,51 @@ import {
   GameSeasonDto,
   MatchmakingInfo,
   PerModePlayersDto,
+  QueueTimeDto,
 } from "./dto/stats.dto";
 import { CacheTTL } from "@nestjs/cache-manager";
 import { ReqLoggingInterceptor } from "../../middleware/req-logging.interceptor";
-import { MatchmakingModes } from "../../gateway/shared-types/matchmaking-mode";
+import {
+  MatchmakingMode,
+  MatchmakingModes,
+} from "../../gateway/shared-types/matchmaking-mode";
 import { UserHttpCacheInterceptor } from "../../utils/cache-key-track";
+import { PrometheusDriver } from "prometheus-query";
+import { avg } from "../../utils/average";
 
-@UseInterceptors(ReqLoggingInterceptor, UserHttpCacheInterceptor)
+@UseInterceptors(ReqLoggingInterceptor)
 @Controller("stats")
 @ApiTags("stats")
 export class StatsController {
-  constructor(private readonly ms: InfoApi) {}
+  constructor(
+    private readonly ms: InfoApi,
+    private readonly prom: PrometheusDriver,
+  ) {}
 
   @Get("/matchmaking")
   async getMatchmakingInfo(): Promise<MatchmakingInfo[]> {
-    return this.ms.infoControllerGamemodes();
+    const [modes, queueTimes] = await Promise.combine([
+      this.ms.infoControllerGamemodes(),
+      this.queueTimes(),
+    ]);
+    return modes.map((mode) => {
+      return {
+        ...mode,
+        queueDuration:
+          queueTimes.find((t) => t.mode === mode.lobby_type)?.queueTime ||
+          undefined,
+      };
+    });
   }
 
+  @UseInterceptors(UserHttpCacheInterceptor)
   @CacheTTL(60_000)
   @Get("/seasons")
   async getGameSeasons(): Promise<GameSeasonDto[]> {
     return this.ms.infoControllerGetSeasons();
   }
 
-  @Get("/servers")
-  public async getServers(): Promise<string[]> {
-    const servers = await this.ms.infoControllerGameServers();
-    const hosts = new Set(servers.map((server) => server.url.split(":")[0]));
-    return Array.from(hosts.values());
-  }
-
+  @UseInterceptors(UserHttpCacheInterceptor)
   @Get("/online")
   @CacheTTL(1000)
   async online(): Promise<CurrentOnlineDto> {
@@ -69,5 +84,42 @@ export class StatsController {
       sessions: sessions.length,
       perMode,
     };
+  }
+
+  @Get("/servers")
+  public async getServers(): Promise<string[]> {
+    const servers = await this.ms.infoControllerGameServers();
+    const hosts = new Set(servers.map((server) => server.url.split(":")[0]));
+    return Array.from(hosts.values());
+  }
+
+  private async queueTimes(
+    utcHour = new Date().getUTCHours(),
+  ): Promise<QueueTimeDto[]> {
+    try {
+      const start = Date.now() - 1000 * 60 * 60 * 24 * 7; // 7 days ago
+      const end = new Date();
+      const step = 60 * 30; // 1 point every 6 hours
+
+      const some = await this.prom.rangeQuery(
+        // `(rate(d2c_queue_time_sum[2h]) / rate(d2c_queue_time_count[2h]))`,
+        `(rate(d2c_queue_time_sum[1h] ) / rate(d2c_queue_time_count[1h])) and on () hour() == ${utcHour}`,
+        start,
+        end,
+        step,
+      );
+
+      return some.result.map((result) => {
+        const numbers = result.values
+          .filter((t) => t.value !== null && !Number.isNaN(t.value))
+          .map((v) => v.value / 1000);
+        return {
+          mode: Number(result.metric.labels.mode) as MatchmakingMode,
+          queueTime: avg(numbers),
+        };
+      });
+    } catch (e) {
+      return [];
+    }
   }
 }

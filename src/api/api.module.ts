@@ -13,10 +13,21 @@ import {
   Configuration as FConfiguratin,
   ForumApi,
 } from "../generated-api/forum";
+import { PrometheusDriver } from "prometheus-query";
 
 @Global()
 @Module({
   providers: [
+    {
+      provide: PrometheusDriver,
+      useFactory: (config: ConfigService) => {
+        return new PrometheusDriver({
+          endpoint: config.get("api.prometheusUrl"),
+          baseURL: "/api/v1", // default value
+        });
+      },
+      inject: [ConfigService],
+    },
     {
       provide: MatchApi,
       useFactory: (config: ConfigService) => {
@@ -89,6 +100,7 @@ import {
     InfoApi,
     RecordApi,
     ForumApi,
+    PrometheusDriver,
   ],
 })
 export class ApiModule {}

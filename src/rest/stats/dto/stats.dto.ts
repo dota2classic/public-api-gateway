@@ -21,6 +21,8 @@ export class MatchmakingInfo {
   @ApiProperty({ enum: Dota_Map, enumName: "Dota_Map" })
   dota_map: Dota_Map;
 
+  queueDuration?: number;
+
   enabled: boolean;
 }
 
@@ -31,10 +33,13 @@ export class PerModePlayersDto {
   playerCount: number;
 }
 
-
 export class GameSeasonDto {
   id: number;
   startTimestamp: string;
   isActive: boolean;
 }
 
+export class QueueTimeDto {
+  mode: MatchmakingMode;
+  queueTime: number | null;
+}
