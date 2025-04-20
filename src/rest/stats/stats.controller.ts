@@ -102,7 +102,6 @@ export class StatsController {
       const step = 60 * 30; // 1 point every 6 hours
 
       const some = await this.prom.rangeQuery(
-        // `(rate(d2c_queue_time_sum[2h]) / rate(d2c_queue_time_count[2h]))`,
         `(rate(d2c_queue_time_sum[1h] ) / rate(d2c_queue_time_count[1h])) and on () hour() == ${utcHour}`,
         start,
         end,
