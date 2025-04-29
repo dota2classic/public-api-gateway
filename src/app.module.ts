@@ -115,6 +115,7 @@ import { ApiModule } from "./api/api.module";
 import { UserProfileModule as UPM } from "./user-profile/user-profile.module";
 import { FindByNameQuery } from "./gateway/queries/FindByName/find-by-name.query";
 import { getTypeormConfig } from "./config/typeorm.config";
+import { PlayerReportBanCreatedHandler } from "./rest/notification/event-handler/player-report-ban-created.handler";
 
 @Module({
   imports: [
@@ -329,6 +330,7 @@ import { getTypeormConfig } from "./config/typeorm.config";
     PlayerNotLoadedHandler,
     PlayerFeedbackThreadCreatedHandler,
     NewTicketMessageCreatedHandler,
+    PlayerReportBanCreatedHandler,
     TelegramNotificationService,
     FeedbackAssistantService,
     // Telegram

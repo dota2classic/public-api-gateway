@@ -25,6 +25,7 @@ import { PlayerAbandonedEvent } from "./gateway/events/bans/player-abandoned.eve
 import { PlayerSmurfDetectedEvent } from "./gateway/events/bans/player-smurf-detected.event";
 import { MatchRecordedEvent } from "./gateway/events/gs/match-recorded.event";
 import { BanSystemEvent } from "./gateway/events/gs/ban-system.event";
+import { PlayerReportBanCreatedEvent } from "./gateway/events/bans/player-report-ban-created.event";
 
 @Controller()
 export class EventController {
@@ -44,6 +45,11 @@ export class EventController {
   @EventPattern(UserUpdatedEvent.name)
   async UserUpdatedEvent(data: UserUpdatedEvent) {
     this.event(UserUpdatedEvent, data);
+  }
+
+  @EventPattern(PlayerReportBanCreatedEvent.name)
+  async PlayerReportBanCreatedEvent(data: PlayerReportBanCreatedEvent) {
+    this.event(PlayerReportBanCreatedEvent, data);
   }
 
   @EventPattern(LiveMatchUpdateEvent.name)

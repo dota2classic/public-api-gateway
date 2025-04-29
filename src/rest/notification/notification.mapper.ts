@@ -21,6 +21,7 @@ export class NotificationMapper {
       content = "Расскажи, что пошло не по плану";
     } else if (notification.entityType == NotificationEntityType.ACHIEVEMENT) {
     }
+
     return {
       id: notification.id,
       acknowledged: notification.acknowledged,
