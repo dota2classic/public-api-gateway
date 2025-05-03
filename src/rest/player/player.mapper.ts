@@ -122,6 +122,7 @@ export class PlayerMapper {
   ): Promise<PartyDto> => {
     return {
       id: party.partyId,
+      enterQueueAt: party.enterQueueTime,
       leader: await this.mapPlayerInParty(party.leaderId),
       players: await Promise.all(
         party.players.map(async (plr) => {

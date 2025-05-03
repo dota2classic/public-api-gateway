@@ -11,4 +11,5 @@ export class PartyDto {
   id: string;
   leader: UserDTO;
   players: PartyMemberDTO[];
+  enterQueueAt?: string;
 }
