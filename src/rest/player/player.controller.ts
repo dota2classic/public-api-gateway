@@ -85,7 +85,7 @@ export class PlayerController {
   }
 
   @UseInterceptors(UserHttpCacheInterceptor)
-  @CacheTTL(60 * 30)
+  @CacheTTL(60 * 5)
   @Get("/leaderboard")
   @WithPagination()
   @ApiQuery({
