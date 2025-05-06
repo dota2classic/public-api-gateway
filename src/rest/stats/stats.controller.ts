@@ -20,6 +20,8 @@ import {
 import { UserHttpCacheInterceptor } from "../../utils/cache-key-track";
 import { PrometheusDriver } from "prometheus-query";
 import { avg } from "../../utils/average";
+import { range } from "../../utils/range";
+import { GlobalHttpCacheInterceptor } from "../../utils/cache-global";
 
 @UseInterceptors(ReqLoggingInterceptor)
 @Controller("stats")
@@ -30,18 +32,27 @@ export class StatsController {
     private readonly prom: PrometheusDriver,
   ) {}
 
+  @UseInterceptors(GlobalHttpCacheInterceptor)
+  @CacheTTL(300)
   @Get("/matchmaking")
   async getMatchmakingInfo(): Promise<MatchmakingInfo[]> {
     const [modes, queueTimes] = await Promise.combine([
       this.ms.infoControllerGamemodes(),
-      this.queueTimes(),
+      this.queueTimesChart(),
     ]);
+
     return modes.map((mode) => {
+      const q: [number, QueueTimeDto][] = queueTimes.map((queueTime) => [
+        queueTime[0],
+        queueTime[1].find((stat) => stat.mode === mode.lobby_type),
+      ]);
+
       return {
         ...mode,
-        queueDuration:
-          queueTimes.find((t) => t.mode === mode.lobby_type)?.queueTime ||
-          undefined,
+        queueDurations: q.map(([hr, stat]) => ({
+          duration: stat?.queueTime,
+          utcHour: hr,
+        })),
       };
     });
   }
@@ -91,6 +102,17 @@ export class StatsController {
     const servers = await this.ms.infoControllerGameServers();
     const hosts = new Set(servers.map((server) => server.url.split(":")[0]));
     return Array.from(hosts.values());
+  }
+
+  private async queueTimesChart(
+    utcDayOfWeek = new Date().getUTCDay(),
+  ): Promise<[number, QueueTimeDto[]][]> {
+    return Promise.all(
+      range(24).map(async (utcHour) => [
+        utcHour,
+        await this.queueTimes(utcHour, utcDayOfWeek),
+      ]),
+    );
   }
 
   private async queueTimes(

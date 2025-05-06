@@ -99,7 +99,12 @@ export class AdminUserController {
       game_mode: b.dotaGameMode,
     });
 
-    return this.infoApi.infoControllerGamemodes();
+    return this.infoApi.infoControllerGamemodes().then((t) =>
+      t.map((x) => ({
+        ...x,
+        queueDurations: [],
+      })),
+    );
   }
 
   @AdminGuard()

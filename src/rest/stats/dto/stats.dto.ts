@@ -11,6 +11,11 @@ export class CurrentOnlineDto {
   perMode: PerModePlayersDto[];
 }
 
+export class QueueDurationDto {
+  utcHour: number;
+  duration?: number;
+}
+
 export class MatchmakingInfo {
   @ApiProperty({ enum: MatchmakingMode, enumName: "MatchmakingMode" })
   lobby_type: MatchmakingMode;
@@ -21,7 +26,8 @@ export class MatchmakingInfo {
   @ApiProperty({ enum: Dota_Map, enumName: "Dota_Map" })
   dota_map: Dota_Map;
 
-  queueDuration?: number;
+  // queueDuration?: number;
+  queueDurations: QueueDurationDto[];
 
   enabled: boolean;
 }
