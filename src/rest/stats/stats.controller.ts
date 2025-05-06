@@ -95,6 +95,7 @@ export class StatsController {
 
   private async queueTimes(
     utcHour = new Date().getUTCHours(),
+    utcDayOfWeek = new Date().getUTCDay(),
   ): Promise<QueueTimeDto[]> {
     try {
       const start = Date.now() - 1000 * 60 * 60 * 24 * 7; // 7 days ago
@@ -102,7 +103,7 @@ export class StatsController {
       const step = 60 * 30; // 1 point every 6 hours
 
       const some = await this.prom.rangeQuery(
-        `(rate(d2c_queue_time_sum[1h] ) / rate(d2c_queue_time_count[1h])) and on () hour() == ${utcHour}`,
+        `(rate(d2c_queue_time_sum[1h] ) / rate(d2c_queue_time_count[1h])) and on () (hour() == ${utcHour} and day_of_week() == ${utcDayOfWeek})`,
         start,
         end,
         step,
