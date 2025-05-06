@@ -102,6 +102,29 @@ export class MatchApi extends runtime.BaseAPI {
 
     /**
      */
+    private async matchControllerGetMatchReportMatrixRaw(requestParameters: MatchControllerGetMatchReportMatrixRequest): Promise<runtime.ApiResponse<GameserverMatchReportMatrixDto>> {
+        this.matchControllerGetMatchReportMatrixValidation(requestParameters);
+        const context = this.matchControllerGetMatchReportMatrixContext(requestParameters);
+        const response = await this.request(context);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => GameserverMatchReportMatrixDtoFromJSON(jsonValue));
+    }
+
+
+
+    /**
+     */
+    private matchControllerGetMatchReportMatrixValidation(requestParameters: MatchControllerGetMatchReportMatrixRequest) {
+        if (requestParameters.id === null || requestParameters.id === undefined) {
+            throw new runtime.RequiredError('id','Required parameter requestParameters.id was null or undefined when calling matchControllerGetMatchReportMatrix.');
+        }
+        if (requestParameters.steamId === null || requestParameters.steamId === undefined) {
+            throw new runtime.RequiredError('steamId','Required parameter requestParameters.steamId was null or undefined when calling matchControllerGetMatchReportMatrix.');
+        }
+    }
+
+    /**
+     */
     matchControllerGetMatchReportMatrixContext(requestParameters: MatchControllerGetMatchReportMatrixRequest): runtime.RequestOpts {
         const queryParameters: any = {};
 
@@ -124,27 +147,6 @@ export class MatchApi extends runtime.BaseAPI {
     matchControllerGetMatchReportMatrix = async (id: number, steamId: string): Promise<GameserverMatchReportMatrixDto> => {
         const response = await this.matchControllerGetMatchReportMatrixRaw({ id: id, steamId: steamId });
         return await response.value();
-    }
-
-    /**
-     */
-    private async matchControllerGetMatchReportMatrixRaw(requestParameters: MatchControllerGetMatchReportMatrixRequest): Promise<runtime.ApiResponse<GameserverMatchReportMatrixDto>> {
-        this.matchControllerGetMatchReportMatrixValidation(requestParameters);
-        const context = this.matchControllerGetMatchReportMatrixContext(requestParameters);
-        const response = await this.request(context);
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => GameserverMatchReportMatrixDtoFromJSON(jsonValue));
-    }
-
-    /**
-     */
-    private matchControllerGetMatchReportMatrixValidation(requestParameters: MatchControllerGetMatchReportMatrixRequest) {
-        if (requestParameters.id === null || requestParameters.id === undefined) {
-            throw new runtime.RequiredError('id','Required parameter requestParameters.id was null or undefined when calling matchControllerGetMatchReportMatrix.');
-        }
-        if (requestParameters.steamId === null || requestParameters.steamId === undefined) {
-            throw new runtime.RequiredError('steamId','Required parameter requestParameters.steamId was null or undefined when calling matchControllerGetMatchReportMatrix.');
-        }
     }
 
     /**

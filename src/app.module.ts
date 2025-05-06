@@ -103,7 +103,6 @@ import { TelegramNotificationService } from "./rest/notification/telegram-notifi
 import { NewTicketMessageCreatedHandler } from "./rest/notification/event-handler/new-ticket-message-created.handler";
 import { MetricsService } from "./metrics.service";
 import { StorageController } from "./rest/storage/storage.controller";
-import { StorageMapper } from "./rest/storage/storage.mapper";
 import { BlogpostController } from "./rest/blogpost/blogpost.controller";
 import { BlogpostMapper } from "./rest/blogpost/blogpost.mapper";
 import { StorageService } from "./rest/storage/storage.service";
@@ -288,7 +287,6 @@ import { PlayerReportBanCreatedHandler } from "./rest/notification/event-handler
     LobbyMapper,
     NotificationMapper,
     FeedbackMapper,
-    StorageMapper,
     BlogpostMapper,
     RecordMapper,
 

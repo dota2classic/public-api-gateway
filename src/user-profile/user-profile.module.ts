@@ -7,6 +7,10 @@ import { CqrsModule } from "@nestjs/cqrs";
 import { GameServerAdapter } from "./adapter/gameserver.adapter";
 import { UserAdapter } from "./adapter/user.adapter";
 import { UserProfileModule as UMP } from "@dota2classic/caches";
+import { StorageMapper } from "./mapper/storage.mapper";
+import { TypeOrmModule } from "@nestjs/typeorm";
+import { UserProfileDecorationEntity } from "../entity/user-profile-decoration.entity";
+import { UserProfileDecorationPreferencesEntity } from "../entity/user-profile-decoration-preferences.entity";
 
 @Module({
   imports: [
@@ -22,10 +26,15 @@ import { UserProfileModule as UMP } from "@dota2classic/caches";
       },
       inject: [ConfigService],
     }),
+    TypeOrmModule.forFeature([
+      UserProfileDecorationEntity,
+      UserProfileDecorationPreferencesEntity,
+    ]),
   ],
   providers: [
     GameServerAdapter,
     UserAdapter,
+    StorageMapper,
     {
       provide: "full-profile",
       async useFactory(config: ConfigService) {
@@ -58,6 +67,6 @@ import { UserProfileModule as UMP } from "@dota2classic/caches";
     },
     UserProfileService,
   ],
-  exports: [UserProfileService],
+  exports: [UserProfileService, StorageMapper],
 })
 export class UserProfileModule {}

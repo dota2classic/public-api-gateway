@@ -7,6 +7,10 @@ import { UserAdapter } from "../adapter/user.adapter";
 import { UserProfileFastService } from "@dota2classic/caches/dist/service/user-profile-fast.service";
 import { UserFastProfileDto } from "../../gateway/caches/user-fast-profile.dto";
 import { UserDTO } from "../../rest/shared.dto";
+import { UserProfileDecorationPreferencesEntity } from "../../entity/user-profile-decoration-preferences.entity";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Repository } from "typeorm";
+import { StorageMapper } from "../mapper/storage.mapper";
 
 @Injectable()
 export class UserProfileService {
@@ -19,16 +23,28 @@ export class UserProfileService {
     private readonly gsAdapter: GameServerAdapter,
     private readonly userAdapter: UserAdapter,
     private readonly fastUserService: UserProfileFastService<UserFastProfileDto>,
+    @InjectRepository(UserProfileDecorationPreferencesEntity)
+    private readonly userProfileDecorationPreferencesEntityRepository: Repository<UserProfileDecorationPreferencesEntity>,
+    private readonly storageMapper: StorageMapper,
   ) {}
 
-  public userDto = async (steamId: string): Promise<UserDTO> =>
-    this.fastUserService.get(steamId).then((it) => ({
+  public userDto = async (steamId: string): Promise<UserDTO> => {
+    const [fu, prefs] = await Promise.combine([
+      this.fastUserService.get(steamId),
+      this.userProfileDecorationPreferencesEntityRepository.findOne({
+        where: { steamId },
+      }),
+    ]);
+
+    return {
       steamId: steamId,
-      name: it?.name || "Loading",
-      avatar: it?.avatar || "",
-      roles: it?.roles || [],
-      avatarSmall: (it?.avatar || "").replace("_full", "_medium"),
-    }));
+      name: fu?.name || "Loading",
+      avatar: fu?.avatar || "",
+      roles: fu?.roles || [],
+      avatarSmall: (fu?.avatar || "").replace("_full", "_medium"),
+      hat: prefs?.hat && this.storageMapper.mapS3Item(prefs?.hat.imageKey),
+    };
+  };
 
   public name = async (steamId: string) =>
     this.fastUserService.get(steamId).then((it) => it.name);

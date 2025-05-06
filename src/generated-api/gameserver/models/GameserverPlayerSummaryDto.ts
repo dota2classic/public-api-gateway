@@ -13,12 +13,15 @@
  */
 
 import {
-  GameserverMatchAccessLevel,
-  GameserverMatchAccessLevelFromJSON,
-  GameserverMatchAccessLevelToJSON,
-  GameserverPlayerAspectCountDto,
-  GameserverPlayerAspectCountDtoFromJSON,
-  GameserverPlayerAspectCountDtoToJSON,
+    GameserverLeaderboardEntryDto,
+    GameserverLeaderboardEntryDtoFromJSON,
+    GameserverLeaderboardEntryDtoToJSON,
+    GameserverMatchAccessLevel,
+    GameserverMatchAccessLevelFromJSON,
+    GameserverMatchAccessLevelToJSON,
+    GameserverPlayerAspectCountDto,
+    GameserverPlayerAspectCountDtoFromJSON,
+    GameserverPlayerAspectCountDtoToJSON,
 } from './';
 
 /**
@@ -35,6 +38,24 @@ export class GameserverPlayerSummaryDto {
     accessLevel: GameserverMatchAccessLevel;
     /**
      *
+     * @type {string}
+     * @memberof GameserverPlayerSummaryDto
+     */
+    steamId: string;
+    /**
+     *
+     * @type {GameserverLeaderboardEntryDto}
+     * @memberof GameserverPlayerSummaryDto
+     */
+    season: GameserverLeaderboardEntryDto;
+    /**
+     *
+     * @type {GameserverLeaderboardEntryDto}
+     * @memberof GameserverPlayerSummaryDto
+     */
+    overall: GameserverLeaderboardEntryDto;
+    /**
+     *
      * @type {number}
      * @memberof GameserverPlayerSummaryDto
      */
@@ -45,72 +66,6 @@ export class GameserverPlayerSummaryDto {
      * @memberof GameserverPlayerSummaryDto
      */
     reports: Array<GameserverPlayerAspectCountDto>;
-    /**
-     *
-     * @type {number}
-     * @memberof GameserverPlayerSummaryDto
-     */
-    rank: number | null;
-    /**
-     *
-     * @type {string}
-     * @memberof GameserverPlayerSummaryDto
-     */
-    steamId: string;
-    /**
-     *
-     * @type {number}
-     * @memberof GameserverPlayerSummaryDto
-     */
-    seasonId: number;
-    /**
-     *
-     * @type {number}
-     * @memberof GameserverPlayerSummaryDto
-     */
-    mmr: number;
-    /**
-     *
-     * @type {number}
-     * @memberof GameserverPlayerSummaryDto
-     */
-    games: number;
-    /**
-     *
-     * @type {number}
-     * @memberof GameserverPlayerSummaryDto
-     */
-    wins: number;
-    /**
-     *
-     * @type {number}
-     * @memberof GameserverPlayerSummaryDto
-     */
-    abandons: number;
-    /**
-     *
-     * @type {number}
-     * @memberof GameserverPlayerSummaryDto
-     */
-    kills: number;
-    /**
-     *
-     * @type {number}
-     * @memberof GameserverPlayerSummaryDto
-     */
-    deaths: number;
-    /**
-     *
-     * @type {number}
-     * @memberof GameserverPlayerSummaryDto
-     */
-    assists: number;
-    /**
-     *
-     * @type {number}
-     * @memberof GameserverPlayerSummaryDto
-     */
-    playtime: number;
 }
 
 export function GameserverPlayerSummaryDtoFromJSON(json: any): GameserverPlayerSummaryDto {
@@ -124,19 +79,11 @@ export function GameserverPlayerSummaryDtoFromJSONTyped(json: any, ignoreDiscrim
     return {
 
         'accessLevel': GameserverMatchAccessLevelFromJSON(json['accessLevel']),
+        'steamId': json['steamId'],
+        'season': GameserverLeaderboardEntryDtoFromJSON(json['season']),
+        'overall': GameserverLeaderboardEntryDtoFromJSON(json['overall']),
         'calibrationGamesLeft': json['calibrationGamesLeft'],
         'reports': ((json['reports'] as Array<any>).map(GameserverPlayerAspectCountDtoFromJSON)),
-        'rank': json['rank'],
-        'steamId': json['steamId'],
-        'seasonId': json['seasonId'],
-        'mmr': json['mmr'],
-        'games': json['games'],
-        'wins': json['wins'],
-        'abandons': json['abandons'],
-        'kills': json['kills'],
-        'deaths': json['deaths'],
-        'assists': json['assists'],
-        'playtime': json['playtime'],
     };
 }
 
@@ -150,19 +97,11 @@ export function GameserverPlayerSummaryDtoToJSON(value?: GameserverPlayerSummary
     return {
 
         'accessLevel': GameserverMatchAccessLevelToJSON(value.accessLevel),
+        'steamId': value.steamId,
+        'season': GameserverLeaderboardEntryDtoToJSON(value.season),
+        'overall': GameserverLeaderboardEntryDtoToJSON(value.overall),
         'calibrationGamesLeft': value.calibrationGamesLeft,
         'reports': ((value.reports as Array<any>).map(GameserverPlayerAspectCountDtoToJSON)),
-        'rank': value.rank,
-        'steamId': value.steamId,
-        'seasonId': value.seasonId,
-        'mmr': value.mmr,
-        'games': value.games,
-        'wins': value.wins,
-        'abandons': value.abandons,
-        'kills': value.kills,
-        'deaths': value.deaths,
-        'assists': value.assists,
-        'playtime': value.playtime,
     };
 }
 

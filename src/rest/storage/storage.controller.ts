@@ -17,9 +17,9 @@ import {
 } from "@aws-sdk/client-s3";
 import { ConfigService } from "@nestjs/config";
 import { UploadedImageDto, UploadedImagePageDto } from "./storage.dto";
-import { StorageMapper } from "./storage.mapper";
 import { calculateHashForBuffer } from "../../utils/hashbuffer";
 import { StorageService } from "./storage.service";
+import { StorageMapper } from "../../user-profile/mapper/storage.mapper";
 
 interface IFile {
   fieldname: string;

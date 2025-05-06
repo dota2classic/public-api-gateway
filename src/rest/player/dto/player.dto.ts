@@ -59,14 +59,7 @@ export class PlayerAspectDto {
   count: number;
 }
 
-export class PlayerSummaryDto {
-  user: UserDTO;
-
-  id: string;
-  mmr?: number;
-  rank?: number;
-  calibrationGamesLeft: number;
-
+export class PlayerStatsDto {
   games_played: number;
 
   wins: number;
@@ -78,6 +71,19 @@ export class PlayerSummaryDto {
   assists: number;
 
   playtime: number;
+
+  mmr?: number;
+  rank?: number;
+}
+
+export class PlayerSummaryDto {
+  user: UserDTO;
+
+  id: string;
+  calibrationGamesLeft: number;
+
+  seasonStats: PlayerStatsDto;
+  overallStats: PlayerStatsDto;
 
   accessMap: GamemodeAccessMap;
   aspects: PlayerAspectDto[];

@@ -1,3 +1,4 @@
+export * from './GameserverAbandonSessionDto';
 export * from './GameserverAchievementDto';
 export * from './GameserverBanStatusDto';
 export * from './GameserverCrimeLogDto';

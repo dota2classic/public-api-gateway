@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
-import { UploadedImageDto } from "./storage.dto";
+import { UploadedImageDto } from "../../rest/storage/storage.dto";
 
 @Injectable()
 export class StorageMapper {

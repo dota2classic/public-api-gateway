@@ -10,6 +10,7 @@ import {
   GamemodeAccessMap,
   LeaderboardEntryDto,
   MeDto,
+  PlayerStatsDto,
   PlayerSummaryDto,
   PlayerTeammateDto,
 } from "./dto/player.dto";
@@ -66,21 +67,21 @@ export class PlayerMapper {
     it: GameserverPlayerSummaryDto,
     status: GameserverBanStatusDto,
     team: TournamentTeamDto | undefined,
-    reports: GetReportsAvailableQueryResult,
+    reports?: GetReportsAvailableQueryResult,
   ): Promise<MeDto> => {
     const user = await this.userRepository.userDto(it.steamId);
     return {
-      mmr: it.mmr,
+      mmr: it.season.mmr,
       user: user,
       roles: user.roles,
       id: numSteamId(it.steamId),
-      rank: it.rank,
+      rank: it.season.rank,
       banStatus: {
         isBanned: status.isBanned,
         bannedUntil: status.bannedUntil,
         status: status.status,
       },
-      reportsAvailable: reports.available,
+      reportsAvailable: reports?.available || 0,
     };
   };
 
@@ -89,24 +90,30 @@ export class PlayerMapper {
   ): Promise<PlayerSummaryDto> => {
     return {
       user: await this.userRepository.userDto(it.steamId),
-      mmr: it.mmr,
       id: numSteamId(it.steamId),
-      rank: it.rank,
-      wins: it.wins,
-      abandons: it.abandons,
-      loss: it.games - it.wins,
-      games_played: it.games,
       calibrationGamesLeft: it.calibrationGamesLeft,
       accessMap: this.mapAccessLevel(it.accessLevel),
       aspects: it.reports,
 
-      kills: it.kills,
-      deaths: it.deaths,
-      assists: it.assists,
-
-      playtime: it.playtime,
+      overallStats: this.mapPlayerStats(it.overall),
+      seasonStats: this.mapPlayerStats(it.season),
     };
   };
+
+  private mapPlayerStats = (
+    it: GameserverLeaderboardEntryDto,
+  ): PlayerStatsDto => ({
+    rank: it.rank,
+    wins: it.wins,
+    abandons: it.abandons,
+    loss: it.games - it.wins,
+    games_played: it.games,
+    kills: it.kills,
+    deaths: it.deaths,
+    assists: it.assists,
+
+    playtime: it.playtime,
+  });
 
   public mapAccessLevel = (it: MatchAccessLevel): GamemodeAccessMap => ({
     education: true,
