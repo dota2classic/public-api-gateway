@@ -115,6 +115,10 @@ import { UserProfileModule as UPM } from "./user-profile/user-profile.module";
 import { FindByNameQuery } from "./gateway/queries/FindByName/find-by-name.query";
 import { getTypeormConfig } from "./config/typeorm.config";
 import { PlayerReportBanCreatedHandler } from "./rest/notification/event-handler/player-report-ban-created.handler";
+import { TwitchController } from "./rest/twitch.controller";
+import TwitchStrategy from "./rest/strategy/twitch.strategy";
+import { TwitchService } from "./rest/twitch.service";
+import { StatsMapper } from "./rest/stats/stats.mapper";
 
 @Module({
   imports: [
@@ -226,6 +230,7 @@ import { PlayerReportBanCreatedHandler } from "./rest/notification/event-handler
     MetaController,
     StatsController,
     SteamController,
+    TwitchController,
     DiscordController,
     ForumController,
     PrometheusGuardedController,
@@ -271,7 +276,9 @@ import { PlayerReportBanCreatedHandler } from "./rest/notification/event-handler
     JwtStrategy,
     DiscordStrategy,
     BasicStrategy,
+    TwitchStrategy,
     LiveMatchService,
+    TwitchService,
     LobbyService,
 
     FeedbackService,
@@ -289,6 +296,7 @@ import { PlayerReportBanCreatedHandler } from "./rest/notification/event-handler
     FeedbackMapper,
     BlogpostMapper,
     RecordMapper,
+    StatsMapper,
 
     LiveMatchUpdateHandler,
     ReadyCheckStartedHandler,

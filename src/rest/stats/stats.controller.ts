@@ -10,6 +10,7 @@ import {
   MatchmakingInfo,
   PerModePlayersDto,
   QueueTimeDto,
+  TwitchStreamDto,
 } from "./dto/stats.dto";
 import { CacheTTL } from "@nestjs/cache-manager";
 import { ReqLoggingInterceptor } from "../../middleware/req-logging.interceptor";
@@ -17,11 +18,12 @@ import {
   MatchmakingMode,
   MatchmakingModes,
 } from "../../gateway/shared-types/matchmaking-mode";
-import { UserHttpCacheInterceptor } from "../../utils/cache-key-track";
 import { PrometheusDriver } from "prometheus-query";
 import { avg } from "../../utils/average";
 import { range } from "../../utils/range";
 import { GlobalHttpCacheInterceptor } from "../../utils/cache-global";
+import { TwitchService } from "../twitch.service";
+import { StatsMapper } from "./stats.mapper";
 
 @UseInterceptors(ReqLoggingInterceptor)
 @Controller("stats")
@@ -30,6 +32,8 @@ export class StatsController {
   constructor(
     private readonly ms: InfoApi,
     private readonly prom: PrometheusDriver,
+    private readonly twitch: TwitchService,
+    private readonly mapper: StatsMapper,
   ) {}
 
   @UseInterceptors(GlobalHttpCacheInterceptor)
@@ -57,14 +61,23 @@ export class StatsController {
     });
   }
 
-  @UseInterceptors(UserHttpCacheInterceptor)
+  @UseInterceptors(GlobalHttpCacheInterceptor)
+  @CacheTTL(60)
+  @Get("/twitch")
+  async getTwitchStreams(): Promise<TwitchStreamDto[]> {
+    const streams = await this.twitch.getLiveStreamingDota();
+
+    return Promise.all(streams.map(this.mapper.mapStream));
+  }
+
+  @UseInterceptors(GlobalHttpCacheInterceptor)
   @CacheTTL(60_000)
   @Get("/seasons")
   async getGameSeasons(): Promise<GameSeasonDto[]> {
     return this.ms.infoControllerGetSeasons();
   }
 
-  @UseInterceptors(UserHttpCacheInterceptor)
+  @UseInterceptors(GlobalHttpCacheInterceptor)
   @Get("/online")
   @CacheTTL(1000)
   async online(): Promise<CurrentOnlineDto> {

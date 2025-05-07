@@ -2,7 +2,6 @@ import { Role } from "../../gateway/shared-types/roles";
 import { PlayerAspectDto } from "../../rest/player/dto/player.dto";
 import { BanStatusDto } from "../../rest/admin/dto/admin.dto";
 import { MatchAccessLevel } from "../../gateway/shared-types/match-access-level";
-import { UserDTO } from "../../rest/shared.dto";
 
 export interface _UserProfileDataJson {
   user: {
@@ -55,16 +54,6 @@ export class UserProfileDto implements _UserProfileDataJson {
   };
   reports: { reportsAvailable: number };
   user: { id: string; name: string; avatar: string; roles: Role[] };
-
-  asUserDto(): UserDTO {
-    return {
-      steamId: this.user.id,
-      name: this.user.name,
-      avatar: this.user.avatar,
-      avatarSmall: (this.user.avatar || "").replace("_full", "_medium"),
-      roles: this.user.roles,
-    };
-  }
 }
 
 export function wrapJSON(json: object): UserProfileDto {

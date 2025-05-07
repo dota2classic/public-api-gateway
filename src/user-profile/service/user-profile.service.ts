@@ -41,6 +41,7 @@ export class UserProfileService {
       name: fu?.name || "Loading",
       avatar: fu?.avatar || "",
       roles: fu?.roles || [],
+      connections: fu?.connections || [],
       avatarSmall: (fu?.avatar || "").replace("_full", "_medium"),
       hat: prefs?.hat && this.storageMapper.mapS3Item(prefs?.hat.imageKey),
     };
