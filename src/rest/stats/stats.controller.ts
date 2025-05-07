@@ -133,7 +133,7 @@ export class StatsController {
     utcDayOfWeek = new Date().getUTCDay(),
   ): Promise<QueueTimeDto[]> {
     try {
-      const start = Date.now() - 1000 * 60 * 60 * 24 * 7; // 7 days ago
+      const start = Date.now() - 1000 * 60 * 60 * 24 * 28; // 4 weeks ago
       const end = new Date();
       const step = 60 * 30; // 1 point every 6 hours
 
