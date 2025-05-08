@@ -63,6 +63,10 @@ export class TwitchService implements OnApplicationBootstrap {
       res.entries.map((it) => it.externalId),
     );
 
+    if (streams.length == 0) {
+      return [];
+    }
+
     return streams.map((stream) => ({
       stream,
       steamId: res.entries.find((t) => t.externalId === stream.user_login)?.id
