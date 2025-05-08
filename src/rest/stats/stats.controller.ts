@@ -60,7 +60,7 @@ export class StatsController {
   @CacheTTL(60)
   @Get("/twitch")
   async getTwitchStreams(): Promise<TwitchStreamDto[]> {
-    const streams = await this.twitch.getLiveStreamingDota();
+    const streams = this.twitch.streams;
 
     return Promise.all(streams.map(this.mapper.mapStream));
   }

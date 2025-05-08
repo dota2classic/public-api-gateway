@@ -33,11 +33,16 @@ export interface FullStreamInfo {
 
 @Injectable()
 export class TwitchService implements OnApplicationBootstrap {
+  private _streams: FullStreamInfo[];
   private logger = new Logger(TwitchService.name);
 
   private oauth: ApisauceInstance;
   private helix: ApisauceInstance;
   private token?: string;
+
+  get streams(): FullStreamInfo[] {
+    return this._streams;
+  }
 
   constructor(
     private readonly config: ConfigService,
@@ -53,7 +58,17 @@ export class TwitchService implements OnApplicationBootstrap {
     this.helix.setHeader("Client-id", this.config.get("twitch.clientId"));
   }
 
-  public async getLiveStreamingDota(): Promise<FullStreamInfo[]> {
+  async onApplicationBootstrap() {
+    await this.refreshToken();
+    await this.fetchLivestreams();
+  }
+
+  @Cron(CronExpression.EVERY_MINUTE)
+  private async fetchLivestreams() {
+    this._streams = await this.getLiveStreamingDota();
+  }
+
+  private async getLiveStreamingDota(): Promise<FullStreamInfo[]> {
     const res = await this.qbus.execute<
       GetAllConnectionsQuery,
       GetAllConnectionsQueryResult
@@ -72,10 +87,6 @@ export class TwitchService implements OnApplicationBootstrap {
       steamId: res.entries.find((t) => t.externalId === stream.user_login)?.id
         .value,
     }));
-  }
-
-  async onApplicationBootstrap() {
-    await this.refreshToken();
   }
 
   @Cron(CronExpression.EVERY_5_MINUTES)
