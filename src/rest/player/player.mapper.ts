@@ -104,6 +104,7 @@ export class PlayerMapper {
     it: GameserverLeaderboardEntryDto,
   ): PlayerStatsDto => ({
     rank: it.rank,
+    mmr: it.mmr,
     wins: it.wins,
     abandons: it.abandons,
     loss: it.games - it.wins,
