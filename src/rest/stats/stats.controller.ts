@@ -14,17 +14,11 @@ import {
 } from "./dto/stats.dto";
 import { CacheTTL } from "@nestjs/cache-manager";
 import { ReqLoggingInterceptor } from "../../middleware/req-logging.interceptor";
-import {
-  MatchmakingMode,
-  MatchmakingModes,
-} from "../../gateway/shared-types/matchmaking-mode";
-import { PrometheusDriver } from "prometheus-query";
-import { avg } from "../../utils/average";
-import { range } from "../../utils/range";
+import { MatchmakingModes } from "../../gateway/shared-types/matchmaking-mode";
 import { GlobalHttpCacheInterceptor } from "../../utils/cache-global";
 import { TwitchService } from "../twitch.service";
 import { StatsMapper } from "./stats.mapper";
-import { memoize2 } from "../../utils/memoize";
+import { StatsService } from "./stats.service";
 
 @UseInterceptors(ReqLoggingInterceptor)
 @Controller("stats")
@@ -32,9 +26,9 @@ import { memoize2 } from "../../utils/memoize";
 export class StatsController {
   constructor(
     private readonly ms: InfoApi,
-    private readonly prom: PrometheusDriver,
     private readonly twitch: TwitchService,
     private readonly mapper: StatsMapper,
+    private readonly statsService: StatsService,
   ) {}
 
   @UseInterceptors(GlobalHttpCacheInterceptor)
@@ -43,7 +37,7 @@ export class StatsController {
   async getMatchmakingInfo(): Promise<MatchmakingInfo[]> {
     const [modes, queueTimes] = await Promise.combine([
       this.ms.infoControllerGamemodes(),
-      this.queueTimesChart(),
+      Promise.resolve(this.statsService.stats),
     ]);
 
     return modes.map((mode) => {
@@ -116,47 +110,5 @@ export class StatsController {
     const servers = await this.ms.infoControllerGameServers();
     const hosts = new Set(servers.map((server) => server.url.split(":")[0]));
     return Array.from(hosts.values());
-  }
-
-  @memoize2({ maxAge: 120_000 })
-  private async queueTimesChart(
-    utcDayOfWeek = new Date().getUTCDay(),
-  ): Promise<[number, QueueTimeDto[]][]> {
-    return Promise.all(
-      range(24).map(async (utcHour) => [
-        utcHour,
-        await this.queueTimes(utcHour, utcDayOfWeek),
-      ]),
-    );
-  }
-
-  private async queueTimes(
-    utcHour = new Date().getUTCHours(),
-    utcDayOfWeek = new Date().getUTCDay(),
-  ): Promise<QueueTimeDto[]> {
-    try {
-      const start = Date.now() - 1000 * 60 * 60 * 24 * 14; // 2 weeks ago
-      const end = new Date();
-      const step = 60 * 30; // 1 point every 6 hours
-
-      const some = await this.prom.rangeQuery(
-        `(rate(d2c_queue_time_sum[1h] ) / rate(d2c_queue_time_count[1h])) and on () (hour() == ${utcHour} and day_of_week() == ${utcDayOfWeek})`,
-        start,
-        end,
-        step,
-      );
-
-      return some.result.map((result) => {
-        const numbers = result.values
-          .filter((t) => t.value !== null && !Number.isNaN(t.value))
-          .map((v) => v.value / 1000);
-        return {
-          mode: Number(result.metric.labels.mode) as MatchmakingMode,
-          queueTime: avg(numbers),
-        };
-      });
-    } catch (e) {
-      return [];
-    }
   }
 }

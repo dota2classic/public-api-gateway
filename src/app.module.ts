@@ -119,6 +119,7 @@ import { TwitchController } from "./rest/twitch.controller";
 import TwitchStrategy from "./rest/strategy/twitch.strategy";
 import { TwitchService } from "./rest/twitch.service";
 import { StatsMapper } from "./rest/stats/stats.mapper";
+import { StatsService } from "./rest/stats/stats.service";
 
 @Module({
   imports: [
@@ -285,6 +286,7 @@ import { StatsMapper } from "./rest/stats/stats.mapper";
     AuthService,
     NotificationService,
     StorageService,
+    StatsService,
 
     MatchMapper,
     PlayerMapper,
