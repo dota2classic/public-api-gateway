@@ -24,6 +24,7 @@ import { range } from "../../utils/range";
 import { GlobalHttpCacheInterceptor } from "../../utils/cache-global";
 import { TwitchService } from "../twitch.service";
 import { StatsMapper } from "./stats.mapper";
+import { memoize2 } from "../../utils/memoize";
 
 @UseInterceptors(ReqLoggingInterceptor)
 @Controller("stats")
@@ -117,6 +118,7 @@ export class StatsController {
     return Array.from(hosts.values());
   }
 
+  @memoize2({ maxAge: 120_000 })
   private async queueTimesChart(
     utcDayOfWeek = new Date().getUTCDay(),
   ): Promise<[number, QueueTimeDto[]][]> {
@@ -133,7 +135,7 @@ export class StatsController {
     utcDayOfWeek = new Date().getUTCDay(),
   ): Promise<QueueTimeDto[]> {
     try {
-      const start = Date.now() - 1000 * 60 * 60 * 24 * 28; // 4 weeks ago
+      const start = Date.now() - 1000 * 60 * 60 * 24 * 14; // 2 weeks ago
       const end = new Date();
       const step = 60 * 30; // 1 point every 6 hours
 
