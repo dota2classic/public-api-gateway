@@ -118,7 +118,9 @@ export class TwitchService implements OnApplicationBootstrap {
       );
       return [];
     }
-    return response.data.data;
+    return response.data.data.filter((stream) =>
+      stream.title.toLowerCase().includes("dotaclassic.ru"),
+    );
   }
 
   private getParams(name: string, values: string[]) {
