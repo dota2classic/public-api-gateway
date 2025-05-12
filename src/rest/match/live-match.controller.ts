@@ -49,6 +49,6 @@ export class LiveMatchController {
   liveMatch(
     @Param("id", ParseIntPipe) id: number,
   ): Observable<LiveMatchSseDto> {
-    return this.ls.streamMatch(id).pipe(map(wrapSse()));
+    return this.ls.streamMatch(id).pipe(map((a) => ({ data: a })));
   }
 }
