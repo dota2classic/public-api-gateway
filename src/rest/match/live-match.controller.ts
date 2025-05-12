@@ -13,7 +13,7 @@ import {
   LiveMatchSseDto,
   MessageObjectDto,
 } from "./dto/match.dto";
-import { Observable, scan } from "rxjs";
+import { Observable } from "rxjs";
 import { map } from "rxjs/operators";
 import { ReqLoggingInterceptor } from "../../middleware/req-logging.interceptor";
 import { getLobbyTypePriority } from "../../utils/getLobbyTypePriority";
@@ -49,7 +49,6 @@ export class LiveMatchController {
   liveMatch(
     @Param("id", ParseIntPipe) id: number,
   ): Observable<LiveMatchSseDto> {
-    this.ls.streamMatch(id).pipe(scan((a) => console.log(a)));
-    return this.ls.streamMatch(id).pipe(map((a) => ({ data: a })));
+    return this.ls.streamMatch(id).pipe(map(wrapSse()));
   }
 }
