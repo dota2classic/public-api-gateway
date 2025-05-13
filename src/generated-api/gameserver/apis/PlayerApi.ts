@@ -22,6 +22,10 @@ import {
   GameserverAchievementDtoFromJSON,
   GameserverBanStatusDto,
   GameserverBanStatusDtoFromJSON,
+  GameserverDodgeListEntryDto,
+  GameserverDodgeListEntryDtoFromJSON,
+  GameserverDodgePlayerDto,
+  GameserverDodgePlayerDtoToJSON,
   GameserverHeroStatsDto,
   GameserverHeroStatsDtoFromJSON,
   GameserverLeaderboardEntryPageDto,
@@ -44,6 +48,14 @@ export interface PlayerControllerAbandonSessionRequest {
 
 export interface PlayerControllerBanInfoRequest {
     id: string;
+}
+
+export interface PlayerControllerDodgePlayerRequest {
+    gameserverDodgePlayerDto: GameserverDodgePlayerDto;
+}
+
+export interface PlayerControllerGetDodgeListRequest {
+    steamId: string;
 }
 
 export interface PlayerControllerGetHeroPlayersRequest {
@@ -82,10 +94,39 @@ export interface PlayerControllerSmurfDataRequest {
     id: string;
 }
 
+export interface PlayerControllerUnDodgePlayerRequest {
+    gameserverDodgePlayerDto: GameserverDodgePlayerDto;
+}
+
 /**
  *
  */
 export class PlayerApi extends runtime.BaseAPI {
+
+    /**
+     */
+    playerControllerDodgePlayerContext(requestParameters: PlayerControllerDodgePlayerRequest): runtime.RequestOpts {
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+        return {
+            path: `/player/dodge_list`,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+            body: GameserverDodgePlayerDtoToJSON(requestParameters.gameserverDodgePlayerDto),
+        };
+    }
+
+    /**
+     */
+    playerControllerDodgePlayer = async (gameserverDodgePlayerDto: GameserverDodgePlayerDto): Promise<Array<GameserverDodgeListEntryDto>> => {
+        const response = await this.playerControllerDodgePlayerRaw({ gameserverDodgePlayerDto: gameserverDodgePlayerDto });
+        return await response.value();
+    }
 
     /**
      */
@@ -109,27 +150,6 @@ export class PlayerApi extends runtime.BaseAPI {
      */
     playerControllerAbandonSession = async (gameserverAbandonSessionDto: GameserverAbandonSessionDto): Promise<void> => {
         await this.playerControllerAbandonSessionRaw({ gameserverAbandonSessionDto: gameserverAbandonSessionDto });
-    }
-
-    /**
-     */
-    playerControllerReportPlayer = async (gameserverReportPlayerDto: GameserverReportPlayerDto): Promise<void> => {
-        await this.playerControllerReportPlayerRaw({ gameserverReportPlayerDto: gameserverReportPlayerDto });
-    }
-
-    /**
-     */
-    playerControllerSmurfDataContext(requestParameters: PlayerControllerSmurfDataRequest): runtime.RequestOpts {
-        const queryParameters: any = {};
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-        return {
-            path: `/player/smurf_data/{id}`.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters.id))),
-            method: 'GET',
-            headers: headerParameters,
-            query: queryParameters,
-        };
     }
 
     /**
@@ -172,6 +192,95 @@ export class PlayerApi extends runtime.BaseAPI {
     playerControllerBanInfo = async (id: string): Promise<GameserverBanStatusDto> => {
         const response = await this.playerControllerBanInfoRaw({ id: id });
         return await response.value();
+    }
+
+    /**
+     */
+    playerControllerGetDodgeListContext(requestParameters: PlayerControllerGetDodgeListRequest): runtime.RequestOpts {
+        const queryParameters: any = {};
+
+        if (requestParameters.steamId !== undefined) {
+            queryParameters['steamId'] = requestParameters.steamId;
+        }
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        return {
+            path: `/player/dodge_list`,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        };
+    }
+
+    /**
+     */
+    playerControllerGetDodgeList = async (steamId: string): Promise<Array<GameserverDodgeListEntryDto>> => {
+        const response = await this.playerControllerGetDodgeListRaw({ steamId: steamId });
+        return await response.value();
+    }
+
+    /**
+     */
+    playerControllerReportPlayer = async (gameserverReportPlayerDto: GameserverReportPlayerDto): Promise<void> => {
+        await this.playerControllerReportPlayerRaw({ gameserverReportPlayerDto: gameserverReportPlayerDto });
+    }
+
+    /**
+     */
+    playerControllerSmurfDataContext(requestParameters: PlayerControllerSmurfDataRequest): runtime.RequestOpts {
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        return {
+            path: `/player/smurf_data/{id}`.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters.id))),
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        };
+    }
+
+    /**
+     */
+    playerControllerSmurfData = async (id: string): Promise<GameserverSmurfData> => {
+        const response = await this.playerControllerSmurfDataRaw({ id: id });
+        return await response.value();
+    }
+
+    /**
+     */
+    playerControllerUnDodgePlayerContext(requestParameters: PlayerControllerUnDodgePlayerRequest): runtime.RequestOpts {
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+        return {
+            path: `/player/dodge_list`,
+            method: 'DELETE',
+            headers: headerParameters,
+            query: queryParameters,
+            body: GameserverDodgePlayerDtoToJSON(requestParameters.gameserverDodgePlayerDto),
+        };
+    }
+
+    /**
+     */
+    playerControllerUnDodgePlayer = async (gameserverDodgePlayerDto: GameserverDodgePlayerDto): Promise<Array<GameserverDodgeListEntryDto>> => {
+        const response = await this.playerControllerUnDodgePlayerRaw({ gameserverDodgePlayerDto: gameserverDodgePlayerDto });
+        return await response.value();
+    }
+
+    /**
+     */
+    private async playerControllerAbandonSessionRaw(requestParameters: PlayerControllerAbandonSessionRequest): Promise<runtime.ApiResponse<void>> {
+        this.playerControllerAbandonSessionValidation(requestParameters);
+        const context = this.playerControllerAbandonSessionContext(requestParameters);
+        const response = await this.request(context);
+
+        return new runtime.VoidApiResponse(response);
     }
 
     /**
@@ -489,23 +598,6 @@ export class PlayerApi extends runtime.BaseAPI {
 
     /**
      */
-    playerControllerSmurfData = async (id: string): Promise<GameserverSmurfData> => {
-        const response = await this.playerControllerSmurfDataRaw({ id: id });
-        return await response.value();
-    }
-
-    /**
-     */
-    private async playerControllerAbandonSessionRaw(requestParameters: PlayerControllerAbandonSessionRequest): Promise<runtime.ApiResponse<void>> {
-        this.playerControllerAbandonSessionValidation(requestParameters);
-        const context = this.playerControllerAbandonSessionContext(requestParameters);
-        const response = await this.request(context);
-
-        return new runtime.VoidApiResponse(response);
-    }
-
-    /**
-     */
     private playerControllerAbandonSessionValidation(requestParameters: PlayerControllerAbandonSessionRequest) {
         if (requestParameters.gameserverAbandonSessionDto === null || requestParameters.gameserverAbandonSessionDto === undefined) {
             throw new runtime.RequiredError('gameserverAbandonSessionDto','Required parameter requestParameters.gameserverAbandonSessionDto was null or undefined when calling playerControllerAbandonSession.');
@@ -522,11 +614,67 @@ export class PlayerApi extends runtime.BaseAPI {
         return new runtime.JSONApiResponse(response, (jsonValue) => GameserverSmurfDataFromJSON(jsonValue));
     }
 
+
+
     /**
      */
     private playerControllerSmurfDataValidation(requestParameters: PlayerControllerSmurfDataRequest) {
         if (requestParameters.id === null || requestParameters.id === undefined) {
             throw new runtime.RequiredError('id','Required parameter requestParameters.id was null or undefined when calling playerControllerSmurfData.');
+        }
+    }
+
+    /**
+     */
+    private async playerControllerDodgePlayerRaw(requestParameters: PlayerControllerDodgePlayerRequest): Promise<runtime.ApiResponse<Array<GameserverDodgeListEntryDto>>> {
+        this.playerControllerDodgePlayerValidation(requestParameters);
+        const context = this.playerControllerDodgePlayerContext(requestParameters);
+        const response = await this.request(context);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(GameserverDodgeListEntryDtoFromJSON));
+    }
+
+    /**
+     */
+    private playerControllerDodgePlayerValidation(requestParameters: PlayerControllerDodgePlayerRequest) {
+        if (requestParameters.gameserverDodgePlayerDto === null || requestParameters.gameserverDodgePlayerDto === undefined) {
+            throw new runtime.RequiredError('gameserverDodgePlayerDto','Required parameter requestParameters.gameserverDodgePlayerDto was null or undefined when calling playerControllerDodgePlayer.');
+        }
+    }
+
+    /**
+     */
+    private async playerControllerGetDodgeListRaw(requestParameters: PlayerControllerGetDodgeListRequest): Promise<runtime.ApiResponse<Array<GameserverDodgeListEntryDto>>> {
+        this.playerControllerGetDodgeListValidation(requestParameters);
+        const context = this.playerControllerGetDodgeListContext(requestParameters);
+        const response = await this.request(context);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(GameserverDodgeListEntryDtoFromJSON));
+    }
+
+    /**
+     */
+    private playerControllerGetDodgeListValidation(requestParameters: PlayerControllerGetDodgeListRequest) {
+        if (requestParameters.steamId === null || requestParameters.steamId === undefined) {
+            throw new runtime.RequiredError('steamId','Required parameter requestParameters.steamId was null or undefined when calling playerControllerGetDodgeList.');
+        }
+    }
+
+    /**
+     */
+    private async playerControllerUnDodgePlayerRaw(requestParameters: PlayerControllerUnDodgePlayerRequest): Promise<runtime.ApiResponse<Array<GameserverDodgeListEntryDto>>> {
+        this.playerControllerUnDodgePlayerValidation(requestParameters);
+        const context = this.playerControllerUnDodgePlayerContext(requestParameters);
+        const response = await this.request(context);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(GameserverDodgeListEntryDtoFromJSON));
+    }
+
+    /**
+     */
+    private playerControllerUnDodgePlayerValidation(requestParameters: PlayerControllerUnDodgePlayerRequest) {
+        if (requestParameters.gameserverDodgePlayerDto === null || requestParameters.gameserverDodgePlayerDto === undefined) {
+            throw new runtime.RequiredError('gameserverDodgePlayerDto','Required parameter requestParameters.gameserverDodgePlayerDto was null or undefined when calling playerControllerUnDodgePlayer.');
         }
     }
 

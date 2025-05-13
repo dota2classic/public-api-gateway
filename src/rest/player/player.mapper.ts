@@ -2,11 +2,13 @@ import { Injectable } from "@nestjs/common";
 import {
   GameserverAchievementDto,
   GameserverBanStatusDto,
+  GameserverDodgeListEntryDto,
   GameserverLeaderboardEntryDto,
   GameserverPlayerSummaryDto,
   GameserverPlayerTeammateDto,
 } from "../../generated-api/gameserver/models";
 import {
+  DodgeListEntryDto,
   GamemodeAccessMap,
   LeaderboardEntryDto,
   MeDto,
@@ -170,4 +172,11 @@ export class PlayerMapper {
       match: ach.match ? await this.matchMapper.mapMatch(ach.match) : undefined,
     };
   };
+
+  public mapDodgeEntry = async (
+    it: GameserverDodgeListEntryDto,
+  ): Promise<DodgeListEntryDto> => ({
+    user: await this.userRepository.userDto(it.steamId),
+    createdAt: it.createdAt,
+  });
 }

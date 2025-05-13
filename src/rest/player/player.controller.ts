@@ -1,8 +1,11 @@
 import {
+  Body,
   Controller,
+  Delete,
   Get,
   Inject,
   Param,
+  Post,
   Query,
   UseGuards,
   UseInterceptors,
@@ -12,6 +15,8 @@ import { ApiBearerAuth, ApiQuery, ApiTags } from "@nestjs/swagger";
 import { PlayerApi } from "../../generated-api/gameserver";
 import { PlayerMapper } from "./player.mapper";
 import {
+  DodgeListEntryDto,
+  DodgePlayerDto,
   LeaderboardEntryPageDto,
   MeDto,
   MyProfileDto,
@@ -166,6 +171,45 @@ export class PlayerController {
   @Get("/summary/hero/:id")
   async heroSummary(@Param("id") steam_id: string): Promise<HeroStatsDto[]> {
     return this.ms.playerControllerPlayerHeroSummary(steam_id);
+  }
+
+  @WithUser()
+  @Get("/dodge_list")
+  async getDodgeList(
+    @CurrentUser() user: CurrentUserDto,
+  ): Promise<DodgeListEntryDto[]> {
+    return this.ms
+      .playerControllerGetDodgeList(user.steam_id)
+      .then((list) => Promise.all(list.map(this.mapper.mapDodgeEntry)));
+  }
+
+  @WithUser()
+  @Post("/dodge_list")
+  async dodgePlayer(
+    @CurrentUser() user: CurrentUserDto,
+    @Body() dto: DodgePlayerDto,
+  ): Promise<DodgeListEntryDto[]> {
+    return this.ms
+      .playerControllerDodgePlayer({
+        steamId: user.steam_id,
+        toDodgeSteamId: dto.dodgeSteamId,
+      })
+      .then((list) => Promise.all(list.map(this.mapper.mapDodgeEntry)));
+  }
+
+  @WithUser()
+
+  @Delete("/dodge_list")
+  async unDodgePlayer(
+    @CurrentUser() user: CurrentUserDto,
+    @Body() dto: DodgePlayerDto,
+  ): Promise<DodgeListEntryDto[]> {
+    return this.ms
+      .playerControllerUnDodgePlayer({
+        steamId: user.steam_id,
+        toDodgeSteamId: dto.dodgeSteamId,
+      })
+      .then((list) => Promise.all(list.map(this.mapper.mapDodgeEntry)));
   }
 
   @Get("/search")

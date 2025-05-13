@@ -3,6 +3,8 @@ export * from './GameserverAchievementDto';
 export * from './GameserverBanStatusDto';
 export * from './GameserverCrimeLogDto';
 export * from './GameserverCrimeLogPageDto';
+export * from './GameserverDodgeListEntryDto';
+export * from './GameserverDodgePlayerDto';
 export * from './GameserverGameSeasonDto';
 export * from './GameserverGameServerDto';
 export * from './GameserverGameSessionDto';

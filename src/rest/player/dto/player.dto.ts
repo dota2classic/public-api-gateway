@@ -120,3 +120,12 @@ export class LeaderboardEntryPageDto extends Page<LeaderboardEntryDto> {
   perPage: number;
   pages: number;
 }
+
+export class DodgeListEntryDto {
+  user: UserDTO;
+  createdAt: string;
+}
+
+export class DodgePlayerDto {
+  dodgeSteamId: string;
+}
