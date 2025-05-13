@@ -95,6 +95,11 @@ export class CustomizationController {
         { steamId: pref.steamId },
         { titleId: dto.id || null },
       );
+    } else if (dto.type === UserProfileDecorationType.CHAT_ICON_ANIMATION) {
+      await this.userDecorationPreferences.update(
+        { steamId: pref.steamId },
+        { animationId: dto.id || null },
+      );
     }
   }
 

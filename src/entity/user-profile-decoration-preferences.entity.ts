@@ -63,4 +63,20 @@ export class UserProfileDecorationPreferencesEntity {
     nullable: true,
   })
   titleId?: number;
+
+  @ManyToOne(() => UserProfileDecorationEntity, (t) => t.animationWearer, {
+    eager: true,
+    nullable: true,
+  })
+  @JoinColumn({
+    referencedColumnName: "id",
+    name: "animation_id",
+  })
+  animation: Relation<UserProfileDecorationEntity>;
+
+  @Column({
+    name: "animation_id",
+    nullable: true,
+  })
+  animationId?: number;
 }

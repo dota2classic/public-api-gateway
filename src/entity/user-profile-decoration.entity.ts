@@ -11,6 +11,7 @@ export enum UserProfileDecorationType {
   HAT = "HAT",
   TITLE = "TITLE",
   CHAT_ICON = "CHAT_ICON",
+  CHAT_ICON_ANIMATION = "CHAT_ICON_ANIMATION",
 }
 
 @Entity("user_profile_decoration")
@@ -45,4 +46,7 @@ export class UserProfileDecorationEntity {
 
   @OneToMany(() => UserProfileDecorationPreferencesEntity, (t) => t.title)
   titleWearer: Relation<UserProfileDecorationPreferencesEntity>[];
+
+  @OneToMany(() => UserProfileDecorationPreferencesEntity, (t) => t.animation)
+  animationWearer: Relation<UserProfileDecorationPreferencesEntity>[];
 }
