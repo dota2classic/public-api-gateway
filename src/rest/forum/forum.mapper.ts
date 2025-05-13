@@ -12,7 +12,7 @@ import {
   ThreadMessageDTO,
 } from "./forum.dto";
 import { ConfigService } from "@nestjs/config";
-import { UserProfileService } from "../../user-profile/service/user-profile.service";
+import { UserProfileService } from "../../service/user-profile.service";
 
 @Injectable()
 export class ForumMapper {

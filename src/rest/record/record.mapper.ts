@@ -2,7 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { PlayerRecordDto } from "./record.dto";
 import { GameserverPlayerRecordDto } from "../../generated-api/gameserver";
 import { MatchMapper } from "../match/match.mapper";
-import { UserProfileService } from "../../user-profile/service/user-profile.service";
+import { UserProfileService } from "../../service/user-profile.service";
 
 @Injectable()
 export class RecordMapper {

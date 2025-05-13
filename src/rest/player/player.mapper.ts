@@ -24,7 +24,7 @@ import { AchievementDto } from "./dto/achievement.dto";
 import { MatchMapper } from "../match/match.mapper";
 import { GetSessionByUserQueryResult } from "../../gateway/queries/GetSessionByUser/get-session-by-user-query.result";
 import { MatchAccessLevel } from "../../gateway/shared-types/match-access-level";
-import { UserProfileService } from "../../user-profile/service/user-profile.service";
+import { UserProfileService } from "../../service/user-profile.service";
 
 @Injectable()
 export class PlayerMapper {

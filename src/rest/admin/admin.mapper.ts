@@ -7,7 +7,7 @@ import {
 import { CrimeLogDto, GameServerDto, GameSessionDto } from "./dto/admin.dto";
 import { Dota2Version } from "../../gateway/shared-types/dota2version";
 import { MatchmakingMode } from "../../gateway/shared-types/matchmaking-mode";
-import { UserProfileService } from "../../user-profile/service/user-profile.service";
+import { UserProfileService } from "../../service/user-profile.service";
 
 @Injectable()
 export class AdminMapper {

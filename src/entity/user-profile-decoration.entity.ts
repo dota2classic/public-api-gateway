@@ -9,12 +9,20 @@ import { UserProfileDecorationPreferencesEntity } from "./user-profile-decoratio
 
 export enum UserProfileDecorationType {
   HAT = "HAT",
+  TITLE = "TITLE",
+  CHAT_ICON = "CHAT_ICON",
 }
 
 @Entity("user_profile_decoration")
 export class UserProfileDecorationEntity {
   @PrimaryGeneratedColumn("increment")
   id: number;
+
+  @Column({
+    name: "title",
+    default: "",
+  })
+  title: string;
 
   @Column({
     name: "decoration_type",
@@ -31,4 +39,10 @@ export class UserProfileDecorationEntity {
 
   @OneToMany(() => UserProfileDecorationPreferencesEntity, (t) => t.hat)
   hatWearer: Relation<UserProfileDecorationPreferencesEntity>[];
+
+  @OneToMany(() => UserProfileDecorationPreferencesEntity, (t) => t.icon)
+  iconWearer: Relation<UserProfileDecorationPreferencesEntity>[];
+
+  @OneToMany(() => UserProfileDecorationPreferencesEntity, (t) => t.title)
+  titleWearer: Relation<UserProfileDecorationPreferencesEntity>[];
 }

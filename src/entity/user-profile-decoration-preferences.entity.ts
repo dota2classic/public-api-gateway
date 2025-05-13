@@ -30,5 +30,37 @@ export class UserProfileDecorationPreferencesEntity {
     name: "hat_id",
     nullable: true,
   })
-  hatId: number;
+  hatId?: number;
+
+  @ManyToOne(() => UserProfileDecorationEntity, (t) => t.iconWearer, {
+    eager: true,
+    nullable: true,
+  })
+  @JoinColumn({
+    referencedColumnName: "id",
+    name: "icon_id",
+  })
+  icon: Relation<UserProfileDecorationEntity>;
+
+  @Column({
+    name: "icon_id",
+    nullable: true,
+  })
+  iconId?: number;
+
+  @ManyToOne(() => UserProfileDecorationEntity, (t) => t.titleWearer, {
+    eager: true,
+    nullable: true,
+  })
+  @JoinColumn({
+    referencedColumnName: "id",
+    name: "title_id",
+  })
+  title: Relation<UserProfileDecorationEntity>;
+
+  @Column({
+    name: "title_id",
+    nullable: true,
+  })
+  titleId?: number;
 }

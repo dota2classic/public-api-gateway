@@ -2,8 +2,8 @@ import { Injectable } from "@nestjs/common";
 import { BlogpostEntity } from "../../entity/blogpost.entity";
 import { BlogpostDto } from "./blogpost.dto";
 import { ConfigService } from "@nestjs/config";
-import { UserProfileService } from "../../user-profile/service/user-profile.service";
-import { StorageMapper } from "../../user-profile/mapper/storage.mapper";
+import { UserProfileService } from "../../service/user-profile.service";
+import { StorageMapper } from "../storage/storage.mapper";
 
 @Injectable()
 export class BlogpostMapper {

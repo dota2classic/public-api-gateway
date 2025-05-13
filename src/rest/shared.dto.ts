@@ -1,7 +1,7 @@
 import { Role } from "../gateway/shared-types/roles";
 import { ApiProperty } from "@nestjs/swagger";
-import { UploadedImageDto } from "./storage/storage.dto";
 import { UserConnection } from "../gateway/shared-types/user-connection";
+import { ProfileDecorationDto } from "./customization/customization.dto";
 
 export class UserConnectionDto {
   connection: UserConnection;
@@ -17,5 +17,7 @@ export class UserDTO {
 
   connections: UserConnectionDto[];
 
-  hat?: UploadedImageDto;
+  hat?: ProfileDecorationDto;
+  icon?: ProfileDecorationDto;
+  title?: ProfileDecorationDto;
 }

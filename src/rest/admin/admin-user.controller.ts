@@ -41,7 +41,7 @@ import { AdminMapper } from "./admin.mapper";
 import { WithPagination } from "../../utils/decorator/pagination";
 import { MatchmakingInfo } from "../stats/dto/stats.dto";
 import { InjectS3, S3 } from "nestjs-s3";
-import { UserProfileService } from "../../user-profile/service/user-profile.service";
+import { UserProfileService } from "../../service/user-profile.service";
 import { PlayerFlagsEntity } from "../../entity/player-flags.entity";
 import { Repository } from "typeorm";
 import { InjectRepository } from "@nestjs/typeorm";

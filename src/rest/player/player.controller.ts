@@ -38,7 +38,7 @@ import { NullableIntPipe } from "../../utils/pipes";
 import { PartyService } from "../party.service";
 import { ReqLoggingInterceptor } from "../../middleware/req-logging.interceptor";
 import { SocketDelivery } from "../../socket/socket-delivery";
-import { UserProfileService } from "../../user-profile/service/user-profile.service";
+import { UserProfileService } from "../../service/user-profile.service";
 import { DataSource } from "typeorm";
 import { FindByNameQuery } from "../../gateway/queries/FindByName/find-by-name.query";
 import { FindByNameQueryResult } from "../../gateway/queries/FindByName/find-by-name-query.result";

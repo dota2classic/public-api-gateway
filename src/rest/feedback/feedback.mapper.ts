@@ -6,7 +6,7 @@ import {
   PlayerFeedbackDto,
 } from "./feedback.dto";
 import { FeedbackEntity } from "../../entity/feedback.entity";
-import { UserProfileService } from "../../user-profile/service/user-profile.service";
+import { UserProfileService } from "../../service/user-profile.service";
 
 @Injectable()
 export class FeedbackMapper {

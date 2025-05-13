@@ -1,16 +1,13 @@
 import { Inject, Injectable, Logger } from "@nestjs/common";
 import Keyv from "keyv";
-import { PlayerApi } from "../../generated-api/gameserver";
 import { QueryBus } from "@nestjs/cqrs";
-import { GameServerAdapter } from "../adapter/gameserver.adapter";
-import { UserAdapter } from "../adapter/user.adapter";
 import { UserProfileFastService } from "@dota2classic/caches/dist/service/user-profile-fast.service";
-import { UserFastProfileDto } from "../../gateway/caches/user-fast-profile.dto";
-import { UserDTO } from "../../rest/shared.dto";
-import { UserProfileDecorationPreferencesEntity } from "../../entity/user-profile-decoration-preferences.entity";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
-import { StorageMapper } from "../mapper/storage.mapper";
+import { UserFastProfileDto } from "../gateway/caches/user-fast-profile.dto";
+import { UserProfileDecorationPreferencesEntity } from "../entity/user-profile-decoration-preferences.entity";
+import { CustomizationMapper } from "../rest/customization/customization.mapper";
+import { UserDTO } from "../rest/shared.dto";
 
 @Injectable()
 export class UserProfileService {
@@ -18,14 +15,11 @@ export class UserProfileService {
 
   constructor(
     @Inject("full-profile") private readonly keyv: Keyv,
-    private readonly playerApi: PlayerApi,
     private readonly qbus: QueryBus,
-    private readonly gsAdapter: GameServerAdapter,
-    private readonly userAdapter: UserAdapter,
     private readonly fastUserService: UserProfileFastService<UserFastProfileDto>,
     @InjectRepository(UserProfileDecorationPreferencesEntity)
     private readonly userProfileDecorationPreferencesEntityRepository: Repository<UserProfileDecorationPreferencesEntity>,
-    private readonly storageMapper: StorageMapper,
+    private readonly customizationMapper: CustomizationMapper,
   ) {}
 
   public userDto = async (steamId: string): Promise<UserDTO> => {
@@ -43,7 +37,10 @@ export class UserProfileService {
       roles: fu?.roles || [],
       connections: fu?.connections || [],
       avatarSmall: (fu?.avatar || "").replace("_full", "_medium"),
-      hat: prefs?.hat && this.storageMapper.mapS3Item(prefs?.hat.imageKey),
+      hat: prefs?.hat && this.customizationMapper.mapDecoration(prefs.hat),
+      icon: prefs?.icon && this.customizationMapper.mapDecoration(prefs.icon),
+      title:
+        prefs?.title && this.customizationMapper.mapDecoration(prefs.title),
     };
   };
 

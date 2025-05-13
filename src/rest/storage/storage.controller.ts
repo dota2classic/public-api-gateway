@@ -19,7 +19,7 @@ import { ConfigService } from "@nestjs/config";
 import { UploadedImageDto, UploadedImagePageDto } from "./storage.dto";
 import { calculateHashForBuffer } from "../../utils/hashbuffer";
 import { StorageService } from "./storage.service";
-import { StorageMapper } from "../../user-profile/mapper/storage.mapper";
+import { StorageMapper } from "./storage.mapper";
 
 interface IFile {
   fieldname: string;

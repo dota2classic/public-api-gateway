@@ -22,7 +22,7 @@ import {
   WithUser,
 } from "../../utils/decorator/with-user";
 import { MatchmakingMode } from "../../gateway/shared-types/matchmaking-mode";
-import { UserProfileService } from "../../user-profile/service/user-profile.service";
+import { UserProfileService } from "../../service/user-profile.service";
 
 @Controller("servers")
 @ApiTags("admin")

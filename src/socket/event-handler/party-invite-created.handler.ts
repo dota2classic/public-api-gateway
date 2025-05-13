@@ -3,7 +3,7 @@ import { PartyInviteCreatedEvent } from "../../gateway/events/party/party-invite
 import { SocketDelivery } from "../socket-delivery";
 import { PartyInviteReceivedMessageS2C } from "../messages/s2c/party-invite-received-message.s2c";
 import { MessageTypeS2C } from "../messages/s2c/message-type.s2c";
-import { UserProfileService } from "../../user-profile/service/user-profile.service";
+import { UserProfileService } from "../../service/user-profile.service";
 
 @EventsHandler(PartyInviteCreatedEvent)
 export class PartyInviteCreatedHandler

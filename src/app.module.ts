@@ -111,7 +111,10 @@ import { RecordMapper } from "./rest/record/record.mapper";
 import { FeedbackAssistantService } from "./rest/feedback/feedback-assistant.service";
 import { PlayerSmurfDetectedHandler } from "./rest/notification/event-handler/player-smurf-detected.handler";
 import { ApiModule } from "./api/api.module";
-import { UserProfileModule as UPM } from "./user-profile/user-profile.module";
+import {
+  UserProfileModule as UPM,
+  UserProfileModule as UMP,
+} from "@dota2classic/caches";
 import { FindByNameQuery } from "./gateway/queries/FindByName/find-by-name.query";
 import { getTypeormConfig } from "./config/typeorm.config";
 import { PlayerReportBanCreatedHandler } from "./rest/notification/event-handler/player-report-ban-created.handler";
@@ -120,6 +123,14 @@ import TwitchStrategy from "./rest/strategy/twitch.strategy";
 import { TwitchService } from "./rest/twitch.service";
 import { StatsMapper } from "./rest/stats/stats.mapper";
 import { StatsService } from "./rest/stats/stats.service";
+import { CustomizationController } from "./rest/customization/customization.controller";
+import { CustomizationMapper } from "./rest/customization/customization.mapper";
+import { GameServerAdapter } from "./user-profile/adapter/gameserver.adapter";
+import { UserAdapter } from "./user-profile/adapter/user.adapter";
+import Keyv from "keyv";
+import KeyvRedis from "@keyv/redis";
+import { UserProfileService } from "./service/user-profile.service";
+import { StorageMapper } from "./rest/storage/storage.mapper";
 
 @Module({
   imports: [
@@ -130,6 +141,17 @@ import { StatsService } from "./rest/stats/stats.service";
     PrometheusModule.register({
       path: "/metrics",
       controller: PrometheusGuardedController,
+    }),
+    UMP.registerAsync({
+      imports: [],
+      useFactory(config: ConfigService) {
+        return {
+          host: config.get("redis.host"),
+          password: config.get("redis.password"),
+          port: 6379,
+        };
+      },
+      inject: [ConfigService],
     }),
     TypeOrmModule.forRootAsync({
       useFactory(config: ConfigService): TypeOrmModuleOptions {
@@ -242,11 +264,48 @@ import { StatsService } from "./rest/stats/stats.service";
 
     StorageController,
     BlogpostController,
+    CustomizationController,
   ],
   providers: [
     ReqLoggingInterceptor,
     UserHttpCacheInterceptor,
     MainService,
+
+    GameServerAdapter,
+    UserAdapter,
+    StorageMapper,
+
+    {
+      provide: "full-profile",
+      async useFactory(config: ConfigService) {
+        return new Keyv(
+          new KeyvRedis({
+            url: `redis://${config.get("redis.host")}:6379`,
+            password: config.get<string>("redis.password"),
+          }),
+          {
+            namespace: "user-profile-full",
+          },
+        );
+      },
+      inject: [ConfigService],
+    },
+    {
+      provide: "fast-user-profile",
+      async useFactory(config: ConfigService) {
+        return new Keyv(
+          new KeyvRedis({
+            url: `redis://${config.get("redis.host")}:6379`,
+            password: config.get<string>("redis.password"),
+          }),
+          {
+            namespace: "user-profile-fast",
+          },
+        );
+      },
+      inject: [ConfigService],
+    },
+    UserProfileService,
 
     {
       provide: "QueryCache",
@@ -299,6 +358,7 @@ import { StatsService } from "./rest/stats/stats.service";
     BlogpostMapper,
     RecordMapper,
     StatsMapper,
+    CustomizationMapper,
 
     LiveMatchUpdateHandler,
     ReadyCheckStartedHandler,

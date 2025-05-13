@@ -11,7 +11,7 @@ import { ThreadType } from "../../../gateway/shared-types/thread-type";
 import { Logger } from "@nestjs/common";
 import { NotificationService } from "../../notification/notification.service";
 import { TelegramNotificationService } from "../telegram-notification.service";
-import { UserProfileService } from "../../../user-profile/service/user-profile.service";
+import { UserProfileService } from "../../../service/user-profile.service";
 
 @EventsHandler(MessageUpdatedEvent)
 export class NewTicketMessageCreatedHandler

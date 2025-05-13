@@ -9,7 +9,7 @@ import { NotificationService } from "../notification.service";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { TelegramNotificationService } from "../telegram-notification.service";
-import { UserProfileService } from "../../../user-profile/service/user-profile.service";
+import { UserProfileService } from "../../../service/user-profile.service";
 
 @EventsHandler(PlayerFeedbackThreadCreatedEvent)
 export class PlayerFeedbackThreadCreatedHandler

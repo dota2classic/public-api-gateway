@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import { Role } from "../../gateway/shared-types/roles";
-import { UserProfileService } from "../../user-profile/service/user-profile.service";
+import { UserProfileService } from "../../service/user-profile.service";
 import { UserDTO } from "../shared.dto";
 
 export interface JwtPayload {

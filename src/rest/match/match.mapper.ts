@@ -8,14 +8,15 @@ import {
 } from "../../generated-api/gameserver/models";
 import {
   MatchDto,
-  MatchPageDto, MatchReportInfoDto,
+  MatchPageDto,
+  MatchReportInfoDto,
   MmrChangeDto,
   PlayerInMatchDto,
-} from './dto/match.dto';
+} from "./dto/match.dto";
 import { MATCH_REPORT_TIMEOUT } from "../../gateway/shared-types/timings";
 import { ConfigService } from "@nestjs/config";
 import { MatchmakingMode } from "../../gateway/shared-types/matchmaking-mode";
-import { UserProfileService } from "../../user-profile/service/user-profile.service";
+import { UserProfileService } from "../../service/user-profile.service";
 
 @Injectable()
 export class MatchMapper {
@@ -61,27 +62,30 @@ export class MatchMapper {
         it.id > 16500 && it.mode !== MatchmakingMode.BOTS
           ? `${this.configService.get("api.replayUrl")}${it.id}.dem`
           : undefined,
-
-
     };
   };
 
-  public mapReportMatrixDto = (reportMatrix: GameserverMatchReportMatrixDto, mapForSteamId: string): MatchReportInfoDto => {
-    const timeDiff = new Date().getTime() - new Date(reportMatrix.timestamp).getTime();
-    const isReportable = mapForSteamId !== undefined && timeDiff <= MATCH_REPORT_TIMEOUT;
+  public mapReportMatrixDto = (
+    reportMatrix: GameserverMatchReportMatrixDto,
+    mapForSteamId: string,
+  ): MatchReportInfoDto => {
+    const timeDiff =
+      new Date().getTime() - new Date(reportMatrix.timestamp).getTime();
+    const isReportable =
+      mapForSteamId !== undefined && timeDiff <= MATCH_REPORT_TIMEOUT;
     return {
       reportableSteamIds:
         isReportable && reportMatrix
           ? reportMatrix.reports
-            .filter(
-              (it) =>
-                it.steamId !== mapForSteamId &&
-                !it.reported.includes(mapForSteamId),
-            )
-            .map((it) => it.steamId)
-          : []
-    }
-  }
+              .filter(
+                (it) =>
+                  it.steamId !== mapForSteamId &&
+                  !it.reported.includes(mapForSteamId),
+              )
+              .map((it) => it.steamId)
+          : [],
+    };
+  };
 
   public mapMatchPage = async (
     it: GameserverMatchPageDto,

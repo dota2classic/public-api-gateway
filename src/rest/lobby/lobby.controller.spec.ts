@@ -28,7 +28,7 @@ import { LobbyReadyEvent } from "../../gateway/events/lobby-ready.event";
 import { Repository } from "typeorm";
 import { DotaTeam } from "../../gateway/shared-types/dota-team";
 import { Dota_Map } from "../../gateway/shared-types/dota-map";
-import { UserProfileService } from "../../user-profile/service/user-profile.service";
+import { UserProfileService } from "../../service/user-profile.service";
 import Keyv from "keyv";
 
 describe("LobbyController", () => {

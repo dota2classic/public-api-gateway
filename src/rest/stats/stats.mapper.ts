@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { UserProfileService } from "../../user-profile/service/user-profile.service";
+import { UserProfileService } from "../../service/user-profile.service";
 import { FullStreamInfo } from "../twitch.service";
 import { TwitchStreamDto } from "./dto/stats.dto";
 

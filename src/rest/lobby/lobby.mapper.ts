@@ -2,7 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { LobbyEntity } from "../../entity/lobby.entity";
 import { LobbyDto, LobbySlotDto } from "./lobby.dto";
 import { LobbySlotEntity } from "../../entity/lobby-slot.entity";
-import { UserProfileService } from "../../user-profile/service/user-profile.service";
+import { UserProfileService } from "../../service/user-profile.service";
 
 @Injectable()
 export class LobbyMapper {

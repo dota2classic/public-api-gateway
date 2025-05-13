@@ -24,7 +24,7 @@ import { QueueStateMessageS2C } from "./messages/s2c/queue-state-message.s2c";
 import { GetPartyQuery } from "../gateway/queries/GetParty/get-party.query";
 import { GetPartyQueryResult } from "../gateway/queries/GetParty/get-party-query.result";
 import { PlayerQueueStateMessageS2C } from "./messages/s2c/player-queue-state-message.s2c";
-import { UserProfileService } from "../user-profile/service/user-profile.service";
+import { UserProfileService } from "../service/user-profile.service";
 
 @Injectable()
 export class SocketMessageService {

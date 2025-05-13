@@ -29,7 +29,7 @@ import { QueryBus } from "@nestjs/cqrs";
 import { WithPagination } from "../../utils/decorator/pagination";
 import { ReqLoggingInterceptor } from "../../middleware/req-logging.interceptor";
 import { WithUser } from "../../utils/decorator/with-user";
-import { UserProfileService } from "../../user-profile/service/user-profile.service";
+import { UserProfileService } from "../../service/user-profile.service";
 
 @UseInterceptors(ReqLoggingInterceptor)
 @Controller("match")
