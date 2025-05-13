@@ -20,4 +20,5 @@ export class UserDTO {
   hat?: ProfileDecorationDto;
   icon?: ProfileDecorationDto;
   title?: ProfileDecorationDto;
+  chatIconAnimation?: ProfileDecorationDto;
 }

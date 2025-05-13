@@ -41,6 +41,9 @@ export class UserProfileService {
       icon: prefs?.icon && this.customizationMapper.mapDecoration(prefs.icon),
       title:
         prefs?.title && this.customizationMapper.mapDecoration(prefs.title),
+      chatIconAnimation:
+        prefs?.animation &&
+        this.customizationMapper.mapDecoration(prefs.animation),
     };
   };
 
