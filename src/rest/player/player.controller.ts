@@ -31,7 +31,7 @@ import { AuthGuard } from "@nestjs/passport";
 import { QueryBus } from "@nestjs/cqrs";
 import { D2CUser } from "../strategy/jwt.strategy";
 import { PlayerId } from "../../gateway/shared-types/player-id";
-import { WithUser } from "../../utils/decorator/with-user";
+import { OldGuard, WithUser } from "../../utils/decorator/with-user";
 import { UserMightExistEvent } from "../../gateway/events/user/user-might-exist.event";
 import { ClientProxy } from "@nestjs/microservices";
 import { HeroStatsDto } from "./dto/hero.dto";
@@ -183,6 +183,7 @@ export class PlayerController {
       .then((list) => Promise.all(list.map(this.mapper.mapDodgeEntry)));
   }
 
+  @OldGuard()
   @WithUser()
   @Post("/dodge_list")
   async dodgePlayer(
@@ -197,8 +198,8 @@ export class PlayerController {
       .then((list) => Promise.all(list.map(this.mapper.mapDodgeEntry)));
   }
 
+  @OldGuard()
   @WithUser()
-
   @Delete("/dodge_list")
   async unDodgePlayer(
     @CurrentUser() user: CurrentUserDto,
