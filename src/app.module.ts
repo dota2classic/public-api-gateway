@@ -131,6 +131,7 @@ import Keyv from "keyv";
 import KeyvRedis from "@keyv/redis";
 import { UserProfileService } from "./service/user-profile.service";
 import { StorageMapper } from "./rest/storage/storage.mapper";
+import { PaymentHooksController } from "./rest/payments/payment-hooks.controller";
 
 @Module({
   imports: [
@@ -265,6 +266,8 @@ import { StorageMapper } from "./rest/storage/storage.mapper";
     StorageController,
     BlogpostController,
     CustomizationController,
+
+    PaymentHooksController,
   ],
   providers: [
     ReqLoggingInterceptor,
