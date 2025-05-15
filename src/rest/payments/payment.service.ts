@@ -92,6 +92,11 @@ export class PaymentService {
     );
 
     if (!createdPayment.ok) {
+      this.logger.log(
+        "There was an issue creating external payment",
+        createdPayment.originalError,
+      );
+      console.error(createdPayment.originalError);
       await this.userPaymentEntityRepository.update(
         {
           id: internalPayment.id,
