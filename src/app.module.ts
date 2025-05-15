@@ -3,7 +3,12 @@ import { MatchController } from "./rest/match/match.controller";
 import { SteamController } from "./rest/steam.controller";
 import SteamStrategy from "./rest/strategy/steam.strategy";
 import { JwtModule, JwtModuleOptions } from "@nestjs/jwt";
-import { ClientsModule, RedisOptions, Transport } from "@nestjs/microservices";
+import {
+  ClientsModule,
+  RedisOptions,
+  RmqOptions,
+  Transport,
+} from "@nestjs/microservices";
 import { GetAllQuery } from "./gateway/queries/GetAll/get-all.query";
 import { GetUserInfoQuery } from "./gateway/queries/GetUserInfo/get-user-info.query";
 import { CqrsModule } from "@nestjs/cqrs";
@@ -132,6 +137,8 @@ import KeyvRedis from "@keyv/redis";
 import { UserProfileService } from "./service/user-profile.service";
 import { StorageMapper } from "./rest/storage/storage.mapper";
 import { PaymentHooksController } from "./rest/payments/payment-hooks.controller";
+import { UserPaymentsController } from "./rest/payments/user-payments.controller";
+import { PaymentService } from "./rest/payments/payment.service";
 
 @Module({
   imports: [
@@ -223,6 +230,34 @@ import { PaymentHooksController } from "./rest/payments/payment-hooks.controller
     }),
     ClientsModule.registerAsync([
       {
+        name: "RMQ",
+        useFactory(config: ConfigService): RmqOptions {
+          return {
+            transport: Transport.RMQ,
+            options: {
+              urls: [
+                {
+                  hostname: config.get<string>("rabbitmq.host"),
+                  port: config.get<number>("rabbitmq.port"),
+                  protocol: "amqp",
+                  username: config.get<string>("rabbitmq.user"),
+                  password: config.get<string>("rabbitmq.password"),
+                },
+              ],
+              queue: config.get<string>("rabbitmq.payment_queue"),
+              queueOptions: {
+                durable: true,
+              },
+              prefetchCount: 5,
+            },
+          };
+        },
+        inject: [ConfigService],
+        imports: [],
+      },
+    ]),
+    ClientsModule.registerAsync([
+      {
         name: "QueryCore",
         useFactory(config: ConfigService): RedisOptions {
           return {
@@ -268,6 +303,7 @@ import { PaymentHooksController } from "./rest/payments/payment-hooks.controller
     CustomizationController,
 
     PaymentHooksController,
+    UserPaymentsController,
   ],
   providers: [
     ReqLoggingInterceptor,
@@ -404,6 +440,10 @@ import { PaymentHooksController } from "./rest/payments/payment-hooks.controller
     PlayerReportBanCreatedHandler,
     TelegramNotificationService,
     FeedbackAssistantService,
+
+    //
+    PaymentService,
+
     // Telegram
     {
       provide: "Telegram",

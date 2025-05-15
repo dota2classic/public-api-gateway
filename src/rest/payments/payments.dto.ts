@@ -28,6 +28,14 @@ export interface YoukassaPayment {
   test: boolean;
 }
 
+
+export interface CreatedYoukassaPayment extends YoukassaPayment {
+  confirmation: {
+    type: "redirect",
+    confirmation_url: string;
+  };
+}
+
 export interface Amount {
   value: string;
   currency: string;
@@ -62,3 +70,20 @@ export interface Card {
   issuer_country: string;
   issuer_name: string;
 }
+
+export interface CreatePaymentDto {
+  amount: Amount;
+  capture: boolean;
+  confirmation: Confirmation;
+  description: string;
+}
+
+export interface Confirmation {
+  type: string;
+  return_url: string;
+}
+
+export class StartPaymentDto {
+  confirmationUrl: string;
+}
+

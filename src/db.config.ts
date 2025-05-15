@@ -10,6 +10,7 @@ import { BlogpostEntity } from "./entity/blogpost.entity";
 import { PlayerFlagsEntity } from "./entity/player-flags.entity";
 import { UserProfileDecorationEntity } from "./entity/user-profile-decoration.entity";
 import { UserProfileDecorationPreferencesEntity } from "./entity/user-profile-decoration-preferences.entity";
+import { UserPaymentEntity } from "./entity/user-payment.entity";
 
 export const Entities = [
   WebpushSubscriptionEntity,
@@ -24,4 +25,5 @@ export const Entities = [
   PlayerFlagsEntity,
   UserProfileDecorationEntity,
   UserProfileDecorationPreferencesEntity,
+  UserPaymentEntity,
 ];

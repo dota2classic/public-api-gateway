@@ -85,13 +85,20 @@ export class SteamController {
       ),
     );
 
+    const isStoreRedirect = req.cookies["d2c:auth_redirect"] === "store";
+
+    this.logger.log("Redirecting to: " + isStoreRedirect ? "store" : "profile");
+
     const token = await this.authService.createToken(
       steam32id,
       req.user!!._json.personaname,
       req.user!!._json.avatarfull,
     );
+
+    const redirectPath = isStoreRedirect ? "/store" : `/players/${steam32id}`;
+
     res
       .cookie(TOKEN_KEY, token, SteamController.TOKEN_COOKIE_OPTIONS) // 30 days expires
-      .redirect(`${this.config.get("api.frontUrl")}/players/${steam32id}`);
+      .redirect(`${this.config.get("api.frontUrl")}${redirectPath}`);
   }
 }

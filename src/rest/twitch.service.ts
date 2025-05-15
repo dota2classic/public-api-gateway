@@ -65,7 +65,11 @@ export class TwitchService implements OnApplicationBootstrap {
 
   @Cron(CronExpression.EVERY_MINUTE)
   private async fetchLivestreams() {
-    this._streams = await this.getLiveStreamingDota();
+    try {
+      this._streams = await this.getLiveStreamingDota();
+    } catch (e) {
+      this.logger.error("Error getting live streaming data", e);
+    }
   }
 
   private async getLiveStreamingDota(): Promise<FullStreamInfo[]> {
