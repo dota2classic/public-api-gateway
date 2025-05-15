@@ -149,6 +149,14 @@ export class PaymentService {
         .where("payment.payment_id = :id", { id: externalPayment.id })
         .getOne();
 
+      if (payment.status == PaymentStatus.SUCCEEDED) {
+        this.logger.log("Tried to handle payment success twice", {
+          external_payment_id: externalPayment.id,
+          payment_id: payment.id,
+        });
+        return;
+      }
+
       payment.status = PaymentStatus.SUCCEEDED;
       await tx.save(payment);
       this.logger.log("Updated payment status to succeeded", {
