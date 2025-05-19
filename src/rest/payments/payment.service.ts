@@ -91,7 +91,7 @@ export class PaymentService {
       {
         amount: {
           currency: "RUB",
-          value: `${product.price}.00`,
+          value: `${product.price * product.months}.00`,
         },
         confirmation: {
           type: "redirect",
