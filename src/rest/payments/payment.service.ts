@@ -5,7 +5,7 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { DataSource, Repository } from "typeorm";
 import {
   CreatedYoukassaPayment,
-  CreatePaymentDto,
+  YCreatePaymentDto,
   YoukassaPayment,
   YoukassaWebhookNotification,
 } from "./payments.dto";
@@ -15,9 +15,11 @@ import {
 } from "../../entity/user-payment.entity";
 import { UserSubscriptionPaidEvent } from "../../gateway/events/user/user-subscription-paid.event";
 import { ClientProxy } from "@nestjs/microservices";
+import { SubscriptionProductEntity } from "../../entity/subscription-product.entity";
 
 @Injectable()
 export class PaymentService {
+  public static DAYS_IN_MONTH = 30;
   private logger = new Logger(PaymentService.name);
 
   private api: ApisauceInstance;
@@ -26,6 +28,8 @@ export class PaymentService {
     private readonly config: ConfigService,
     @InjectRepository(UserPaymentEntity)
     private readonly userPaymentEntityRepository: Repository<UserPaymentEntity>,
+    @InjectRepository(SubscriptionProductEntity)
+    private readonly subscriptionProductEntityRepository: Repository<SubscriptionProductEntity>,
     private readonly dataSource: DataSource,
     @Inject("RMQ") private readonly rmq: ClientProxy,
   ) {
@@ -61,13 +65,25 @@ export class PaymentService {
 
   public async createPayment(
     steamId: string,
-    amount: number,
+    productId: number,
   ): Promise<
     | { internal: UserPaymentEntity; external: CreatedYoukassaPayment }
     | undefined
   > {
+    const product =
+      await this.subscriptionProductEntityRepository.findOneOrFail({
+        where: {
+          id: productId,
+        },
+      });
+
     let internalPayment = await this.userPaymentEntityRepository.save(
-      new UserPaymentEntity(steamId, amount, PaymentStatus.CREATED),
+      new UserPaymentEntity(
+        steamId,
+        product.price,
+        product.id,
+        PaymentStatus.CREATED,
+      ),
     );
 
     const createdPayment = await this.api.post<CreatedYoukassaPayment>(
@@ -75,7 +91,7 @@ export class PaymentService {
       {
         amount: {
           currency: "RUB",
-          value: `${amount}.00`,
+          value: `${product.price}.00`,
         },
         confirmation: {
           type: "redirect",
@@ -83,7 +99,7 @@ export class PaymentService {
         },
         capture: true,
         description: "Покупка подписки dotaclassic plus",
-      } satisfies CreatePaymentDto,
+      } satisfies YCreatePaymentDto,
       {
         headers: {
           "Idempotence-Key": internalPayment.id,
@@ -144,6 +160,7 @@ export class PaymentService {
     await this.dataSource.transaction(async (tx) => {
       const payment = await tx
         .createQueryBuilder<UserPaymentEntity>(UserPaymentEntity, "payment")
+        .leftJoinAndMapOne("product", SubscriptionProductEntity, "product")
         .useTransaction(true)
         .setLock("pessimistic_write")
         .where("payment.payment_id = :id", { id: externalPayment.id })
@@ -157,6 +174,8 @@ export class PaymentService {
         return;
       }
 
+      console.log(payment.product);
+
       payment.status = PaymentStatus.SUCCEEDED;
       await tx.save(payment);
       this.logger.log("Updated payment status to succeeded", {
@@ -168,7 +187,10 @@ export class PaymentService {
       const result = await this.rmq
         .send<boolean>(
           UserSubscriptionPaidEvent.name,
-          new UserSubscriptionPaidEvent(payment.steamId, 30), // For now
+          new UserSubscriptionPaidEvent(
+            payment.steamId,
+            payment.product.months * PaymentService.DAYS_IN_MONTH,
+          ), // For now
         )
         .toPromise();
       this.logger.log("Successfully awaited result of add days command", {

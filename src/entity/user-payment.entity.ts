@@ -71,9 +71,15 @@ export class UserPaymentEntity {
   })
   updatedAt: Date;
 
-  constructor(steamId: string, amount: number, status: PaymentStatus) {
+  constructor(
+    steamId: string,
+    amount: number,
+    productId: number,
+    status: PaymentStatus,
+  ) {
     this.steamId = steamId;
     this.amount = amount;
+    this.productId = productId;
     this.status = status;
   }
 }

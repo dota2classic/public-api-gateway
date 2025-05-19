@@ -71,7 +71,7 @@ export interface Card {
   issuer_name: string;
 }
 
-export interface CreatePaymentDto {
+export interface YCreatePaymentDto {
   amount: Amount;
   capture: boolean;
   confirmation: Confirmation;
@@ -94,4 +94,9 @@ export class SubscriptionProductDto {
   months: number;
   pricePerMonth: number;
   discount: number;
+}
+
+
+export class CreatePaymentDto {
+  productId: number;
 }
