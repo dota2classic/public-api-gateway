@@ -41,11 +41,26 @@ export class ReqLoggingInterceptor implements NestInterceptor {
 
     const isSSE = Reflect.getMetadata(SSE_METADATA, handler);
 
+    let d0 = Date.now();
+
     res.on("finish", () => {
-      const durationMillis = Date.now() - req["start"];
+      // const durationMillis = Date.now() - req["start"];
+      const durationMillis = Date.now() - d0;
+
+      // console.log(
+      //   "Duration 1:",
+      //   durationMillis,
+      //   "Duration 2:",
+      //   Date.now() - d0,
+      // );
       this.appGauge.inc();
       this.customDurationGauge
-        .labels(req.method, requestPath, isSSE ? "sse" : "request")
+        .labels(
+          req.method,
+          requestPath,
+          isSSE ? "sse" : "request",
+          req.res.statusCode.toString(),
+        )
         .set(durationMillis);
     });
 

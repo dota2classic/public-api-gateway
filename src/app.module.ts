@@ -1,4 +1,9 @@
-import { MiddlewareConsumer, Module, NestModule } from "@nestjs/common";
+import {
+  MiddlewareConsumer,
+  Module,
+  NestModule,
+  RequestMethod,
+} from "@nestjs/common";
 import { MatchController } from "./rest/match/match.controller";
 import { SteamController } from "./rest/steam.controller";
 import SteamStrategy from "./rest/strategy/steam.strategy";
@@ -462,7 +467,7 @@ import { PaymentService } from "./rest/payments/payment.service";
     makeGaugeProvider({
       name: "app_duration_metrics",
       help: "app_concurrent_metrics_help",
-      labelNames: ["app_method", "app_origin", "request_type"],
+      labelNames: ["app_method", "app_origin", "request_type", "status"],
     }),
     MetricsService,
   ],
@@ -470,8 +475,9 @@ import { PaymentService } from "./rest/payments/payment.service";
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     //forRoutes('yourRootapi')
-    consumer
-      .apply(CustomMetricsMiddleware)
-      .forRoutes("match", "live", "player", "admin", "meta", "stats", "forum");
+    consumer.apply(CustomMetricsMiddleware).forRoutes({
+      path: "*",
+      method: RequestMethod.ALL,
+    });
   }
 }

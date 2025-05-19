@@ -3,14 +3,13 @@ import { NextFunction, Request, Response } from "express";
 
 @Injectable()
 export class CustomMetricsMiddleware implements NestMiddleware {
-  constructor() // Must be identical to those declared in our AppModule
-  // @InjectMetric('count') public appCounter: Counter<string>,
+  constructor() // @InjectMetric('count') public appCounter: Counter<string>, // Must be identical to those declared in our AppModule
   {
     // Customizing the names and help messages for metrics
   }
 
   use(req: Request, res: Response, next: NextFunction) {
-    req["start"] = Date.now();
+    // req["start"] = Date.now();
     // Incrementing custom counter and gauge
     // this.appCounter.labels(req.method, req.originalUrl).inc();
     // this.appGauge.inc();
