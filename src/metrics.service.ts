@@ -1,6 +1,5 @@
 import { Injectable } from "@nestjs/common";
 import { Gauge } from "prom-client";
-import { Cron, CronExpression } from "@nestjs/schedule";
 
 @Injectable()
 export class MetricsService {
@@ -17,8 +16,8 @@ export class MetricsService {
     this.onlineGauge.set(online);
   }
 
-  @Cron(CronExpression.EVERY_4_HOURS)
-  private async resetMetrics() {
-    this.onlineGauge.reset();
-  }
+  // @Cron(CronExpression.EVERY_4_HOURS)
+  // private async resetMetrics() {
+  //   this.onlineGauge.reset();
+  // }
 }

@@ -3,7 +3,7 @@ import { ApiProperty } from "@nestjs/swagger";
 import { Page } from "../../gateway/shared-types/page";
 import { UserDTO } from "../shared.dto";
 import { ThreadType } from "../../gateway/shared-types/thread-type";
-import { MinLength } from "class-validator";
+import { IsEnum, IsIn, MinLength } from "class-validator";
 
 export class EmoticonDto {
   id: number;
@@ -94,6 +94,11 @@ export class CreateThreadDTO {
 
   @MinLength(5)
   content: string;
+
+  @IsEnum(ThreadType)
+  @IsIn([ThreadType.FORUM, ThreadType.TICKET])
+  @ApiProperty({ enum: ThreadType, enumName: "ThreadType" })
+  threadType: ThreadType;
 }
 
 export class UpdateThreadDTO {

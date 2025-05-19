@@ -394,7 +394,7 @@ export class ForumController {
     @CurrentUser() user: CurrentUserDto,
   ): Promise<ThreadDTO> {
     const thread = await this.api.forumControllerGetThreadForKey({
-      threadType: ThreadType.FORUM,
+      threadType: content.threadType,
       externalId: randomUUID(),
       title: content.title,
       op: user.steam_id,
