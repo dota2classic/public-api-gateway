@@ -117,6 +117,15 @@ export class LobbyController {
     await this.lobbyService.startLobby(id, user);
   }
 
+  @Post("/:id/shuffle")
+  @WithUser()
+  public async shuffleLobby(
+    @Param("id") id: string,
+    @CurrentUser() user: CurrentUserDto,
+  ) {
+    await this.lobbyService.shuffleLobby(id, user);
+  }
+
   @Patch("/:id")
   @WithUser()
   public async updateLobby(

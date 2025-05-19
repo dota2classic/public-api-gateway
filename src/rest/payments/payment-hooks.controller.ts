@@ -10,6 +10,7 @@ import {
 
 import { YoukassaWebhookNotification } from "./payments.dto";
 import { PaymentService } from "./payment.service";
+import { CookiesUserId } from "../../utils/decorator/current-user";
 
 @Controller("payment_web_hook")
 export class PaymentHooksController {
@@ -41,7 +42,7 @@ export class PaymentHooksController {
   }
 
   @Get("redirect")
-  public async redirect() {
-    this.logger.log("I received redirect from somehwere");
+  public async redirect(@CookiesUserId() steamId: string) {
+    this.logger.log("Received redirect from payment, steamid " + steamId);
   }
 }

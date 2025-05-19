@@ -87,3 +87,11 @@ export class StartPaymentDto {
   confirmationUrl: string;
 }
 
+
+
+export class SubscriptionProductDto {
+  id: number;
+  months: number;
+  pricePerMonth: number;
+  discount: number;
+}

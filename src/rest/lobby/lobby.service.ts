@@ -17,6 +17,7 @@ import { DotaTeam } from "../../gateway/shared-types/dota-team";
 import { Dota_Map } from "../../gateway/shared-types/dota-map";
 import { LobbyUpdatedEvent } from "./event/lobby-updated.event";
 import { LobbyClosedEvent } from "./event/lobby-closed.event";
+import { shuffle } from "../../utils/shuffle";
 
 @Injectable()
 export class LobbyService {
@@ -209,6 +210,22 @@ export class LobbyService {
     await this.leaveLobby(lobbyId, { steam_id: steamId, roles: [] });
 
     return this.getLobby(lobbyId, user).then(this.lobbyUpdated);
+  }
+
+  async shuffleLobby(id: string, user: CurrentUserDto) {
+    const lobby = await this.getLobby(id, user);
+    if (lobby.ownerSteamId !== user.steam_id) {
+      throw new ForbiddenException("Only lobby owner can shuffle teams");
+    }
+    let playerPool = lobby.slots.filter((t) => t.team !== undefined);
+    playerPool = shuffle(playerPool);
+    const middle = Math.floor(playerPool.length / 2);
+    for (let i = 0; i < playerPool.length; i++) {
+      const plr = playerPool[i];
+      plr.team = i < middle ? DotaTeam.RADIANT : DotaTeam.DIRE;
+    }
+    await this.lobbySlotEntityRepository.save(playerPool);
+    return this.getLobby(id, user).then(this.lobbyUpdated);
   }
 
   // TODO: make start only by owner

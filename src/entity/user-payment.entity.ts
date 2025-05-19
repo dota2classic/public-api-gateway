@@ -2,9 +2,12 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
+  ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
+import { SubscriptionProductEntity } from "./subscription-product.entity";
 
 export enum PaymentStatus {
   CREATED = "CREATED",
@@ -22,6 +25,20 @@ export class UserPaymentEntity {
     name: "steam_id",
   })
   steamId: string;
+
+  @ManyToOne(() => SubscriptionProductEntity, (t) => t.purchases, {
+    eager: true,
+  })
+  @JoinColumn({
+    referencedColumnName: "id",
+    name: "product_id",
+  })
+  product: SubscriptionProductEntity;
+
+  @Column({
+    name: "product_id",
+  })
+  productId: number;
 
   @Column({
     type: "uuid",

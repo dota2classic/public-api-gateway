@@ -11,6 +11,7 @@ import { PlayerFlagsEntity } from "./entity/player-flags.entity";
 import { UserProfileDecorationEntity } from "./entity/user-profile-decoration.entity";
 import { UserProfileDecorationPreferencesEntity } from "./entity/user-profile-decoration-preferences.entity";
 import { UserPaymentEntity } from "./entity/user-payment.entity";
+import { SubscriptionProductEntity } from "./entity/subscription-product.entity";
 
 export const Entities = [
   WebpushSubscriptionEntity,
@@ -26,4 +27,5 @@ export const Entities = [
   UserProfileDecorationEntity,
   UserProfileDecorationPreferencesEntity,
   UserPaymentEntity,
+  SubscriptionProductEntity,
 ];
