@@ -30,6 +30,7 @@ export class MatchMapper {
     mmr_after: it.mmr_after,
     change: it.change,
     is_hidden_mmr: it.is_hidden,
+    calibration: it.calibration,
   });
 
   public mapPlayerInMatch = async (
@@ -38,6 +39,7 @@ export class MatchMapper {
     const { steam_id, ...dto } = it;
     return {
       ...dto,
+      partyIndex: dto.partyIndex,
       user: await this.user.userDto(it.steam_id),
       mmr: it.mmr && this.mapMmr(it.mmr),
     };

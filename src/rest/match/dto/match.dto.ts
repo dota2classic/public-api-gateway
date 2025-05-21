@@ -4,18 +4,20 @@ import { ApiProperty } from "@nestjs/swagger";
 import { UserDTO } from "../../shared.dto";
 import { Dota_GameRulesState } from "../../../gateway/shared-types/dota-game-rules-state";
 import { DotaConnectionState } from "../../../gateway/shared-types/dota-player-connection-state";
-import { PlayerAspect } from '../../../gateway/shared-types/player-aspect';
+import { PlayerAspect } from "../../../gateway/shared-types/player-aspect";
 
 export class MmrChangeDto {
   mmr_before: number;
   mmr_after: number;
   change: number;
   is_hidden_mmr: boolean;
+  calibration: boolean;
 }
 
 export class PlayerInMatchDto {
   user: UserDTO;
 
+  partyIndex: number;
   team: number;
   hero: string;
   level: number;
@@ -140,11 +142,10 @@ export class LiveMatchSseDto extends MessageObjectDto<LiveMatchDto> {
   data: LiveMatchDto;
 }
 
-
 export class ReportPlayerDto {
   steamId: string;
   @ApiProperty({ enum: PlayerAspect, enumName: "PlayerAspect" })
-  aspect: PlayerAspect
+  aspect: PlayerAspect;
 
   comment: string;
 

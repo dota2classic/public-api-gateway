@@ -55,6 +55,8 @@ export class UpdateModeDTO {
   dotaMap: Dota_Map;
 
   enabled: boolean;
+  enableCheats: boolean;
+  fillBots: boolean;
 }
 
 export class RoleSubscriptionEntryDto {

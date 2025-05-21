@@ -97,6 +97,8 @@ export class AdminUserController {
       enabled: b.enabled,
       dota_map: b.dotaMap,
       game_mode: b.dotaGameMode,
+      enableCheats: b.enableCheats,
+      fillBots: b.fillBots,
     });
 
     return this.infoApi.infoControllerGamemodes().then((t) =>

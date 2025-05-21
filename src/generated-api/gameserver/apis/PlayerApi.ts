@@ -644,6 +644,26 @@ export class PlayerApi extends runtime.BaseAPI {
 
     /**
      */
+    private async playerControllerUnDodgePlayerRaw(requestParameters: PlayerControllerUnDodgePlayerRequest): Promise<runtime.ApiResponse<Array<GameserverDodgeListEntryDto>>> {
+        this.playerControllerUnDodgePlayerValidation(requestParameters);
+        const context = this.playerControllerUnDodgePlayerContext(requestParameters);
+        const response = await this.request(context);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(GameserverDodgeListEntryDtoFromJSON));
+    }
+
+
+
+    /**
+     */
+    private playerControllerUnDodgePlayerValidation(requestParameters: PlayerControllerUnDodgePlayerRequest) {
+        if (requestParameters.gameserverDodgePlayerDto === null || requestParameters.gameserverDodgePlayerDto === undefined) {
+            throw new runtime.RequiredError('gameserverDodgePlayerDto','Required parameter requestParameters.gameserverDodgePlayerDto was null or undefined when calling playerControllerUnDodgePlayer.');
+        }
+    }
+
+    /**
+     */
     private async playerControllerGetDodgeListRaw(requestParameters: PlayerControllerGetDodgeListRequest): Promise<runtime.ApiResponse<Array<GameserverDodgeListEntryDto>>> {
         this.playerControllerGetDodgeListValidation(requestParameters);
         const context = this.playerControllerGetDodgeListContext(requestParameters);
@@ -657,24 +677,6 @@ export class PlayerApi extends runtime.BaseAPI {
     private playerControllerGetDodgeListValidation(requestParameters: PlayerControllerGetDodgeListRequest) {
         if (requestParameters.steamId === null || requestParameters.steamId === undefined) {
             throw new runtime.RequiredError('steamId','Required parameter requestParameters.steamId was null or undefined when calling playerControllerGetDodgeList.');
-        }
-    }
-
-    /**
-     */
-    private async playerControllerUnDodgePlayerRaw(requestParameters: PlayerControllerUnDodgePlayerRequest): Promise<runtime.ApiResponse<Array<GameserverDodgeListEntryDto>>> {
-        this.playerControllerUnDodgePlayerValidation(requestParameters);
-        const context = this.playerControllerUnDodgePlayerContext(requestParameters);
-        const response = await this.request(context);
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(GameserverDodgeListEntryDtoFromJSON));
-    }
-
-    /**
-     */
-    private playerControllerUnDodgePlayerValidation(requestParameters: PlayerControllerUnDodgePlayerRequest) {
-        if (requestParameters.gameserverDodgePlayerDto === null || requestParameters.gameserverDodgePlayerDto === undefined) {
-            throw new runtime.RequiredError('gameserverDodgePlayerDto','Required parameter requestParameters.gameserverDodgePlayerDto was null or undefined when calling playerControllerUnDodgePlayer.');
         }
     }
 

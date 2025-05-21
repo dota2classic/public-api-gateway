@@ -30,6 +30,9 @@ export class MatchmakingInfo {
   // queueDuration?: number;
   queueDurations: QueueDurationDto[];
 
+  enableCheats: boolean;
+  fillBots: boolean;
+
   enabled: boolean;
 }
 

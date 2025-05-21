@@ -31,6 +31,12 @@ export class GameserverPlayerInMatchDto {
      * @type {number}
      * @memberof GameserverPlayerInMatchDto
      */
+    partyIndex: number;
+    /**
+     *
+     * @type {number}
+     * @memberof GameserverPlayerInMatchDto
+     */
     team: number;
     /**
      *
@@ -171,6 +177,7 @@ export function GameserverPlayerInMatchDtoFromJSONTyped(json: any, ignoreDiscrim
     return {
 
         'steam_id': json['steam_id'],
+        'partyIndex': json['partyIndex'],
         'team': json['team'],
         'hero': json['hero'],
         'level': json['level'],
@@ -206,6 +213,7 @@ export function GameserverPlayerInMatchDtoToJSON(value?: GameserverPlayerInMatch
     return {
 
         'steam_id': value.steam_id,
+        'partyIndex': value.partyIndex,
         'team': value.team,
         'hero': value.hero,
         'level': value.level,

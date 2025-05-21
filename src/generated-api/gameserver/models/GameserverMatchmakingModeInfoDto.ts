@@ -54,6 +54,18 @@ export class GameserverMatchmakingModeInfoDto {
      * @memberof GameserverMatchmakingModeInfoDto
      */
     enabled: boolean;
+    /**
+     *
+     * @type {boolean}
+     * @memberof GameserverMatchmakingModeInfoDto
+     */
+    fillBots: boolean;
+    /**
+     *
+     * @type {boolean}
+     * @memberof GameserverMatchmakingModeInfoDto
+     */
+    enableCheats: boolean;
 }
 
 export function GameserverMatchmakingModeInfoDtoFromJSON(json: any): GameserverMatchmakingModeInfoDto {
@@ -70,6 +82,8 @@ export function GameserverMatchmakingModeInfoDtoFromJSONTyped(json: any, ignoreD
         'game_mode': GameserverDotaGameModeFromJSON(json['game_mode']),
         'dota_map': GameserverDotaMapFromJSON(json['dota_map']),
         'enabled': json['enabled'],
+        'fillBots': json['fillBots'],
+        'enableCheats': json['enableCheats'],
     };
 }
 
@@ -86,6 +100,8 @@ export function GameserverMatchmakingModeInfoDtoToJSON(value?: GameserverMatchma
         'game_mode': GameserverDotaGameModeToJSON(value.game_mode),
         'dota_map': GameserverDotaMapToJSON(value.dota_map),
         'enabled': value.enabled,
+        'fillBots': value.fillBots,
+        'enableCheats': value.enableCheats,
     };
 }
 
