@@ -14,6 +14,7 @@ export enum NotificationEntityType {
   ACHIEVEMENT = "ACHIEVEMENT",
   FEEDBACK_TICKET = "FEEDBACK_TICKET",
   PLAYER = "PLAYER",
+  MATCH = "MATCH",
 }
 
 export enum NotificationType {
@@ -22,6 +23,7 @@ export enum NotificationType {
   TICKET_CREATED = "TICKET_CREATED",
   TICKET_NEW_MESSAGE = "TICKET_NEW_MESSAGE",
   PLAYER_REPORT_BAN = "PLAYER_REPORT_BAN",
+  PLAYER_FEEDBACK = "PLAYER_FEEDBACK",
 }
 
 @Entity()

@@ -26,6 +26,7 @@ import { PlayerSmurfDetectedEvent } from "./gateway/events/bans/player-smurf-det
 import { MatchRecordedEvent } from "./gateway/events/gs/match-recorded.event";
 import { BanSystemEvent } from "./gateway/events/gs/ban-system.event";
 import { PlayerReportBanCreatedEvent } from "./gateway/events/bans/player-report-ban-created.event";
+import { PlayerFeedbackCreatedEvent } from "./gateway/events/player-feedback-created.event";
 
 @Controller()
 export class EventController {
@@ -157,8 +158,14 @@ export class EventController {
   async AchievementCompleteEvent(data: AchievementCompleteEvent) {
     this.event(AchievementCompleteEvent, data);
   }
+
   @EventPattern(PlayerAbandonedEvent.name)
   async PlayerAbandonedEvent(data: PlayerAbandonedEvent) {
     this.event(PlayerAbandonedEvent, data);
+  }
+
+  @EventPattern(PlayerFeedbackCreatedEvent.name)
+  async PlayerFeedbackCreatedEvent(data: PlayerFeedbackCreatedEvent) {
+    this.event(PlayerFeedbackCreatedEvent, data);
   }
 }
