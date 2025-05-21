@@ -12,7 +12,7 @@ export class MatchFinishedHandler implements IEventHandler<MatchFinishedEvent> {
   ) {}
 
   async handle(event: MatchFinishedEvent) {
-    const players = event.info.players.map((it) => it.playerId.value);
+    const players = event.info.players.map((it) => it.steamId);
 
     this.ebus.publishAll(
       players.map((steamId) => new PartyInvalidatedEvent(steamId)),

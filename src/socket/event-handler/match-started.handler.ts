@@ -13,7 +13,7 @@ export class MatchStartedHandler implements IEventHandler<MatchStartedEvent> {
   ) {}
 
   async handle(event: MatchStartedEvent) {
-    const players = event.info.players.map((it) => it.playerId.value);
+    const players = event.info.players.map((it) => it.steamId);
 
     await new Promise((r) => setTimeout(r, 5000));
 
