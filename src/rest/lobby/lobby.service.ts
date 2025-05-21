@@ -258,6 +258,8 @@ export class LobbyService {
               ),
           ),
           Dota2Version.Dota_684,
+          lobby.fillBots,
+          lobby.enableCheats,
         ),
       ),
     );
