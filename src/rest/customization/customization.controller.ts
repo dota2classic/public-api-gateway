@@ -1,19 +1,21 @@
-import { ApiTags } from "@nestjs/swagger";
+import { ApiQuery, ApiTags } from "@nestjs/swagger";
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   ParseIntPipe,
   Patch,
   Post,
+  Query,
 } from "@nestjs/common";
 import {
   UserProfileDecorationEntity,
   UserProfileDecorationType,
 } from "../../entity/user-profile-decoration.entity";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
+import { DataSource, Repository } from "typeorm";
 import { UserProfileDecorationPreferencesEntity } from "../../entity/user-profile-decoration-preferences.entity";
 import {
   CreateDecorationDto,
@@ -41,6 +43,7 @@ export class CustomizationController {
     @InjectRepository(UserProfileDecorationPreferencesEntity)
     private readonly userDecorationPreferences: Repository<UserProfileDecorationPreferencesEntity>,
     private readonly customizationMapper: CustomizationMapper,
+    private readonly dataSource: DataSource,
   ) {}
 
   @ModeratorGuard()
@@ -125,9 +128,72 @@ export class CustomizationController {
       .then(this.customizationMapper.mapDecoration);
   }
 
+  @ModeratorGuard()
+  @WithUser()
+  @Get("/:id")
+  public async getDecoration(@Param("id", ParseIntPipe) id: number) {
+    return this.decorationRepository
+      .findOneBy({ id })
+      .then(this.customizationMapper.mapDecoration);
+  }
+
+  @ModeratorGuard()
+  @WithUser()
+  @Delete("/:id")
+  public async deleteDecoration(@Param("id", ParseIntPipe) id: number) {
+    await this.dataSource.transaction(async (tx) => {
+      // Find decoration
+      const decoration = await tx.findOneOrFail<UserProfileDecorationEntity>(
+        UserProfileDecorationEntity,
+        { where: { id } },
+      );
+      // Clear chosen
+      let criteria: Partial<UserProfileDecorationPreferencesEntity>;
+      if (decoration.decorationType === UserProfileDecorationType.HAT) {
+        criteria = { hatId: id };
+      } else if (
+        decoration.decorationType === UserProfileDecorationType.CHAT_ICON
+      ) {
+        criteria = { iconId: id };
+      } else if (
+        decoration.decorationType === UserProfileDecorationType.TITLE
+      ) {
+        criteria = { titleId: id };
+      } else if (
+        decoration.decorationType ===
+        UserProfileDecorationType.CHAT_ICON_ANIMATION
+      ) {
+        criteria = { animationId: id };
+      }
+
+      const update = {
+        ...criteria,
+        [Object.keys(criteria)[0]]: null,
+      };
+
+      await tx.update(UserProfileDecorationPreferencesEntity, criteria, update);
+
+      // Delete
+
+      await tx.remove(decoration);
+    });
+  }
+
+  @ApiQuery({
+    name: "type",
+    enum: UserProfileDecorationType,
+    enumName: "UserProfileDecorationType",
+    required: true,
+  })
   @Get()
-  public async all(): Promise<ProfileDecorationDto[]> {
-    const decorations = await this.decorationRepository.find();
+  public async all(
+    @Query("type") type: UserProfileDecorationType,
+  ): Promise<ProfileDecorationDto[]> {
+    const decorations = await this.decorationRepository
+      .createQueryBuilder("dec")
+      .where({ decorationType: type })
+      .getMany();
+
     return decorations.map(this.customizationMapper.mapDecoration);
   }
 }
