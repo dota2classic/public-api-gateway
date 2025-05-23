@@ -183,16 +183,15 @@ export class CustomizationController {
     name: "type",
     enum: UserProfileDecorationType,
     enumName: "UserProfileDecorationType",
-    required: true,
+    required: false,
   })
   @Get()
   public async all(
     @Query("type") type: UserProfileDecorationType,
   ): Promise<ProfileDecorationDto[]> {
-    const decorations = await this.decorationRepository
-      .createQueryBuilder("dec")
-      .where({ decorationType: type })
-      .getMany();
+    const decorations = await this.decorationRepository.find({
+      where: { decorationType: type },
+    });
 
     return decorations.map(this.customizationMapper.mapDecoration);
   }
