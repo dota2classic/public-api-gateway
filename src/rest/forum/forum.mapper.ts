@@ -30,26 +30,33 @@ export class ForumMapper {
     msg: ForumMessageDTO,
     mapFor?: CurrentUserDto,
   ): Promise<ThreadMessageDTO> => {
+    const [blocked, reactions, reply, author] = await Promise.combine([
+      this.isBlockedMessage(msg, mapFor),
+      Promise.all(
+        msg.reactions.map(async (reaction) => ({
+          emoticon: this.mapEmoticon(reaction.emoticon),
+          reacted: await Promise.all(reaction.reacted.map(this.user.userDto)),
+        })),
+      ),
+      msg.repliedMessage
+        ? this.mapApiMessage(msg.repliedMessage)
+        : Promise.resolve(undefined),
+      this.user.userDto(msg.author),
+    ]);
+
     return {
       messageId: msg.id,
-      blocked: await this.isBlockedMessage(msg, mapFor),
+      blocked: blocked,
       threadId: msg.threadId,
       content: msg.content,
       createdAt: msg.createdAt,
       updatedAt: msg.updatedAt,
       deleted: msg.deleted,
       edited: msg.edited,
-      reactions: await Promise.all(
-        msg.reactions.map(async (reaction) => ({
-          emoticon: this.mapEmoticon(reaction.emoticon),
-          reacted: await Promise.all(reaction.reacted.map(this.user.userDto)),
-        })),
-      ),
-      reply: msg.repliedMessage
-        ? await this.mapApiMessage(msg.repliedMessage)
-        : undefined,
+      reactions: reactions,
+      reply: reply,
 
-      author: await this.user.userDto(msg.author),
+      author: author,
     };
   };
 

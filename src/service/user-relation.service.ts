@@ -19,7 +19,6 @@ export class UserRelationService implements OnApplicationBootstrap {
     private readonly fast: UserProfileFastService<UserFastProfileDto>,
   ) {}
 
-  @measure("get relation")
   public getRelationSync(
     steamId: string,
     related: string,
@@ -27,7 +26,7 @@ export class UserRelationService implements OnApplicationBootstrap {
     return this.getOrCreate(steamId).get(related);
   }
 
-  @measure("get relation")
+  @measure("GetRelationAsync")
   public async getRelation(
     steamId: string,
     related: string,
