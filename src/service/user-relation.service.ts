@@ -20,13 +20,21 @@ export class UserRelationService implements OnApplicationBootstrap {
   ) {}
 
   @measure("get relation")
+  public getRelationSync(
+    steamId: string,
+    related: string,
+  ): UserRelationStatus | undefined {
+    return this.getOrCreate(steamId).get(related);
+  }
+
+  @measure("get relation")
   public async getRelation(
     steamId: string,
     related: string,
   ): Promise<UserRelationStatus | undefined> {
     const u = await this.fast.get(steamId);
     if (!u || !isOld(u.roles)) return undefined;
-    return this.getOrCreate(steamId).get(related);
+    return this.getRelationSync(steamId, related);
   }
 
   @Cron(CronExpression.EVERY_MINUTE)

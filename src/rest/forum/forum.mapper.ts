@@ -16,6 +16,7 @@ import { UserProfileService } from "../../service/user-profile.service";
 import { UserRelationService } from "../../service/user-relation.service";
 import { UserRelationStatus } from "../../gateway/shared-types/user-relation";
 import { CurrentUserDto } from "../../utils/decorator/current-user";
+import { isOld } from "../../utils/is-old";
 
 @Injectable()
 export class ForumMapper {
@@ -62,9 +63,12 @@ export class ForumMapper {
     msg: ForumMessageDTO,
     mapFor?: CurrentUserDto,
   ): Promise<boolean> => {
+    if (!mapFor || !isOld(mapFor.roles)) return false;
     return mapFor
-      ? (await this.userRelation.getRelation(mapFor.steam_id, msg.author)) ===
-          UserRelationStatus.BLOCK
+      ? (await this.userRelation.getRelationSync(
+          mapFor.steam_id,
+          msg.author,
+        )) === UserRelationStatus.BLOCK
       : false;
   };
 
