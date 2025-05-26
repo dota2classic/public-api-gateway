@@ -13,25 +13,25 @@ import {
 } from "./forum.dto";
 import { ConfigService } from "@nestjs/config";
 import { UserProfileService } from "../../service/user-profile.service";
+import { UserRelationService } from "../../service/user-relation.service";
+import { UserRelationStatus } from "../../gateway/shared-types/user-relation";
+import { CurrentUserDto } from "../../utils/decorator/current-user";
 
 @Injectable()
 export class ForumMapper {
   constructor(
     private readonly user: UserProfileService,
     private readonly config: ConfigService,
+    private readonly userRelation: UserRelationService,
   ) {}
-
-  public mapEmoticon = (emo: ForumEmoticonDto): EmoticonDto => ({
-    code: emo.code,
-    id: emo.id,
-    src: `${this.config.get("api.s3root")}/${emo.bucket}/${emo.key}`,
-  });
 
   public mapApiMessage = async (
     msg: ForumMessageDTO,
+    mapFor?: CurrentUserDto,
   ): Promise<ThreadMessageDTO> => {
     return {
       messageId: msg.id,
+      blocked: await this.isBlockedMessage(msg, mapFor),
       threadId: msg.threadId,
       content: msg.content,
       createdAt: msg.createdAt,
@@ -50,6 +50,22 @@ export class ForumMapper {
 
       author: await this.user.userDto(msg.author),
     };
+  };
+
+  public mapEmoticon = (emo: ForumEmoticonDto): EmoticonDto => ({
+    code: emo.code,
+    id: emo.id,
+    src: `${this.config.get("api.s3root")}/${emo.bucket}/${emo.key}`,
+  });
+
+  private isBlockedMessage = async (
+    msg: ForumMessageDTO,
+    mapFor?: CurrentUserDto,
+  ): Promise<boolean> => {
+    return mapFor
+      ? (await this.userRelation.getRelation(mapFor.steam_id, msg.author)) ===
+          UserRelationStatus.BLOCK
+      : false;
   };
 
   public mapThread = async (thread: ForumThreadDTO): Promise<ThreadDTO> => ({

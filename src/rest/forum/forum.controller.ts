@@ -104,6 +104,7 @@ export class ForumController {
     enumName: "SortOrder",
     required: false,
   })
+  @WithOptionalUser()
   @Get("thread/:id/:threadType/messages")
   async getMessages(
     @Param("id") _id: string,
@@ -111,6 +112,7 @@ export class ForumController {
     @Query("cursor") cursor: string,
     @Query("limit", NullableIntPipe) limit: number = 10,
     @Query("order") order: SortOrder = SortOrder.ASC,
+    @CurrentUser() user?: CurrentUserDto,
   ): Promise<ThreadMessageDTO[]> {
     try {
       const id = `${threadType}_${_id}`;
@@ -120,7 +122,9 @@ export class ForumController {
         limit,
         order as unknown as ForumSortOrder,
       );
-      return Promise.all(msgs.map(this.mapper.mapApiMessage));
+      return Promise.all(
+        msgs.map((msg) => this.mapper.mapApiMessage(msg, user)),
+      );
     } catch (e) {
       return Promise.resolve([]);
     }
@@ -140,11 +144,13 @@ export class ForumController {
     enum: ThreadType,
     enumName: "ThreadType",
   })
+  @WithOptionalUser()
   @Get("thread/:id/:threadType/latestPage")
   async getLatestPage(
     @Param("id") id: string,
     @Param("threadType") threadType: ThreadType,
     @Query("perPage", NullableIntPipe) perPage: number = 15,
+    @CurrentUser() user?: CurrentUserDto,
   ): Promise<ThreadMessagePageDTO> {
     const pg = await this.api.forumControllerGetLatestPage(
       `${threadType}_${id}`,
@@ -156,7 +162,7 @@ export class ForumController {
       pg.pages * pg.perPage,
       pg.page,
       pg.perPage,
-      this.mapper.mapApiMessage,
+      (msg) => this.mapper.mapApiMessage(msg, user),
       pg.cursor,
     );
   }
@@ -177,6 +183,7 @@ export class ForumController {
     enumName: "ThreadType",
   })
   @WithPagination()
+  @WithOptionalUser()
   @Get("thread/:id/:threadType/page")
   async messagesPage(
     @Param("id") id: string,
@@ -184,6 +191,7 @@ export class ForumController {
     @Query("page", NullableIntPipe) page: number,
     @Query("cursor") cursor?: string,
     @Query("per_page", NullableIntPipe) perPage: number = 15,
+    @CurrentUser() user?: CurrentUserDto,
   ): Promise<ThreadMessagePageDTO> {
     const pg = await this.api.forumControllerMessagesPage(
       `${threadType}_${id}`,
@@ -197,7 +205,7 @@ export class ForumController {
       pg.pages * pg.perPage,
       pg.page,
       pg.perPage,
-      this.mapper.mapApiMessage,
+      (msg) => this.mapper.mapApiMessage(msg, user),
     );
   }
 
@@ -330,10 +338,12 @@ export class ForumController {
     enum: ThreadType,
     enumName: "ThreadType",
   })
+  @WithOptionalUser()
   @Sse("thread/:id/:threadType/sse")
   thread(
     @Param("id") id: string,
     @Param("threadType") threadType: ThreadType,
+    @CurrentUser() user?: CurrentUserDto,
   ): Observable<ThreadMessageSseDto> {
     const externalThreadId = `${threadType}_${id}`;
 
@@ -341,7 +351,7 @@ export class ForumController {
       filter((it) => it instanceof MessageUpdatedEvent),
       filter((mce: MessageUpdatedEvent) => mce.threadId === externalThreadId),
       asyncMap(async (mce: MessageUpdatedEvent) => {
-        return { data: await this.mapper.mapApiMessage(mce) };
+        return { data: await this.mapper.mapApiMessage(mce, user) };
       }, 1),
     );
   }
@@ -360,7 +370,7 @@ export class ForumController {
           content: content.content,
           author: user,
         })
-        .then(this.mapper.mapApiMessage);
+        .then((msg) => this.mapper.mapApiMessage(msg, user));
     } catch (response) {
       throw new HttpException("Muted", response.status);
     }
@@ -380,7 +390,7 @@ export class ForumController {
           content: content.content,
           replyMessageId: content.replyMessageId,
         })
-        .then(this.mapper.mapApiMessage);
+        .then((msg) => this.mapper.mapApiMessage(msg, user));
     } catch (response) {
       throw new HttpException("Muted", response.status);
     }
@@ -466,7 +476,7 @@ export class ForumController {
           emoticonId: content.emoticonId,
           author: user.steam_id,
         })
-        .then(this.mapper.mapApiMessage);
+        .then((msg) => this.mapper.mapApiMessage(msg, user));
     } catch (response) {
       throw new HttpException("Muted", response.status);
     }

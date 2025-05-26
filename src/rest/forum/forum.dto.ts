@@ -24,6 +24,7 @@ export enum SortOrder {
 
 export class ThreadMessageDTO {
   author: UserDTO;
+  blocked: boolean;
 
   threadId: string;
   messageId: string;

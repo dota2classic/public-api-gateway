@@ -34,6 +34,8 @@ import { PlayerEnterQueueRequestedEvent } from "../gateway/events/mm/player-ente
 import { PlayerLeaveQueueRequestedEvent } from "../gateway/events/mm/player-leave-queue-requested.event";
 import { Cron, CronExpression } from "@nestjs/schedule";
 import { MetricsService } from "../metrics.service";
+import { UserRelationService } from "../service/user-relation.service";
+import { UserRelationStatus } from "../gateway/shared-types/user-relation";
 
 @WebSocketGateway({ cors: "*" })
 export class SocketGateway implements OnGatewayDisconnect, OnGatewayConnection {
@@ -53,6 +55,7 @@ export class SocketGateway implements OnGatewayDisconnect, OnGatewayConnection {
     private readonly ebus: EventBus,
     @Inject("QueryCore") private readonly redis: ClientProxy,
     private readonly metrics: MetricsService,
+    private readonly relationService: UserRelationService,
   ) {}
 
   async handleConnection(client: PlayerSocket, ...args) {
@@ -127,6 +130,17 @@ export class SocketGateway implements OnGatewayDisconnect, OnGatewayConnection {
     @MessageBody() data: InviteToPartyMessageC2S,
     @ConnectedSocket() client: PlayerSocket,
   ) {
+    const rel = await this.relationService.getRelation(
+      data.invitedPlayerId,
+      client.steamId,
+    );
+    if (rel === UserRelationStatus.BLOCK) {
+      this.logger.log("Prevent inviting player to party: blocked", {
+        steamId: data.invitedPlayerId,
+        inviter: client.steamId,
+      });
+      return;
+    }
     await this.redis
       .emit(
         PartyInviteRequestedEvent.name,

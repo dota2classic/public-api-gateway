@@ -145,6 +145,7 @@ import { PaymentHooksController } from "./rest/payments/payment-hooks.controller
 import { UserPaymentsController } from "./rest/payments/user-payments.controller";
 import { PaymentService } from "./rest/payments/payment.service";
 import { PlayerFeedbackCreatedHandler } from "./rest/notification/event-handler/player-feedback-created.handler";
+import { UserRelationService } from "./service/user-relation.service";
 
 @Module({
   imports: [
@@ -391,6 +392,7 @@ import { PlayerFeedbackCreatedHandler } from "./rest/notification/event-handler/
     NotificationService,
     StorageService,
     StatsService,
+    UserRelationService,
 
     MatchMapper,
     PlayerMapper,

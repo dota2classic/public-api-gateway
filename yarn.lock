@@ -1008,10 +1008,10 @@
     combined-stream "^1.0.8"
     mime-types "^2.1.12"
 
-"@dota2classic/caches@^0.0.18":
-  version "0.0.18"
-  resolved "https://registry.yarnpkg.com/@dota2classic/caches/-/caches-0.0.18.tgz#fea5f7f4c374714df04b06b6d71d83f1f8c2a6f1"
-  integrity sha512-44IawMTrpSBr4qj1o3VKJGja2CFnqi6EhP42fQnUJRUSfidY/e0I5nMGw/LTwAJAgnm/Smy5ydwpxXCfybiqwA==
+"@dota2classic/caches@^0.0.19":
+  version "0.0.19"
+  resolved "https://registry.yarnpkg.com/@dota2classic/caches/-/caches-0.0.19.tgz#6807b8d766ded01fecfff3596b514cbe17b9cbfe"
+  integrity sha512-n3DKs0clSCAsJf5/hj4ZUj3zqflMCPmqN+NY5VJicpUocrx4Ip4fV4M/QDrxtpTtXBn4tvD1V/uCauBFxBEdYw==
   dependencies:
     ioredis "^5.6.1"
     memoizee "^0.4.17"

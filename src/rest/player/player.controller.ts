@@ -44,11 +44,12 @@ import { PartyService } from "../party.service";
 import { ReqLoggingInterceptor } from "../../middleware/req-logging.interceptor";
 import { SocketDelivery } from "../../socket/socket-delivery";
 import { UserProfileService } from "../../service/user-profile.service";
-import { DataSource } from "typeorm";
 import { FindByNameQuery } from "../../gateway/queries/FindByName/find-by-name.query";
 import { FindByNameQueryResult } from "../../gateway/queries/FindByName/find-by-name-query.result";
 import { GetReportsAvailableQuery } from "../../gateway/queries/GetReportsAvailable/get-reports-available.query";
 import { GetReportsAvailableQueryResult } from "../../gateway/queries/GetReportsAvailable/get-reports-available-query.result";
+import { UserRelationService } from "../../service/user-relation.service";
+import { UserRelationStatus } from "../../gateway/shared-types/user-relation";
 
 @UseInterceptors(ReqLoggingInterceptor)
 @Controller("player")
@@ -62,7 +63,7 @@ export class PlayerController {
     private readonly ms: PlayerApi,
     private readonly socketDelivery: SocketDelivery,
     private readonly userProfile: UserProfileService,
-    private readonly ds: DataSource,
+    private readonly relation: UserRelationService,
   ) {}
 
   @Get("/me")
@@ -226,5 +227,29 @@ export class PlayerController {
       FindByNameQueryResult
     >(new FindByNameQuery(name, 50, online));
     return Promise.all(result.steamIds.map(this.userProfile.userDto));
+  }
+
+  @OldGuard()
+  @WithUser()
+  @Post("/block/:id")
+  public async blockPlayer(
+    @CurrentUser() user: CurrentUserDto,
+    @Param("id") steamId: string,
+  ) {
+    await this.relation.setPlayerRelation(
+      user.steam_id,
+      steamId,
+      UserRelationStatus.BLOCK,
+    );
+  }
+
+  @OldGuard()
+  @WithUser()
+  @Delete("/block/:id")
+  public async unblockPlayer(
+    @CurrentUser() user: CurrentUserDto,
+    @Param("id") steamId: string,
+  ) {
+    await this.relation.clearPlayerRelation(user.steam_id, steamId);
   }
 }

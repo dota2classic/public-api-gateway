@@ -12,6 +12,7 @@ import { UserProfileDecorationEntity } from "./entity/user-profile-decoration.en
 import { UserProfileDecorationPreferencesEntity } from "./entity/user-profile-decoration-preferences.entity";
 import { UserPaymentEntity } from "./entity/user-payment.entity";
 import { SubscriptionProductEntity } from "./entity/subscription-product.entity";
+import { UserRelationEntity } from "./entity/user-relation.entity";
 
 export const Entities = [
   WebpushSubscriptionEntity,
@@ -28,4 +29,5 @@ export const Entities = [
   UserProfileDecorationPreferencesEntity,
   UserPaymentEntity,
   SubscriptionProductEntity,
+  UserRelationEntity,
 ];
