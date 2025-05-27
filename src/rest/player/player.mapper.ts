@@ -89,6 +89,7 @@ export class PlayerMapper {
 
   public mapPlayerSummary = async (
     it: GameserverPlayerSummaryDto,
+    status: GameserverBanStatusDto,
   ): Promise<PlayerSummaryDto> => {
     return {
       user: await this.userRepository.userDto(it.steamId),
@@ -96,7 +97,11 @@ export class PlayerMapper {
       calibrationGamesLeft: it.calibrationGamesLeft,
       accessMap: this.mapAccessLevel(it.accessLevel),
       aspects: it.reports,
-
+      banStatus: {
+        isBanned: status.isBanned,
+        bannedUntil: status.bannedUntil,
+        status: status.status,
+      },
       overallStats: this.mapPlayerStats(it.overall),
       seasonStats: this.mapPlayerStats(it.season),
     };
@@ -141,13 +146,8 @@ export class PlayerMapper {
           const session = sessions.find((t) => t.steamId === plr);
 
           return {
-            banStatus: {
-              isBanned: status.isBanned,
-              bannedUntil: status.bannedUntil,
-              status: status.status,
-            },
             session: session?.result?.serverUrl,
-            summary: await this.mapPlayerSummary(summary),
+            summary: await this.mapPlayerSummary(summary, status),
           } satisfies PartyMemberDTO;
         }),
       ),

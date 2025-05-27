@@ -146,6 +146,9 @@ import { UserPaymentsController } from "./rest/payments/user-payments.controller
 import { PaymentService } from "./rest/payments/payment.service";
 import { PlayerFeedbackCreatedHandler } from "./rest/notification/event-handler/player-feedback-created.handler";
 import { UserRelationService } from "./service/user-relation.service";
+import { RuleMapper } from "./rest/rule/rule.mapper";
+import { RuleController } from "./rest/rule/rule.controller";
+import { RuleService } from "./rest/rule/rule.service";
 
 @Module({
   imports: [
@@ -311,6 +314,7 @@ import { UserRelationService } from "./service/user-relation.service";
 
     PaymentHooksController,
     UserPaymentsController,
+    RuleController,
   ],
   providers: [
     ReqLoggingInterceptor,
@@ -393,6 +397,7 @@ import { UserRelationService } from "./service/user-relation.service";
     StorageService,
     StatsService,
     UserRelationService,
+    RuleService,
 
     MatchMapper,
     PlayerMapper,
@@ -406,6 +411,7 @@ import { UserRelationService } from "./service/user-relation.service";
     RecordMapper,
     StatsMapper,
     CustomizationMapper,
+    RuleMapper,
 
     LiveMatchUpdateHandler,
     ReadyCheckStartedHandler,

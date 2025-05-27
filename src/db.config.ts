@@ -13,6 +13,7 @@ import { UserProfileDecorationPreferencesEntity } from "./entity/user-profile-de
 import { UserPaymentEntity } from "./entity/user-payment.entity";
 import { SubscriptionProductEntity } from "./entity/subscription-product.entity";
 import { UserRelationEntity } from "./entity/user-relation.entity";
+import { RuleEntity } from "./entity/rule.entity";
 
 export const Entities = [
   WebpushSubscriptionEntity,
@@ -30,4 +31,5 @@ export const Entities = [
   UserPaymentEntity,
   SubscriptionProductEntity,
   UserRelationEntity,
+  RuleEntity,
 ];

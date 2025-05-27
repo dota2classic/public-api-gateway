@@ -78,6 +78,7 @@ export class PlayerStatsDto {
 
 export class PlayerSummaryDto {
   user: UserDTO;
+  banStatus: BanStatusDto;
 
   id: string;
   calibrationGamesLeft: number;
@@ -90,6 +91,7 @@ export class PlayerSummaryDto {
 
   // asdfsa
 }
+
 export class ConnectionDto {
   connection: UserConnection;
   avatar: string;

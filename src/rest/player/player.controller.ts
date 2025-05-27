@@ -152,13 +152,13 @@ export class PlayerController {
       UserMightExistEvent.name,
       new UserMightExistEvent(new PlayerId(steamId)),
     );
-    const rawData = await this.ms.playerControllerPlayerSummary(steamId);
 
-    this.redisEventQueue.emit(
-      UserMightExistEvent.name,
-      new UserMightExistEvent(new PlayerId(steamId)),
-    );
-    return this.mapper.mapPlayerSummary(rawData);
+    const [raw, bans] = await Promise.combine([
+      this.ms.playerControllerPlayerSummary(steamId),
+      this.ms.playerControllerBanInfo(steamId),
+    ]);
+
+    return this.mapper.mapPlayerSummary(raw, bans);
   }
 
   @Get("/party")
