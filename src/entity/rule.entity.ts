@@ -7,6 +7,7 @@ import {
   PrimaryGeneratedColumn,
   Relation,
 } from "typeorm";
+import { RulePunishmentEntity } from "./rule-punishment.entity";
 
 @Entity("rule_entity")
 export class RuleEntity {
@@ -19,7 +20,14 @@ export class RuleEntity {
   })
   index: number;
 
-  @Column()
+  @Column({
+    default: "Правило",
+  })
+  title: string;
+
+  @Column({
+    default: "",
+  })
   description: string;
 
   @ManyToOne((type) => RuleEntity, (category) => category.children, {
@@ -33,11 +41,25 @@ export class RuleEntity {
 
   @Column({
     name: "parent_id",
+    nullable: true,
   })
   parentId: number;
 
-  @OneToMany((type) => RuleEntity, (category) => category.parent, {
-    eager: false,
+  @ManyToOne((type) => RulePunishmentEntity, (punishment) => punishment.rules, {
+    eager: true,
   })
+  @JoinColumn({
+    referencedColumnName: "id",
+    name: "punishment_id",
+  })
+  punishment?: Relation<RulePunishmentEntity>;
+
+  @Column({
+    name: "punishment_id",
+    nullable: true,
+  })
+  punishmentId?: number;
+
+  @OneToMany((type) => RuleEntity, (category) => category.parent)
   children: Relation<RuleEntity>[];
 }
