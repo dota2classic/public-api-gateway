@@ -12,6 +12,7 @@ import { Logger } from "@nestjs/common";
 import { NotificationService } from "../../notification/notification.service";
 import { TelegramNotificationService } from "../telegram-notification.service";
 import { UserProfileService } from "../../../service/user-profile.service";
+import { UserReportEntity } from "../../../entity/user-report.entity";
 
 @EventsHandler(MessageUpdatedEvent)
 export class NewTicketMessageCreatedHandler
@@ -24,6 +25,8 @@ export class NewTicketMessageCreatedHandler
     private readonly playerFeedbackEntityRepository: Repository<PlayerFeedbackEntity>,
     private readonly telegram: TelegramNotificationService,
     private readonly urep: UserProfileService,
+    @InjectRepository(UserReportEntity)
+    private readonly userReportEntityRepository: Repository<UserReportEntity>,
   ) {}
 
   async handle(event: MessageUpdatedEvent) {
@@ -31,8 +34,54 @@ export class NewTicketMessageCreatedHandler
 
     const [threadType, threadId] = event.threadId.split("_");
 
-    if (threadType !== ThreadType.TICKET) return;
+    if (threadType == ThreadType.TICKET) {
+      await this.handleTicketMessage(event, threadId);
+    } else if (threadType === ThreadType.REPORT) {
+      await this.handleReportMessage(event, threadId);
+    }
+  }
 
+  private async handleReportMessage(
+    event: MessageUpdatedEvent,
+    reportId: string,
+  ) {
+    const playerReport = await this.userReportEntityRepository.findOne({
+      where: {
+        id: reportId,
+      },
+    });
+
+    if (!playerReport) {
+      // No feedback?
+      this.logger.warn("Received report message but no report entity", {
+        messageId: event.id,
+        threadId: event.threadId,
+      });
+      return;
+    }
+
+    if (event.author === playerReport.reporterSteamId) {
+      await this.notifyNewMessage(
+        event,
+        `https://dotaclassic.ru/forum/report/${event.threadId.replace("report_", "")}`,
+      );
+      // From player
+      return;
+    }
+
+    await this.notificationService.createNotification(
+      playerReport.reporterSteamId,
+      event.threadId,
+      NotificationEntityType.REPORT_TICKET,
+      NotificationType.TICKET_NEW_MESSAGE,
+      "1day",
+    );
+  }
+
+  private async handleTicketMessage(
+    event: MessageUpdatedEvent,
+    threadId: string,
+  ) {
     const playerFeedbackId = Number(threadId);
     const pFeedback = await this.playerFeedbackEntityRepository.findOne({
       where: {
@@ -50,7 +99,10 @@ export class NewTicketMessageCreatedHandler
     }
 
     if (event.author === pFeedback.steamId) {
-      await this.notifyNewMessage(event);
+      await this.notifyNewMessage(
+        event,
+        `https://dotaclassic.ru/forum/ticket/${event.threadId.replace(/\D/g, "")}`,
+      );
       // From player
       return;
     }
@@ -64,11 +116,12 @@ export class NewTicketMessageCreatedHandler
     );
   }
 
-  private async notifyNewMessage(event: MessageUpdatedEvent) {
+  private async notifyNewMessage(event: MessageUpdatedEvent, link: string) {
     await this.telegram.notifyFeedback(
       `Новое сообщение в обращении:\n
 ${await this.urep.userDto(event.author).then((it) => it.name)}: ${event.content}
-https://dotaclassic.ru/forum/ticket/${event.threadId.replace(/\D/g, "")}`,
+
+${link}`,
     );
   }
 }

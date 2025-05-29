@@ -15,6 +15,7 @@ import { SubscriptionProductEntity } from "./entity/subscription-product.entity"
 import { UserRelationEntity } from "./entity/user-relation.entity";
 import { RuleEntity } from "./entity/rule.entity";
 import { RulePunishmentEntity } from "./entity/rule-punishment.entity";
+import { UserReportEntity } from "./entity/user-report.entity";
 
 export const Entities = [
   WebpushSubscriptionEntity,
@@ -34,4 +35,5 @@ export const Entities = [
   UserRelationEntity,
   RuleEntity,
   RulePunishmentEntity,
+  UserReportEntity,
 ];

@@ -54,6 +54,7 @@ export class RuleDeleteResultDto {
 export class PrettyRuleDto {
   id: number;
   fullIndex: string;
+  title: string;
   description: string;
   punishment?: RulePunishmentDto;
 }

@@ -263,7 +263,11 @@ export class ForumController {
     @Param("id") id: string,
     @Param("threadType") threadType: ThreadType,
   ) {
-    if (threadType === ThreadType.FORUM || threadType === ThreadType.TICKET) {
+    if (
+      threadType === ThreadType.FORUM ||
+      threadType === ThreadType.TICKET ||
+      threadType == ThreadType.REPORT
+    ) {
       return this.api
         .forumControllerGetThread(`${threadType}_${id}`)
         .then(this.mapper.mapThread);

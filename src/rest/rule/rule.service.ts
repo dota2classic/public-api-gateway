@@ -70,6 +70,7 @@ export class RuleService {
         id: rule.id,
         fullIndex: getFullPrefix(rule),
         description: rule.description,
+        title: rule.title,
         punishment: rule.punishment,
       }));
   }

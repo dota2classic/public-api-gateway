@@ -149,6 +149,8 @@ import { UserRelationService } from "./service/user-relation.service";
 import { RuleMapper } from "./rest/rule/rule.mapper";
 import { RuleController } from "./rest/rule/rule.controller";
 import { RuleService } from "./rest/rule/rule.service";
+import { ReportController } from "./rest/report/report.controller";
+import { ReportService } from "./rest/report/report.service";
 
 @Module({
   imports: [
@@ -315,6 +317,7 @@ import { RuleService } from "./rest/rule/rule.service";
     PaymentHooksController,
     UserPaymentsController,
     RuleController,
+    ReportController,
   ],
   providers: [
     ReqLoggingInterceptor,
@@ -390,6 +393,7 @@ import { RuleService } from "./rest/rule/rule.service";
     LiveMatchService,
     TwitchService,
     LobbyService,
+    ReportService,
 
     FeedbackService,
     AuthService,

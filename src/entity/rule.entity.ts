@@ -8,6 +8,7 @@ import {
   Relation,
 } from "typeorm";
 import { RulePunishmentEntity } from "./rule-punishment.entity";
+import { UserReportEntity } from "./user-report.entity";
 
 @Entity("rule_entity")
 export class RuleEntity {
@@ -62,4 +63,7 @@ export class RuleEntity {
 
   @OneToMany((type) => RuleEntity, (category) => category.parent)
   children: Relation<RuleEntity>[];
+
+  @OneToMany((type) => UserReportEntity, (report) => report.rule)
+  reports: Relation<RuleEntity>[];
 }
