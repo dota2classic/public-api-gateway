@@ -30,6 +30,17 @@ export class ReportService {
     comment: string,
     messageId: string,
   ) {
+    const alreadyReported = await this.userReportEntityRepository.exists({
+      where: {
+        reportedSteamId: reported,
+        ruleId: ruleId,
+        messageId,
+      },
+    });
+    if (alreadyReported) {
+      throw new HttpException({ message: "Такая жалоба уже заведена" }, 400);
+    }
+
     let report = new UserReportEntity(
       reporter.steam_id,
       reported,
