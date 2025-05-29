@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { HttpException, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { UserReportEntity } from "../../entity/user-report.entity";
 import { Repository } from "typeorm";
@@ -47,8 +47,19 @@ export class ReportService {
     reported: string,
     ruleId: number,
     comment: string,
-    matchId?: number,
+    matchId: number,
   ) {
+    const alreadyReported = await this.userReportEntityRepository.exists({
+      where: {
+        reportedSteamId: reported,
+        ruleId: ruleId,
+        matchId: matchId,
+      },
+    });
+    if (alreadyReported) {
+      throw new HttpException({ message: "Такая жалоба уже заведена" }, 400);
+    }
+
     const report = await this.userReportEntityRepository.save(
       new UserReportEntity(
         reporter.steam_id,
@@ -81,7 +92,8 @@ export class ReportService {
       author: reporter,
       content: `Пользователь https://dotaclassic.ru/players/${report.reportedSteamId} нарушил правило https://dev.dotaclassic.ru/static/rules/new#${rule.id}
 [${rule.title}]
-${report.comment}
+${report.matchId ? `В матче https://dotaclassic.ru/matches/${report.matchId}` : "На форуме"}
+${report.comment ? `Комментарий: \n${report.comment}` : ""}
       `,
     });
 
