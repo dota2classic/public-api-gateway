@@ -1,13 +1,14 @@
 import {
   Check,
-  Column,
+  Column, CreateDateColumn,
   Entity,
   JoinColumn,
-  ManyToOne,
+  ManyToOne, OneToMany,
   PrimaryGeneratedColumn,
   Relation,
-} from "typeorm";
+} from 'typeorm';
 import { RuleEntity } from "./rule.entity";
+import { PunishmentLogEntity } from './punishment-log.entity';
 
 @Entity("user_report")
 @Check("message_id is not null or match_id is not null")
@@ -54,6 +55,20 @@ export class UserReportEntity {
     default: "",
   })
   comment: string;
+
+
+  @Column({
+    name: "handled",
+    default: false
+  })
+  handled: boolean;
+
+
+  @CreateDateColumn({
+    name: "created_at"
+  })
+  createdAt: Date;
+
 
   constructor(
     reporterSteamId: string,

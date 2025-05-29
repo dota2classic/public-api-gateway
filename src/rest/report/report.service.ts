@@ -1,7 +1,7 @@
 import { HttpException, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { UserReportEntity } from "../../entity/user-report.entity";
-import { Repository } from "typeorm";
+import { DataSource, Repository } from "typeorm";
 import { ForumApi } from "../../generated-api/forum";
 import { ThreadType } from "../../gateway/shared-types/thread-type";
 import { RuleEntity } from "../../entity/rule.entity";
@@ -11,6 +11,10 @@ import {
 } from "../../entity/notification.entity";
 import { NotificationService } from "../notification/notification.service";
 import { CurrentUserDto } from "../../utils/decorator/current-user";
+import { RulePunishmentEntity } from "../../entity/rule-punishment.entity";
+import { PunishmentLogEntity } from "../../entity/punishment-log.entity";
+import { PlayerBanEntity } from "../../entity/player-ban.entity";
+import { BanReason } from "../../gateway/shared-types/ban";
 
 @Injectable()
 export class ReportService {
@@ -21,7 +25,78 @@ export class ReportService {
     private readonly ruleEntityRepository: Repository<RuleEntity>,
     private readonly forumApi: ForumApi,
     private readonly notification: NotificationService,
+    @InjectRepository(PunishmentLogEntity)
+    private readonly punishmentLogEntityRepository: Repository<PunishmentLogEntity>,
+    @InjectRepository(PlayerBanEntity)
+    private readonly playerBanEntityRepository: Repository<PlayerBanEntity>,
+    private readonly ds: DataSource,
   ) {}
+
+  public async createLogFromReport(
+    report: UserReportEntity,
+    punishment: RulePunishmentEntity,
+    executorSteamId: string,
+  ) {
+    return this.createLog(
+      report.reportedSteamId,
+      executorSteamId,
+      report.ruleId,
+      punishment.durationHours * 60 * 60,
+      punishment.id,
+      report.id,
+    );
+  }
+
+  public async createLog(
+    punishedSteamId: string,
+    executorSteamId: string,
+    ruleId: number,
+    durationSeconds: number,
+    punishmentId: number,
+    reportId?: string,
+  ) {
+    return this.ds.transaction(async (tx) => {
+      const log = await tx.save(
+        new PunishmentLogEntity(
+          ruleId,
+          durationSeconds,
+          reportId,
+          punishmentId,
+          punishedSteamId,
+          executorSteamId,
+        ),
+      );
+
+      let ban: PlayerBanEntity = await tx.findOne<PlayerBanEntity>(
+        PlayerBanEntity,
+        {
+          where: {
+            steamId: punishedSteamId,
+          },
+        },
+      );
+      if (!ban) {
+        ban = await tx.save(
+          new PlayerBanEntity(
+            punishedSteamId,
+            new Date(0),
+            BanReason.COMMUNICATION_REPORTS,
+          ),
+        );
+      }
+
+      await tx.update<PlayerBanEntity>(
+        PlayerBanEntity,
+        { steamId: punishedSteamId },
+        {
+          endTime: () =>
+            `greatest(endTime, now()) + interval'${durationSeconds} seconds'`,
+        },
+      );
+
+      return log;
+    });
+  }
 
   public async createMessageReport(
     reporter: CurrentUserDto,

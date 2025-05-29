@@ -16,6 +16,8 @@ import { UserRelationEntity } from "./entity/user-relation.entity";
 import { RuleEntity } from "./entity/rule.entity";
 import { RulePunishmentEntity } from "./entity/rule-punishment.entity";
 import { UserReportEntity } from "./entity/user-report.entity";
+import { PunishmentLogEntity } from "./entity/punishment-log.entity";
+import { PlayerBanEntity } from "./entity/player-ban.entity";
 
 export const Entities = [
   WebpushSubscriptionEntity,
@@ -36,4 +38,6 @@ export const Entities = [
   RuleEntity,
   RulePunishmentEntity,
   UserReportEntity,
+  PunishmentLogEntity,
+  PlayerBanEntity,
 ];

@@ -151,6 +151,7 @@ import { RuleController } from "./rest/rule/rule.controller";
 import { RuleService } from "./rest/rule/rule.service";
 import { ReportController } from "./rest/report/report.controller";
 import { ReportService } from "./rest/report/report.service";
+import { ReportMapper } from "./rest/report/report.mapper";
 
 @Module({
   imports: [
@@ -416,6 +417,7 @@ import { ReportService } from "./rest/report/report.service";
     StatsMapper,
     CustomizationMapper,
     RuleMapper,
+    ReportMapper,
 
     LiveMatchUpdateHandler,
     ReadyCheckStartedHandler,

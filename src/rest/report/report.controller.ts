@@ -1,26 +1,118 @@
 import {
   Body,
   Controller,
+  Get,
+  NotFoundException,
+  Param,
+  ParseIntPipe,
   Post,
+  Query,
   UseGuards,
   UseInterceptors,
 } from "@nestjs/common";
 import { ReqLoggingInterceptor } from "../../middleware/req-logging.interceptor";
 import { ApiTags } from "@nestjs/swagger";
 import { CustomThrottlerGuard } from "../strategy/custom-throttler.guard";
-import { WithUser } from "../../utils/decorator/with-user";
+import { ModeratorGuard, WithUser } from "../../utils/decorator/with-user";
 import {
   CurrentUser,
   CurrentUserDto,
 } from "../../utils/decorator/current-user";
-import { ReportMessageDto, ReportPlayerInMatchDto } from "./report.dto";
+import {
+  HandleReportDto,
+  PunishmentLogPageDto,
+  ReportDto,
+  ReportMessageDto,
+  ReportPlayerInMatchDto,
+} from "./report.dto";
 import { ReportService } from "./report.service";
+import { UserReportEntity } from "../../entity/user-report.entity";
+import { Repository } from "typeorm";
+import { InjectRepository } from "@nestjs/typeorm";
+import { ReportMapper } from "./report.mapper";
+import { ForumApi } from "../../generated-api/forum";
+import { RulePunishmentEntity } from "../../entity/rule-punishment.entity";
+import { WithPagination } from "../../utils/decorator/pagination";
+import { PunishmentLogEntity } from "../../entity/punishment-log.entity";
+import { NullableIntPipe } from "../../utils/pipes";
+import { makePage } from "../../gateway/util/make-page";
 
 @UseInterceptors(ReqLoggingInterceptor)
 @Controller("report")
 @ApiTags("report")
 export class ReportController {
-  constructor(private readonly reportService: ReportService) {}
+  constructor(
+    private readonly reportService: ReportService,
+    @InjectRepository(UserReportEntity)
+    private readonly userReportEntityRepository: Repository<UserReportEntity>,
+    @InjectRepository(RulePunishmentEntity)
+    private readonly rulePunishmentEntityRepository: Repository<RulePunishmentEntity>,
+    @InjectRepository(PunishmentLogEntity)
+    private readonly punishmentLogEntityRepository: Repository<PunishmentLogEntity>,
+    private readonly forumApi: ForumApi,
+    private readonly mapper: ReportMapper,
+  ) {}
+
+  @ModeratorGuard()
+  @WithUser()
+  @Post("/report/:id")
+  public async handleReport(
+    @Param("id") id: string,
+    @Body() dto: HandleReportDto,
+    @CurrentUser() user: CurrentUserDto,
+  ) {
+    const report = await this.userReportEntityRepository.findOne({
+      where: { id, handled: false },
+      relations: ["rule"],
+    });
+
+    const punishment = dto.overridePunishmentId
+      ? await this.rulePunishmentEntityRepository.findOne({
+          where: { id: dto.overridePunishmentId },
+        })
+      : report.rule.punishment;
+
+    if (!punishment) {
+      throw new NotFoundException("Punishment not found for rule or override");
+    }
+    const uc = await this.userReportEntityRepository.update(
+      {
+        id,
+        handled: false,
+      },
+      { handled: true },
+    );
+    if (!uc.affected) {
+      throw new NotFoundException();
+    }
+
+    if (dto.valid) {
+      await this.reportService.createLogFromReport(
+        report,
+        punishment,
+        user.steam_id,
+      );
+    }
+
+    return this.userReportEntityRepository
+      .findOne({
+        where: { id },
+        relations: ["rule"],
+      })
+      .then(this.mapper.mapReport);
+  }
+
+  @Get("/report/:id")
+  public async getReport(@Param("id") id: string): Promise<ReportDto> {
+    const report = await this.userReportEntityRepository.findOne({
+      where: { id },
+    });
+    const msg = report.messageId
+      ? await this.forumApi.forumControllerGetMessage(report.messageId)
+      : undefined;
+
+    return this.mapper.mapReport(report, msg);
+  }
 
   @Post("/match")
   @UseGuards(CustomThrottlerGuard)
@@ -52,5 +144,24 @@ export class ReportController {
       dto.comment,
       dto.messageId,
     );
+  }
+
+  @WithPagination()
+  @Get("/punishment")
+  public async getPaginationLog(
+    @Query("page", ParseIntPipe) page: number,
+    @Query("per_page", NullableIntPipe) perPage: number = 25,
+  ): Promise<PunishmentLogPageDto> {
+    // mapPunishmentLog
+    const [slice, cnt] = await this.punishmentLogEntityRepository.findAndCount({
+      take: perPage,
+      skip: page * perPage,
+      relations: ["rule", "punishment"],
+      order: {
+        createdAt: "DESC",
+      },
+    });
+
+    return makePage(slice, cnt, page, perPage, this.mapper.mapPunishmentLog);
   }
 }

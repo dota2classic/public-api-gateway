@@ -6,6 +6,7 @@ import {
   Relation,
 } from "typeorm";
 import { RuleEntity } from "./rule.entity";
+import { PunishmentLogEntity } from './punishment-log.entity';
 
 @Entity("rule_punishment")
 export class RulePunishmentEntity {
@@ -25,4 +26,7 @@ export class RulePunishmentEntity {
 
   @OneToMany((type) => RuleEntity, (category) => category.punishment)
   rules: Relation<RuleEntity>[];
+
+  @OneToMany((type) => PunishmentLogEntity, (log) => log.punishment)
+  punishments: Relation<PunishmentLogEntity>[];
 }
