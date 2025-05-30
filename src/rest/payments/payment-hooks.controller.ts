@@ -7,12 +7,14 @@ import {
   NotFoundException,
   Post,
   Res,
+  UseGuards,
 } from "@nestjs/common";
 import { Response } from "express";
 import { YoukassaWebhookNotification } from "./payments.dto";
 import { PaymentService } from "./payment.service";
 import { CookiesUserId } from "../../utils/decorator/current-user";
 import { ConfigService } from "@nestjs/config";
+import { CookieUserGuard } from "../../utils/decorator/with-user";
 
 @Controller("payment_web_hook")
 export class PaymentHooksController {
@@ -46,6 +48,7 @@ export class PaymentHooksController {
     }
   }
 
+  @UseGuards(CookieUserGuard)
   @Get("redirect")
   public async redirect(
     @CookiesUserId() steamId: string,
