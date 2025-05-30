@@ -166,7 +166,12 @@ export class PaymentService {
     await this.dataSource.transaction(async (tx) => {
       const payment = await tx
         .createQueryBuilder<UserPaymentEntity>(UserPaymentEntity, "payment")
-        .leftJoinAndMapOne("product", SubscriptionProductEntity, "product")
+        .leftJoinAndMapOne(
+          "product",
+          SubscriptionProductEntity,
+          "product",
+          "product.id = payment.product_id",
+        )
         .useTransaction(true)
         .setLock("pessimistic_write")
         .where("payment.payment_id = :id", { id: externalPayment.id })
