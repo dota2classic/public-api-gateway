@@ -16,6 +16,11 @@ import {
 import { UserSubscriptionPaidEvent } from "../../gateway/events/user/user-subscription-paid.event";
 import { ClientProxy } from "@nestjs/microservices";
 import { SubscriptionProductEntity } from "../../entity/subscription-product.entity";
+import { NotificationService } from "../notification/notification.service";
+import {
+  NotificationEntityType,
+  NotificationType,
+} from "../../entity/notification.entity";
 
 @Injectable()
 export class PaymentService {
@@ -32,6 +37,7 @@ export class PaymentService {
     private readonly subscriptionProductEntityRepository: Repository<SubscriptionProductEntity>,
     private readonly dataSource: DataSource,
     @Inject("RMQ") private readonly rmq: ClientProxy,
+    private readonly notification: NotificationService,
   ) {
     const token = btoa(
       `${config.get("youkassa.shopId")}:${config.get("youkassa.token")}`,
@@ -183,6 +189,14 @@ export class PaymentService {
         external_payment_id: externalPayment.id,
       });
       // here we also need to add role
+
+      await this.notification.createNotification(
+        payment.steamId,
+        payment.steamId,
+        NotificationEntityType.PLAYER,
+        NotificationType.SUBSCRIPTION_PURCHASED,
+        "700days",
+      );
 
       const result = await this.rmq
         .send<boolean>(

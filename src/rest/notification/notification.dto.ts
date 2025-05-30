@@ -5,6 +5,9 @@ import {
   NotificationEntityType,
   NotificationType,
 } from "../../entity/notification.entity";
+import { PlayerFeedbackDto } from "../feedback/feedback.dto";
+import { AchievementKey } from "../../gateway/shared-types/achievemen-key";
+import { ThreadType } from "../../gateway/shared-types/thread-type";
 
 export class SubscriptionDto implements PushSubscription {
   endpoint: string;
@@ -15,6 +18,21 @@ export class SubscriptionDto implements PushSubscription {
 export class TagPlayerForQueue {
   @ApiProperty({ enum: MatchmakingMode, enumName: "MatchmakingMode" })
   mode: MatchmakingMode;
+}
+
+export class NotificationAchievementDto {
+  @ApiProperty({ enum: AchievementKey, enumName: "AchievementKey" })
+  key: AchievementKey;
+}
+
+export class NotificationThreadDto {
+  readonly externalId: string;
+  @ApiProperty({ enum: ThreadType, enumName: "ThreadType" })
+  readonly threadType: ThreadType;
+}
+
+export class NotificationMatchDto {
+  id: number;
 }
 
 export class NotificationDto {
@@ -32,4 +50,9 @@ export class NotificationDto {
 
   title: string;
   content: string;
+
+  feedback?: PlayerFeedbackDto;
+  achievement?: NotificationAchievementDto;
+  thread?: NotificationThreadDto;
+  match?: NotificationMatchDto;
 }

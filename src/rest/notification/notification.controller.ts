@@ -87,6 +87,6 @@ export class NotificationController {
   ): Promise<NotificationDto[]> {
     return this.notificationService
       .getNotifications(user.steam_id)
-      .then((all) => all.map(this.mapper.mapNotification));
+      .then((all) => Promise.all(all.map(this.mapper.mapNotification)));
   }
 }

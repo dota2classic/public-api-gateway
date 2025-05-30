@@ -6,17 +6,22 @@ import {
   Logger,
   NotFoundException,
   Post,
+  Res,
 } from "@nestjs/common";
-
+import { Response } from "express";
 import { YoukassaWebhookNotification } from "./payments.dto";
 import { PaymentService } from "./payment.service";
 import { CookiesUserId } from "../../utils/decorator/current-user";
+import { ConfigService } from "@nestjs/config";
 
 @Controller("payment_web_hook")
 export class PaymentHooksController {
   private logger = new Logger(PaymentHooksController.name);
 
-  constructor(private readonly payment: PaymentService) {}
+  constructor(
+    private readonly payment: PaymentService,
+    private readonly config: ConfigService,
+  ) {}
 
   @Post()
   public async youkassaNotificationWebhook(
@@ -42,7 +47,12 @@ export class PaymentHooksController {
   }
 
   @Get("redirect")
-  public async redirect(@CookiesUserId() steamId: string) {
-    this.logger.log("Received redirect from payment, steamid " + steamId);
+  public async redirect(
+    @CookiesUserId() steamId: string,
+    @Res() res: Response,
+  ) {
+    res
+      .status(302)
+      .redirect(`${this.config.get("api.frontUrl")}/player/${steamId}`);
   }
 }

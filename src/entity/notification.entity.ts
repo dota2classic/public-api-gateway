@@ -6,8 +6,6 @@ import {
   PrimaryGeneratedColumn,
 } from "typeorm";
 import { VirtualColumn2 } from "../virtual-column";
-import { PlayerFeedbackEntity } from "./player-feedback.entity";
-import { FeedbackEntity } from "./feedback.entity";
 
 export enum NotificationEntityType {
   FEEDBACK = "FEEDBACK",
@@ -26,6 +24,7 @@ export enum NotificationType {
   PLAYER_REPORT_BAN = "PLAYER_REPORT_BAN",
   PLAYER_FEEDBACK = "PLAYER_FEEDBACK",
   REPORT_CREATED = "REPORT_CREATED",
+  SUBSCRIPTION_PURCHASED = "SUBSCRIPTION_PURCHASED",
 }
 
 @Entity()
@@ -67,12 +66,6 @@ export class NotificationEntity {
     name: "notification_type",
   })
   notificationType: NotificationType;
-
-  @VirtualColumn2("playerFeedback", (t) => t)
-  playerFeedback?: PlayerFeedbackEntity;
-
-  @VirtualColumn2("feedback", (t) => t)
-  feedback?: FeedbackEntity;
 
   @VirtualColumn2("expiresAt", (t) => t)
   expiresAt: Date;

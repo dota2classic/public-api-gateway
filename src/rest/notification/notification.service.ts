@@ -176,6 +176,7 @@ export class NotificationService {
   public async getNotifications(steamId: string, cnt: number = 20) {
     return this.getBaseNotificationQuery()
       .where("n.steam_id = :steamId", { steamId })
+      .andWhere({ acknowledged: false })
       .orderBy("n.createdAt", "DESC")
       .take(cnt)
       .getMany();
@@ -209,26 +210,13 @@ export class NotificationService {
     ne = await this.notificationEntityRepository.save(ne);
     ne = await this.getFullNotification(ne.id);
     this.ebus.publish(
-      new NotificationCreatedEvent(this.mapper.mapNotification(ne)),
+      new NotificationCreatedEvent(await this.mapper.mapNotification(ne)),
     );
   }
 
   private getBaseNotificationQuery(): SelectQueryBuilder<NotificationEntity> {
     return this.notificationEntityRepository
       .createQueryBuilder("n")
-      .leftJoinAndMapOne(
-        "n.playerFeedback",
-        "player_feedback_entity",
-        "pfe",
-        `n.entity_type = :feedbackType and pfe.id = convert_to_integer(n.entity_id)`,
-        { feedbackType: NotificationEntityType.FEEDBACK },
-      )
-      .leftJoinAndMapOne(
-        "n.feedback",
-        "feedback_entity",
-        "fe",
-        "fe.tag = pfe.feedback_tag",
-      )
       .addSelect("n.created_at + n.ttl", "expiresAt")
       .printSql();
   }
