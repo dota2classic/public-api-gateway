@@ -166,12 +166,6 @@ export class PaymentService {
     await this.dataSource.transaction(async (tx) => {
       const payment = await tx
         .createQueryBuilder<UserPaymentEntity>(UserPaymentEntity, "payment")
-        .leftJoinAndMapOne(
-          "product",
-          SubscriptionProductEntity,
-          "product",
-          "product.id = payment.product_id",
-        )
         .useTransaction(true)
         .setLock("pessimistic_write")
         .where("payment.payment_id = :id", { id: externalPayment.id })
@@ -185,7 +179,14 @@ export class PaymentService {
         return;
       }
 
-      console.log(payment.product);
+      const product = await tx.findOne<SubscriptionProductEntity>(
+        SubscriptionProductEntity,
+        {
+          where: {
+            id: payment.productId,
+          },
+        },
+      );
 
       payment.status = PaymentStatus.SUCCEEDED;
       await tx.save(payment);
@@ -208,7 +209,7 @@ export class PaymentService {
           UserSubscriptionPaidEvent.name,
           new UserSubscriptionPaidEvent(
             payment.steamId,
-            payment.product.months * PaymentService.DAYS_IN_MONTH,
+            product.months * PaymentService.DAYS_IN_MONTH,
           ), // For now
         )
         .toPromise();
