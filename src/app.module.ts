@@ -181,7 +181,7 @@ import { ReportMapper } from "./rest/report/report.mapper";
           type: "postgres",
           migrations: ["dist/database/migrations/*.*"],
           migrationsRun: true,
-          logging: undefined,
+          logging: ["error"],
         };
       },
       imports: [],
