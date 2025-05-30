@@ -53,7 +53,9 @@ export class AuthService {
     } catch (e) {}
     return {
       sub: steam_id,
-      roles: u?.roles || [Role.PLAYER],
+      roles: u?.roles
+        .filter((t) => new Date(t.endTime).getTime() > Date.now())
+        .map((t) => t.role) || [Role.PLAYER],
       name: name || u?.name,
       avatar: avatar || u?.avatar,
       version: "1",

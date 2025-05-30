@@ -21,12 +21,13 @@ import { GetPartyQueryResult } from "../../gateway/queries/GetParty/get-party-qu
 import { PartyDto, PartyMemberDTO } from "./dto/party.dto";
 import { GetReportsAvailableQueryResult } from "../../gateway/queries/GetReportsAvailable/get-reports-available-query.result";
 import { TournamentTeamDto } from "../../generated-api/tournament/models";
-import { UserDTO } from "../shared.dto";
+import { RoleLifetimeDto, UserDTO } from "../shared.dto";
 import { AchievementDto } from "./dto/achievement.dto";
 import { MatchMapper } from "../match/match.mapper";
 import { GetSessionByUserQueryResult } from "../../gateway/queries/GetSessionByUser/get-session-by-user-query.result";
 import { MatchAccessLevel } from "../../gateway/shared-types/match-access-level";
 import { UserProfileService } from "../../service/user-profile.service";
+import { RoleLifetime } from "../../gateway/caches/user-fast-profile.dto";
 
 @Injectable()
 export class PlayerMapper {
@@ -65,6 +66,11 @@ export class PlayerMapper {
     };
   };
 
+  public mapRole = (rl: RoleLifetime): RoleLifetimeDto => ({
+    role: rl.role,
+    endTime: rl.endTime,
+  });
+
   public mapMe = async (
     it: GameserverPlayerSummaryDto,
     status: GameserverBanStatusDto,
@@ -75,7 +81,6 @@ export class PlayerMapper {
     return {
       mmr: it.season.mmr,
       user: user,
-      roles: user.roles,
       id: numSteamId(it.steamId),
       rank: it.season.rank,
       banStatus: {

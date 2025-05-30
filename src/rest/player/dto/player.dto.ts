@@ -1,5 +1,4 @@
 import { UserConnection } from "../../../gateway/shared-types/user-connection";
-import { Role } from "../../../gateway/shared-types/roles";
 import { BanStatusDto } from "../../admin/dto/admin.dto";
 import { UserDTO } from "../../shared.dto";
 import { ApiProperty } from "@nestjs/swagger";
@@ -39,8 +38,6 @@ export class MeDto {
 
   id: string;
   mmr: number;
-  @ApiProperty({ enum: Role, enumName: "Role" })
-  roles: Role[];
   rank: number;
   banStatus: BanStatusDto;
   reportsAvailable: number;

@@ -7,13 +7,20 @@ export class UserConnectionDto {
   connection: UserConnection;
   externalId: string;
 }
+
+export class RoleLifetimeDto {
+  @ApiProperty({ enum: Role, enumName: "Role" })
+  role: Role;
+
+  endTime: string;
+}
+
 export class UserDTO {
   steamId: string;
   avatar: string;
   avatarSmall: string;
   name: string;
-  @ApiProperty({ enum: Role, enumName: "Role", isArray: true })
-  roles: Role[];
+  roles: RoleLifetimeDto[];
 
   connections: UserConnectionDto[];
 

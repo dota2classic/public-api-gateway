@@ -34,7 +34,9 @@ export class UserProfileService {
       steamId: steamId,
       name: fu?.name || "Loading",
       avatar: fu?.avatar || "",
-      roles: fu?.roles || [],
+      roles:
+        fu?.roles.filter((t) => new Date(t.endTime).getTime() > Date.now()) ||
+        [],
       connections: fu?.connections || [],
       avatarSmall: (fu?.avatar || "").replace("_full", "_medium"),
       hat: prefs?.hat && this.customizationMapper.mapDecoration(prefs.hat),

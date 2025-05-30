@@ -32,7 +32,7 @@ export class UserRelationService implements OnApplicationBootstrap {
     related: string,
   ): Promise<UserRelationStatus | undefined> {
     const u = await this.fast.get(steamId);
-    if (!u || !isOld(u.roles)) return undefined;
+    if (!u || !isOld(u.roles.map((t) => t.role))) return undefined;
     return this.getRelationSync(steamId, related);
   }
 
