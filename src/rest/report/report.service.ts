@@ -80,7 +80,7 @@ export class ReportService {
           new PlayerBanEntity(
             punishedSteamId,
             new Date(0),
-            BanReason.COMMUNICATION_REPORTS,
+            BanReason.RULE_VIOLATION,
           ),
         );
       }
@@ -89,6 +89,7 @@ export class ReportService {
         PlayerBanEntity,
         { steamId: punishedSteamId },
         {
+          reason: BanReason.RULE_VIOLATION,
           endTime: () =>
             `greatest(endTime, now()) + interval'${durationSeconds} seconds'`,
         },
