@@ -19,6 +19,7 @@ import {
   CurrentUserDto,
 } from "../../utils/decorator/current-user";
 import {
+  ApplyPunishmentDto,
   HandleReportDto,
   PunishmentLogPageDto,
   ReportDto,
@@ -36,6 +37,7 @@ import { WithPagination } from "../../utils/decorator/pagination";
 import { PunishmentLogEntity } from "../../entity/punishment-log.entity";
 import { NullableIntPipe } from "../../utils/pipes";
 import { makePage } from "../../gateway/util/make-page";
+import { RuleEntity } from "../../entity/rule.entity";
 
 @UseInterceptors(ReqLoggingInterceptor)
 @Controller("report")
@@ -49,9 +51,42 @@ export class ReportController {
     private readonly rulePunishmentEntityRepository: Repository<RulePunishmentEntity>,
     @InjectRepository(PunishmentLogEntity)
     private readonly punishmentLogEntityRepository: Repository<PunishmentLogEntity>,
+    @InjectRepository(RuleEntity)
+    private readonly ruleEntityRepository: Repository<RuleEntity>,
     private readonly forumApi: ForumApi,
     private readonly mapper: ReportMapper,
   ) {}
+
+  @ModeratorGuard()
+  @WithUser()
+  @Post("/admin/punish")
+  public async applyPunishment(
+    @Body() dto: ApplyPunishmentDto,
+    @CurrentUser() user: CurrentUserDto,
+  ) {
+    const rule = await this.ruleEntityRepository.findOneOrFail({
+      where: { id: dto.ruleId },
+      relations: ["punishment"],
+    });
+
+    const punishment = dto.overridePunishmentId
+      ? await this.rulePunishmentEntityRepository.findOne({
+          where: { id: dto.overridePunishmentId },
+        })
+      : rule.punishment;
+
+    if (!punishment) {
+      throw new NotFoundException("Punishment not found for rule or override");
+    }
+
+    await this.reportService.createLog(
+      dto.steamId,
+      user.steam_id,
+      rule.id,
+      punishment.durationHours * 60 * 60,
+      punishment.id,
+    );
+  }
 
   @ModeratorGuard()
   @WithUser()

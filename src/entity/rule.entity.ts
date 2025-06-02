@@ -32,6 +32,11 @@ export class RuleEntity {
   })
   description: string;
 
+  @Column({
+    default: false,
+  })
+  automatic: boolean;
+
   @ManyToOne((type) => RuleEntity, (category) => category.children, {
     eager: false,
   })

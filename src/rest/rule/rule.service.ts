@@ -65,7 +65,7 @@ export class RuleService {
     };
 
     return flatRules
-      .filter((r) => r.children.length === 0)
+      .filter((r) => r.children.length === 0 && !r.automatic)
       .map((rule) => ({
         id: rule.id,
         fullIndex: getFullPrefix(rule),

@@ -4,6 +4,7 @@ export class RuleDto {
   id: string;
   index: number;
   title: string;
+  automatic: boolean;
   description: string;
   parentId?: number;
   children: RuleDto[];
@@ -36,6 +37,7 @@ export class UpdateRuleDto {
   description?: string;
   punishmentId?: number | null;
   index?: number;
+  automatic?: boolean;
 }
 
 export class UpdatePunishmentDto {

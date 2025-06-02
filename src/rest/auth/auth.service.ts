@@ -51,6 +51,7 @@ export class AuthService {
     try {
       u = await this.user.userDto(steam_id);
     } catch (e) {}
+
     return {
       sub: steam_id,
       roles: u?.roles

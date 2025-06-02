@@ -11,6 +11,7 @@ export class RuleMapper {
       index: rule.index,
       description: rule.description,
       title: rule.title,
+      automatic: rule.automatic,
       parentId: rule.parentId,
       children: rule.children ? rule.children.map(this.mapRule) : [],
       punishment: rule.punishment

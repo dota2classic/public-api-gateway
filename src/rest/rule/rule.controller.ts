@@ -93,6 +93,7 @@ export class RuleController {
         description: dto.description,
         parentId: dto.parent,
         punishmentId: dto.punishmentId,
+        automatic: dto.automatic,
       },
     );
     return this.ruleEntityRepository

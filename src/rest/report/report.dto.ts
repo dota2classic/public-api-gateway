@@ -49,3 +49,9 @@ export class PunishmentLogPageDto extends Page<PunishmentLogDto> {
   perPage: number;
   pages: number;
 }
+
+export class ApplyPunishmentDto {
+  steamId: string;
+  ruleId: number;
+  overridePunishmentId?: number;
+}
