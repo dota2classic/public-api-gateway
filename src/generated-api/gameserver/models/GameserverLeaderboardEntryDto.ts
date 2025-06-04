@@ -62,6 +62,12 @@ export class GameserverLeaderboardEntryDto {
     abandons: number;
     /**
      *
+     * @type {boolean}
+     * @memberof GameserverLeaderboardEntryDto
+     */
+    recalibrationAttempted: boolean;
+    /**
+     *
      * @type {number}
      * @memberof GameserverLeaderboardEntryDto
      */
@@ -103,6 +109,7 @@ export function GameserverLeaderboardEntryDtoFromJSONTyped(json: any, ignoreDisc
         'games': json['games'],
         'wins': json['wins'],
         'abandons': json['abandons'],
+        'recalibrationAttempted': json['recalibrationAttempted'],
         'kills': json['kills'],
         'deaths': json['deaths'],
         'assists': json['assists'],
@@ -126,6 +133,7 @@ export function GameserverLeaderboardEntryDtoToJSON(value?: GameserverLeaderboar
         'games': value.games,
         'wins': value.wins,
         'abandons': value.abandons,
+        'recalibrationAttempted': value.recalibrationAttempted,
         'kills': value.kills,
         'deaths': value.deaths,
         'assists': value.assists,

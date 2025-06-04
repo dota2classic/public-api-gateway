@@ -37,6 +37,7 @@ export class MatchMapper {
     it: GameserverPlayerInMatchDto,
   ): Promise<PlayerInMatchDto> => {
     const { steam_id, ...dto } = it;
+    console.log(it);
     return {
       ...dto,
       partyIndex: dto.partyIndex,

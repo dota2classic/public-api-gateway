@@ -124,6 +124,7 @@ export class PlayerMapper {
     kills: it.kills,
     deaths: it.deaths,
     assists: it.assists,
+    recalibrationAttempted: it.recalibrationAttempted,
 
     playtime: it.playtime,
   });

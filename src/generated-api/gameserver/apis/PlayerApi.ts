@@ -40,6 +40,8 @@ import {
   GameserverReportPlayerDtoToJSON,
   GameserverSmurfData,
   GameserverSmurfDataFromJSON,
+  GameserverStartRecalibrationDto,
+  GameserverStartRecalibrationDtoToJSON,
 } from "../models";
 
 export interface PlayerControllerAbandonSessionRequest {
@@ -92,6 +94,10 @@ export interface PlayerControllerReportPlayerRequest {
 
 export interface PlayerControllerSmurfDataRequest {
     id: string;
+}
+
+export interface PlayerControllerStartRecalibrationRequest {
+    gameserverStartRecalibrationDto: GameserverStartRecalibrationDto;
 }
 
 export interface PlayerControllerUnDodgePlayerRequest {
@@ -250,6 +256,30 @@ export class PlayerApi extends runtime.BaseAPI {
 
     /**
      */
+    playerControllerStartRecalibrationContext(requestParameters: PlayerControllerStartRecalibrationRequest): runtime.RequestOpts {
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+        return {
+            path: `/player/start_recalibration`,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+            body: GameserverStartRecalibrationDtoToJSON(requestParameters.gameserverStartRecalibrationDto),
+        };
+    }
+
+    /**
+     */
+    playerControllerStartRecalibration = async (gameserverStartRecalibrationDto: GameserverStartRecalibrationDto): Promise<void> => {
+        await this.playerControllerStartRecalibrationRaw({ gameserverStartRecalibrationDto: gameserverStartRecalibrationDto });
+    }
+
+    /**
+     */
     playerControllerUnDodgePlayerContext(requestParameters: PlayerControllerUnDodgePlayerRequest): runtime.RequestOpts {
         const queryParameters: any = {};
 
@@ -264,23 +294,6 @@ export class PlayerApi extends runtime.BaseAPI {
             query: queryParameters,
             body: GameserverDodgePlayerDtoToJSON(requestParameters.gameserverDodgePlayerDto),
         };
-    }
-
-    /**
-     */
-    playerControllerUnDodgePlayer = async (gameserverDodgePlayerDto: GameserverDodgePlayerDto): Promise<Array<GameserverDodgeListEntryDto>> => {
-        const response = await this.playerControllerUnDodgePlayerRaw({ gameserverDodgePlayerDto: gameserverDodgePlayerDto });
-        return await response.value();
-    }
-
-    /**
-     */
-    private async playerControllerAbandonSessionRaw(requestParameters: PlayerControllerAbandonSessionRequest): Promise<runtime.ApiResponse<void>> {
-        this.playerControllerAbandonSessionValidation(requestParameters);
-        const context = this.playerControllerAbandonSessionContext(requestParameters);
-        const response = await this.request(context);
-
-        return new runtime.VoidApiResponse(response);
     }
 
     /**
@@ -598,10 +611,9 @@ export class PlayerApi extends runtime.BaseAPI {
 
     /**
      */
-    private playerControllerAbandonSessionValidation(requestParameters: PlayerControllerAbandonSessionRequest) {
-        if (requestParameters.gameserverAbandonSessionDto === null || requestParameters.gameserverAbandonSessionDto === undefined) {
-            throw new runtime.RequiredError('gameserverAbandonSessionDto','Required parameter requestParameters.gameserverAbandonSessionDto was null or undefined when calling playerControllerAbandonSession.');
-        }
+    playerControllerUnDodgePlayer = async (gameserverDodgePlayerDto: GameserverDodgePlayerDto): Promise<Array<GameserverDodgeListEntryDto>> => {
+        const response = await this.playerControllerUnDodgePlayerRaw({ gameserverDodgePlayerDto: gameserverDodgePlayerDto });
+        return await response.value();
     }
 
     /**
@@ -626,6 +638,24 @@ export class PlayerApi extends runtime.BaseAPI {
 
     /**
      */
+    private async playerControllerAbandonSessionRaw(requestParameters: PlayerControllerAbandonSessionRequest): Promise<runtime.ApiResponse<void>> {
+        this.playerControllerAbandonSessionValidation(requestParameters);
+        const context = this.playerControllerAbandonSessionContext(requestParameters);
+        const response = await this.request(context);
+
+        return new runtime.VoidApiResponse(response);
+    }
+
+    /**
+     */
+    private playerControllerAbandonSessionValidation(requestParameters: PlayerControllerAbandonSessionRequest) {
+        if (requestParameters.gameserverAbandonSessionDto === null || requestParameters.gameserverAbandonSessionDto === undefined) {
+            throw new runtime.RequiredError('gameserverAbandonSessionDto','Required parameter requestParameters.gameserverAbandonSessionDto was null or undefined when calling playerControllerAbandonSession.');
+        }
+    }
+
+    /**
+     */
     private async playerControllerDodgePlayerRaw(requestParameters: PlayerControllerDodgePlayerRequest): Promise<runtime.ApiResponse<Array<GameserverDodgeListEntryDto>>> {
         this.playerControllerDodgePlayerValidation(requestParameters);
         const context = this.playerControllerDodgePlayerContext(requestParameters);
@@ -639,6 +669,24 @@ export class PlayerApi extends runtime.BaseAPI {
     private playerControllerDodgePlayerValidation(requestParameters: PlayerControllerDodgePlayerRequest) {
         if (requestParameters.gameserverDodgePlayerDto === null || requestParameters.gameserverDodgePlayerDto === undefined) {
             throw new runtime.RequiredError('gameserverDodgePlayerDto','Required parameter requestParameters.gameserverDodgePlayerDto was null or undefined when calling playerControllerDodgePlayer.');
+        }
+    }
+
+    /**
+     */
+    private async playerControllerGetDodgeListRaw(requestParameters: PlayerControllerGetDodgeListRequest): Promise<runtime.ApiResponse<Array<GameserverDodgeListEntryDto>>> {
+        this.playerControllerGetDodgeListValidation(requestParameters);
+        const context = this.playerControllerGetDodgeListContext(requestParameters);
+        const response = await this.request(context);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(GameserverDodgeListEntryDtoFromJSON));
+    }
+
+    /**
+     */
+    private playerControllerGetDodgeListValidation(requestParameters: PlayerControllerGetDodgeListRequest) {
+        if (requestParameters.steamId === null || requestParameters.steamId === undefined) {
+            throw new runtime.RequiredError('steamId','Required parameter requestParameters.steamId was null or undefined when calling playerControllerGetDodgeList.');
         }
     }
 
@@ -664,19 +712,19 @@ export class PlayerApi extends runtime.BaseAPI {
 
     /**
      */
-    private async playerControllerGetDodgeListRaw(requestParameters: PlayerControllerGetDodgeListRequest): Promise<runtime.ApiResponse<Array<GameserverDodgeListEntryDto>>> {
-        this.playerControllerGetDodgeListValidation(requestParameters);
-        const context = this.playerControllerGetDodgeListContext(requestParameters);
+    private async playerControllerStartRecalibrationRaw(requestParameters: PlayerControllerStartRecalibrationRequest): Promise<runtime.ApiResponse<void>> {
+        this.playerControllerStartRecalibrationValidation(requestParameters);
+        const context = this.playerControllerStartRecalibrationContext(requestParameters);
         const response = await this.request(context);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(GameserverDodgeListEntryDtoFromJSON));
+        return new runtime.VoidApiResponse(response);
     }
 
     /**
      */
-    private playerControllerGetDodgeListValidation(requestParameters: PlayerControllerGetDodgeListRequest) {
-        if (requestParameters.steamId === null || requestParameters.steamId === undefined) {
-            throw new runtime.RequiredError('steamId','Required parameter requestParameters.steamId was null or undefined when calling playerControllerGetDodgeList.');
+    private playerControllerStartRecalibrationValidation(requestParameters: PlayerControllerStartRecalibrationRequest) {
+        if (requestParameters.gameserverStartRecalibrationDto === null || requestParameters.gameserverStartRecalibrationDto === undefined) {
+            throw new runtime.RequiredError('gameserverStartRecalibrationDto','Required parameter requestParameters.gameserverStartRecalibrationDto was null or undefined when calling playerControllerStartRecalibration.');
         }
     }
 

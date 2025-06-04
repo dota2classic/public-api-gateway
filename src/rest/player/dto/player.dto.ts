@@ -68,6 +68,7 @@ export class PlayerStatsDto {
   assists: number;
 
   playtime: number;
+  recalibrationAttempted: boolean;
 
   mmr?: number;
   rank?: number;

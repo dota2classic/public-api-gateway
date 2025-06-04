@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  HttpException,
   Inject,
   Param,
   Post,
@@ -182,6 +183,24 @@ export class PlayerController {
     return this.ms
       .playerControllerGetDodgeList(user.steam_id)
       .then((list) => Promise.all(list.map(this.mapper.mapDodgeEntry)));
+  }
+
+  @OldGuard()
+  @WithUser()
+  @Post("/start_recalibration")
+  async startRecalibration(
+    @CurrentUser() user: CurrentUserDto,
+  ): Promise<PlayerSummaryDto> {
+    try {
+      return await this.ms
+        .playerControllerStartRecalibration({ steamId: user.steam_id })
+        .then(() => this.playerSummary(user.steam_id));
+    } catch (e) {
+      throw new HttpException(
+        { message: "Калибровку можно перезапускать 1 раз за сезон!" },
+        400,
+      );
+    }
   }
 
   @OldGuard()

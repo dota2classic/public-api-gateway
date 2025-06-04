@@ -35,6 +35,22 @@ async function bootstrap() {
   app.setGlobalPrefix("v1");
   app.useGlobalFilters(new EntityNotFoundErrorFilter());
 
+  // const d = await app.resolve(PrometheusDriver);
+  // const start = Date.now() - 1000 * 60 * 60 * 24 * 7; // 1 week ago
+  // const end = new Date();
+  // const step = 60 * 30; // 1 point every 30 min
+  // const utcHour = new Date().getUTCHours();
+  // const utcHour = 18; // 9pm
+  // const some = await d.rangeQuery(
+  //   `d2c_queue_time{mode="1", quantile="0.9"} and on() (hour() == ${utcHour})`,
+  //   start,
+  //   end,
+  //   step,
+  // );
+  // console.log(JSON.stringify(some, null, 2));
+  //
+  // return;
+
   const options = new DocumentBuilder()
     .setTitle("Public REST api for dota2classic")
     .setDescription("All stuff")

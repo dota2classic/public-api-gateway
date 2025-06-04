@@ -33,5 +33,6 @@ export * from './GameserverRecordType';
 export * from './GameserverReportPlayerDto';
 export * from './GameserverReportedMatrixDto';
 export * from './GameserverSmurfData';
+export * from './GameserverStartRecalibrationDto';
 export * from './GameserverUpdateGamemodeDto';
 export * from "../../mapped-models"
