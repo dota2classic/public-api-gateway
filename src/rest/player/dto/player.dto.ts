@@ -74,12 +74,20 @@ export class PlayerStatsDto {
   rank?: number;
 }
 
+export class RecalibrationDto {
+  id: number;
+  createdAt: string;
+  seasonId: number;
+}
+
 export class PlayerSummaryDto {
   user: UserDTO;
   banStatus: BanStatusDto;
 
   id: string;
   calibrationGamesLeft: number;
+
+  recalibration?: RecalibrationDto;
 
   seasonStats: PlayerStatsDto;
   overallStats: PlayerStatsDto;
