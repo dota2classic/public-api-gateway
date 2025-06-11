@@ -8,7 +8,6 @@ import {
 } from "@nestjs/common";
 import { Observable } from "rxjs";
 import { Request, Response } from "express";
-import { Cron, CronExpression } from "@nestjs/schedule";
 import { InjectMetric } from "@willsoto/nestjs-prometheus";
 import { Histogram } from "prom-client";
 import { PATH_METADATA, SSE_METADATA } from "@nestjs/common/constants";
@@ -54,10 +53,5 @@ export class ReqLoggingInterceptor implements NestInterceptor {
     });
 
     return next.handle();
-  }
-
-  @Cron(CronExpression.EVERY_4_HOURS)
-  private async resetMetrics() {
-    this.requestHistogram.reset();
   }
 }
