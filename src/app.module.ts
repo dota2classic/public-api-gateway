@@ -56,6 +56,7 @@ import { GetQueueStateQuery } from "./gateway/queries/QueueState/get-queue-state
 import {
   makeCounterProvider,
   makeGaugeProvider,
+  makeHistogramProvider,
   PrometheusModule,
 } from "@willsoto/nestjs-prometheus";
 import { CustomMetricsMiddleware } from "./middleware/custom-metrics.middleware";
@@ -484,6 +485,12 @@ import { ReportMapper } from "./rest/report/report.mapper";
       name: "app_duration_metrics",
       help: "app_concurrent_metrics_help",
       labelNames: ["app_method", "app_origin", "request_type", "status"],
+    }),
+    makeHistogramProvider({
+      name: "http_requests_duration_seconds",
+      help: "Duration of HTTP requests in seconds",
+      labelNames: ["method", "route", "request_type", "status_code"],
+      buckets: [0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1, 2, 5], // you can adjust buckets
     }),
     MetricsService,
   ],

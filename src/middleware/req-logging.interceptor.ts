@@ -6,13 +6,11 @@ import {
   Logger,
   NestInterceptor,
 } from "@nestjs/common";
-import { Observable, throwError } from "rxjs";
-import { catchError, tap } from "rxjs/operators";
+import { Observable } from "rxjs";
 import { Request, Response } from "express";
-import { CurrentUserDto } from "../utils/decorator/current-user";
 import { Cron, CronExpression } from "@nestjs/schedule";
 import { InjectMetric } from "@willsoto/nestjs-prometheus";
-import { Gauge } from "prom-client";
+import { Gauge, Histogram } from "prom-client";
 import { PATH_METADATA, SSE_METADATA } from "@nestjs/common/constants";
 import * as path from "path";
 
@@ -22,8 +20,8 @@ export class ReqLoggingInterceptor implements NestInterceptor {
 
   constructor(
     @InjectMetric("my_app_requests") public appGauge: Gauge<string>,
-    @InjectMetric("app_duration_metrics")
-    public customDurationGauge: Gauge<string>,
+    @InjectMetric("http_requests_duration_seconds")
+    public requestHistogram: Histogram<string>,
   ) {}
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
@@ -47,53 +45,22 @@ export class ReqLoggingInterceptor implements NestInterceptor {
       // const durationMillis = Date.now() - req["start"];
       const durationMillis = Date.now() - d0;
 
-      // console.log(
-      //   "Duration 1:",
-      //   durationMillis,
-      //   "Duration 2:",
-      //   Date.now() - d0,
-      // );
       this.appGauge.inc();
-      this.customDurationGauge
+      this.requestHistogram
         .labels(
           req.method,
           requestPath,
           isSSE ? "sse" : "request",
           req.res.statusCode.toString(),
         )
-        .set(durationMillis);
+        .observe(durationMillis);
     });
 
-    const user: CurrentUserDto | undefined = req.user as unknown as
-      | CurrentUserDto
-      | undefined;
-    const logMessage = {
-      user: user?.steam_id,
-      path: req.path,
-      method: req.method,
-      query: req.query,
-      params: req.params,
-      body: req.body,
-      status: res.statusCode,
-    };
-    // Handle the observable
-    return next.handle().pipe(
-      tap(() => {
-        // Log request details on success
-        req.url && this.logger.verbose(logMessage);
-      }),
-      catchError((error: any) => {
-        // we expect 404, it's not a failure for us.
-        req.url && this.logger.verbose(logMessage);
-
-        // other errors we don't know how to handle and throw them further.
-        return throwError(() => error);
-      }),
-    );
+    return next.handle();
   }
 
   @Cron(CronExpression.EVERY_4_HOURS)
   private async resetMetrics() {
-    this.customDurationGauge.reset();
+    this.requestHistogram.reset();
   }
 }

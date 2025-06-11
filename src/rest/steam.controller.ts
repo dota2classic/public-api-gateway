@@ -3,6 +3,7 @@ import {
   Get,
   Logger,
   Post,
+  Query,
   Req,
   Res,
   UseGuards,
@@ -40,6 +41,23 @@ export class SteamController {
     private readonly config: ConfigService,
     private readonly ebus: EventBus,
   ) {}
+
+  @Post("steam_session_ticket")
+  @ApiOkResponse({
+    description: "New token",
+    type: String,
+  })
+  public async steamSessionTicketToToken(
+    @Res() res: Response,
+    @Query("ticket") ticket: string,
+  ) {
+    const newToken =
+      await this.authService.authorizeSessionTokenLauncher(ticket);
+    if (!newToken) {
+      res.status(401).send();
+    }
+    res.status(200).send(newToken);
+  }
 
   @Post("refresh_token")
   @WithUser()

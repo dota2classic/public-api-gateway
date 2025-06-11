@@ -1,8 +1,11 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, Logger } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import { Role } from "../../gateway/shared-types/roles";
 import { UserProfileService } from "../../service/user-profile.service";
 import { UserDTO } from "../shared.dto";
+import { ConfigService } from "@nestjs/config";
+import * as qs from "querystring";
+import { steam64to32 } from "../../utils/steamIds";
 
 export interface JwtPayload {
   sub: string;
@@ -12,13 +15,26 @@ export interface JwtPayload {
   version?: "1";
 }
 
+interface SteamSessionTokenAuthResponse {
+  response: {
+    error?: {};
+    params?: {
+      result: "OK";
+      steamid: string;
+    };
+  };
+}
+
 @Injectable()
 export class AuthService {
+  private logger = new Logger(AuthService.name);
+
   // Seconds
   public static REFRESH_TOKEN_EXPIRES_IN = "4d";
   constructor(
     private readonly jwtService: JwtService,
     private readonly user: UserProfileService,
+    private readonly config: ConfigService,
   ) {}
 
   public async refreshToken(token: string) {
@@ -28,6 +44,34 @@ export class AuthService {
         expiresIn: AuthService.REFRESH_TOKEN_EXPIRES_IN,
       }),
     );
+  }
+
+  public async authorizeSessionTokenLauncher(
+    sessionToken: string,
+  ): Promise<string | undefined> {
+    const q = qs.stringify({
+      key: this.config.get("steam.key"),
+      ticket: sessionToken,
+      appid: 480,
+    });
+
+    try {
+      const res = await fetch(
+        `https://api.steampowered.com/ISteamUserAuth/AuthenticateUserTicket/v1/?${q}`,
+        {
+          method: "GET",
+        },
+      ).then((it) => it.json());
+
+      const star = res as SteamSessionTokenAuthResponse;
+      if (star.response.params.result === "OK") {
+        const steamId = star.response.params.steamid;
+        return this.createToken(steam64to32(steamId));
+      }
+    } catch (e) {
+      this.logger.error("Error validating steam sessson token", e);
+      return undefined;
+    }
   }
 
   public async createToken(
