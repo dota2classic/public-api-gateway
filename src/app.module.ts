@@ -54,8 +54,6 @@ import { ForumController } from "./rest/forum/forum.controller";
 import { ThrottlerModule } from "@nestjs/throttler";
 import { GetQueueStateQuery } from "./gateway/queries/QueueState/get-queue-state.query";
 import {
-  makeCounterProvider,
-  makeGaugeProvider,
   makeHistogramProvider,
   PrometheusModule,
 } from "@willsoto/nestjs-prometheus";
@@ -476,16 +474,6 @@ import { ReportMapper } from "./rest/report/report.mapper";
     },
 
     // grafana
-    makeCounterProvider({
-      name: "my_app_requests",
-      help: "The number of requests processed by the application",
-      labelNames: ["status"],
-    }),
-    makeGaugeProvider({
-      name: "app_duration_metrics",
-      help: "app_concurrent_metrics_help",
-      labelNames: ["app_method", "app_origin", "request_type", "status"],
-    }),
     makeHistogramProvider({
       name: "http_requests_duration_seconds",
       help: "Duration of HTTP requests in seconds",

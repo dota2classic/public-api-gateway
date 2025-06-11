@@ -10,7 +10,7 @@ import { Observable } from "rxjs";
 import { Request, Response } from "express";
 import { Cron, CronExpression } from "@nestjs/schedule";
 import { InjectMetric } from "@willsoto/nestjs-prometheus";
-import { Gauge, Histogram } from "prom-client";
+import { Histogram } from "prom-client";
 import { PATH_METADATA, SSE_METADATA } from "@nestjs/common/constants";
 import * as path from "path";
 
@@ -19,7 +19,6 @@ export class ReqLoggingInterceptor implements NestInterceptor {
   private readonly logger = new Logger("HTTP_REQUEST");
 
   constructor(
-    @InjectMetric("my_app_requests") public appGauge: Gauge<string>,
     @InjectMetric("http_requests_duration_seconds")
     public requestHistogram: Histogram<string>,
   ) {}
@@ -44,7 +43,6 @@ export class ReqLoggingInterceptor implements NestInterceptor {
     res.on("finish", () => {
       const durationSeconds = (performance.now() - d0) / 1000;
 
-      this.appGauge.inc();
       this.requestHistogram
         .labels(
           req.method,
