@@ -39,11 +39,10 @@ export class ReqLoggingInterceptor implements NestInterceptor {
 
     const isSSE = Reflect.getMetadata(SSE_METADATA, handler);
 
-    let d0 = Date.now();
+    let d0 = performance.now();
 
     res.on("finish", () => {
-      // const durationMillis = Date.now() - req["start"];
-      const durationMillis = Date.now() - d0;
+      const durationSeconds = (performance.now() - d0) / 1000;
 
       this.appGauge.inc();
       this.requestHistogram
@@ -53,7 +52,7 @@ export class ReqLoggingInterceptor implements NestInterceptor {
           isSSE ? "sse" : "request",
           req.res.statusCode.toString(),
         )
-        .observe(durationMillis);
+        .observe(durationSeconds);
     });
 
     return next.handle();
