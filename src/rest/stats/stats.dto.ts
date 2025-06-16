@@ -1,8 +1,8 @@
-import { MatchmakingMode } from "../../../gateway/shared-types/matchmaking-mode";
+import { MatchmakingMode } from "../../gateway/shared-types/matchmaking-mode";
 import { ApiProperty } from "@nestjs/swagger";
-import { Dota_GameMode } from "../../../gateway/shared-types/dota-game-mode";
-import { Dota_Map } from "../../../gateway/shared-types/dota-map";
-import { UserDTO } from "../../shared.dto";
+import { Dota_GameMode } from "../../gateway/shared-types/dota-game-mode";
+import { Dota_Map } from "../../gateway/shared-types/dota-map";
+import { UserDTO } from "../shared.dto";
 
 export class CurrentOnlineDto {
   inGame: number;
@@ -60,4 +60,8 @@ export class TwitchStreamDto {
   preview: string;
   viewers: number;
   user: UserDTO;
+}
+
+export class MaintenanceDto {
+  active: boolean;
 }

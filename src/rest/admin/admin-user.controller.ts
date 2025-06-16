@@ -39,7 +39,7 @@ import { PlayerBanHammeredEvent } from "../../gateway/events/bans/player-ban-ham
 import { NullableIntPipe } from "../../utils/pipes";
 import { AdminMapper } from "./admin.mapper";
 import { WithPagination } from "../../utils/decorator/pagination";
-import { MatchmakingInfo } from "../stats/dto/stats.dto";
+import { MatchmakingInfo } from "../stats/stats.dto";
 import { InjectS3, S3 } from "nestjs-s3";
 import { UserProfileService } from "../../service/user-profile.service";
 import { PlayerFlagsEntity } from "../../entity/player-flags.entity";

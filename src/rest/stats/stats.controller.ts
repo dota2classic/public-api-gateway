@@ -7,11 +7,12 @@ import {
 import {
   CurrentOnlineDto,
   GameSeasonDto,
+  MaintenanceDto,
   MatchmakingInfo,
   PerModePlayersDto,
   QueueTimeDto,
   TwitchStreamDto,
-} from "./dto/stats.dto";
+} from "./stats.dto";
 import { CacheTTL } from "@nestjs/cache-manager";
 import { ReqLoggingInterceptor } from "../../middleware/req-logging.interceptor";
 import { MatchmakingModes } from "../../gateway/shared-types/matchmaking-mode";
@@ -19,6 +20,9 @@ import { GlobalHttpCacheInterceptor } from "../../utils/cache-global";
 import { TwitchService } from "../twitch.service";
 import { StatsMapper } from "./stats.mapper";
 import { StatsService } from "./stats.service";
+import { MaintenanceEntity } from "../../entity/maintenance.entity";
+import { Repository } from "typeorm";
+import { InjectRepository } from "@nestjs/typeorm";
 
 @UseInterceptors(ReqLoggingInterceptor)
 @Controller("stats")
@@ -29,7 +33,23 @@ export class StatsController {
     private readonly twitch: TwitchService,
     private readonly mapper: StatsMapper,
     private readonly statsService: StatsService,
+    @InjectRepository(MaintenanceEntity)
+    private readonly maintenanceEntityRepository: Repository<MaintenanceEntity>,
   ) {}
+
+  @Get("/maintenance")
+  async maintenance(): Promise<MaintenanceDto> {
+    const m = await this.maintenanceEntityRepository.findOne({});
+    if (!m) {
+      return {
+        active: false,
+      };
+    }
+
+    return {
+      active: m.active,
+    };
+  }
 
   @UseInterceptors(GlobalHttpCacheInterceptor)
   @CacheTTL(300)

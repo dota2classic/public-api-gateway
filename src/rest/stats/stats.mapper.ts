@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { UserProfileService } from "../../service/user-profile.service";
 import { FullStreamInfo } from "../twitch.service";
-import { TwitchStreamDto } from "./dto/stats.dto";
+import { TwitchStreamDto } from "./stats.dto";
 
 @Injectable()
 export class StatsMapper {

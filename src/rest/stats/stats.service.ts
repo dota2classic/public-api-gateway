@@ -1,5 +1,5 @@
 import { Injectable, OnApplicationBootstrap } from "@nestjs/common";
-import { QueueTimeDto } from "./dto/stats.dto";
+import { QueueTimeDto } from "./stats.dto";
 import { range } from "../../utils/range";
 import { MatchmakingMode } from "../../gateway/shared-types/matchmaking-mode";
 import { avg } from "../../utils/average";
