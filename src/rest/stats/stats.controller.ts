@@ -37,6 +37,8 @@ export class StatsController {
     private readonly maintenanceEntityRepository: Repository<MaintenanceEntity>,
   ) {}
 
+  @UseInterceptors(GlobalHttpCacheInterceptor)
+  @CacheTTL(5)
   @Get("/maintenance")
   async maintenance(): Promise<MaintenanceDto> {
     const m = await this.maintenanceEntityRepository.find({});
