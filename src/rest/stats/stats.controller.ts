@@ -39,15 +39,15 @@ export class StatsController {
 
   @Get("/maintenance")
   async maintenance(): Promise<MaintenanceDto> {
-    const m = await this.maintenanceEntityRepository.findOne({});
-    if (!m) {
+    const m = await this.maintenanceEntityRepository.find({});
+    if (m.length === 0) {
       return {
         active: false,
       };
     }
 
     return {
-      active: m.active,
+      active: m[0].active,
     };
   }
 
