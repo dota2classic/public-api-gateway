@@ -33,14 +33,63 @@ const system = `
 Проблема пользователя иногда может звучать по другому, твоя задача найти подходящее решение из предоставленных, либо ответить в формате {"unknown": true}, если в списке нет подходящего решения
 `;
 
+const validationSystem = `
+Ты работаешь как фильтр для пользовательских постов.
+Проанализируй текст и определи, содержит ли он запрещённый или нежелательный контент.
+
+Пост может считаться **недопустимым**, если:
+
+* Является спамом или рекламой (включая продвижение товаров, ссылок, услуг);
+* Содержит нацистскую, фашистскую или иную экстремистскую тематику;
+* Призывает к насилию, вражде, дискриминации;
+* Нарушает нормы приличия (в т.ч. чрезмерно оскорбительный язык);
+* Содержит фальшивые конкурсы, розыгрыши, накрутку, «легкий заработок» и т.п.
+
+**Формат ответа — строго в JSON:**
+
+\`\`\`json
+{
+  "invalid": boolean,
+  "reason": "Краткое пояснение, почему пост не прошел валидацию. Если всё в порядке, оставь пустую строку."
+}
+\`\`\`
+
+Примеры:
+
+* Если пост — реклама криптоплатформы, верни:
+
+\`\`\`json
+{
+  "invalid": true,
+  "reason": "Спам/реклама — продвижение криптовалютной платформы"
+}
+\`\`\`
+
+* Если пост допустим, верни:
+
+\`\`\`json
+{
+  "invalid": false,
+  "reason": ""
+}
+\`\`\`
+
+Начни с анализа следующего текста:
+`;
 export interface AIMessageHistory {
   role: "system" | "assistant" | "user";
   content: string;
 }
+
 interface CompletionRequest {
   model: "gpt-4o-mini";
   response_format?: { type: "json_object" };
   messages: AIMessageHistory[];
+}
+
+interface ValidationResult {
+  invalid: boolean;
+  reason: string;
 }
 
 @Injectable()
@@ -55,6 +104,44 @@ export class FeedbackAssistantService {
         Authorization: `Bearer ${config.get("gpt.token")}`,
       },
     });
+  }
+
+  public async getValidationResult(content: string): Promise<ValidationResult> {
+    try {
+      const request: CompletionRequest = {
+        model: "gpt-4o-mini",
+        response_format: { type: "json_object" },
+        messages: [
+          {
+            role: "system",
+            content: validationSystem,
+          },
+          {
+            role: "user",
+            content: content,
+          },
+        ],
+      };
+
+      const res = await this.api.post<CompletionResponse>(
+        `/v1/chat/completions`,
+        request,
+      );
+
+      if (res.ok) {
+        return JSON.parse(res.data.choices[0].message.content);
+      }
+
+      return {
+        invalid: false,
+        reason: "",
+      };
+    } catch (e) {
+      return {
+        invalid: false,
+        reason: "",
+      };
+    }
   }
 
   public async getGptResponse(

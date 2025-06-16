@@ -14,18 +14,18 @@
 
 import { exists } from '../runtime';
 import {
-    GameserverLeaderboardEntryDto,
-    GameserverLeaderboardEntryDtoFromJSON,
-    GameserverLeaderboardEntryDtoToJSON,
-    GameserverMatchAccessLevel,
-    GameserverMatchAccessLevelFromJSON,
-    GameserverMatchAccessLevelToJSON,
-    GameserverPlayerAspectCountDto,
-    GameserverPlayerAspectCountDtoFromJSON,
-    GameserverPlayerAspectCountDtoToJSON,
-    GameserverRecalibrationDto,
-    GameserverRecalibrationDtoFromJSON,
-    GameserverRecalibrationDtoToJSON,
+  GameserverLeaderboardEntryDto,
+  GameserverLeaderboardEntryDtoFromJSON,
+  GameserverLeaderboardEntryDtoToJSON,
+  GameserverMatchAccessLevel,
+  GameserverMatchAccessLevelFromJSON,
+  GameserverMatchAccessLevelToJSON,
+  GameserverPlayerAspectCountDto,
+  GameserverPlayerAspectCountDtoFromJSON,
+  GameserverPlayerAspectCountDtoToJSON,
+  GameserverRecalibrationDto,
+  GameserverRecalibrationDtoFromJSON,
+  GameserverRecalibrationDtoToJSON,
 } from './';
 
 /**

@@ -147,7 +147,5 @@ export class ReportPlayerDto {
   @ApiProperty({ enum: PlayerAspect, enumName: "PlayerAspect" })
   aspect: PlayerAspect;
 
-  comment: string;
-
   matchId: number;
 }

@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   HttpException,
+  Logger,
   NotFoundException,
   Param,
   ParseBoolPipe,
@@ -62,11 +63,14 @@ import { BlogpostEntity } from "../../entity/blogpost.entity";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { CacheTTL } from "@nestjs/cache-manager";
+import { FeedbackAssistantService } from "../feedback/feedback-assistant.service";
 
 @UseInterceptors(ReqLoggingInterceptor)
 @Controller("forum")
 @ApiTags("forum")
 export class ForumController {
+  private readonly logger = new Logger(ForumController.name);
+
   constructor(
     private readonly ebus: EventBus,
     private readonly mapper: ForumMapper,
@@ -75,6 +79,7 @@ export class ForumController {
     private readonly liveMatchService: LiveMatchService,
     @InjectRepository(BlogpostEntity)
     private readonly blogpostEntityRepository: Repository<BlogpostEntity>,
+    private readonly feedbackAssistant: FeedbackAssistantService,
   ) {}
 
   @ApiParam({
@@ -407,6 +412,21 @@ export class ForumController {
     @Body() content: CreateThreadDTO,
     @CurrentUser() user: CurrentUserDto,
   ): Promise<ThreadDTO> {
+    const validation = await this.feedbackAssistant.getValidationResult(
+      content.title + "\n\n" + content.content,
+    );
+    if (validation.invalid) {
+      this.logger.log(
+        "Thread didn't complete validation! Reason: " + validation.reason,
+      );
+      throw new HttpException(
+        { message: "Пост не прошел проверку подерации" },
+        400,
+      );
+    }
+
+    this.logger.log("Creating valid thread", validation);
+
     const thread = await this.api.forumControllerGetThreadForKey({
       threadType: content.threadType,
       externalId: randomUUID(),

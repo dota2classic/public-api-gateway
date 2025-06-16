@@ -162,7 +162,6 @@ export class MatchController {
     await this.ps.playerControllerReportPlayer({
       reporterSteamId: user.steam_id,
       reportedSteamId: dto.steamId,
-      text: dto.comment,
       aspect: dto.aspect,
       matchId: dto.matchId,
     });
