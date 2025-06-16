@@ -71,6 +71,7 @@ export class PaymentService {
 
   public async createPayment(
     steamId: string,
+    email: string,
     productId: number,
   ): Promise<
     | { internal: UserPaymentEntity; external: CreatedYoukassaPayment }
@@ -86,6 +87,7 @@ export class PaymentService {
     let internalPayment = await this.userPaymentEntityRepository.save(
       new UserPaymentEntity(
         steamId,
+        email,
         product.price,
         product.id,
         PaymentStatus.CREATED,

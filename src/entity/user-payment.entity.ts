@@ -41,6 +41,11 @@ export class UserPaymentEntity {
   productId: number;
 
   @Column({
+    name: "email",
+  })
+  email: string;
+
+  @Column({
     type: "uuid",
     name: "payment_id",
     nullable: true,
@@ -73,11 +78,13 @@ export class UserPaymentEntity {
 
   constructor(
     steamId: string,
+    email: string,
     amount: number,
     productId: number,
     status: PaymentStatus,
   ) {
     this.steamId = steamId;
+    this.email = email;
     this.amount = amount;
     this.productId = productId;
     this.status = status;

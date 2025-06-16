@@ -32,6 +32,7 @@ export class UserPaymentsController {
   ): Promise<StartPaymentDto> {
     const p = await this.paymentService.createPayment(
       user.steam_id,
+      dto.email,
       dto.productId,
     );
     if (!p) {

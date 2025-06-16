@@ -1,3 +1,5 @@
+import { IsEmail } from "class-validator";
+
 export interface YoukassaWebhookNotification {
   type: "notification";
   event:
@@ -28,10 +30,9 @@ export interface YoukassaPayment {
   test: boolean;
 }
 
-
 export interface CreatedYoukassaPayment extends YoukassaPayment {
   confirmation: {
-    type: "redirect",
+    type: "redirect";
     confirmation_url: string;
   };
 }
@@ -87,8 +88,6 @@ export class StartPaymentDto {
   confirmationUrl: string;
 }
 
-
-
 export class SubscriptionProductDto {
   id: number;
   months: number;
@@ -96,7 +95,8 @@ export class SubscriptionProductDto {
   discount: number;
 }
 
-
 export class CreatePaymentDto {
   productId: number;
+  @IsEmail()
+  email: string;
 }
