@@ -20,4 +20,4 @@ jobs:
         uses: docker/build-push-action@v6.7.0
         with:
           push: true
-          tags: dota2classic/matchmaking:api-gateway
+          tags: dota2classic/matchmaking:api-gateway-k8s

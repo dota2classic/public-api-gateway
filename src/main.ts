@@ -1,4 +1,3 @@
-import { otelSDK } from "./tracer";
 import "./utils/promise";
 import { NestFactory } from "@nestjs/core";
 import { AppModule } from "./app.module";
@@ -19,8 +18,9 @@ import { EntityNotFoundErrorFilter } from "./middleware/typeorm-error-filter";
 
 async function bootstrap() {
   // Start SDK before nestjs factory create
-  await otelSDK.start();
+  // await otelSDK.start();
   const parsedConfig = configuration();
+  console.log(parsedConfig);
   const config = new ConfigService(parsedConfig);
 
   const app = await NestFactory.create(AppModule, {

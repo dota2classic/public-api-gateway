@@ -30,8 +30,6 @@ import { DiscordController } from "./rest/discord.controller";
 import { DiscordStrategy } from "./rest/strategy/discord.strategy";
 import { GetAllConnectionsQuery } from "./gateway/queries/GetAllConnections/get-all-connections.query";
 import { GetConnectionsQuery } from "./gateway/queries/GetConnections/get-connections.query";
-import { join } from "path";
-import { ServeStaticModule } from "@nestjs/serve-static";
 import { GetRoleSubscriptionsQuery } from "./gateway/queries/user/GetRoleSubscriptions/get-role-subscriptions.query";
 import { LiveMatchUpdateHandler } from "./cache/event-handler/live-match-update.handler";
 import { LiveMatchService } from "./cache/live-match.service";
@@ -211,10 +209,6 @@ import { ReportMapper } from "./rest/report/report.mapper";
     ]),
     TypeOrmModule.forFeature(Entities),
     ScheduleModule.forRoot(),
-    ServeStaticModule.forRoot({
-      rootPath: join(__dirname, "./upload"),
-      serveRoot: "/static/",
-    }),
     JwtModule.registerAsync({
       useFactory(config: ConfigService): JwtModuleOptions {
         return {
