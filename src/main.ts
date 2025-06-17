@@ -7,12 +7,13 @@ import { Transport } from "@nestjs/microservices";
 import { INestApplication, Logger, ValidationPipe } from "@nestjs/common";
 import { EventBus } from "@nestjs/cqrs";
 import { LiveMatchUpdateEvent } from "./gateway/events/gs/live-match-update.event";
-import { WinstonWrapper } from "@dota2classic/nest_logger";
+// import { WinstonWrapper } from "@dota2classic/nest_logger";
 import configuration from "./config/configuration";
 import { ConfigService } from "@nestjs/config";
 import { DataSource } from "typeorm";
 import { getS3ConnectionToken, S3 } from "nestjs-s3";
 import { EntityNotFoundErrorFilter } from "./middleware/typeorm-error-filter";
+import { WinstonWrapper } from "./logger";
 
 // import duration from 'dayjs/plugin/duration' // ES 2015
 
@@ -24,13 +25,7 @@ async function bootstrap() {
   const config = new ConfigService(parsedConfig);
 
   const app = await NestFactory.create(AppModule, {
-    logger: new WinstonWrapper(
-      config.get("fluentbit.host"),
-      config.get<number>("fluentbit.port"),
-      config.get<string>("fluentbit.application"),
-      config.get<boolean>("fluentbit.disabled"),
-      config.get<boolean>("fluentbit.noStdout"),
-    ),
+    logger: new WinstonWrapper(config.get<string>("fluentbit.application")),
   });
   app.setGlobalPrefix("v1");
   app.useGlobalFilters(new EntityNotFoundErrorFilter());
