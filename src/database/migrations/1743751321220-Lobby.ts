@@ -11,7 +11,6 @@ CREATE TABLE public.lobby_entity (
     "gameMode" int4 DEFAULT 1 NOT NULL,
     owner_steam_id varchar NOT NULL,
     "map" varchar DEFAULT 'dota'::character varying NOT NULL,
-    "name" text DEFAULT 'Лобби'::text NOT NULL,
     CONSTRAINT "PK_32247bff818222945f5587dfabf" PRIMARY KEY (id)
 );
 `);
