@@ -11,6 +11,7 @@ import { ConfigService } from "@nestjs/config";
 import { DataSource } from "typeorm";
 import { getS3ConnectionToken, S3 } from "nestjs-s3";
 import { EntityNotFoundErrorFilter } from "./middleware/typeorm-error-filter";
+import { FastifyAdapter } from "@nestjs/platform-fastify";
 
 // import duration from 'dayjs/plugin/duration' // ES 2015
 
@@ -20,7 +21,7 @@ async function bootstrap() {
   const parsedConfig = configuration();
   const config = new ConfigService(parsedConfig);
 
-  const app = await NestFactory.create(AppModule, {
+  const app = await NestFactory.create(AppModule, new FastifyAdapter(), {
     logger: new WinstonWrapper(
       config.get("fluentbit.host"),
       config.get<number>("fluentbit.port"),
