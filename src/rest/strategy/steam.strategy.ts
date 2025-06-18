@@ -1,5 +1,5 @@
 import { PassportStrategy } from "@nestjs/passport";
-import { Strategy as SteamStrategyT } from "modern-passport-steam";
+import { Strategy as SteamStrategyT } from "@dota2classic/passport_steam";
 import { Injectable, Logger } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 

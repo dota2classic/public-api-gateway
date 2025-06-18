@@ -19,6 +19,8 @@ export class SteamAuthGuard extends AuthGuard("steam") {
   ) {
     const res = context.switchToHttp().getResponse() as Response;
 
+    console.log("Handling", err, user, info);
+
     const isSteamFuckFest =
       err &&
       (typeof err["message"] === "string" ? err["message"] : "").includes(
