@@ -36,7 +36,7 @@
   "dependencies": {
     "@aws-sdk/client-s3": "^3.722.0",
     "@dota2classic/caches": "^0.0.19",
-    "@dota2classic/nest_logger": "@0.0.10",
+    "@dota2classic/nest_logger": "0.0.10",
     "@fastify/cookie": "^7.4.0",
     "@fastify/static": "^6.9.0",
     "@keyv/redis": "^4.3.3",
