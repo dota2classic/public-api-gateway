@@ -37,6 +37,6 @@ export class SteamAuthGuard extends AuthGuard("steam") {
     if (err || !user) {
       throw new HttpException(err.message, err.status);
     }
-    return user;
+    return user.profile;
   }
 }
