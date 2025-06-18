@@ -27,7 +27,7 @@ export class SteamAuthGuard extends AuthGuard("steam") {
     if (isSteamFuckFest) {
       res
         .status(302)
-        .redirect(`${this.config.get("api.frontUrl")}/steam-auth-error`);
+        .redirect(`${this.config.get("api.frontUrl")}/steam-auth-error`, 302);
       return;
     }
     if (err || !user) {

@@ -49,6 +49,7 @@ export class DiscordController {
       .status(302)
       .redirect(
         `${this.config.get("api.frontUrl")}/player/${numericalSteamId}`,
+        302,
       );
   }
 }

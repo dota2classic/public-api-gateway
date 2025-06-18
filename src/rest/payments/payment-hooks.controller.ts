@@ -56,6 +56,6 @@ export class PaymentHooksController {
   ) {
     res
       .status(302)
-      .redirect(`${this.config.get("api.frontUrl")}/players/${steamId}`);
+      .redirect(`${this.config.get("api.frontUrl")}/players/${steamId}`, 302);
   }
 }

@@ -64,6 +64,6 @@ export class TwitchController {
 
     res
       .status(302)
-      .redirect(`${this.config.get("api.frontUrl")}/players/${steam_id}`);
+      .redirect(`${this.config.get("api.frontUrl")}/players/${steam_id}`, 302);
   }
 }
