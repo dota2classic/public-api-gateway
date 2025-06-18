@@ -35,6 +35,7 @@ export class SteamController {
 
   public static TOKEN_COOKIE_OPTIONS: CookieOptions = {
     maxAge: 1000 * 60 * 60 * 24 * 30,
+    httpOnly: false,
   };
   constructor(
     private readonly jwtService: JwtService,
