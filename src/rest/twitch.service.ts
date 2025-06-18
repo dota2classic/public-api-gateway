@@ -33,7 +33,7 @@ export interface FullStreamInfo {
 
 @Injectable()
 export class TwitchService implements OnApplicationBootstrap {
-  private _streams: FullStreamInfo[];
+  private _streams: FullStreamInfo[] = [];
   private logger = new Logger(TwitchService.name);
 
   private oauth: ApisauceInstance;
@@ -65,6 +65,7 @@ export class TwitchService implements OnApplicationBootstrap {
 
   @Cron(CronExpression.EVERY_MINUTE)
   private async fetchLivestreams() {
+    // return
     try {
       this._streams = await this.getLiveStreamingDota();
     } catch (e) {

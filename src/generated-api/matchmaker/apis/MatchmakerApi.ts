@@ -18,8 +18,8 @@ import * as runtime from "../runtime";
 import {
   MatchmakerGetPartyQueryResultDto,
   MatchmakerGetPartyQueryResultDtoFromJSON,
-  MatchmakerGetUserRoomQueryResultRoomInfo,
-  MatchmakerGetUserRoomQueryResultRoomInfoFromJSON,
+  MatchmakerPlayerRoomDto,
+  MatchmakerPlayerRoomDtoFromJSON,
 } from "../models";
 
 export interface MatchmakerApiControllerGetUserPartyRequest {
@@ -34,6 +34,23 @@ export interface MatchmakerApiControllerGetUserRoomRequest {
  *
  */
 export class MatchmakerApi extends runtime.BaseAPI {
+
+    /**
+     */
+    matchmakerApiControllerGetUserRoom = async (id: string): Promise<MatchmakerPlayerRoomDto> => {
+        const response = await this.matchmakerApiControllerGetUserRoomRaw({ id: id });
+        return await response.value();
+    }
+
+    /**
+     */
+    private async matchmakerApiControllerGetUserPartyRaw(requestParameters: MatchmakerApiControllerGetUserPartyRequest): Promise<runtime.ApiResponse<MatchmakerGetPartyQueryResultDto>> {
+        this.matchmakerApiControllerGetUserPartyValidation(requestParameters);
+        const context = this.matchmakerApiControllerGetUserPartyContext(requestParameters);
+        const response = await this.request(context);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => MatchmakerGetPartyQueryResultDtoFromJSON(jsonValue));
+    }
 
     /**
      */
@@ -59,6 +76,24 @@ export class MatchmakerApi extends runtime.BaseAPI {
 
     /**
      */
+    private matchmakerApiControllerGetUserPartyValidation(requestParameters: MatchmakerApiControllerGetUserPartyRequest) {
+        if (requestParameters.id === null || requestParameters.id === undefined) {
+            throw new runtime.RequiredError('id','Required parameter requestParameters.id was null or undefined when calling matchmakerApiControllerGetUserParty.');
+        }
+    }
+
+    /**
+     */
+    private async matchmakerApiControllerGetUserRoomRaw(requestParameters: MatchmakerApiControllerGetUserRoomRequest): Promise<runtime.ApiResponse<MatchmakerPlayerRoomDto>> {
+        this.matchmakerApiControllerGetUserRoomValidation(requestParameters);
+        const context = this.matchmakerApiControllerGetUserRoomContext(requestParameters);
+        const response = await this.request(context);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => MatchmakerPlayerRoomDtoFromJSON(jsonValue));
+    }
+
+    /**
+     */
     matchmakerApiControllerGetUserRoomContext(requestParameters: MatchmakerApiControllerGetUserRoomRequest): runtime.RequestOpts {
         const queryParameters: any = {};
 
@@ -70,41 +105,6 @@ export class MatchmakerApi extends runtime.BaseAPI {
             headers: headerParameters,
             query: queryParameters,
         };
-    }
-
-    /**
-     */
-    matchmakerApiControllerGetUserRoom = async (id: string): Promise<MatchmakerGetUserRoomQueryResultRoomInfo> => {
-        const response = await this.matchmakerApiControllerGetUserRoomRaw({ id: id });
-        return await response.value();
-    }
-
-    /**
-     */
-    private async matchmakerApiControllerGetUserPartyRaw(requestParameters: MatchmakerApiControllerGetUserPartyRequest): Promise<runtime.ApiResponse<MatchmakerGetPartyQueryResultDto>> {
-        this.matchmakerApiControllerGetUserPartyValidation(requestParameters);
-        const context = this.matchmakerApiControllerGetUserPartyContext(requestParameters);
-        const response = await this.request(context);
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => MatchmakerGetPartyQueryResultDtoFromJSON(jsonValue));
-    }
-
-    /**
-     */
-    private matchmakerApiControllerGetUserPartyValidation(requestParameters: MatchmakerApiControllerGetUserPartyRequest) {
-        if (requestParameters.id === null || requestParameters.id === undefined) {
-            throw new runtime.RequiredError('id','Required parameter requestParameters.id was null or undefined when calling matchmakerApiControllerGetUserParty.');
-        }
-    }
-
-    /**
-     */
-    private async matchmakerApiControllerGetUserRoomRaw(requestParameters: MatchmakerApiControllerGetUserRoomRequest): Promise<runtime.ApiResponse<MatchmakerGetUserRoomQueryResultRoomInfo>> {
-        this.matchmakerApiControllerGetUserRoomValidation(requestParameters);
-        const context = this.matchmakerApiControllerGetUserRoomContext(requestParameters);
-        const response = await this.request(context);
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => MatchmakerGetUserRoomQueryResultRoomInfoFromJSON(jsonValue));
     }
 
     /**

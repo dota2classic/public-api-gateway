@@ -34,23 +34,23 @@ export class SocketMessageService {
     private readonly qbus: QueryBus,
     private readonly user: UserProfileService,
     private readonly party: PartyService,
-    private readonly mmApi: MatchmakerApi,
+    private readonly matchmakerApi: MatchmakerApi,
     private readonly playerApi: PlayerApi,
   ) {}
 
   async playerRoomState(
     steamId: string,
   ): Promise<PlayerRoomStateMessageS2C | undefined> {
-    const roomStateInfo =
-      await this.mmApi.matchmakerApiControllerGetUserRoom(steamId);
+    const room =
+      await this.matchmakerApi.matchmakerApiControllerGetUserRoom(steamId);
 
     // this thing is for "ready check state"
-    if (!roomStateInfo) return undefined;
+    if (!room.room) return undefined;
 
     return new PlayerRoomStateMessageS2C(
-      roomStateInfo.roomId,
-      roomStateInfo.mode,
-      roomStateInfo.entries.map(
+      room.room.roomId,
+      room.room.mode,
+      room.room.entries.map(
         (it) =>
           new PlayerRoomEntry(
             it.steamId,
