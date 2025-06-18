@@ -71,7 +71,6 @@ export class PlayerController {
   @WithUser()
   @CacheTTL(5)
   async me(@CurrentUser() user: CurrentUserDto): Promise<MeDto> {
-    console.log("Non-cache");
     const [summary, banStatus, reportsAvailable] = await Promise.combine([
       this.ms.playerControllerPlayerSummary(user.steam_id),
       this.ms.playerControllerBanInfo(user.steam_id),
