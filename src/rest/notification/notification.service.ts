@@ -70,6 +70,7 @@ export class NotificationService {
   }
 
   public async notify(payload: any, subs: WebpushSubscriptionEntity[]) {
+    return { send: 0, successful: 0 };
     const pushPayload = JSON.stringify(payload);
     const prom = subs.map((subscription) => {
       return webpush
