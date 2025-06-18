@@ -78,7 +78,7 @@ async function bootstrap() {
   });
   // app.use(cookieParser());
 
-  await app.listen(6001);
+  await app.listen(6001, "0.0.0.0");
 
   await app.startAllMicroservices();
 
