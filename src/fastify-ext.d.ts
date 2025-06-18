@@ -1,5 +1,5 @@
 // fastify.d.ts
-import 'fastify';
+import "fastify";
 
 declare module "fastify" {
   export interface CookieSerializeOptions {
@@ -22,5 +22,11 @@ declare module "fastify" {
       value: string,
       options?: CookieSerializeOptions,
     ): this;
+  }
+
+  interface FastifyRequest {
+    cookies: {
+      [key: string]: string;
+    };
   }
 }

@@ -15,7 +15,7 @@ import { TOKEN_KEY } from "../utils/env";
 import { ApiExcludeEndpoint, ApiOkResponse, ApiTags } from "@nestjs/swagger";
 import { UserLoggedInEvent } from "../gateway/events/user/user-logged-in.event";
 import { PlayerId } from "../gateway/shared-types/player-id";
-import { CookieOptions, Request, Response } from "express";
+import { CookieOptions, Response } from "express";
 import {
   AccessToken,
   CurrentUser,
@@ -26,7 +26,7 @@ import { WithUser } from "../utils/decorator/with-user";
 import { ConfigService } from "@nestjs/config";
 import { EventBus } from "@nestjs/cqrs";
 import { SteamAuthGuard } from "./strategy/steam-auth.guard";
-import { FastifyReply } from "fastify";
+import { FastifyReply, FastifyRequest } from "fastify";
 
 @Controller("auth/steam")
 @ApiTags("auth")
@@ -88,19 +88,39 @@ export class SteamController {
   @Get("callback")
   @ApiExcludeEndpoint()
   @UseGuards(SteamAuthGuard)
-  async steamAuthRequest(
-    @Req() req: Request & { user?: any },
-    @Res() res: Response,
-  ) {
-    const steam32id = steam64to32(req.user!!._json.steamid);
+  async steamAuthRequest(@Req() req: FastifyRequest, @Res() res: FastifyReply) {
+    const usr = (req as unknown as any)["user"] as {
+      _json: {
+        steamid: string;
+        communityvisibilitystate: number;
+        profilestate: number;
+        personaname: string;
+        commentpermission: number;
+        profileurl: string;
+        avatar: string;
+        avatarmedium: string;
+        avatarfull: string;
+        avatarhash: string;
+        lastlogoff: number;
+        personastate: number;
+        realname: string;
+        primaryclanid: string;
+        timecreated: number;
+        personastateflags: number;
+        loccountrycode: string;
+        locstatecode: string;
+      };
+    };
+    const steam32id = steam64to32(usr!!._json.steamid);
+    this.logger.log("Login user", usr!!._json);
 
     this.logger.log("Login: cookies", req.cookies);
 
     this.ebus.publish(
       new UserLoggedInEvent(
         new PlayerId(steam32id),
-        req.user!!._json.personaname,
-        req.user!!._json.avatarfull,
+        usr!!._json.personaname,
+        usr!!._json.avatarfull,
         req.cookies["d2c:referral"],
       ),
     );
@@ -111,14 +131,14 @@ export class SteamController {
 
     const token = await this.authService.createToken(
       steam32id,
-      req.user!!._json.personaname,
-      req.user!!._json.avatarfull,
+      usr!!._json.personaname,
+      usr!!._json.avatarfull,
     );
 
     const redirectPath = isStoreRedirect ? "/store" : `/players/${steam32id}`;
 
     res
-      .cookie(TOKEN_KEY, token, SteamController.TOKEN_COOKIE_OPTIONS) // 30 days expires
+      .setCookie(TOKEN_KEY, token, SteamController.TOKEN_COOKIE_OPTIONS) // 30 days expires
       .redirect(`${this.config.get("api.frontUrl")}${redirectPath}`);
   }
 }
