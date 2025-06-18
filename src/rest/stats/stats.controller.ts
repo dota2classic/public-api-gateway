@@ -54,7 +54,7 @@ export class StatsController {
   }
 
   @UseInterceptors(GlobalHttpCacheInterceptor)
-  @CacheTTL(300)
+  @CacheTTL(30)
   @Get("/matchmaking")
   async getMatchmakingInfo(): Promise<MatchmakingInfo[]> {
     const [modes, queueTimes] = await Promise.combine([
@@ -88,7 +88,7 @@ export class StatsController {
   }
 
   @UseInterceptors(GlobalHttpCacheInterceptor)
-  @CacheTTL(60_000)
+  @CacheTTL(60 * 60) // 1 hr
   @Get("/seasons")
   async getGameSeasons(): Promise<GameSeasonDto[]> {
     return this.ms.infoControllerGetSeasons();
@@ -96,7 +96,7 @@ export class StatsController {
 
   @UseInterceptors(GlobalHttpCacheInterceptor)
   @Get("/online")
-  @CacheTTL(1000)
+  @CacheTTL(10) // 10 seconds
   async online(): Promise<CurrentOnlineDto> {
     const [online, sessions, servers] = await Promise.all<any>([
       this.ms.infoControllerGetCurrentOnline(),

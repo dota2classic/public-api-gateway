@@ -1,4 +1,5 @@
 export * from "./MatchmakingMode";
+export * from "./MMMatchmakingMode";
 export * from "./ThreadType";
 export * from "./Dota_GameMode";
 export * from "./Dota_Map";

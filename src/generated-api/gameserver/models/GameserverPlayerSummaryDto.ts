@@ -23,6 +23,9 @@ import {
   GameserverPlayerAspectCountDto,
   GameserverPlayerAspectCountDtoFromJSON,
   GameserverPlayerAspectCountDtoToJSON,
+  GameserverPlayerGameSessionDto,
+  GameserverPlayerGameSessionDtoFromJSON,
+  GameserverPlayerGameSessionDtoToJSON,
   GameserverRecalibrationDto,
   GameserverRecalibrationDtoFromJSON,
   GameserverRecalibrationDtoToJSON,
@@ -66,6 +69,12 @@ export class GameserverPlayerSummaryDto {
     recalibration?: GameserverRecalibrationDto;
     /**
      *
+     * @type {GameserverPlayerGameSessionDto}
+     * @memberof GameserverPlayerSummaryDto
+     */
+    session?: GameserverPlayerGameSessionDto;
+    /**
+     *
      * @type {number}
      * @memberof GameserverPlayerSummaryDto
      */
@@ -93,6 +102,7 @@ export function GameserverPlayerSummaryDtoFromJSONTyped(json: any, ignoreDiscrim
         'season': GameserverLeaderboardEntryDtoFromJSON(json['season']),
         'overall': GameserverLeaderboardEntryDtoFromJSON(json['overall']),
         'recalibration': !exists(json, 'recalibration') ? undefined : GameserverRecalibrationDtoFromJSON(json['recalibration']),
+        'session': !exists(json, 'session') ? undefined : GameserverPlayerGameSessionDtoFromJSON(json['session']),
         'calibrationGamesLeft': json['calibrationGamesLeft'],
         'reports': ((json['reports'] as Array<any>).map(GameserverPlayerAspectCountDtoFromJSON)),
     };
@@ -112,6 +122,7 @@ export function GameserverPlayerSummaryDtoToJSON(value?: GameserverPlayerSummary
         'season': GameserverLeaderboardEntryDtoToJSON(value.season),
         'overall': GameserverLeaderboardEntryDtoToJSON(value.overall),
         'recalibration': GameserverRecalibrationDtoToJSON(value.recalibration),
+        'session': GameserverPlayerGameSessionDtoToJSON(value.session),
         'calibrationGamesLeft': value.calibrationGamesLeft,
         'reports': ((value.reports as Array<any>).map(GameserverPlayerAspectCountDtoToJSON)),
     };

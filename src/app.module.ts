@@ -14,14 +14,12 @@ import {
   RmqOptions,
   Transport,
 } from "@nestjs/microservices";
-import { GetAllQuery } from "./gateway/queries/GetAll/get-all.query";
 import { GetUserInfoQuery } from "./gateway/queries/GetUserInfo/get-user-info.query";
 import { CqrsModule } from "@nestjs/cqrs";
 import { MatchMapper } from "./rest/match/match.mapper";
 import { PlayerController } from "./rest/player/player.controller";
 import { PlayerMapper } from "./rest/player/player.mapper";
 import { JwtStrategy } from "./rest/strategy/jwt.strategy";
-import { GetPartyQuery } from "./gateway/queries/GetParty/get-party.query";
 import { ServerController } from "./rest/admin/server.controller";
 import { AdminMapper } from "./rest/admin/admin.mapper";
 import { EventController } from "./event.controller";
@@ -67,7 +65,6 @@ import { MatchFinishedHandler } from "./cache/event-handler/match-finished.handl
 import { NotificationController } from "./rest/notification/notification.controller";
 import { ReadyCheckStartedHandler } from "./cache/event-handler/ready-check-started.handler";
 import { NotificationService } from "./rest/notification/notification.service";
-import { GetSessionByUserQuery } from "./gateway/queries/GetSessionByUser/get-session-by-user.query";
 import { SocketGateway } from "./socket/socket.gateway";
 import { PartyService } from "./rest/party.service";
 import { ReadyStateUpdatedHandler } from "./socket/event-handler/ready-state-updated.handler";
@@ -80,7 +77,6 @@ import { MatchStartedHandler } from "./socket/event-handler/match-started.handle
 import { MatchCancelledHandler } from "./socket/event-handler/match-cancelled.handler";
 import { SocketDelivery } from "./socket/socket-delivery";
 import { SocketMessageService } from "./socket/socket-message.service";
-import { GetUserRoomQuery } from "./gateway/queries/GetUserRoom/get-user-room.query";
 import { GetPartyInvitationsQuery } from "./gateway/queries/GetPartyInvitations/get-party-invitations.query";
 import { RoomNotReadyHandler } from "./socket/event-handler/room-not-ready.handler";
 import { MatchFinishedHandler as SocketMatchFinishedHandler } from "./socket/event-handler/match-finished.handler";
@@ -124,7 +120,6 @@ import {
   UserProfileModule as UPM,
   UserProfileModule as UMP,
 } from "@dota2classic/caches";
-import { FindByNameQuery } from "./gateway/queries/FindByName/find-by-name.query";
 import { getTypeormConfig } from "./config/typeorm.config";
 import { PlayerReportBanCreatedHandler } from "./rest/notification/event-handler/player-report-ban-created.handler";
 import { TwitchController } from "./rest/twitch.controller";
@@ -229,7 +224,7 @@ import { ReportMapper } from "./rest/report/report.mapper";
     CacheModule.registerAsync({
       useFactory(config: ConfigService): CacheModuleOptions {
         return {
-          ttl: 60,
+          ttl: 10,
           store: redisStore,
           port: 6379,
           url: `redis://${config.get("redis.host")}:6379`,
@@ -372,18 +367,13 @@ import { ReportMapper } from "./rest/report/report.mapper";
       inject: [ConfigService],
     },
     outerQueryNew(GetQueueStateQuery, "QueryCore"),
-    outerQueryNew(GetAllQuery, "QueryCore"),
     outerQueryNew(GetUserInfoQuery, "QueryCore"),
-    outerQueryNew(GetPartyQuery, "QueryCore"),
     outerQueryNew(GetAllConnectionsQuery, "QueryCore"),
     outerQueryNew(GetConnectionsQuery, "QueryCore"),
     outerQueryNew(GetReportsAvailableQuery, "QueryCore"),
     outerQueryNew(GetRoleSubscriptionsQuery, "QueryCore"),
     outerQueryNew(GetPlayerInfoQuery, "QueryCore"),
-    outerQueryNew(GetSessionByUserQuery, "QueryCore"),
-    outerQueryNew(GetUserRoomQuery, "QueryCore"),
     outerQueryNew(GetPartyInvitationsQuery, "QueryCore"),
-    outerQueryNew(FindByNameQuery, "QueryCore"),
 
     SteamStrategy,
     JwtStrategy,

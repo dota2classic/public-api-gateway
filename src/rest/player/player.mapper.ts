@@ -6,6 +6,7 @@ import {
   GameserverLeaderboardEntryDto,
   GameserverPlayerSummaryDto,
   GameserverPlayerTeammateDto,
+  GameserverReportsAvailableDto,
 } from "../../generated-api/gameserver/models";
 import {
   DodgeListEntryDto,
@@ -17,17 +18,14 @@ import {
   PlayerTeammateDto,
 } from "./dto/player.dto";
 import { numSteamId } from "../../utils/steamIds";
-import { GetPartyQueryResult } from "../../gateway/queries/GetParty/get-party-query.result";
 import { PartyDto, PartyMemberDTO } from "./dto/party.dto";
-import { GetReportsAvailableQueryResult } from "../../gateway/queries/GetReportsAvailable/get-reports-available-query.result";
-import { TournamentTeamDto } from "../../generated-api/tournament/models";
 import { RoleLifetimeDto, UserDTO } from "../shared.dto";
 import { AchievementDto } from "./dto/achievement.dto";
 import { MatchMapper } from "../match/match.mapper";
-import { GetSessionByUserQueryResult } from "../../gateway/queries/GetSessionByUser/get-session-by-user-query.result";
 import { MatchAccessLevel } from "../../gateway/shared-types/match-access-level";
 import { UserProfileService } from "../../service/user-profile.service";
 import { RoleLifetime } from "../../gateway/caches/user-fast-profile.dto";
+import { MatchmakerGetPartyQueryResultDto } from "../../generated-api/matchmaker";
 
 @Injectable()
 export class PlayerMapper {
@@ -74,8 +72,7 @@ export class PlayerMapper {
   public mapMe = async (
     it: GameserverPlayerSummaryDto,
     status: GameserverBanStatusDto,
-    team: TournamentTeamDto | undefined,
-    reports?: GetReportsAvailableQueryResult,
+    reports?: GameserverReportsAvailableDto,
   ): Promise<MeDto> => {
     const user = await this.userRepository.userDto(it.steamId);
     return {
@@ -88,7 +85,7 @@ export class PlayerMapper {
         bannedUntil: status.bannedUntil,
         status: status.status,
       },
-      reportsAvailable: reports?.available || 0,
+      reportsAvailable: reports?.count || 0,
     };
   };
 
@@ -137,10 +134,9 @@ export class PlayerMapper {
   });
 
   public mapParty = async (
-    party: GetPartyQueryResult,
+    party: MatchmakerGetPartyQueryResultDto,
     banStatuses: GameserverBanStatusDto[],
     summaries: GameserverPlayerSummaryDto[],
-    sessions: { result: GetSessionByUserQueryResult; steamId: string }[],
   ): Promise<PartyDto> => {
     return {
       id: party.partyId,
@@ -150,10 +146,9 @@ export class PlayerMapper {
         party.players.map(async (plr) => {
           const status = banStatuses.find((t) => t.steam_id === plr);
           const summary = summaries.find((t) => t.steamId === plr);
-          const session = sessions.find((t) => t.steamId === plr);
 
           return {
-            session: session?.result?.serverUrl,
+            session: summary.session,
             summary: await this.mapPlayerSummary(summary, status),
           } satisfies PartyMemberDTO;
         }),

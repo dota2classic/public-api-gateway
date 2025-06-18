@@ -14,6 +14,10 @@ import {
   ForumApi,
 } from "../generated-api/forum";
 import { PrometheusDriver } from "prometheus-query";
+import {
+  Configuration as MConfiguration,
+  MatchmakerApi,
+} from "../generated-api/matchmaker";
 
 @Global()
 @Module({
@@ -91,6 +95,15 @@ import { PrometheusDriver } from "prometheus-query";
       },
       inject: [ConfigService],
     },
+    {
+      provide: MatchmakerApi,
+      useFactory: (config: ConfigService) => {
+        return new MatchmakerApi(
+          new MConfiguration({ basePath: config.get("api.matchmakerApiUrl") }),
+        );
+      },
+      inject: [ConfigService],
+    },
   ],
   exports: [
     MatchApi,
@@ -100,6 +113,7 @@ import { PrometheusDriver } from "prometheus-query";
     InfoApi,
     RecordApi,
     ForumApi,
+    MatchmakerApi,
     PrometheusDriver,
   ],
 })

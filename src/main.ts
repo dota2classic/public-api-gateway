@@ -1,13 +1,10 @@
-import { otelSDK } from "./tracer";
 import "./utils/promise";
 import { NestFactory } from "@nestjs/core";
 import { AppModule } from "./app.module";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 import * as cookieParser from "cookie-parser";
 import { Transport } from "@nestjs/microservices";
-import { INestApplication, Logger, ValidationPipe } from "@nestjs/common";
-import { EventBus } from "@nestjs/cqrs";
-import { LiveMatchUpdateEvent } from "./gateway/events/gs/live-match-update.event";
+import { INestApplication, ValidationPipe } from "@nestjs/common";
 import { WinstonWrapper } from "@dota2classic/nest_logger";
 import configuration from "./config/configuration";
 import { ConfigService } from "@nestjs/config";
@@ -19,7 +16,7 @@ import { EntityNotFoundErrorFilter } from "./middleware/typeorm-error-filter";
 
 async function bootstrap() {
   // Start SDK before nestjs factory create
-  await otelSDK.start();
+  // await otelSDK.start();
   const parsedConfig = configuration();
   const config = new ConfigService(parsedConfig);
 
@@ -70,13 +67,6 @@ async function bootstrap() {
       retryDelay: 5000,
       password: config.get("redis.password"),
     },
-  });
-
-  const elogger = new Logger("EventLogger");
-  app.get(EventBus).subscribe((e) => {
-    if (e.constructor.name === LiveMatchUpdateEvent.name) return;
-
-    elogger.verbose(e.constructor.name, e);
   });
 
   app.useGlobalPipes(new ValidationPipe());

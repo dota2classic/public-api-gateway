@@ -9,12 +9,12 @@ import { ApiTags } from "@nestjs/swagger";
 import { RecordApi } from "../../generated-api/gameserver";
 import { PlayerRecordsResponse } from "./record.dto";
 import { RecordMapper } from "./record.mapper";
-import { UserHttpCacheInterceptor } from "../../utils/cache-key-track";
 import { CacheTTL } from "@nestjs/cache-manager";
+import { GlobalHttpCacheInterceptor } from "../../utils/cache-global";
 
 @Controller("record")
 @ApiTags("record")
-@UseInterceptors(UserHttpCacheInterceptor)
+@UseInterceptors(GlobalHttpCacheInterceptor)
 export class RecordController {
   private logger = new Logger(RecordController.name);
 
@@ -23,7 +23,7 @@ export class RecordController {
     private readonly mapper: RecordMapper,
   ) {}
 
-  @CacheTTL(3600000)
+  @CacheTTL(60 * 30)
   @Get()
   public async records(): Promise<PlayerRecordsResponse> {
     const records = await this.api.recordControllerRecords();
@@ -40,7 +40,7 @@ export class RecordController {
     };
   }
 
-  @CacheTTL(3600000)
+  @CacheTTL(60 * 30)
   @Get("/:steam_id")
   public async playerRecords(
     @Param("steam_id") steamId: string,

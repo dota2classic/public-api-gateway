@@ -1,13 +1,9 @@
 import { Injectable } from "@nestjs/common";
-import { GetPartyQuery } from "../gateway/queries/GetParty/get-party.query";
-import { GetPartyQueryResult } from "../gateway/queries/GetParty/get-party-query.result";
-import { PlayerId } from "../gateway/shared-types/player-id";
-import { GetSessionByUserQuery } from "../gateway/queries/GetSessionByUser/get-session-by-user.query";
-import { GetSessionByUserQueryResult } from "../gateway/queries/GetSessionByUser/get-session-by-user-query.result";
 import { QueryBus } from "@nestjs/cqrs";
 import { PlayerApi } from "../generated-api/gameserver";
 import { PlayerMapper } from "./player/player.mapper";
 import { PartyDto } from "./player/dto/party.dto";
+import { MatchmakerApi } from "../generated-api/matchmaker";
 
 @Injectable()
 export class PartyService {
@@ -15,24 +11,17 @@ export class PartyService {
     private readonly qbus: QueryBus,
     private readonly api: PlayerApi,
     private readonly mapper: PlayerMapper,
+    private readonly matchmakerApi: MatchmakerApi,
   ) {}
 
-  public async getParty(steamId: string): Promise<PartyDto> {
-    const party = await this.qbus.execute<GetPartyQuery, GetPartyQueryResult>(
-      new GetPartyQuery(steamId),
-    );
+  public async getPartyRaw(steamId: string) {
+    return this.matchmakerApi.matchmakerApiControllerGetUserParty(steamId);
+  }
 
-    const [sessions, banStatuses, summaries] = await Promise.combine([
-      Promise.all(
-        party.players.map((steamId) =>
-          this.qbus
-            .execute<
-              GetSessionByUserQuery,
-              GetSessionByUserQueryResult
-            >(new GetSessionByUserQuery(new PlayerId(steamId)))
-            .then((result) => ({ steamId, result })),
-        ),
-      ),
+  public async getParty(steamId: string): Promise<PartyDto> {
+    const party = await this.getPartyRaw(steamId);
+
+    const [banStatuses, summaries] = await Promise.combine([
       Promise.all(
         party.players.map((steamId) =>
           this.api.playerControllerBanInfo(steamId),
@@ -45,6 +34,6 @@ export class PartyService {
       ),
     ]);
 
-    return this.mapper.mapParty(party, banStatuses, summaries, sessions);
+    return this.mapper.mapParty(party, banStatuses, summaries);
   }
 }
