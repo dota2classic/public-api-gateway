@@ -7934,6 +7934,14 @@ mnemonist@0.39.6:
   dependencies:
     obliterator "^2.0.1"
 
+modern-passport-steam@^1.1.4:
+  version "1.1.4"
+  resolved "https://registry.yarnpkg.com/modern-passport-steam/-/modern-passport-steam-1.1.4.tgz#0a24984ca20a79f72082d82428df0c97a04a8ce1"
+  integrity sha512-yZn5FVoDsMfpBHTRr2/v/QeUYC3QwIrc9AYZUczqfGYROQKxjKtnOpXJPgkdcCrcklUZsaLXZYSOZiCt+j0GXA==
+  dependencies:
+    passport-strategy "^1.0.0"
+    steamid "^2.0.0"
+
 module-details-from-path@^1.0.3:
   version "1.0.3"
   resolved "https://registry.yarnpkg.com/module-details-from-path/-/module-details-from-path-1.0.3.tgz#114c949673e2a8a35e9d35788527aa37b679da2b"
@@ -9603,6 +9611,11 @@ steam-web@0.4.0:
   integrity sha512-FgSYhL7GaP4Va5JKT09yZ+WrTZttFtLwenIPuZd7GUA1z3W7vu7qqPT/qTC76Pd9+sf85txMgIPr/y0+3gNlUA==
   dependencies:
     qs "^6.1.0"
+
+steamid@^2.0.0:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/steamid/-/steamid-2.1.0.tgz#aa8cf11f21843aee63dead4903b1bd4f096df5c4"
+  integrity sha512-ndt1cvuuSC+i8fcxVsmeyRlgGsR1QsoAuIXz+eabj8/Y4GIWE2+mgHA7Hys61JDHOxttfWtXHtN2m5TNYTlORg==
 
 streamsearch@^1.1.0:
   version "1.1.0"

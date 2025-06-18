@@ -1,15 +1,18 @@
 import { PassportStrategy } from "@nestjs/passport";
-import { Strategy as SteamStrategyT } from "passport-steam";
-import { Injectable } from "@nestjs/common";
+import { Strategy as SteamStrategyT } from "modern-passport-steam";
+import { Injectable, Logger } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 
 @Injectable()
 export default class SteamStrategy extends PassportStrategy(SteamStrategyT) {
+  private logger = new Logger(SteamStrategy.name);
   constructor(private readonly config: ConfigService) {
     super({
-      returnURL: `${config.get("api.backUrl")}/v1/auth/steam/callback`,
+      returnUrl: `${config.get("api.backUrl")}/v1/auth/steam/callback`,
       realm: `${config.get("api.backUrl")}/`,
-      apiKey: config.get("steam.key"),
+      apiKey: () => config.get("steam.key"),
+      fetchSteamLevel: false,
+      fetchUserProfile: true,
     });
   }
 
@@ -18,6 +21,7 @@ export default class SteamStrategy extends PassportStrategy(SteamStrategyT) {
     profile: any,
     done: (...args: any[]) => void,
   ): Promise<any> {
+    this.logger.log("Validating steam user:", profile);
     done(null, profile);
   }
 }
