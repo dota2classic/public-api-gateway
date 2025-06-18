@@ -67,6 +67,19 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, options);
   SwaggerModule.setup("api", app, document);
 
+  app
+    .getHttpAdapter()
+    .getInstance()
+    .decorateReply("setHeader", function (key, value) {
+      this.raw.setHeader(key, value);
+    });
+  app
+    .getHttpAdapter()
+    .getInstance()
+    .decorateReply("end", function () {
+      this.raw.end();
+    });
+
   app.connectMicroservice({
     transport: Transport.REDIS,
     options: {

@@ -127,7 +127,9 @@ export class SteamController {
 
     const isStoreRedirect = req.cookies["d2c:auth_redirect"] === "store";
 
-    this.logger.log("Redirecting to: " + isStoreRedirect ? "store" : "profile");
+    this.logger.log(
+      "Redirecting to: " + (isStoreRedirect ? "store" : "profile"),
+    );
 
     const token = await this.authService.createToken(
       steam32id,
@@ -139,6 +141,6 @@ export class SteamController {
 
     res
       .setCookie(TOKEN_KEY, token, SteamController.TOKEN_COOKIE_OPTIONS) // 30 days expires
-      .redirect(`${this.config.get("api.frontUrl")}${redirectPath}`);
+      .redirect(`${this.config.get("api.frontUrl")}${redirectPath}`, 302);
   }
 }
