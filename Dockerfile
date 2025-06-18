@@ -1,18 +1,19 @@
 FROM node:20-alpine3.19 AS base
 
 FROM base AS build
-WORKDIR /usr/src/app
 
+WORKDIR /usr/src/app
 COPY package.json yarn.lock ./
-RUN yarn install --frozen-lockfile
+RUN yarn install --no-lockfile
 COPY . .
 RUN yarn build
 
-FROM node:20-alpine3.19 AS production
-WORKDIR /usr/src/app
+FROM base AS production
 
-COPY package.json yarn.lock ./
 COPY --from=build /usr/src/app/node_modules ./node_modules
 COPY --from=build /usr/src/app/dist ./dist
+COPY --from=build /usr/src/app/package.json .
+COPY --from=build /usr/src/app/yarn.lock .
 
+#CMD ["sh", "-c", "yarn start:prod"]
 CMD ["node", "dist/main"]
