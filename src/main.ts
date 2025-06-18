@@ -11,7 +11,11 @@ import { ConfigService } from "@nestjs/config";
 import { DataSource } from "typeorm";
 import { getS3ConnectionToken, S3 } from "nestjs-s3";
 import { EntityNotFoundErrorFilter } from "./middleware/typeorm-error-filter";
-import { FastifyAdapter } from "@nestjs/platform-fastify";
+import {
+  FastifyAdapter,
+  NestFastifyApplication,
+} from "@nestjs/platform-fastify";
+import fastifyCookie from "@fastify/cookie";
 
 // import duration from 'dayjs/plugin/duration' // ES 2015
 
@@ -21,15 +25,19 @@ async function bootstrap() {
   const parsedConfig = configuration();
   const config = new ConfigService(parsedConfig);
 
-  const app = await NestFactory.create(AppModule, new FastifyAdapter(), {
-    logger: new WinstonWrapper(
-      config.get("fluentbit.host"),
-      config.get<number>("fluentbit.port"),
-      config.get<string>("fluentbit.application"),
-      config.get<boolean>("fluentbit.disabled"),
-      config.get<boolean>("fluentbit.noStdout"),
-    ),
-  });
+  const app = await NestFactory.create<NestFastifyApplication>(
+    AppModule,
+    new FastifyAdapter(),
+    {
+      logger: new WinstonWrapper(
+        config.get("fluentbit.host"),
+        config.get<number>("fluentbit.port"),
+        config.get<string>("fluentbit.application"),
+        config.get<boolean>("fluentbit.disabled"),
+        config.get<boolean>("fluentbit.noStdout"),
+      ),
+    },
+  );
   app.setGlobalPrefix("v1");
   app.useGlobalFilters(new EntityNotFoundErrorFilter());
 
@@ -73,9 +81,13 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe());
   app.use(cookieParser());
 
+  // Register fastify-cookie plugin
+
   app.enableCors({
     origin: "*",
   });
+
+  await app.register(fastifyCookie);
   // app.use(cookieParser());
 
   await app.listen(6001, "0.0.0.0");

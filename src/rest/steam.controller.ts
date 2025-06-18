@@ -26,6 +26,7 @@ import { WithUser } from "../utils/decorator/with-user";
 import { ConfigService } from "@nestjs/config";
 import { EventBus } from "@nestjs/cqrs";
 import { SteamAuthGuard } from "./strategy/steam-auth.guard";
+import { FastifyReply } from "fastify";
 
 @Controller("auth/steam")
 @ApiTags("auth")
@@ -68,12 +69,13 @@ export class SteamController {
   public async refreshToken(
     @AccessToken() token: string,
     @CurrentUser() user: CurrentUserDto,
-    @Res() res: Response,
+    @Res() res: FastifyReply,
   ) {
     this.logger.verbose(`Refresh token for ${user?.steam_id}`);
     const newToken = await this.authService.refreshToken(token);
+
     res
-      .cookie(TOKEN_KEY, newToken, SteamController.TOKEN_COOKIE_OPTIONS)
+      .setCookie(TOKEN_KEY, newToken, SteamController.TOKEN_COOKIE_OPTIONS)
       .status(200)
       .send(newToken);
   }

@@ -44,14 +44,14 @@ export class ReqLoggingInterceptor implements NestInterceptor {
     res.raw.on("finish", () => {
       const durationSeconds = (performance.now() - d0) / 1000;
 
-      console.log(
-        "Request finish, ",
-        req.method,
-        requestPath,
-        isSSE ? "sse" : "request",
-        res.statusCode.toString(),
-        durationSeconds,
-      );
+      // console.log(
+      //   "Request finish, ",
+      //   req.method,
+      //   requestPath,
+      //   isSSE ? "sse" : "request",
+      //   res.statusCode.toString(),
+      //   durationSeconds,
+      // );
       this.requestHistogram
         .labels(
           req.method,
