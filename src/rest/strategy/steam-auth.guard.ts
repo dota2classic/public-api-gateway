@@ -1,11 +1,13 @@
 import { AuthGuard } from "@nestjs/passport";
-import { HttpException, Injectable } from "@nestjs/common";
+import { HttpException, Injectable, Logger } from "@nestjs/common";
 import { ExecutionContextHost } from "@nestjs/core/helpers/execution-context-host";
 import { Response } from "express";
 import { ConfigService } from "@nestjs/config";
 
 @Injectable()
 export class SteamAuthGuard extends AuthGuard("steam") {
+  private logger = new Logger(SteamAuthGuard.name);
+
   constructor(private readonly config: ConfigService) {
     super();
   }
@@ -19,7 +21,7 @@ export class SteamAuthGuard extends AuthGuard("steam") {
   ) {
     const res = context.switchToHttp().getResponse() as Response;
 
-    console.log("Handling", err, user, info);
+    this.logger.log("Checking if steam is ok", { err, user, info });
 
     const isSteamFuckFest =
       err &&

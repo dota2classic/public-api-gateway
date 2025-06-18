@@ -93,37 +93,36 @@ export class SteamController {
   @UseGuards(SteamAuthGuard)
   async steamAuthRequest(@Req() req: FastifyRequest, @Res() res: FastifyReply) {
     const usr = (req as unknown as any)["user"] as {
-      _json: {
-        steamid: string;
-        communityvisibilitystate: number;
-        profilestate: number;
-        personaname: string;
-        commentpermission: number;
-        profileurl: string;
-        avatar: string;
-        avatarmedium: string;
-        avatarfull: string;
-        avatarhash: string;
-        lastlogoff: number;
-        personastate: number;
-        realname: string;
-        primaryclanid: string;
-        timecreated: number;
-        personastateflags: number;
-        loccountrycode: string;
-        locstatecode: string;
-      };
+      steamid: string;
+      communityvisibilitystate: number;
+      profilestate: number;
+      personaname: string;
+      commentpermission: number;
+      profileurl: string;
+      avatar: string;
+      avatarmedium: string;
+      avatarfull: string;
+      avatarhash: string;
+      lastlogoff: number;
+      personastate: number;
+      realname: string;
+      primaryclanid: string;
+      timecreated: number;
+      personastateflags: number;
+      loccountrycode: string;
+      locstatecode: string;
     };
-    const steam32id = steam64to32(usr!!._json.steamid);
-    this.logger.log("Login user", usr!!._json);
+    this.logger.log("SteamControllerCallback", usr);
+    const steam32id = steam64to32(usr!!.steamid);
+    this.logger.log("Login user", usr!!);
 
     this.logger.log("Login: cookies", req.cookies);
 
     this.ebus.publish(
       new UserLoggedInEvent(
         new PlayerId(steam32id),
-        usr!!._json.personaname,
-        usr!!._json.avatarfull,
+        usr!!.personaname,
+        usr!!.avatarfull,
         req.cookies["d2c:referral"],
       ),
     );
@@ -136,8 +135,8 @@ export class SteamController {
 
     const token = await this.authService.createToken(
       steam32id,
-      usr!!._json.personaname,
-      usr!!._json.avatarfull,
+      usr!!.personaname,
+      usr!!.avatarfull,
     );
 
     const redirectPath = isStoreRedirect ? "/store" : `/players/${steam32id}`;
