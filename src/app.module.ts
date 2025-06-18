@@ -174,6 +174,12 @@ import { ReportMapper } from "./rest/report/report.mapper";
           migrations: ["dist/database/migrations/*.*"],
           migrationsRun: true,
           logging: ["error"],
+          extra: {
+            max: 20, // max number of connections
+            min: 4, // minimum number of idle connections
+            idleTimeoutMillis: 30000, // close idle clients after 30 seconds
+            connectionTimeoutMillis: 5000, // return error after 5s if connection cannot be established
+          },
         };
       },
       imports: [],
