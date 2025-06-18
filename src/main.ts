@@ -1,4 +1,3 @@
-import { otelSDK } from "./tracer";
 import "./utils/promise";
 import { NestFactory } from "@nestjs/core";
 import { AppModule } from "./app.module";
@@ -22,7 +21,7 @@ import fastifyCookie from "@fastify/cookie";
 
 async function bootstrap() {
   // Start SDK before nestjs factory create
-  await otelSDK.start();
+  // await otelSDK.start();
   const parsedConfig = configuration();
   const config = new ConfigService(parsedConfig);
 
