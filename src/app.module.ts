@@ -293,7 +293,6 @@ import { ReportMapper } from "./rest/report/report.mapper";
     TwitchController,
     DiscordController,
     ForumController,
-    PrometheusGuardedController,
     AuthController,
     NotificationController,
     FeedbackController,
