@@ -8,6 +8,7 @@ import { UserFastProfileDto } from "../gateway/caches/user-fast-profile.dto";
 import { UserProfileDecorationPreferencesEntity } from "../entity/user-profile-decoration-preferences.entity";
 import { CustomizationMapper } from "../rest/customization/customization.mapper";
 import { UserDTO } from "../rest/shared.dto";
+import { memoize2 } from "../utils/memoize";
 
 @Injectable()
 export class UserProfileService {
@@ -25,9 +26,7 @@ export class UserProfileService {
   public userDto = async (steamId: string): Promise<UserDTO> => {
     const [fu, prefs] = await Promise.combine([
       this.fastUserService.get(steamId),
-      this.userProfileDecorationPreferencesEntityRepository.findOne({
-        where: { steamId },
-      }),
+      this.getProfileDecorations(steamId),
     ]);
 
     return {
@@ -48,6 +47,13 @@ export class UserProfileService {
         this.customizationMapper.mapDecoration(prefs.animation),
     };
   };
+
+  @memoize2({ maxAge: 10_000 })
+  private async getProfileDecorations(steamId: string) {
+    return this.userProfileDecorationPreferencesEntityRepository.findOne({
+      where: { steamId },
+    });
+  }
 
   public name = async (steamId: string) =>
     this.fastUserService.get(steamId).then((it) => it.name);

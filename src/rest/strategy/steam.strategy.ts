@@ -17,8 +17,6 @@ export default class SteamStrategy extends PassportStrategy(SteamStrategyT) {
   }
 
   async validate(profile: any, done: (...args: any[]) => void): Promise<any> {
-    console.log("VAlidate", profile, done);
-    this.logger.log("Validating steam user:", profile);
     done(null, profile);
   }
 }
