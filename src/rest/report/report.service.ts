@@ -15,6 +15,7 @@ import { RulePunishmentEntity } from "../../entity/rule-punishment.entity";
 import { PunishmentLogEntity } from "../../entity/punishment-log.entity";
 import { PlayerBanEntity } from "../../entity/player-ban.entity";
 import { BanReason } from "../../gateway/shared-types/ban";
+import { ConfigService } from "@nestjs/config";
 
 @Injectable()
 export class ReportService {
@@ -30,6 +31,7 @@ export class ReportService {
     @InjectRepository(PlayerBanEntity)
     private readonly playerBanEntityRepository: Repository<PlayerBanEntity>,
     private readonly ds: DataSource,
+    private readonly config: ConfigService,
   ) {}
 
   public async createLogFromReport(
@@ -177,7 +179,7 @@ export class ReportService {
 
     const msg = await this.forumApi.forumControllerPostMessage(thread.id, {
       author: reporter,
-      content: `Пользователь https://dotaclassic.ru/players/${report.reportedSteamId} нарушил правило https://dev.dotaclassic.ru/static/rules/new#${rule.id}
+      content: `Пользователь https://dotaclassic.ru/players/${report.reportedSteamId} нарушил правило ${this.config.get("api.frontUrl")}/static/rules/new#${rule.id}
 [${rule.title}]
 ${report.matchId ? `В матче https://dotaclassic.ru/matches/${report.matchId}` : "На форуме"}
 ${report.comment ? `Комментарий: \n${report.comment}` : ""}
