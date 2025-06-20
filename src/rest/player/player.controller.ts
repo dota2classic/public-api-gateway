@@ -143,6 +143,7 @@ export class PlayerController {
     return Promise.all(rawData.map(this.mapper.mapAchievement));
   }
 
+  @CacheTTL(5)
   @Get("/:id/summary")
   async playerSummary(@Param("id") steamId: string): Promise<PlayerSummaryDto> {
     this.redisEventQueue.emit(
