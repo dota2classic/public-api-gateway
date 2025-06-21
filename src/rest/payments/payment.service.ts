@@ -36,7 +36,7 @@ export class PaymentService {
     @InjectRepository(SubscriptionProductEntity)
     private readonly subscriptionProductEntityRepository: Repository<SubscriptionProductEntity>,
     private readonly dataSource: DataSource,
-    @Inject("RMQ") private readonly rmq: ClientProxy,
+    @Inject("PaymentQueue") private readonly rmq: ClientProxy,
     private readonly notification: NotificationService,
   ) {
     const token = btoa(

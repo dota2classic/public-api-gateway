@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  Inject,
   Param,
   Patch,
   Post,
@@ -32,6 +33,7 @@ import { EventBus } from "@nestjs/cqrs";
 import { LobbyUpdatedEvent } from "./event/lobby-updated.event";
 import { LobbyClosedEvent } from "./event/lobby-closed.event";
 import { LobbyEvent } from "./event/lobby.event";
+import { ClientProxy } from "@nestjs/microservices";
 
 @UseInterceptors(ReqLoggingInterceptor)
 @ApiTags("lobby")
@@ -41,6 +43,7 @@ export class LobbyController {
     private readonly lobbyService: LobbyService,
     private readonly lobbyMapper: LobbyMapper,
     private readonly ebus: EventBus,
+    @Inject("MatchmakerEvents") private readonly rmq: ClientProxy,
   ) {}
 
   @Get("/")
