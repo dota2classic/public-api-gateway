@@ -4,6 +4,7 @@ import { UserDTO } from "../../shared.dto";
 import { ApiProperty } from "@nestjs/swagger";
 import { Page } from "../../../gateway/shared-types/page";
 import { PlayerAspect } from "../../../gateway/shared-types/player-aspect";
+import { MatchmakingMode } from "../../../gateway/shared-types/matchmaking-mode";
 
 export class LeaderboardEntryDto {
   user: UserDTO;
@@ -80,6 +81,13 @@ export class RecalibrationDto {
   seasonId: number;
 }
 
+export class PlayerSessionDto {
+  matchId: number;
+  serverUrl: string;
+  @ApiProperty({ enum: MatchmakingMode, enumName: "MatchmakingMode" })
+  lobbyType: MatchmakingMode;
+}
+
 export class PlayerSummaryDto {
   user: UserDTO;
   banStatus: BanStatusDto;
@@ -91,6 +99,7 @@ export class PlayerSummaryDto {
 
   seasonStats: PlayerStatsDto;
   overallStats: PlayerStatsDto;
+  session?: PlayerSessionDto;
 
   accessMap: GamemodeAccessMap;
   aspects: PlayerAspectDto[];

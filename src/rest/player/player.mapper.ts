@@ -104,6 +104,13 @@ export class PlayerMapper {
         bannedUntil: status.bannedUntil,
         status: status.status,
       },
+      session: it.session
+        ? {
+            lobbyType: it.session.lobbyType,
+            matchId: it.session.matchId,
+            serverUrl: it.session.serverUrl,
+          }
+        : undefined,
       recalibration: it.recalibration,
       overallStats: this.mapPlayerStats(it.overall),
       seasonStats: this.mapPlayerStats(it.season),
