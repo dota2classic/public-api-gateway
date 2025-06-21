@@ -179,7 +179,7 @@ export class ReportService {
 
     const msg = await this.forumApi.forumControllerPostMessage(thread.id, {
       author: reporter,
-      content: `Пользователь https://dotaclassic.ru/players/${report.reportedSteamId} нарушил правило ${this.config.get("api.frontUrl")}/static/rules/new#${rule.id}
+      content: `Пользователь https://dotaclassic.ru/players/${report.reportedSteamId} нарушил правило ${this.config.get("api.frontUrl")}/static/rules#${rule.id}
 [${rule.title}]
 ${report.matchId ? `В матче https://dotaclassic.ru/matches/${report.matchId}` : "На форуме"}
 ${report.comment ? `Комментарий: \n${report.comment}` : ""}

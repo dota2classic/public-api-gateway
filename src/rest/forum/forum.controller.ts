@@ -66,7 +66,7 @@ import { CacheTTL } from "@nestjs/cache-manager";
 import { FeedbackAssistantService } from "../feedback/feedback-assistant.service";
 import { UserHttpCacheInterceptor } from "../../utils/cache-key-track";
 
-@UseInterceptors(ReqLoggingInterceptor, UserHttpCacheInterceptor)
+@UseInterceptors(ReqLoggingInterceptor)
 @Controller("forum")
 @ApiTags("forum")
 export class ForumController {
@@ -229,7 +229,8 @@ export class ForumController {
   })
   @WithOptionalUser()
   @Get("threads")
-  @CacheTTL(30)
+  @UseInterceptors(UserHttpCacheInterceptor)
+  @CacheTTL(15)
   async threads(
     @Req() req: any,
     @Query("page", NullableIntPipe) page: number,
@@ -264,7 +265,8 @@ export class ForumController {
     enumName: "ThreadType",
   })
   @Get("thread/:id/:threadType")
-  @CacheTTL(30)
+  @UseInterceptors(UserHttpCacheInterceptor)
+  @CacheTTL(15)
   async getThread(
     @Param("id") id: string,
     @Param("threadType") threadType: ThreadType,
