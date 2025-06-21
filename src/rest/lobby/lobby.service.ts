@@ -56,26 +56,20 @@ export class LobbyService {
     id: string,
     askedBy?: CurrentUserDto,
   ): Promise<LobbyEntity> {
-    let q = this.lobbyEntityRepository
-      .createQueryBuilder("l")
-      .where("l.id = :id", { id })
-      .leftJoinAndSelect("l.slots", "slots");
+    const lobby = await this.lobbyEntityRepository.findOneOrFail({
+      where: { id },
+    });
 
-    // If casual player, need to check permissions
-    if (
-      askedBy &&
-      !askedBy.roles.includes(Role.ADMIN) &&
-      !askedBy.roles.includes(Role.MODERATOR)
-    ) {
-      q = q.innerJoin(
-        LobbySlotEntity,
-        "lse",
-        "lse.lobby_id = l.id and lse.steam_id = :steam_id",
-        { steam_id: askedBy.steam_id },
-      );
+    if (!askedBy) return lobby;
+
+    const isParticipant =
+      lobby.slots.findIndex((t) => t.steamId === askedBy.steam_id) !== -1;
+
+    if (!isParticipant) {
+      throw new ForbiddenException();
     }
 
-    return q.getOneOrFail();
+    return lobby;
   }
 
   public async joinLobby(
