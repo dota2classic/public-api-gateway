@@ -1,4 +1,9 @@
-import { ForbiddenException, HttpException, Injectable } from "@nestjs/common";
+import {
+  ForbiddenException,
+  HttpException,
+  Injectable,
+  Logger,
+} from "@nestjs/common";
 import { LobbyEntity } from "../../entity/lobby.entity";
 import { LobbySlotEntity } from "../../entity/lobby-slot.entity";
 import { InjectRepository } from "@nestjs/typeorm";
@@ -21,6 +26,8 @@ import { shuffle } from "../../utils/shuffle";
 
 @Injectable()
 export class LobbyService {
+  private logger = new Logger(LobbyService.name);
+
   constructor(
     @InjectRepository(LobbyEntity)
     private readonly lobbyEntityRepository: Repository<LobbyEntity>,
@@ -127,6 +134,7 @@ export class LobbyService {
 
         await em.remove(lobby);
         this.ebus.publish(new LobbyClosedEvent(id));
+        this.logger.log("Closed lobby", { lobby_id: id });
       });
     } catch (e) {
       throw new HttpException("Not an owner", HttpStatusCode.Forbidden);
@@ -236,7 +244,8 @@ export class LobbyService {
 
     // We need a lock for this maybe??
 
-    await this.closeLobby(id, user).then(() =>
+    await this.closeLobby(id, user).then(() => {
+      this.logger.log("Closed lobby, emitting lobby ready event");
       this.ebus.publish(
         new LobbyReadyEvent(
           lobby.id,
@@ -255,8 +264,8 @@ export class LobbyService {
           lobby.fillBots,
           lobby.enableCheats,
         ),
-      ),
-    );
+      );
+    });
   }
 
   public async changeTeam(
