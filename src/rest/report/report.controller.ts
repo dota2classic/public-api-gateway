@@ -24,6 +24,7 @@ import {
   PunishmentLogPageDto,
   ReportDto,
   ReportMessageDto,
+  ReportPageDto,
   ReportPlayerInMatchDto,
 } from "./report.dto";
 import { ReportService } from "./report.service";
@@ -31,7 +32,7 @@ import { UserReportEntity } from "../../entity/user-report.entity";
 import { Repository } from "typeorm";
 import { InjectRepository } from "@nestjs/typeorm";
 import { ReportMapper } from "./report.mapper";
-import { ForumApi } from "../../generated-api/forum";
+import { ForumApi, ForumMessageDTO } from "../../generated-api/forum";
 import { RulePunishmentEntity } from "../../entity/rule-punishment.entity";
 import { WithPagination } from "../../utils/decorator/pagination";
 import { PunishmentLogEntity } from "../../entity/punishment-log.entity";
@@ -198,5 +199,40 @@ export class ReportController {
     });
 
     return makePage(slice, cnt, page, perPage, this.mapper.mapPunishmentLog);
+  }
+
+  @WithPagination()
+  // @WithUser()
+  // @ModeratorGuard()
+  @Get("/reports")
+  public async getReportPage(
+    @Query("page", ParseIntPipe) page: number,
+    @Query("per_page", NullableIntPipe) perPage: number = 25,
+  ): Promise<ReportPageDto> {
+    const [items, count] = await this.userReportEntityRepository.findAndCount({
+      take: perPage,
+      skip: perPage * page,
+      order: {
+        handled: "ASC",
+        createdAt: "DESC",
+      },
+    });
+
+    const itemsWithMessages: [UserReportEntity, ForumMessageDTO | undefined][] =
+      await Promise.all(
+        items.map(async (item) => {
+          if (item.messageId) {
+            return [
+              item,
+              await this.forumApi.forumControllerGetMessage(item.messageId),
+            ];
+          }
+          return [item, undefined];
+        }),
+      );
+
+    return makePage(itemsWithMessages, count, page, perPage, ([report, msg]) =>
+      this.mapper.mapReport(report, msg),
+    );
   }
 }

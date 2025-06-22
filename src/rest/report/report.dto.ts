@@ -50,6 +50,13 @@ export class PunishmentLogPageDto extends Page<PunishmentLogDto> {
   pages: number;
 }
 
+export class ReportPageDto extends Page<ReportDto> {
+  data: ReportDto[];
+  page: number;
+  perPage: number;
+  pages: number;
+}
+
 export class ApplyPunishmentDto {
   steamId: string;
   ruleId: number;
