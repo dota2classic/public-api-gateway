@@ -30,7 +30,7 @@ export class UserPaymentsController {
     @CurrentUser() user: CurrentUserDto,
     @Body() dto: CreatePaymentDto,
   ): Promise<SelfCreatePaymentDto> {
-    const p = await this.paymentService.createPayment(
+    const p = await this.paymentService.createPaymentSelfwork(
       user.steam_id,
       dto.productId,
     );

@@ -77,7 +77,7 @@ export class PaymentService {
     return payment.data;
   }
 
-  public async createPayment(
+  public async createPaymentSelfwork(
     steamId: string,
     productId: number,
   ): Promise<
@@ -90,14 +90,18 @@ export class PaymentService {
         },
       });
 
-    let internalPayment = await this.userPaymentEntityRepository.save(
-      new UserPaymentEntity(
-        steamId,
-        "email",
-        product.price,
-        product.id,
-        PaymentStatus.CREATED,
-      ),
+    let internalPayment = new UserPaymentEntity(
+      steamId,
+      "email",
+      product.price,
+      product.id,
+      PaymentStatus.CREATED,
+    );
+    internalPayment =
+      await this.userPaymentEntityRepository.save(internalPayment);
+    await this.userPaymentEntityRepository.update(
+      { id: internalPayment.id },
+      { paymentId: internalPayment.id, status: PaymentStatus.CREATED },
     );
 
     // const fullPrice = product.price * product.months * 100;
@@ -123,20 +127,6 @@ export class PaymentService {
       this.config.get("selfwork.token"),
     ].join(``);
     request.signature = crypto.createHash("sha256").update(raw).digest("hex");
-
-    await this.userPaymentEntityRepository.update(
-      {
-        id: internalPayment.id,
-      },
-      {
-        status: PaymentStatus.IN_PROGRESS,
-        paymentId: internalPayment.paymentId,
-      },
-    );
-
-    internalPayment = await this.userPaymentEntityRepository.findOne({
-      where: { id: internalPayment.id },
-    });
 
     return {
       internal: internalPayment,

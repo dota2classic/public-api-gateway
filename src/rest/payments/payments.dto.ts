@@ -25,7 +25,7 @@ export class CreatePaymentDto {
 
 export interface SelfworkOrderNotification {
   order_id: string; // ID заказа
-  status: string; // Статус
+  status: 'succeeded' | string; // Статус
   amount: number; // Сумма (в копейках)
   currency: string; // Валюта
   created_at: number; // Время создания операции (Timestamp)

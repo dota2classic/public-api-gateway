@@ -4,9 +4,9 @@ import {
   Get,
   Ip,
   Logger,
-  ParseBoolPipe,
   Post,
   Query,
+  Req,
   Res,
   UseGuards,
 } from "@nestjs/common";
@@ -16,7 +16,7 @@ import { PaymentService } from "./payment.service";
 import { CookiesUserId } from "../../utils/decorator/current-user";
 import { ConfigService } from "@nestjs/config";
 import { CookieUserGuard } from "../../utils/decorator/with-user";
-import { FastifyReply } from "fastify";
+import { FastifyReply, FastifyRequest } from "fastify";
 
 @Controller("payment_web_hook")
 export class PaymentHooksController {
@@ -55,10 +55,19 @@ export class PaymentHooksController {
   public async finishSelfworkPayment(
     @CookiesUserId() steamId: string,
     @Res() res: FastifyReply,
-    @Query("success", ParseBoolPipe) success: boolean,
+    @Req() req: FastifyRequest,
     @Query("id") orderId: string,
   ) {
-    console.log("finishSelfworkPayment!", success, orderId, steamId);
+    // const isSuccess = "success" in req.query;
+    // const isError = "error" in req.query;
+    console.log(
+      "finishSelfworkPayment!",
+      // isSuccess,
+      // isError,
+      req.query,
+      orderId,
+      steamId,
+    );
     res.redirect(`${this.config.get("api.frontUrl")}/players/${steamId}`, 302);
   }
 
