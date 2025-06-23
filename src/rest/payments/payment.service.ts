@@ -52,7 +52,6 @@ export class PaymentService {
   public async validateSignature(notification: SelfworkOrderNotification) {
     const raw = `${notification.order_id}${notification.amount}${this.config.get("selfwork.token")}`;
     const sha256 = crypto.createHash("sha256").update(raw).digest("hex");
-    console.warn(notification.signature, sha256);
     if (notification.signature !== sha256) {
       throw "Invalid signature!";
     }
@@ -65,12 +64,18 @@ export class PaymentService {
       `/status?order_id=${notification.order_id}`,
     );
     if (!payment.ok) {
-      console.error(payment.originalError);
+      this.logger.log(
+        "There was an issue querying selfwork API",
+        payment.originalError,
+      );
       return undefined;
     }
 
     if (payment.data.status !== notification.status) {
-      console.error(payment.data);
+      this.logger.log("Status are different for payments!", {
+        actual: payment.data.status,
+        received: notification.status,
+      });
       return undefined;
     }
 
@@ -104,8 +109,7 @@ export class PaymentService {
       { paymentId: internalPayment.id, status: PaymentStatus.CREATED },
     );
 
-    // const fullPrice = product.price * product.months * 100;
-    const fullPrice = 2000; // 20 rubles
+    const fullPrice = product.price * product.months * 100;
 
     const request = {
       amount: fullPrice,

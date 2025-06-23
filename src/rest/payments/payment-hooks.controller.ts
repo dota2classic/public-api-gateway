@@ -17,9 +17,12 @@ import { CookiesUserId } from "../../utils/decorator/current-user";
 import { ConfigService } from "@nestjs/config";
 import { CookieUserGuard } from "../../utils/decorator/with-user";
 import { FastifyReply, FastifyRequest } from "fastify";
+import { ApiExcludeController } from "@nestjs/swagger";
 
+@ApiExcludeController()
 @Controller("payment_web_hook")
 export class PaymentHooksController {
+  private static SELFWORK_AUTHORIZED_IPS = ["178.205.169.35", "81.23.144.157"];
   private logger = new Logger(PaymentHooksController.name);
 
   constructor(
@@ -28,20 +31,26 @@ export class PaymentHooksController {
   ) {}
 
   // Selfwork
-
-  // Selfwork
   @Post("selfwork_callback")
   public async selfworkCallbackHook(
     @Ip() ip: string,
     @Body() dto: SelfworkOrderNotification,
   ) {
-    console.log(dto);
+    this.logger.log(`Received webhook callback from ip ${ip}`);
+    if (!PaymentHooksController.SELFWORK_AUTHORIZED_IPS.includes(ip)) {
+      this.logger.error("Received ip is not whitelisted!");
+      throw "Invalid ip";
+    }
+
+    await this.payment.validateSignature(dto);
     const payment = await this.payment.validateNotification(dto);
     if (!payment) {
       throw "Invalid payment";
     }
 
-    this.logger.log(`Received valid payment update ${dto}`, payment);
+    this.logger.log(`Received valid payment update`, {
+      order_id: payment.order_id,
+    });
 
     if (payment.status === "succeeded") {
       await this.payment.onPaymentSucceeded(payment);
@@ -60,14 +69,6 @@ export class PaymentHooksController {
   ) {
     // const isSuccess = "success" in req.query;
     // const isError = "error" in req.query;
-    console.log(
-      "finishSelfworkPayment!",
-      // isSuccess,
-      // isError,
-      req.query,
-      orderId,
-      steamId,
-    );
     res.redirect(`${this.config.get("api.frontUrl")}/players/${steamId}`, 302);
   }
 
