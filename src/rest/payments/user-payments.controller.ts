@@ -8,7 +8,7 @@ import {
 } from "../../utils/decorator/current-user";
 import {
   CreatePaymentDto,
-  StartPaymentDto,
+  SelfCreatePaymentDto,
   SubscriptionProductDto,
 } from "./payments.dto";
 import { SubscriptionProductEntity } from "../../entity/subscription-product.entity";
@@ -29,19 +29,16 @@ export class UserPaymentsController {
   public async createPayment(
     @CurrentUser() user: CurrentUserDto,
     @Body() dto: CreatePaymentDto,
-  ): Promise<StartPaymentDto> {
+  ): Promise<SelfCreatePaymentDto> {
     const p = await this.paymentService.createPayment(
       user.steam_id,
-      dto.email,
       dto.productId,
     );
     if (!p) {
       throw "Something went wrong";
     }
 
-    return {
-      confirmationUrl: p.external.confirmation.confirmation_url,
-    };
+    return p.external;
   }
 
   @Get("/products")

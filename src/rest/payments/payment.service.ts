@@ -4,10 +4,8 @@ import { ApisauceInstance, create } from "apisauce";
 import { InjectRepository } from "@nestjs/typeorm";
 import { DataSource, Repository } from "typeorm";
 import {
-  CreatedYoukassaPayment,
-  YCreatePaymentDto,
-  YoukassaPayment,
-  YoukassaWebhookNotification,
+  SelfCreatePaymentDto,
+  SelfworkOrderNotification,
 } from "./payments.dto";
 import {
   PaymentStatus,
@@ -21,6 +19,7 @@ import {
   NotificationEntityType,
   NotificationType,
 } from "../../entity/notification.entity";
+import * as crypto from "crypto";
 
 @Injectable()
 export class PaymentService {
@@ -40,29 +39,38 @@ export class PaymentService {
     private readonly notification: NotificationService,
   ) {
     const token = btoa(
-      `${config.get("youkassa.shopId")}:${config.get("youkassa.token")}`,
+      `${config.get("selfwork.shopId")}:${config.get("selfwork.token")}`,
     );
     this.api = create({
-      baseURL: "https://api.yookassa.ru/v3/payments",
+      baseURL: "https://pro.selfwork.ru/merchant/v1",
       headers: {
         Authorization: `Basic ${token}`,
       },
     });
   }
 
+  public async validateSignature(notification: SelfworkOrderNotification) {
+    const raw = `${notification.order_id}${notification.amount}${this.config.get("selfwork.token")}`;
+    const sha256 = crypto.createHash("sha256").update(raw).digest("hex");
+    console.warn(notification.signature, sha256);
+    if (notification.signature !== sha256) {
+      throw "Invalid signature!";
+    }
+  }
+
   public async validateNotification(
-    notification: YoukassaWebhookNotification,
-  ): Promise<YoukassaPayment> {
-    const payment = await this.api.get<YoukassaPayment>(
-      `/${notification.object.id}`,
+    notification: SelfworkOrderNotification,
+  ): Promise<SelfworkOrderNotification> {
+    const payment = await this.api.get<SelfworkOrderNotification>(
+      `/status?order_id=${notification.order_id}`,
     );
     if (!payment.ok) {
-      console.warn(payment.originalError);
+      console.error(payment.originalError);
       return undefined;
     }
 
-    if (payment.data.status !== notification.object.status) {
-      console.log(payment.data);
+    if (payment.data.status !== notification.status) {
+      console.error(payment.data);
       return undefined;
     }
 
@@ -71,11 +79,9 @@ export class PaymentService {
 
   public async createPayment(
     steamId: string,
-    email: string,
     productId: number,
   ): Promise<
-    | { internal: UserPaymentEntity; external: CreatedYoukassaPayment }
-    | undefined
+    { internal: UserPaymentEntity; external: SelfCreatePaymentDto } | undefined
   > {
     const product =
       await this.subscriptionProductEntityRepository.findOneOrFail({
@@ -87,50 +93,36 @@ export class PaymentService {
     let internalPayment = await this.userPaymentEntityRepository.save(
       new UserPaymentEntity(
         steamId,
-        email,
+        "email",
         product.price,
         product.id,
         PaymentStatus.CREATED,
       ),
     );
 
-    const createdPayment = await this.api.post<CreatedYoukassaPayment>(
-      "",
-      {
-        amount: {
-          currency: "RUB",
-          value: `${product.price * product.months}.00`,
-        },
-        confirmation: {
-          type: "redirect",
-          return_url: `${this.config.get("api.backUrl")}/v1/payment_web_hook/redirect`,
-        },
-        capture: true,
-        description: "Покупка подписки dotaclassic plus",
-      } satisfies YCreatePaymentDto,
-      {
-        headers: {
-          "Idempotence-Key": internalPayment.id,
-        } as any,
-      },
-    );
+    // const fullPrice = product.price * product.months * 100;
+    const fullPrice = 2000; // 20 rubles
 
-    if (!createdPayment.ok) {
-      this.logger.log(
-        "There was an issue creating external payment",
-        createdPayment.originalError,
-      );
-      console.error(createdPayment.originalError);
-      await this.userPaymentEntityRepository.update(
+    const request = {
+      amount: fullPrice,
+      order_id: internalPayment.id,
+      info: [
         {
-          id: internalPayment.id,
+          name: `Покупка подписки dotaclassic plus`,
+          quantity: 1,
+          amount: fullPrice,
         },
-        {
-          status: PaymentStatus.FAILED,
-        },
-      );
-      return undefined;
-    }
+      ],
+      signature: "",
+    } satisfies SelfCreatePaymentDto;
+
+    const raw = [
+      request.order_id,
+      request.amount,
+      ...request.info.flatMap((t) => [t.name, t.quantity, t.amount]),
+      this.config.get("selfwork.token"),
+    ].join(``);
+    request.signature = crypto.createHash("sha256").update(raw).digest("hex");
 
     await this.userPaymentEntityRepository.update(
       {
@@ -138,7 +130,7 @@ export class PaymentService {
       },
       {
         status: PaymentStatus.IN_PROGRESS,
-        paymentId: createdPayment.data.id,
+        paymentId: internalPayment.paymentId,
       },
     );
 
@@ -148,7 +140,7 @@ export class PaymentService {
 
     return {
       internal: internalPayment,
-      external: createdPayment.data,
+      external: request,
     };
   }
 
@@ -160,7 +152,7 @@ export class PaymentService {
     });
   }
 
-  public async onPaymentSucceeded(externalPayment: YoukassaPayment) {
+  public async onPaymentSucceeded(externalPayment: SelfworkOrderNotification) {
     if (externalPayment.status !== "succeeded") {
       this.logger.log("Tried to handle not succeeded payment");
       throw "Bad status";
@@ -170,12 +162,12 @@ export class PaymentService {
         .createQueryBuilder<UserPaymentEntity>(UserPaymentEntity, "payment")
         .useTransaction(true)
         .setLock("pessimistic_write")
-        .where("payment.payment_id = :id", { id: externalPayment.id })
+        .where("payment.payment_id = :id", { id: externalPayment.order_id })
         .getOne();
 
       if (payment.status == PaymentStatus.SUCCEEDED) {
         this.logger.log("Tried to handle payment success twice", {
-          external_payment_id: externalPayment.id,
+          external_payment_id: externalPayment.order_id,
           payment_id: payment.id,
         });
         return;
@@ -194,7 +186,7 @@ export class PaymentService {
       await tx.save(payment);
       this.logger.log("Updated payment status to succeeded", {
         id: payment.id,
-        external_payment_id: externalPayment.id,
+        external_payment_id: externalPayment.order_id,
       });
       // here we also need to add role
 
