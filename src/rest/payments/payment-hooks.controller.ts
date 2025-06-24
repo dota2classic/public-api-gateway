@@ -54,17 +54,24 @@ export class PaymentHooksController {
       mntSignature,
       mntUser,
     );
-    await this.payment.handlePayanywayCallback(
-      mntId,
-      mntTransactionId,
-      mntOperationId,
-      mntAmount,
-      mntCurrencyCode,
-      mntSubscriberId,
-      mntTestMode,
-      mntSignature,
-      mntUser,
-    );
+
+    try {
+      await this.payment.handlePayanywayCallback(
+        mntId,
+        mntTransactionId,
+        mntOperationId,
+        mntAmount,
+        mntCurrencyCode,
+        mntSubscriberId,
+        mntTestMode,
+        mntSignature,
+        mntUser,
+      );
+      return "SUCCESS";
+    } catch (e) {
+      console.error(e);
+      return "FAIL";
+    }
   }
 
   // Selfwork

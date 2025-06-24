@@ -69,6 +69,10 @@ export class PayanywayPaymentAdapter {
     console.log("Expected signature", expectedSignature);
     console.log("Actual signature", mntSignature);
 
+    if (expectedSignature !== mntSignature) {
+      throw "Invalid signature";
+    }
+
     return mntOperationId;
   }
 

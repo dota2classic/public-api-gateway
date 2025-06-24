@@ -247,26 +247,18 @@ export class PaymentService {
     mntSignature: string,
     mntUser: string,
   ) {
-    try {
-      const externalPaymentId =
-        await this.payanywayAdapter.validatePaymentStatus(
-          mntId,
-          mntTransactionId,
-          mntOperationId,
-          mntAmount,
-          mntCurrencyCode,
-          mntSubscriberId,
-          mntTestMode,
-          mntSignature,
-          mntUser,
-        );
-      await this.handleSuccessfulPayment(mntTransactionId, externalPaymentId);
-      console.log("SUCCESS!!");
-      return "SUCCESS";
-    } catch (e) {
-      console.error(e);
-      return "FAIL";
-    }
+    const externalPaymentId = await this.payanywayAdapter.validatePaymentStatus(
+      mntId,
+      mntTransactionId,
+      mntOperationId,
+      mntAmount,
+      mntCurrencyCode,
+      mntSubscriberId,
+      mntTestMode,
+      mntSignature,
+      mntUser,
+    );
+    await this.handleSuccessfulPayment(mntTransactionId, externalPaymentId);
   }
 
   private async handleSuccessfulPayment(
