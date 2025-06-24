@@ -1,3 +1,5 @@
+import { IsEmail } from "class-validator";
+
 export class CreatePaymentItemDto {
   name: string;
   quantity: number;
@@ -19,13 +21,13 @@ export class SubscriptionProductDto {
 
 export class CreatePaymentDto {
   productId: number;
-  // @IsEmail()
-  // email: string;
+  @IsEmail()
+  email: string;
 }
 
 export interface SelfworkOrderNotification {
   order_id: string; // ID заказа
-  status: 'succeeded' | string; // Статус
+  status: "succeeded" | string; // Статус
   amount: number; // Сумма (в копейках)
   currency: string; // Валюта
   created_at: number; // Время создания операции (Timestamp)

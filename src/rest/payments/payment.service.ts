@@ -20,6 +20,7 @@ import {
   NotificationType,
 } from "../../entity/notification.entity";
 import * as crypto from "crypto";
+import { PayanywayPaymentAdapter } from "./payanyway-payment-adapter";
 
 @Injectable()
 export class PaymentService {
@@ -37,6 +38,7 @@ export class PaymentService {
     private readonly dataSource: DataSource,
     @Inject("PaymentQueue") private readonly rmq: ClientProxy,
     private readonly notification: NotificationService,
+    private readonly payanywayAdapter: PayanywayPaymentAdapter,
   ) {
     const token = btoa(
       `${config.get("selfwork.shopId")}:${config.get("selfwork.token")}`,
@@ -80,6 +82,33 @@ export class PaymentService {
     }
 
     return payment.data;
+  }
+
+  public async createPayment(steamId: string, productId: number) {
+    const product =
+      await this.subscriptionProductEntityRepository.findOneOrFail({
+        where: {
+          id: productId,
+        },
+      });
+
+    let internalPayment = await this.userPaymentEntityRepository.save(
+      new UserPaymentEntity(
+        steamId,
+        "email",
+        product.price,
+        product.id,
+        PaymentStatus.CREATED,
+      ),
+    );
+
+    const paymentUrl = await this.payanywayAdapter.createPayment(
+      internalPayment,
+      product,
+    );
+    return {
+      paymentUrl,
+    };
   }
 
   public async createPaymentSelfwork(
@@ -181,6 +210,99 @@ export class PaymentService {
       this.logger.log("Updated payment status to succeeded", {
         id: payment.id,
         external_payment_id: externalPayment.order_id,
+      });
+      // here we also need to add role
+
+      await this.notification.createNotification(
+        payment.steamId,
+        payment.steamId,
+        NotificationEntityType.PLAYER,
+        NotificationType.SUBSCRIPTION_PURCHASED,
+        "700days",
+      );
+
+      const result = await this.rmq
+        .send<boolean>(
+          UserSubscriptionPaidEvent.name,
+          new UserSubscriptionPaidEvent(
+            payment.steamId,
+            product.months * PaymentService.DAYS_IN_MONTH,
+          ), // For now
+        )
+        .toPromise();
+      this.logger.log("Successfully awaited result of add days command", {
+        result,
+      });
+    });
+  }
+
+  public async handlePayanywayCallback(
+    mntId: string,
+    mntTransactionId: string,
+    mntOperationId: string,
+    mntAmount: string,
+    mntCurrencyCode: string,
+    mntSubscriberId: string,
+    mntTestMode: string,
+    mntSignature: string,
+    mntUser: string,
+  ) {
+    try {
+      const externalPaymentId =
+        await this.payanywayAdapter.validatePaymentStatus(
+          mntId,
+          mntTransactionId,
+          mntOperationId,
+          mntAmount,
+          mntCurrencyCode,
+          mntSubscriberId,
+          mntTestMode,
+          mntSignature,
+          mntUser,
+        );
+      await this.handleSuccessfulPayment(mntTransactionId, externalPaymentId);
+      console.log("SUCCESS!!");
+      return "SUCCESS";
+    } catch (e) {
+      console.error(e);
+      return "FAIL";
+    }
+  }
+
+  private async handleSuccessfulPayment(
+    paymentId: string,
+    externalPaymentId: string,
+  ) {
+    await this.dataSource.transaction(async (tx) => {
+      const payment = await tx
+        .createQueryBuilder<UserPaymentEntity>(UserPaymentEntity, "payment")
+        .useTransaction(true)
+        .setLock("pessimistic_write")
+        .where("payment.id = :id", { id: paymentId })
+        .getOne();
+
+      if (payment.status == PaymentStatus.SUCCEEDED) {
+        this.logger.log("Tried to handle payment success twice", {
+          external_payment_id: externalPaymentId,
+          payment_id: payment.id,
+        });
+        return;
+      }
+
+      const product = await tx.findOne<SubscriptionProductEntity>(
+        SubscriptionProductEntity,
+        {
+          where: {
+            id: payment.productId,
+          },
+        },
+      );
+
+      payment.status = PaymentStatus.SUCCEEDED;
+      await tx.save(payment);
+      this.logger.log("Updated payment status to succeeded", {
+        id: payment.id,
+        external_payment_id: externalPaymentId,
       });
       // here we also need to add role
 

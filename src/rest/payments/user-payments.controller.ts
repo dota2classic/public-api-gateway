@@ -6,11 +6,7 @@ import {
   CurrentUser,
   CurrentUserDto,
 } from "../../utils/decorator/current-user";
-import {
-  CreatePaymentDto,
-  SelfCreatePaymentDto,
-  SubscriptionProductDto,
-} from "./payments.dto";
+import { CreatePaymentDto, SubscriptionProductDto } from "./payments.dto";
 import { SubscriptionProductEntity } from "../../entity/subscription-product.entity";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
@@ -29,8 +25,8 @@ export class UserPaymentsController {
   public async createPayment(
     @CurrentUser() user: CurrentUserDto,
     @Body() dto: CreatePaymentDto,
-  ): Promise<SelfCreatePaymentDto> {
-    const p = await this.paymentService.createPaymentSelfwork(
+  ): Promise<string> {
+    const p = await this.paymentService.createPayment(
       user.steam_id,
       dto.productId,
     );
@@ -38,7 +34,7 @@ export class UserPaymentsController {
       throw "Something went wrong";
     }
 
-    return p.external;
+    return p.paymentUrl;
   }
 
   @Get("/products")

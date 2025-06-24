@@ -144,6 +144,7 @@ import { RuleService } from "./rest/rule/rule.service";
 import { ReportController } from "./rest/report/report.controller";
 import { ReportService } from "./rest/report/report.service";
 import { ReportMapper } from "./rest/report/report.mapper";
+import { PayanywayPaymentAdapter } from "./rest/payments/payanyway-payment-adapter";
 
 @Module({
   imports: [
@@ -478,6 +479,7 @@ import { ReportMapper } from "./rest/report/report.mapper";
 
     //
     PaymentService,
+    PayanywayPaymentAdapter,
 
     // Telegram
     {

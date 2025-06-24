@@ -30,6 +30,43 @@ export class PaymentHooksController {
     private readonly config: ConfigService,
   ) {}
 
+  // payanyway_callback
+  @Get("payanyway_callback")
+  public async payanywayCallbackHook(
+    @Query("MNT_ID") mntId: string,
+    @Query("MNT_TRANSACTION_ID") mntTransactionId: string,
+    @Query("MNT_OPERATION_ID") mntOperationId: string,
+    @Query("MNT_AMOUNT") mntAmount: string,
+    @Query("MNT_CURRENCY_CODE") mntCurrencyCode: string,
+    @Query("MNT_SUBSCRIBER_ID") mntSubscriberId: string,
+    @Query("MNT_TEST_MODE") mntTestMode: string,
+    @Query("MNT_SIGNATURE") mntSignature: string,
+    @Query("MNT_USER") mntUser: string,
+  ) {
+    console.log(
+      mntId,
+      mntTransactionId,
+      mntOperationId,
+      mntAmount,
+      mntCurrencyCode,
+      mntSubscriberId,
+      mntTestMode,
+      mntSignature,
+      mntUser,
+    );
+    await this.payment.handlePayanywayCallback(
+      mntId,
+      mntTransactionId,
+      mntOperationId,
+      mntAmount,
+      mntCurrencyCode,
+      mntSubscriberId,
+      mntTestMode,
+      mntSignature,
+      mntUser,
+    );
+  }
+
   // Selfwork
   @Post("selfwork_callback")
   public async selfworkCallbackHook(
