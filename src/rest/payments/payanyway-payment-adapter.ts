@@ -32,12 +32,13 @@ export class PayanywayPaymentAdapter {
       MNT_SIGNATURE: "",
     };
 
-    args.MNT_SIGNATURE = this.createSignature(
+    args.MNT_SIGNATURE = this.createSignatureFromArray(
       args.MNT_ID,
       args.MNT_TRANSACTION_ID,
       args.MNT_AMOUNT,
       args.MNT_CURRENCY_CODE,
       args.MNT_SUBSCRIBER_ID,
+      "0",
     );
 
     const strArgs = qs.stringify(args);
@@ -74,23 +75,5 @@ export class PayanywayPaymentAdapter {
   private createSignatureFromArray(...args: unknown[]) {
     const raw = [...args, this.signatureKey].join("");
     return crypto.createHash("md5").update(raw).digest("hex");
-  }
-
-  private createSignature(
-    id: string,
-    transactionId: string,
-    amount: string,
-    currency: string,
-    subscriberId: string,
-    isTest: boolean = false,
-  ) {
-    return this.createSignatureFromArray([
-      id,
-      transactionId,
-      amount,
-      currency,
-      subscriberId,
-      isTest ? "1" : "0",
-    ]);
   }
 }
