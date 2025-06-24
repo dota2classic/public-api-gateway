@@ -16,6 +16,7 @@ import {
   NestFastifyApplication,
 } from "@nestjs/platform-fastify";
 import fastifyCookie from "@fastify/cookie";
+import fastify from "fastify";
 
 // import duration from 'dayjs/plugin/duration' // ES 2015
 
@@ -27,7 +28,11 @@ async function bootstrap() {
 
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
-    new FastifyAdapter(),
+    new FastifyAdapter(
+      fastify({
+        trustProxy: true,
+      }),
+    ),
     {
       logger: new WinstonWrapper(
         config.get("fluentbit.host"),
