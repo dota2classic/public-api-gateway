@@ -197,13 +197,19 @@ export class SocketGateway implements OnGatewayDisconnect, OnGatewayConnection {
 
     const uniqueUsers = new Set(
       Array.from(this.server.sockets.sockets.values()).map(
-        (it) => it.request.connection.remoteAddress,
+        (it) =>
+          it.handshake.headers["x-forwarded-for"] ||
+          it.handshake.address ||
+          it.request.socket.remoteAddress,
       ),
     );
 
     this.logger.log("Trash log: ", {
       users: Array.from(this.server.sockets.sockets.values()).map(
-        (it) => it.request.connection.remoteAddress,
+        (it) =>
+          it.handshake.headers["x-forwarded-for"] ||
+          it.handshake.address ||
+          it.request.socket.remoteAddress,
       ),
     });
 
