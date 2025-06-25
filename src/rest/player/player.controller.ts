@@ -66,10 +66,10 @@ export class PlayerController {
     private readonly ds: DataSource,
   ) {}
 
-  @UseInterceptors(UserHttpCacheInterceptor)
+  // @UseInterceptors(UserHttpCacheInterceptor)
   @Get("/me")
   @WithUser()
-  @CacheTTL(5)
+  // @CacheTTL(5)
   async me(@CurrentUser() user: CurrentUserDto): Promise<MeDto> {
     const [summary, banStatus, reportsAvailable] = await Promise.combine([
       this.ms.playerControllerPlayerSummary(user.steam_id),
