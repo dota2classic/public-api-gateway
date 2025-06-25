@@ -92,7 +92,7 @@ export class PaymentService {
         },
       });
 
-    let internalPayment = await this.userPaymentEntityRepository.save(
+    return await this.userPaymentEntityRepository.save(
       new UserPaymentEntity(
         steamId,
         "email",
@@ -101,14 +101,6 @@ export class PaymentService {
         PaymentStatus.CREATED,
       ),
     );
-
-    const paymentUrl = await this.payanywayAdapter.createPayment(
-      internalPayment,
-      product,
-    );
-    return {
-      paymentUrl,
-    };
   }
 
   public async createPaymentSelfwork(
@@ -175,93 +167,76 @@ export class PaymentService {
     });
   }
 
-  public async onPaymentSucceeded(externalPayment: SelfworkOrderNotification) {
-    if (externalPayment.status !== "succeeded") {
-      this.logger.log("Tried to handle not succeeded payment");
-      throw "Bad status";
-    }
-    await this.dataSource.transaction(async (tx) => {
-      const payment = await tx
-        .createQueryBuilder<UserPaymentEntity>(UserPaymentEntity, "payment")
-        .useTransaction(true)
-        .setLock("pessimistic_write")
-        .where("payment.payment_id = :id", { id: externalPayment.order_id })
-        .getOne();
+  // public async onPaymentSucceeded(transactionId: string) {
+  //   // if (externalPayment.status !== "succeeded") {
+  //   //   this.logger.log("Tried to handle not succeeded payment");
+  //   //   throw "Bad status";
+  //   // }
+  //
+  //   if (
+  //     await this.userPaymentEntityRepository.exists({
+  //       where: { paymentId: transactionId },
+  //     })
+  //   ) {
+  //     throw "Already processed";
+  //   }
+  //   await this.dataSource.transaction(async (tx) => {
+  //     const payment = await tx
+  //       .createQueryBuilder<UserPaymentEntity>(UserPaymentEntity, "payment")
+  //       .useTransaction(true)
+  //       .setLock("pessimistic_write")
+  //       .where("payment.payment_id = :id", { id: transactionId })
+  //       .getOne();
+  //
+  //     if (payment.status == PaymentStatus.SUCCEEDED) {
+  //       this.logger.log("Tried to handle payment success twice", {
+  //         external_payment_id: transactionId,
+  //         payment_id: payment.id,
+  //       });
+  //       return;
+  //     }
+  //
+  //     const product = await tx.findOne<SubscriptionProductEntity>(
+  //       SubscriptionProductEntity,
+  //       {
+  //         where: {
+  //           id: payment.productId,
+  //         },
+  //       },
+  //     );
+  //
+  //     payment.status = PaymentStatus.SUCCEEDED;
+  //     await tx.save(payment);
+  //     this.logger.log("Updated payment status to succeeded", {
+  //       id: payment.id,
+  //       external_payment_id: transactionId,
+  //     });
+  //     // here we also need to add role
+  //
+  //     await this.notification.createNotification(
+  //       payment.steamId,
+  //       payment.steamId,
+  //       NotificationEntityType.PLAYER,
+  //       NotificationType.SUBSCRIPTION_PURCHASED,
+  //       "700days",
+  //     );
+  //
+  //     const result = await this.rmq
+  //       .send<boolean>(
+  //         UserSubscriptionPaidEvent.name,
+  //         new UserSubscriptionPaidEvent(
+  //           payment.steamId,
+  //           product.months * PaymentService.DAYS_IN_MONTH,
+  //         ), // For now
+  //       )
+  //       .toPromise();
+  //     this.logger.log("Successfully awaited result of add days command", {
+  //       result,
+  //     });
+  //   });
+  // }
 
-      if (payment.status == PaymentStatus.SUCCEEDED) {
-        this.logger.log("Tried to handle payment success twice", {
-          external_payment_id: externalPayment.order_id,
-          payment_id: payment.id,
-        });
-        return;
-      }
-
-      const product = await tx.findOne<SubscriptionProductEntity>(
-        SubscriptionProductEntity,
-        {
-          where: {
-            id: payment.productId,
-          },
-        },
-      );
-
-      payment.status = PaymentStatus.SUCCEEDED;
-      await tx.save(payment);
-      this.logger.log("Updated payment status to succeeded", {
-        id: payment.id,
-        external_payment_id: externalPayment.order_id,
-      });
-      // here we also need to add role
-
-      await this.notification.createNotification(
-        payment.steamId,
-        payment.steamId,
-        NotificationEntityType.PLAYER,
-        NotificationType.SUBSCRIPTION_PURCHASED,
-        "700days",
-      );
-
-      const result = await this.rmq
-        .send<boolean>(
-          UserSubscriptionPaidEvent.name,
-          new UserSubscriptionPaidEvent(
-            payment.steamId,
-            product.months * PaymentService.DAYS_IN_MONTH,
-          ), // For now
-        )
-        .toPromise();
-      this.logger.log("Successfully awaited result of add days command", {
-        result,
-      });
-    });
-  }
-
-  public async handlePayanywayCallback(
-    mntId: string,
-    mntTransactionId: string,
-    mntOperationId: string,
-    mntAmount: string,
-    mntCurrencyCode: string,
-    mntSubscriberId: string,
-    mntTestMode: string,
-    mntSignature: string,
-    mntUser: string,
-  ) {
-    const externalPaymentId = await this.payanywayAdapter.validatePaymentStatus(
-      mntId,
-      mntTransactionId,
-      mntOperationId,
-      mntAmount,
-      mntCurrencyCode,
-      mntSubscriberId,
-      mntTestMode,
-      mntSignature,
-      mntUser,
-    );
-    await this.handleSuccessfulPayment(mntTransactionId, externalPaymentId);
-  }
-
-  private async handleSuccessfulPayment(
+  public async handleSuccessfulPayment(
     paymentId: string,
     externalPaymentId: string,
   ) {
@@ -291,6 +266,7 @@ export class PaymentService {
       );
 
       payment.status = PaymentStatus.SUCCEEDED;
+      payment.paymentId = externalPaymentId;
       await tx.save(payment);
       this.logger.log("Updated payment status to succeeded", {
         id: payment.id,

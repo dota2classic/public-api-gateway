@@ -43,3 +43,9 @@ export interface SelfworkOrderNotification {
   };
   signature: string; // Подпись уведомления
 }
+
+export class SimulatePaymentDto {
+  productId: number;
+  steamId: string;
+  paymentId: string;
+}

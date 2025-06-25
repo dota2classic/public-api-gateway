@@ -46,7 +46,7 @@ export class UserPaymentEntity {
   email: string;
 
   @Column({
-    type: "uuid",
+    type: "text",
     name: "payment_id",
     nullable: true,
   })
