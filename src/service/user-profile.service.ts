@@ -8,7 +8,6 @@ import { UserFastProfileDto } from "../gateway/caches/user-fast-profile.dto";
 import { UserProfileDecorationPreferencesEntity } from "../entity/user-profile-decoration-preferences.entity";
 import { CustomizationMapper } from "../rest/customization/customization.mapper";
 import { UserDTO } from "../rest/shared.dto";
-import { memoize2 } from "../utils/memoize";
 
 @Injectable()
 export class UserProfileService {
@@ -48,7 +47,7 @@ export class UserProfileService {
     };
   };
 
-  @memoize2({ maxAge: 10_000 })
+  // @memoize2({ maxAge: 10_000 })
   private async getProfileDecorations(steamId: string) {
     return this.userProfileDecorationPreferencesEntityRepository.findOne({
       where: { steamId },
