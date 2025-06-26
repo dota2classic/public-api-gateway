@@ -17,7 +17,6 @@ import {
 } from "@nestjs/platform-fastify";
 import fastifyCookie from "@fastify/cookie";
 import fastify from "fastify";
-import { RedisIoAdapter } from "./socket/redis-io.adapter";
 
 // import duration from 'dayjs/plugin/duration' // ES 2015
 
@@ -97,10 +96,6 @@ async function bootstrap() {
     },
   });
 
-  const redisIoAdapter = new RedisIoAdapter(app, config);
-  await redisIoAdapter.connectToRedis();
-
-  app.useWebSocketAdapter(redisIoAdapter);
   app.useGlobalPipes(new ValidationPipe());
   app.use(cookieParser());
 
