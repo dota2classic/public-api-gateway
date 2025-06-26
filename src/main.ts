@@ -3,7 +3,7 @@ import { NestFactory } from "@nestjs/core";
 import { AppModule } from "./app.module";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 import * as cookieParser from "cookie-parser";
-import { Transport } from "@nestjs/microservices";
+import { RmqOptions, Transport } from "@nestjs/microservices";
 import { INestApplication, ValidationPipe } from "@nestjs/common";
 import { WinstonWrapper } from "@dota2classic/nest_logger";
 import configuration from "./config/configuration";
@@ -93,6 +93,26 @@ async function bootstrap() {
       retryAttempts: Infinity,
       retryDelay: 5000,
       password: config.get("redis.password"),
+    },
+  });
+
+  app.connectMicroservice<RmqOptions>({
+    transport: Transport.RMQ,
+    options: {
+      urls: [
+        {
+          hostname: config.get<string>("rabbitmq.host"),
+          port: config.get<number>("rabbitmq.port"),
+          protocol: "amqp",
+          username: config.get<string>("rabbitmq.user"),
+          password: config.get<string>("rabbitmq.password"),
+        },
+      ],
+      queue: config.get<string>("rabbitmq.gameserver_commands"),
+      noAck: false,
+      queueOptions: {
+        durable: true,
+      },
     },
   });
 

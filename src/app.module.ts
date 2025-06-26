@@ -100,7 +100,6 @@ import { PlayerNotLoadedHandler } from "./rest/feedback/event-handler/player-not
 import { PlayerAbandonedHandler } from "./rest/feedback/event-handler/player-abandoned.handler";
 import { AchievementCompleteHandler } from "./rest/notification/event-handler/achievement-complete.handler";
 import { AdminFeedbackController } from "./rest/feedback/admin-feedback.controller";
-import { PlayerFeedbackThreadCreatedHandler } from "./rest/notification/event-handler/player-feedback-thread-created.handler";
 import * as TelegramBot from "node-telegram-bot-api";
 import { TelegramNotificationService } from "./rest/notification/telegram-notification.service";
 import { NewTicketMessageCreatedHandler } from "./rest/notification/event-handler/new-ticket-message-created.handler";
@@ -145,6 +144,8 @@ import { ReportController } from "./rest/report/report.controller";
 import { ReportService } from "./rest/report/report.service";
 import { ReportMapper } from "./rest/report/report.mapper";
 import { PayanywayPaymentAdapter } from "./rest/payments/payanyway-payment-adapter";
+import { CreateFeedbackNotificationHandler } from "./rest/notification/command-handler/CreateFeebackNotification/create-feedback-notification.handler";
+import { RmqController } from "./rmq.controller";
 
 @Module({
   imports: [
@@ -315,6 +316,7 @@ import { PayanywayPaymentAdapter } from "./rest/payments/payanyway-payment-adapt
     PlayerController,
     ServerController,
     EventController,
+    RmqController,
     AdminUserController,
     LobbyController,
 
@@ -471,7 +473,7 @@ import { PayanywayPaymentAdapter } from "./rest/payments/payanyway-payment-adapt
 
     // Feedback
     PlayerNotLoadedHandler,
-    PlayerFeedbackThreadCreatedHandler,
+    CreateFeedbackNotificationHandler,
     NewTicketMessageCreatedHandler,
     PlayerReportBanCreatedHandler,
     TelegramNotificationService,
