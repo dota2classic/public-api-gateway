@@ -108,7 +108,7 @@ async function bootstrap() {
           password: config.get<string>("rabbitmq.password"),
         },
       ],
-      queue: config.get<string>("rabbitmq.gameserver_commands"),
+      queue: config.get<string>("rabbitmq.gameserver_events"),
       noAck: false,
       queueOptions: {
         durable: true,
