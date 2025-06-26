@@ -39,6 +39,7 @@ export class PunishmentLogDto {
   reported: UserDTO;
   executor: UserDTO;
   duration: number;
+  reportId?: string;
   rule: RuleDto;
   punishment: RulePunishmentDto;
 }
