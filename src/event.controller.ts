@@ -166,7 +166,6 @@ export class EventController {
 
   @EventPattern(NotificationCreatedEvent.name)
   async NotificationCreatedEvent(data: NotificationCreatedEvent) {
-    console.log("Received NotificationCreatedEvent from redis");
     this.event(NotificationCreatedEvent, data);
   }
 }
