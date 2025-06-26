@@ -219,7 +219,7 @@ export class AdminUserController {
   public async playerFlags(@Param("id") id: string): Promise<PlayerFlagDto> {
     const ex = await this.playerFlagsRepo.findOne({ where: { steamId: id } });
     if (!ex) {
-      return { steamId: id, ignoreSmurf: false };
+      return { steamId: id, ignoreSmurf: false, disableReports: false };
     }
     return ex;
   }
@@ -231,13 +231,14 @@ export class AdminUserController {
     @Param("id") id: string,
     @Body() dto: UpdatePlayerFlagDto,
   ): Promise<PlayerFlagDto> {
-    await this.playerFlagsRepo.upsert(
-      {
-        steamId: id,
-        ignoreSmurf: dto.ignoreSmurf,
-      },
-      ["steamId"],
-    );
+    let flags = await this.playerFlagsRepo.findOne({ where: { steamId: id } });
+    if (!flags) {
+      flags = new PlayerFlagsEntity();
+      flags.ignoreSmurf = false;
+      flags.disableReports = false;
+    }
+    Object.assign(flags, dto);
+    await this.playerFlagsRepo.save(flags);
     return this.playerFlagsRepo.findOne({ where: { steamId: id } });
   }
 }

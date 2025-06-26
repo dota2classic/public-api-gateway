@@ -16,6 +16,7 @@ import { PunishmentLogEntity } from "../../entity/punishment-log.entity";
 import { PlayerBanEntity } from "../../entity/player-ban.entity";
 import { BanReason } from "../../gateway/shared-types/ban";
 import { ConfigService } from "@nestjs/config";
+import { PlayerFlagsEntity } from "../../entity/player-flags.entity";
 
 @Injectable()
 export class ReportService {
@@ -32,6 +33,8 @@ export class ReportService {
     private readonly playerBanEntityRepository: Repository<PlayerBanEntity>,
     private readonly ds: DataSource,
     private readonly config: ConfigService,
+    @InjectRepository(PlayerFlagsEntity)
+    private readonly playerFlagsEntityRepository: Repository<PlayerFlagsEntity>,
   ) {}
 
   public async createLogFromReport(
@@ -108,6 +111,7 @@ export class ReportService {
     comment: string,
     messageId: string,
   ) {
+    await this.checkHasPermission(reporter.steam_id);
     const alreadyReported = await this.userReportEntityRepository.exists({
       where: {
         reportedSteamId: reported,
@@ -138,16 +142,8 @@ export class ReportService {
     comment: string,
     matchId: number,
   ) {
-    const alreadyReported = await this.userReportEntityRepository.exists({
-      where: {
-        reportedSteamId: reported,
-        ruleId: ruleId,
-        matchId: matchId,
-      },
-    });
-    if (alreadyReported) {
-      throw new HttpException({ message: "Такая жалоба уже заведена" }, 400);
-    }
+    await this.checkHasPermission(reporter.steam_id);
+    await this.checkAlreadyReported(reported, ruleId, matchId);
 
     const report = await this.userReportEntityRepository.save(
       new UserReportEntity(
@@ -193,5 +189,35 @@ ${report.comment ? `Комментарий: \n${report.comment}` : ""}
       NotificationType.REPORT_CREATED,
       "10m",
     );
+  }
+
+  private async checkAlreadyReported(
+    steamId: string,
+    ruleId: number,
+    matchId: number,
+  ) {
+    const alreadyReported = await this.userReportEntityRepository.exists({
+      where: {
+        reportedSteamId: steamId,
+        ruleId: ruleId,
+        matchId: matchId,
+      },
+    });
+    if (alreadyReported) {
+      throw new HttpException({ message: "Такая жалоба уже заведена" }, 400);
+    }
+  }
+
+  private async checkHasPermission(steamId: string) {
+    if (
+      await this.playerFlagsEntityRepository.exists({
+        where: { steamId, disableReports: true },
+      })
+    ) {
+      throw new HttpException(
+        { message: "Тебе запрещено создавать жалобы" },
+        403,
+      );
+    }
   }
 }
