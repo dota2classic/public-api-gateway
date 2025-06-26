@@ -212,6 +212,7 @@ export class NotificationService {
     let ne = new NotificationEntity(steamId, entityId, entityType, type, ttl);
     ne = await this.notificationEntityRepository.save(ne);
     ne = await this.getFullNotification(ne.id);
+    this.logger.log("Emitting NotificationCreatedEvent to redis");
     await this.redisEventQueue.emit(
       NotificationCreatedEvent.name,
       new NotificationCreatedEvent(await this.mapper.mapNotification(ne)),
