@@ -76,9 +76,9 @@ export class ReportService {
         ),
       );
 
-      if (rule.ruleType === RuleType.COMMUNICATION) {
+      if (rule.ruleType === RuleType.GAMEPLAY) {
         await this.updateGameplayBan(tx, punishedSteamId, durationSeconds);
-      } else if (rule.ruleType === RuleType.GAMEPLAY) {
+      } else if (rule.ruleType === RuleType.COMMUNICATION) {
         await this.updateCommunicationBan(punishedSteamId, durationSeconds);
       }
 
