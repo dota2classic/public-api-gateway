@@ -1,10 +1,10 @@
 import { HttpException, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { UserReportEntity } from "../../entity/user-report.entity";
-import { DataSource, Repository } from "typeorm";
+import { DataSource, EntityManager, Repository } from "typeorm";
 import { ForumApi } from "../../generated-api/forum";
 import { ThreadType } from "../../gateway/shared-types/thread-type";
-import { RuleEntity } from "../../entity/rule.entity";
+import { RuleEntity, RuleType } from "../../entity/rule.entity";
 import {
   NotificationEntityType,
   NotificationType,
@@ -60,6 +60,10 @@ export class ReportService {
     punishmentId: number,
     reportId?: string,
   ) {
+    const rule = await this.ruleEntityRepository.findOne({
+      where: { id: ruleId },
+    });
+
     return this.ds.transaction(async (tx) => {
       const log = await tx.save(
         new PunishmentLogEntity(
@@ -72,35 +76,63 @@ export class ReportService {
         ),
       );
 
-      let ban: PlayerBanEntity = await tx.findOne<PlayerBanEntity>(
-        PlayerBanEntity,
-        {
-          where: {
-            steamId: punishedSteamId,
-          },
-        },
-      );
-      if (!ban) {
-        ban = await tx.save(
-          new PlayerBanEntity(
-            punishedSteamId,
-            new Date(0),
-            BanReason.RULE_VIOLATION,
-          ),
-        );
+      if (rule.ruleType === RuleType.COMMUNICATION) {
+        await this.updateGameplayBan(tx, punishedSteamId, durationSeconds);
+      } else if (rule.ruleType === RuleType.GAMEPLAY) {
+        await this.updateCommunicationBan(punishedSteamId, durationSeconds);
       }
 
-      await tx.update<PlayerBanEntity>(
-        PlayerBanEntity,
-        { steamId: punishedSteamId },
-        {
-          reason: BanReason.RULE_VIOLATION,
-          endTime: () =>
-            `greatest(endTime, now()) + interval'${durationSeconds} seconds'`,
-        },
-      );
-
       return log;
+    });
+  }
+
+  private async updateGameplayBan(
+    tx: EntityManager,
+    punishedSteamId: string,
+    durationSeconds: number,
+  ) {
+    let ban: PlayerBanEntity = await tx.findOne<PlayerBanEntity>(
+      PlayerBanEntity,
+      {
+        where: {
+          steamId: punishedSteamId,
+        },
+      },
+    );
+    if (!ban) {
+      ban = await tx.save(
+        new PlayerBanEntity(
+          punishedSteamId,
+          new Date(0),
+          BanReason.RULE_VIOLATION,
+        ),
+      );
+    }
+
+    await tx.update<PlayerBanEntity>(
+      PlayerBanEntity,
+      { steamId: punishedSteamId },
+      {
+        reason: BanReason.RULE_VIOLATION,
+        endTime: () =>
+          `greatest(endTime, now()) + interval'${durationSeconds} seconds'`,
+      },
+    );
+  }
+
+  private async updateCommunicationBan(
+    punishedSteamId: string,
+    durationSeconds: number,
+  ) {
+    const user = await this.forumApi.forumControllerGetUser(punishedSteamId);
+    let muteStart = new Date();
+    if (new Date(user.muteUntil).getTime() > muteStart.getTime()) {
+      muteStart = new Date(user.muteUntil);
+    }
+    await this.forumApi.forumControllerUpdateUser(punishedSteamId, {
+      muteUntil: new Date(
+        muteStart.getTime() + durationSeconds * 1000,
+      ).toISOString(),
     });
   }
 
