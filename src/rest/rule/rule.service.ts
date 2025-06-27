@@ -71,6 +71,7 @@ export class RuleService {
         fullIndex: getFullPrefix(rule),
         description: rule.description,
         title: rule.title,
+        ruleType: rule.ruleType,
         punishment: rule.punishment,
       }));
   }

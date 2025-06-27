@@ -94,6 +94,7 @@ export class RuleController {
         parentId: dto.parent,
         punishmentId: dto.punishmentId,
         automatic: dto.automatic,
+        ruleType: dto.ruleType,
       },
     );
     return this.ruleEntityRepository

@@ -13,6 +13,7 @@ export class RuleMapper {
       title: rule.title,
       automatic: rule.automatic,
       parentId: rule.parentId,
+      ruleType: rule.ruleType,
       children: rule.children ? rule.children.map(this.mapRule) : [],
       punishment: rule.punishment
         ? this.mapPunishment(rule.punishment)
