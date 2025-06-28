@@ -1,19 +1,23 @@
 // import { parse } from "@blastorg/srcds-log-parser"
 
-const r = /<\[U:1:(\d+)]><#DOTA_.+>" (say_team|say) "(.+)"/g;
+import { DotaTeam } from "../gateway/shared-types/dota-team";
+
+const r = /<\[U:1:(\d+)]><#DOTA_(.+)>" (say_team|say) "(.+)"/g;
 
 export interface LogMessage {
   steamId: string;
   message: string;
   allChat: boolean;
+  team: DotaTeam;
 }
 export function parseLogLine(line: string): LogMessage | undefined {
   try {
     const arr = r.exec(line);
     return {
       steamId: arr[1],
-      message: arr[3],
-      allChat: arr[2] === "say",
+      message: arr[4],
+      team: arr[2] === "BadGuys" ? DotaTeam.DIRE : DotaTeam.RADIANT,
+      allChat: arr[3] === "say",
     };
   } catch (e) {
     // console.log(e);

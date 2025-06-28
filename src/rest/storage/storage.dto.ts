@@ -1,3 +1,5 @@
+import { DotaTeam } from "../../gateway/shared-types/dota-team";
+
 export class UploadedImageDto {
   url: string;
   key: string;
@@ -10,6 +12,7 @@ export class UploadedImagePageDto {
 
 export class LogLineDto {
   author: string;
+  team: DotaTeam;
   say: string;
   allChat: boolean;
 }

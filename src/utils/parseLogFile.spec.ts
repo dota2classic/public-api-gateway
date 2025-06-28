@@ -1,4 +1,5 @@
 import { parseLogFile, parseLogLine } from "./parseLogFile";
+import { DotaTeam } from "../gateway/shared-types/dota-team";
 
 describe("parseLogFile", () => {
   const log = `---- Host_NewGame ----
@@ -5649,13 +5650,27 @@ Server logging enabled.
     console.log(msgs);
   });
 
-  it("should parse log line", () => {
+  it("should parse dire say_team log line", () => {
     const some = parseLogLine(
       `06/27/2025 - 00:40:11: L 06/27/2025 - 00:40:11: "asd829458<4><[U:1:1909044259]><#DOTA_BadGuys>" say_team "я керри, потому тихоньуо"`,
     );
     expect(some).toEqual({
       steamId: "1909044259",
       message: "я керри, потому тихоньуо",
+      team: DotaTeam.DIRE,
+      allChat: false,
+    });
+  });
+
+  it("should parse radiant say log line", () => {
+    const some = parseLogLine(
+      `06/27/2025 - 01:41:26: L 06/27/2025 - 01:41:26: "🖤domaprohladno<9><[U:1:153062474]><#DOTA_GoodGuys>" say "ты как будто недоволен"`,
+    );
+    expect(some).toEqual({
+      steamId: "153062474",
+      message: "ты как будто недоволен",
+      team: DotaTeam.RADIANT,
+      allChat: true,
     });
   });
 });

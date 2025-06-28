@@ -127,11 +127,13 @@ export class StorageController {
       Key: `${id}.log`,
     });
     const txt = await object.Body.transformToString();
+    const log = parseLogFile(txt);
 
-    return parseLogFile(txt).map((ll) => ({
+    return log.map((ll) => ({
       author: ll.steamId,
       say: ll.message,
       allChat: ll.allChat,
+      team: ll.team,
     }));
   }
 }
