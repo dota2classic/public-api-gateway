@@ -21,7 +21,6 @@ import {
   ModeratorGuard,
   WithUser,
 } from "../../utils/decorator/with-user";
-import { MatchmakingMode } from "../../gateway/shared-types/matchmaking-mode";
 import { UserProfileService } from "../../service/user-profile.service";
 
 @Controller("servers")
@@ -35,21 +34,6 @@ export class ServerController {
     private readonly ebus: EventBus,
     private readonly ms: InfoApi,
   ) {}
-
-  @Get("ohbabystasik")
-  async fdf() {
-    const some = await this.qBus.execute<
-      GetQueueStateQuery,
-      GetQueueStateQueryResult
-    >(new GetQueueStateQuery(Dota2Version.Dota_684));
-    const plrs = some.entries
-      .filter((t) => t.modes.includes(MatchmakingMode.UNRANKED))
-      .flatMap((it) => it.players);
-
-    return (await Promise.all(plrs.map(this.user.userDto))).map(
-      (it) => it.name,
-    );
-  }
 
   @Get("/queues")
   async queues(): Promise<QueueEntryDTO[]> {
@@ -78,7 +62,7 @@ export class ServerController {
       .then((t) => t.map(this.mapper.mapGameServer));
   }
 
-  @ModeratorGuard()
+  @AdminGuard()
   @WithUser()
   @Post(`/stop_server`)
   async stopServer(@Body() url: StopServerDto) {

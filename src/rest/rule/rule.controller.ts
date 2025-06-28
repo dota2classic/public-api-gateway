@@ -26,7 +26,7 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { IsNull, Repository } from "typeorm";
 import { RuleMapper } from "./rule.mapper";
 import { RuleService } from "./rule.service";
-import { ModeratorGuard, WithUser } from "../../utils/decorator/with-user";
+import { AdminGuard, WithUser } from "../../utils/decorator/with-user";
 import { RulePunishmentEntity } from "../../entity/rule-punishment.entity";
 
 @UseInterceptors(ReqLoggingInterceptor)
@@ -42,7 +42,7 @@ export class RuleController {
     private readonly ruleService: RuleService,
   ) {}
 
-  @ModeratorGuard()
+  @AdminGuard()
   @WithUser()
   @Post("/indices")
   public async updateIndices(
@@ -69,7 +69,7 @@ export class RuleController {
       .then(this.mapper.mapRule);
   }
 
-  @ModeratorGuard()
+  @AdminGuard()
   @WithUser()
   @Delete("/rule/:id")
   public async deleteRule(
@@ -78,7 +78,7 @@ export class RuleController {
     return this.ruleService.tryDeleteRule(id);
   }
 
-  @ModeratorGuard()
+  @AdminGuard()
   @WithUser()
   @Patch("/rule/:id")
   public async updateRule(
@@ -102,7 +102,7 @@ export class RuleController {
       .then(this.mapper.mapRule);
   }
 
-  @ModeratorGuard()
+  @AdminGuard()
   @WithUser()
   @Post("/rule")
   public async createRule(@Body() dto: CreateRuleDto): Promise<RuleDto> {
@@ -117,7 +117,7 @@ export class RuleController {
       .then(this.mapper.mapRule);
   }
 
-  @ModeratorGuard()
+  @AdminGuard()
   @WithUser()
   @Post("/punishment")
   public async createPunishment(): Promise<RulePunishmentDto> {
@@ -138,7 +138,7 @@ export class RuleController {
       .then(this.mapper.mapPunishment);
   }
 
-  @ModeratorGuard()
+  @AdminGuard()
   @WithUser()
   @Delete("/punishment/:id")
   public async deletePunishment(
@@ -147,7 +147,7 @@ export class RuleController {
     return this.ruleService.tryDeletePunishment(id);
   }
 
-  @ModeratorGuard()
+  @AdminGuard()
   @WithUser()
   @Patch("/punishment/:id")
   public async updatePunishment(

@@ -10,7 +10,7 @@ import {
 } from "@nestjs/common";
 import { ReqLoggingInterceptor } from "../../middleware/req-logging.interceptor";
 import { ApiBody, ApiConsumes, ApiQuery, ApiTags } from "@nestjs/swagger";
-import { ModeratorGuard, WithUser } from "../../utils/decorator/with-user";
+import { AdminGuard, WithUser } from "../../utils/decorator/with-user";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { InjectS3, S3 } from "nestjs-s3";
 import {
@@ -64,7 +64,7 @@ export class StorageController {
     },
   })
   @ApiConsumes("multipart/form-data")
-  @ModeratorGuard()
+  @AdminGuard()
   @WithUser()
   @UseInterceptors(FileInterceptor("file"))
   @Post("upload")

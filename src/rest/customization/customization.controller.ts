@@ -25,7 +25,7 @@ import {
 } from "./customization.dto";
 import { CustomizationMapper } from "./customization.mapper";
 import {
-  ModeratorGuard,
+  AdminGuard,
   OldGuard,
   WithUser,
 } from "../../utils/decorator/with-user";
@@ -46,7 +46,7 @@ export class CustomizationController {
     private readonly dataSource: DataSource,
   ) {}
 
-  @ModeratorGuard()
+  @AdminGuard()
   @WithUser()
   @Post()
   public async createDecoration(@Body() dto: CreateDecorationDto) {
@@ -106,7 +106,7 @@ export class CustomizationController {
     }
   }
 
-  @ModeratorGuard()
+  @AdminGuard()
   @WithUser()
   @Patch("/:id")
   public async updateDecoration(
@@ -128,7 +128,7 @@ export class CustomizationController {
       .then(this.customizationMapper.mapDecoration);
   }
 
-  @ModeratorGuard()
+  @AdminGuard()
   @WithUser()
   @Get("/:id")
   public async getDecoration(@Param("id", ParseIntPipe) id: number) {
@@ -137,7 +137,7 @@ export class CustomizationController {
       .then(this.customizationMapper.mapDecoration);
   }
 
-  @ModeratorGuard()
+  @AdminGuard()
   @WithUser()
   @Delete("/:id")
   public async deleteDecoration(@Param("id", ParseIntPipe) id: number) {
