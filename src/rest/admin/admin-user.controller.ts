@@ -234,6 +234,7 @@ export class AdminUserController {
     let flags = await this.playerFlagsRepo.findOne({ where: { steamId: id } });
     if (!flags) {
       flags = new PlayerFlagsEntity();
+      flags.steamId = id;
       flags.ignoreSmurf = false;
       flags.disableReports = false;
     }
