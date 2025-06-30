@@ -146,6 +146,7 @@ import { ReportMapper } from "./rest/report/report.mapper";
 import { PayanywayPaymentAdapter } from "./rest/payments/payanyway-payment-adapter";
 import { CreateFeedbackNotificationHandler } from "./rest/notification/command-handler/CreateFeebackNotification/create-feedback-notification.handler";
 import { RmqController } from "./rmq.controller";
+import Redis from "ioredis";
 
 @Module({
   imports: [
@@ -350,7 +351,16 @@ import { RmqController } from "./rmq.controller";
     GameServerAdapter,
     UserAdapter,
     StorageMapper,
-
+    {
+      provide: "REDIS",
+      useFactory: async (config: ConfigService) => {
+        const redis = new Redis(6379, config.get("redis.host"), {
+          password: config.get("redis.password"),
+        });
+        return redis;
+      },
+      inject: [ConfigService],
+    },
     {
       provide: "full-profile",
       async useFactory(config: ConfigService) {

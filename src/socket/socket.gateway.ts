@@ -27,15 +27,15 @@ import { PartyInviteAcceptedEvent } from "../gateway/events/party/party-invite-a
 import { PartyInviteRequestedEvent } from "../gateway/events/party/party-invite-requested.event";
 import { AcceptPartyInviteMessageC2S } from "./messages/c2s/accept-party-invite-message.c2s";
 import { InviteToPartyMessageC2S } from "./messages/c2s/invite-to-party-message.c2s";
-import { OnlineUpdateMessageS2C } from "./messages/s2c/online-update-message.s2c";
 import { EventBus } from "@nestjs/cqrs";
-import { SocketFullDisconnectEvent } from "./event/socket-full-disconnect.event";
 import { PlayerEnterQueueRequestedEvent } from "../gateway/events/mm/player-enter-queue-requested.event";
 import { PlayerLeaveQueueRequestedEvent } from "../gateway/events/mm/player-leave-queue-requested.event";
 import { Cron, CronExpression } from "@nestjs/schedule";
 import { MetricsService } from "../metrics.service";
 import { UserRelationService } from "../service/user-relation.service";
 import { UserRelationStatus } from "../gateway/shared-types/user-relation";
+import Redis from "ioredis";
+import { OnlineUpdateMessageS2C } from "./messages/s2c/online-update-message.s2c";
 
 @WebSocketGateway({ cors: "*" })
 export class SocketGateway implements OnGatewayDisconnect, OnGatewayConnection {
@@ -44,18 +44,15 @@ export class SocketGateway implements OnGatewayDisconnect, OnGatewayConnection {
   @WebSocketServer()
   server: WSServer;
 
-  private disconnectConsiderLeaver: {
-    [key: string]: number;
-  } = {};
-
   constructor(
     private readonly jwtService: JwtService,
     private readonly messageService: SocketMessageService,
     private readonly delivery: SocketDelivery,
     private readonly ebus: EventBus,
-    @Inject("QueryCore") private readonly redis: ClientProxy,
+    @Inject("QueryCore") private readonly redisQueue: ClientProxy,
     private readonly metrics: MetricsService,
     private readonly relationService: UserRelationService,
+    @Inject("REDIS") private readonly redis: Redis,
   ) {}
 
   async handleConnection(client: PlayerSocket, ...args) {
@@ -65,8 +62,9 @@ export class SocketGateway implements OnGatewayDisconnect, OnGatewayConnection {
       const parsed = this.jwtService.verify<{ sub: string }>(authToken);
 
       client.steamId = parsed.sub;
-      this.stopDisconnectCountdown(client);
+      // this.stopDisconnectCountdown(client);
 
+      await this.onConnect(client);
       await this.shareInitialData(client);
     } catch (e) {
       client.steamId = undefined;
@@ -77,11 +75,7 @@ export class SocketGateway implements OnGatewayDisconnect, OnGatewayConnection {
 
   async handleDisconnect(client: PlayerSocket) {
     if (client.steamId) {
-      const totalConnections = this.totalConnections(client.steamId);
-
-      if (totalConnections === 0) {
-        this.startDisconnectCountdown(client);
-      }
+      await this.onDisconnect(client);
     }
 
     await this.updateOnline();
@@ -92,7 +86,7 @@ export class SocketGateway implements OnGatewayDisconnect, OnGatewayConnection {
     @MessageBody() data: EnterQueueMessageC2S,
     @ConnectedSocket() client: PlayerSocket,
   ) {
-    await this.redis
+    await this.redisQueue
       .emit(
         PlayerEnterQueueRequestedEvent.name,
         new PlayerEnterQueueRequestedEvent(client.steamId, data.modes),
@@ -102,7 +96,7 @@ export class SocketGateway implements OnGatewayDisconnect, OnGatewayConnection {
 
   @SubscribeMessage(MessageTypeC2S.LEAVE_ALL_QUEUES)
   async leaveAllQueues(@ConnectedSocket() client: PlayerSocket) {
-    await this.redis
+    await this.redisQueue
       .emit(
         PlayerLeaveQueueRequestedEvent.name,
         new PlayerLeaveQueueRequestedEvent(client.steamId),
@@ -115,7 +109,7 @@ export class SocketGateway implements OnGatewayDisconnect, OnGatewayConnection {
     @MessageBody() data: SetReadyCheckMessageC2S,
     @ConnectedSocket() client: PlayerSocket,
   ) {
-    this.redis.emit(
+    this.redisQueue.emit(
       ReadyStateReceivedEvent.name,
       new ReadyStateReceivedEvent(
         client.steamId,
@@ -141,7 +135,7 @@ export class SocketGateway implements OnGatewayDisconnect, OnGatewayConnection {
       });
       return;
     }
-    await this.redis
+    await this.redisQueue
       .emit(
         PartyInviteRequestedEvent.name,
         new PartyInviteRequestedEvent(client.steamId, data.invitedPlayerId),
@@ -154,7 +148,7 @@ export class SocketGateway implements OnGatewayDisconnect, OnGatewayConnection {
     @MessageBody() data: AcceptPartyInviteMessageC2S,
     @ConnectedSocket() client: PlayerSocket,
   ) {
-    await this.redis
+    await this.redisQueue
       .emit(
         PartyInviteAcceptedEvent.name,
         new PartyInviteAcceptedEvent(data.inviteId, data.accept),
@@ -164,7 +158,7 @@ export class SocketGateway implements OnGatewayDisconnect, OnGatewayConnection {
 
   @SubscribeMessage(MessageTypeC2S.LEAVE_PARTY)
   async leaveParty(@ConnectedSocket() client: PlayerSocket) {
-    await this.redis
+    await this.redisQueue
       .emit(
         PartyLeaveRequestedEvent.name,
         new PartyLeaveRequestedEvent(client.steamId),
@@ -172,71 +166,53 @@ export class SocketGateway implements OnGatewayDisconnect, OnGatewayConnection {
       .toPromise();
   }
 
-  private stopDisconnectCountdown(client: PlayerSocket) {
-    const existingTimer = this.disconnectConsiderLeaver[client.steamId];
-    if (existingTimer) {
-      clearTimeout(existingTimer);
-    }
-  }
-
-  private startDisconnectCountdown(client: PlayerSocket) {
-    const timer = setTimeout(() => {
-      this.ebus.publish(new SocketFullDisconnectEvent(client.steamId));
-    }, 60_000);
-    this.stopDisconnectCountdown(client);
-    this.disconnectConsiderLeaver[client.steamId] = timer as unknown as number;
+  @Cron(CronExpression.EVERY_MINUTE)
+  public async collectMetrics() {
+    this.metrics.recordOnline(await this.getOnlineUsers());
   }
 
   private async updateOnline() {
-    // We count: unique steamIds + unique ips if no steamid
-    const authorizedClients = new Set(
-      Array.from(this.server.sockets.sockets.values()).map(
-        (it: PlayerSocket) => it.steamId,
-      ),
-    );
-
-    const uniqueUsers = new Set(
-      Array.from(this.server.sockets.sockets.values()).map(
-        (it) =>
-          it.handshake.headers["x-forwarded-for"] ||
-          it.handshake.address ||
-          it.request.socket.remoteAddress,
-      ),
-    );
-
-    this.logger.log("Trash log: ", {
-      users: Array.from(this.server.sockets.sockets.values()).map(
-        (it) =>
-          it.handshake.headers["x-forwarded-for"] ||
-          it.handshake.address ||
-          it.request.socket.remoteAddress,
-      ),
-    });
-
+    const steamKeys: string[] = await this.redis.keys("connected_steamId:*");
+    const steamIds = steamKeys.map((t) => t.replace("connected_steamId:", ""));
     this.logger.log("Online update", {
-      authorized: authorizedClients.size,
+      authorized: steamIds.length,
     });
-
+    //
+    //
     this.server.emit(
       MessageTypeS2C.ONLINE_UPDATE,
-      new OnlineUpdateMessageS2C(
-        Array.from(authorizedClients.values()),
-        uniqueUsers.size,
-      ) as any,
+      new OnlineUpdateMessageS2C(steamIds, steamIds.length) as any,
     );
   }
 
-  @Cron(CronExpression.EVERY_MINUTE)
-  public async collectMetrics() {
-    this.metrics.recordOnline(this.getOnlineUsers().size);
+  private async onConnect(socket: PlayerSocket) {
+    const steamId = socket.steamId;
+    if (!steamId) {
+      return;
+    }
+
+    socket.conn.on("packet", function (packet) {
+      if (packet.type === "ping") {
+        ping(steamId);
+      }
+    });
+
+    const ping = (steamId: string) => {
+      return this.redis
+        .multi()
+        .set(`connected_steamId:${steamId}`, "1")
+        .expire(`connected_steamId:${steamId}`, 120)
+        .exec();
+    };
+
+    socket.onAny(() => ping(steamId));
+    await ping(steamId);
   }
 
-  private getOnlineUsers() {
-    return new Set(
-      Array.from(this.server.sockets.sockets.values()).map(
-        (it: PlayerSocket) => it.steamId,
-      ),
-    );
+  private async onDisconnect(socket: PlayerSocket) {}
+
+  private async getOnlineUsers(): Promise<number> {
+    return this.redis.scard("connected_steamId:*");
   }
 
   private async shareInitialData(socket: PlayerSocket) {
@@ -269,11 +245,5 @@ export class SocketGateway implements OnGatewayDisconnect, OnGatewayConnection {
     );
 
     socket.emit(MessageTypeS2C.CONNECTION_COMPLETE);
-  }
-
-  private totalConnections(steamId: string) {
-    return Array.from(this.server.sockets.sockets.values()).filter(
-      (it: PlayerSocket) => it.steamId === steamId,
-    ).length;
   }
 }
