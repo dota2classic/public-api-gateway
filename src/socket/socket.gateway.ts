@@ -192,7 +192,7 @@ export class SocketGateway implements OnGatewayDisconnect, OnGatewayConnection {
     }
 
     socket.conn.on("packet", function (packet) {
-      if (packet.type === "ping") {
+      if (packet.type === "pong") {
         ping(steamId);
       }
     });
