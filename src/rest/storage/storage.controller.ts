@@ -5,13 +5,16 @@ import {
   ParseIntPipe,
   Post,
   Query,
-  UploadedFile,
   UseInterceptors,
 } from "@nestjs/common";
 import { ReqLoggingInterceptor } from "../../middleware/req-logging.interceptor";
 import { ApiBody, ApiConsumes, ApiQuery, ApiTags } from "@nestjs/swagger";
 import { AdminGuard, WithUser } from "../../utils/decorator/with-user";
-import { FileInterceptor } from "@nestjs/platform-express";
+import {
+  FileInterceptor,
+  MemoryStorageFile,
+  UploadedFile,
+} from "@blazity/nest-file-fastify";
 import { InjectS3, S3 } from "nestjs-s3";
 import {
   ListObjectsV2CommandInput,
@@ -70,7 +73,7 @@ export class StorageController {
   @Post("upload")
   public async uploadImage(
     // @Query("width", NullableIntPipe) width: number,
-    @UploadedFile() file: IFile,
+    @UploadedFile() file: MemoryStorageFile,
   ): Promise<UploadedImageDto> {
     const hash = await calculateHashForBuffer(file.buffer);
 
@@ -85,9 +88,9 @@ export class StorageController {
       ContentType: file.mimetype,
       ACL: "public-read",
 
-      Metadata: {
-        originalName: file.originalname,
-      },
+      // Metadata: {
+      //   originalName: file.fieldname,
+      // },
     };
 
     await this.s3.putObject(putObjectCommandInput);

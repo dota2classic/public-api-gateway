@@ -17,6 +17,7 @@ import {
 } from "@nestjs/platform-fastify";
 import fastifyCookie from "@fastify/cookie";
 import fastify from "fastify";
+import fastyfyMultipart from "@fastify/multipart";
 
 // import duration from 'dayjs/plugin/duration' // ES 2015
 
@@ -126,6 +127,7 @@ async function bootstrap() {
   });
 
   await app.register(fastifyCookie);
+  await app.register(fastyfyMultipart);
   // app.use(cookieParser());
 
   await app.listen(6001, "0.0.0.0");
