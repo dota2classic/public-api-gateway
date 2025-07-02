@@ -28,7 +28,6 @@ import { BanSystemEvent } from "./gateway/events/gs/ban-system.event";
 import { PlayerReportBanCreatedEvent } from "./gateway/events/bans/player-report-ban-created.event";
 import { NotificationCreatedEvent } from "./rest/notification/event/notification-created.event";
 import { LobbyUpdatedEvent } from "./rest/lobby/event/lobby-updated.event";
-import { LobbyClosedEvent } from "./rest/lobby/event/lobby-closed.event";
 
 @Controller()
 export class EventController {
@@ -174,10 +173,5 @@ export class EventController {
   @EventPattern(LobbyUpdatedEvent.name)
   async LobbyUpdatedEvent(data: LobbyUpdatedEvent) {
     this.event(LobbyUpdatedEvent, data);
-  }
-
-  @EventPattern(LobbyClosedEvent.name)
-  async LobbyClosedEvent(data: LobbyClosedEvent) {
-    this.event(LobbyClosedEvent, data);
   }
 }

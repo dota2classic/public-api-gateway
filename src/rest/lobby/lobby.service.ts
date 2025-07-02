@@ -22,10 +22,10 @@ import { LobbyReadyEvent } from "../../gateway/events/lobby-ready.event";
 import { DotaTeam } from "../../gateway/shared-types/dota-team";
 import { Dota_Map } from "../../gateway/shared-types/dota-map";
 import { LobbyUpdatedEvent } from "./event/lobby-updated.event";
-import { LobbyClosedEvent } from "./event/lobby-closed.event";
 import { shuffle } from "../../utils/shuffle";
 import { ClientProxy } from "@nestjs/microservices";
 import { PlayerApi } from "../../generated-api/gameserver";
+import { LobbyAction } from "./lobby.dto";
 
 @Injectable()
 export class LobbyService {
@@ -59,7 +59,9 @@ export class LobbyService {
     const hostedLobbies = await this.lobbyEntityRepository.find({
       where: { ownerSteamId: user.steam_id },
     });
-    await Promise.all(hostedLobbies.map((l) => this.closeLobby(l.id, user)));
+    await Promise.all(
+      hostedLobbies.map((l) => this.closeLobby(l.id, user, LobbyAction.Close)),
+    );
 
     let lobby = new LobbyEntity(user.steam_id);
     lobby = await this.lobbyEntityRepository.save(lobby);
@@ -125,7 +127,11 @@ export class LobbyService {
   }
 
   //
-  public async closeLobby(id: string, user: CurrentUserDto) {
+  public async closeLobby(
+    id: string,
+    user: CurrentUserDto,
+    withAction: LobbyAction,
+  ) {
     let q = this.lobbyEntityRepository
       .createQueryBuilder("l")
       .where("l.id = :id", { id })
@@ -141,19 +147,19 @@ export class LobbyService {
     try {
       await this.datasource.transaction(async (em) => {
         const lobby = await q.getOneOrFail();
+        const affected = lobby.slots.map((t) => t.steamId);
+        const lobbyId = lobby.id;
         await em.remove(lobby.slots);
 
         await em.remove(lobby);
         this.redisEventQueue.emit(
-          LobbyClosedEvent.name,
-          new LobbyClosedEvent(
-            id,
-            lobby.slots.map((t) => t.steamId),
-          ),
+          LobbyUpdatedEvent.name,
+          new LobbyUpdatedEvent(withAction, affected, lobbyId),
         );
         this.logger.log("Closed lobby", { lobby_id: id });
       });
     } catch (e) {
+      console.error(e);
       throw new HttpException("Not an owner", HttpStatusCode.Forbidden);
     }
   }
@@ -171,7 +177,7 @@ export class LobbyService {
 
     // If we are owner, close lobby as well
     if (lobby.ownerSteamId === user.steam_id) {
-      return this.closeLobby(id, user);
+      return this.closeLobby(id, user, LobbyAction.Close);
     }
 
     await this.lobbySlotEntityRepository.delete({
@@ -181,6 +187,17 @@ export class LobbyService {
     lobby.slots.splice(
       lobby.slots.findIndex((t) => t.steamId === user.steam_id),
       1,
+    );
+
+    await this.redisEventQueue.emit(
+      LobbyUpdatedEvent.name,
+      new LobbyUpdatedEvent(
+        LobbyAction.Kick,
+        [user.steam_id],
+        lobby.id,
+        lobby,
+        [user.steam_id],
+      ),
     );
 
     this.lobbyUpdated(lobby);
@@ -261,7 +278,7 @@ export class LobbyService {
 
     // We need a lock for this maybe??
 
-    await this.closeLobby(id, user).then(() => {
+    await this.closeLobby(id, user, LobbyAction.Start).then(() => {
       this.logger.log("Closed lobby, emitting lobby ready event");
       this.ebus.publish(
         new LobbyReadyEvent(
@@ -349,7 +366,12 @@ export class LobbyService {
   private lobbyUpdated = (lobby: LobbyEntity): LobbyEntity => {
     this.redisEventQueue.emit(
       LobbyUpdatedEvent.name,
-      new LobbyUpdatedEvent(lobby),
+      new LobbyUpdatedEvent(
+        LobbyAction.Update,
+        lobby.slots.map((t) => t.steamId),
+        lobby.id,
+        lobby,
+      ),
     );
     return lobby;
   };

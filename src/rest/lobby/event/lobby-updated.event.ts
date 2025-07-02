@@ -1,9 +1,12 @@
 import { LobbyEntity } from "../../../entity/lobby.entity";
-import { LobbyEvent } from "./lobby.event";
+import { LobbyAction } from "../lobby.dto";
 
-export class LobbyUpdatedEvent implements LobbyEvent {
-  public lobbyId: string;
-  constructor(public readonly lobbyEntity: LobbyEntity) {
-    this.lobbyId = lobbyEntity.id;
-  }
+export class LobbyUpdatedEvent {
+  constructor(
+    public readonly action: LobbyAction,
+    public readonly affectedSteamId: string[],
+    public readonly lobbyId: string,
+    public readonly lobbyEntity?: LobbyEntity,
+    public readonly kickedIds: string[] = [],
+  ) {}
 }

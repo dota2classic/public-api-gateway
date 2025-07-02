@@ -66,9 +66,17 @@ export class ChangeTeamInLobbyDto {
   index?: number;
 }
 
+export enum LobbyAction {
+  Update = "update",
+  Close = "close",
+  Start = "start",
+  Kick = "kick",
+}
 class LobbyUpdateType {
   data?: LobbyDto;
+  action: LobbyAction;
   lobbyId: string;
+  kickedSteamIds: string[];
 }
 
 export class LobbyUpdateDto extends MessageObjectDto<LobbyUpdateType> {

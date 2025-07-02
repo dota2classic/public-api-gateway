@@ -7,10 +7,10 @@ export class LobbyUpdatedHandler implements IEventHandler<LobbyUpdatedEvent> {
   constructor(private readonly ebus: EventBus) {}
 
   async handle(event: LobbyUpdatedEvent) {
+    console.log("LobbyUpdatedEvent");
+    console.log(event);
     this.ebus.publishAll(
-      event.lobbyEntity.slots.map(
-        (slot) => new PartyInvalidatedEvent(slot.steamId),
-      ),
+      event.affectedSteamId.map((slot) => new PartyInvalidatedEvent(slot)),
     );
   }
 }

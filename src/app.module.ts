@@ -147,6 +147,7 @@ import { PayanywayPaymentAdapter } from "./rest/payments/payanyway-payment-adapt
 import { CreateFeedbackNotificationHandler } from "./rest/notification/command-handler/CreateFeebackNotification/create-feedback-notification.handler";
 import { RmqController } from "./rmq.controller";
 import Redis from "ioredis";
+import { LobbyUpdatedHandler } from "./rest/lobby/event-handler/lobby-updated.handler";
 
 @Module({
   imports: [
@@ -472,6 +473,7 @@ import Redis from "ioredis";
     MatchCancelledHandler,
     SocketFullDisconnectHandler,
     LeaveLobbySocketDisconnectHandler,
+    LobbyUpdatedHandler,
     GameResultsHandler,
     RoomNotReadyHandler,
     RoomReadyHandler,
