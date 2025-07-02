@@ -28,6 +28,12 @@ export class GameserverPlayerGameSessionDto {
     lobbyType: GameserverMatchmakingMode;
     /**
      *
+     * @type {boolean}
+     * @memberof GameserverPlayerGameSessionDto
+     */
+    abandoned: boolean;
+    /**
+     *
      * @type {number}
      * @memberof GameserverPlayerGameSessionDto
      */
@@ -51,6 +57,7 @@ export function GameserverPlayerGameSessionDtoFromJSONTyped(json: any, ignoreDis
     return {
 
         'lobbyType': GameserverMatchmakingModeFromJSON(json['lobbyType']),
+        'abandoned': json['abandoned'],
         'matchId': json['matchId'],
         'serverUrl': json['serverUrl'],
     };
@@ -66,6 +73,7 @@ export function GameserverPlayerGameSessionDtoToJSON(value?: GameserverPlayerGam
     return {
 
         'lobbyType': GameserverMatchmakingModeToJSON(value.lobbyType),
+        'abandoned': value.abandoned,
         'matchId': value.matchId,
         'serverUrl': value.serverUrl,
     };

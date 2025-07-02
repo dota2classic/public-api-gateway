@@ -26,6 +26,7 @@ import { MatchAccessLevel } from "../../gateway/shared-types/match-access-level"
 import { UserProfileService } from "../../service/user-profile.service";
 import { RoleLifetime } from "../../gateway/caches/user-fast-profile.dto";
 import { MatchmakerGetPartyQueryResultDto } from "../../generated-api/matchmaker";
+import { LobbySlotEntity } from "../../entity/lobby-slot.entity";
 
 @Injectable()
 export class PlayerMapper {
@@ -144,6 +145,7 @@ export class PlayerMapper {
     party: MatchmakerGetPartyQueryResultDto,
     banStatuses: GameserverBanStatusDto[],
     summaries: GameserverPlayerSummaryDto[],
+    lobbies: (LobbySlotEntity | undefined)[],
   ): Promise<PartyDto> => {
     return {
       id: party.partyId,
@@ -153,10 +155,12 @@ export class PlayerMapper {
         party.players.map(async (plr) => {
           const status = banStatuses.find((t) => t.steam_id === plr);
           const summary = summaries.find((t) => t.steamId === plr);
+          const lobby = lobbies.find((t) => t?.steamId === plr);
 
           return {
             session: summary.session,
             summary: await this.mapPlayerSummary(summary, status),
+            lobbyId: lobby?.lobbyId,
           } satisfies PartyMemberDTO;
         }),
       ),

@@ -13,6 +13,7 @@ export class SessionDto {
 export class PartyMemberDTO {
   summary: PlayerSummaryDto;
   session?: SessionDto;
+  lobbyId?: string;
 }
 export class PartyDto {
   id: string;

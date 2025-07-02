@@ -4,6 +4,7 @@ import { PlayerApi } from "../generated-api/gameserver";
 import { PlayerMapper } from "./player/player.mapper";
 import { PartyDto } from "./player/dto/party.dto";
 import { MatchmakerApi } from "../generated-api/matchmaker";
+import { LobbyService } from "./lobby/lobby.service";
 
 @Injectable()
 export class PartyService {
@@ -12,6 +13,7 @@ export class PartyService {
     private readonly api: PlayerApi,
     private readonly mapper: PlayerMapper,
     private readonly matchmakerApi: MatchmakerApi,
+    private readonly lobby: LobbyService,
   ) {}
 
   public async getPartyRaw(steamId: string) {
@@ -21,7 +23,7 @@ export class PartyService {
   public async getParty(steamId: string): Promise<PartyDto> {
     const party = await this.getPartyRaw(steamId);
 
-    const [banStatuses, summaries] = await Promise.combine([
+    const [banStatuses, summaries, lobbies] = await Promise.combine([
       Promise.all(
         party.players.map((steamId) =>
           this.api.playerControllerBanInfo(steamId),
@@ -32,8 +34,11 @@ export class PartyService {
           this.api.playerControllerPlayerSummary(steamId),
         ),
       ),
+      Promise.all(
+        party.players.map((steamId) => this.lobby.getLobbyOf(steamId)),
+      ),
     ]);
 
-    return this.mapper.mapParty(party, banStatuses, summaries);
+    return this.mapper.mapParty(party, banStatuses, summaries, lobbies);
   }
 }

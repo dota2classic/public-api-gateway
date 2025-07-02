@@ -200,6 +200,14 @@ export class PlayerController {
     }
   }
 
+  @WithUser()
+  @Post("/abandon_game")
+  public async abandonGame(@CurrentUser() user: CurrentUserDto) {
+    await this.ms.playerControllerAbandonSession({
+      steamId: user.steam_id,
+    });
+  }
+
   @OldGuard()
   @WithUser()
   @Post("/dodge_list")

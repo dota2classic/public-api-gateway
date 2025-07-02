@@ -1,6 +1,7 @@
 import {
   ForbiddenException,
   HttpException,
+  Inject,
   Injectable,
   Logger,
 } from "@nestjs/common";
@@ -23,6 +24,8 @@ import { Dota_Map } from "../../gateway/shared-types/dota-map";
 import { LobbyUpdatedEvent } from "./event/lobby-updated.event";
 import { LobbyClosedEvent } from "./event/lobby-closed.event";
 import { shuffle } from "../../utils/shuffle";
+import { ClientProxy } from "@nestjs/microservices";
+import { PlayerApi } from "../../generated-api/gameserver";
 
 @Injectable()
 export class LobbyService {
@@ -35,9 +38,16 @@ export class LobbyService {
     private readonly lobbySlotEntityRepository: Repository<LobbySlotEntity>,
     private readonly datasource: DataSource,
     private readonly ebus: EventBus,
+    @Inject("QueryCore") private readonly redisEventQueue: ClientProxy,
+    private ms: PlayerApi,
   ) {}
 
   public async createLobby(user: CurrentUserDto): Promise<LobbyEntity> {
+    // If not mod and in game => bad!
+    if (!this.isModerator(user) && (await this.isInGame(user.steam_id))) {
+      throw new HttpException("Нельзя создавать лобби находясь в игре!", 403);
+    }
+
     // Leave from all lobbies
     const lobbies = await this.lobbySlotEntityRepository.find({
       where: { steamId: user.steam_id },
@@ -84,6 +94,10 @@ export class LobbyService {
     user: CurrentUserDto,
     password: string,
   ): Promise<LobbyEntity> {
+    if (!this.isModerator(user) && (await this.isInGame(user.steam_id))) {
+      throw new HttpException("Нельзя заходить в лобби находясь в игре!", 403);
+    }
+
     const lobby = await this.lobbyEntityRepository.findOneOrFail({
       where: { id },
     });
@@ -118,22 +132,25 @@ export class LobbyService {
       .leftJoinAndSelect("l.slots", "slots");
 
     // If casual player, need to check permissions
-    if (
-      !user.roles.includes(Role.ADMIN) &&
-      !user.roles.includes(Role.MODERATOR)
-    ) {
+    if (!this.isModerator(user)) {
       q = q.andWhere({
         ownerSteamId: user.steam_id,
       });
     }
 
     try {
-      const lobby = await q.getOneOrFail();
       await this.datasource.transaction(async (em) => {
+        const lobby = await q.getOneOrFail();
         await em.remove(lobby.slots);
 
         await em.remove(lobby);
-        this.ebus.publish(new LobbyClosedEvent(id));
+        this.redisEventQueue.emit(
+          LobbyClosedEvent.name,
+          new LobbyClosedEvent(
+            id,
+            lobby.slots.map((t) => t.steamId),
+          ),
+        );
         this.logger.log("Closed lobby", { lobby_id: id });
       });
     } catch (e) {
@@ -306,10 +323,13 @@ export class LobbyService {
     return this.getLobby(id, user).then(this.lobbyUpdated);
   }
 
-  private lobbyUpdated = (lobby: LobbyEntity): LobbyEntity => {
-    this.ebus.publish(new LobbyUpdatedEvent(lobby));
-    return lobby;
-  };
+  public async getLobbyOf(steamId: string) {
+    return this.lobbySlotEntityRepository.findOne({
+      where: {
+        steamId,
+      },
+    });
+  }
 
   public async allLobbies(): Promise<LobbyEntity[]> {
     return this.lobbyEntityRepository.find();
@@ -323,6 +343,31 @@ export class LobbyService {
     });
     if (lse) {
       await this.leaveLobby(lse.lobbyId, { steam_id: steamId, roles: [] });
+    }
+  }
+
+  private lobbyUpdated = (lobby: LobbyEntity): LobbyEntity => {
+    this.redisEventQueue.emit(
+      LobbyUpdatedEvent.name,
+      new LobbyUpdatedEvent(lobby),
+    );
+    return lobby;
+  };
+
+  private isModerator(user: CurrentUserDto) {
+    return (
+      user.roles.includes(Role.ADMIN) || user.roles.includes(Role.MODERATOR)
+    );
+  }
+
+  private async isInGame(steamId: string) {
+    try {
+      return this.ms
+        .playerControllerPlayerSummary(steamId)
+        .then((t) => !!t.session);
+    } catch (e) {
+      this.logger.error("Error getting summary", e);
+      return true;
     }
   }
 }
