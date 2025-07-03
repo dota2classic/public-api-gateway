@@ -7,8 +7,6 @@ export class LobbyUpdatedHandler implements IEventHandler<LobbyUpdatedEvent> {
   constructor(private readonly ebus: EventBus) {}
 
   async handle(event: LobbyUpdatedEvent) {
-    console.log("LobbyUpdatedEvent");
-    console.log(event);
     this.ebus.publishAll(
       event.affectedSteamId.map((slot) => new PartyInvalidatedEvent(slot)),
     );
