@@ -280,7 +280,8 @@ export class LobbyService {
 
     await this.closeLobby(id, user, LobbyAction.Start).then(() => {
       this.logger.log("Closed lobby, emitting lobby ready event");
-      this.ebus.publish(
+      this.redisEventQueue.emit(
+        LobbyReadyEvent.name,
         new LobbyReadyEvent(
           lobby.id,
           MatchmakingMode.LOBBY,

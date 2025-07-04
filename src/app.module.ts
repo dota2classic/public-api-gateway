@@ -148,6 +148,7 @@ import { CreateFeedbackNotificationHandler } from "./rest/notification/command-h
 import { RmqController } from "./rmq.controller";
 import Redis from "ioredis";
 import { LobbyUpdatedHandler } from "./rest/lobby/event-handler/lobby-updated.handler";
+import { LobbyReadyHandler } from "./socket/event-handler/lobby-ready.handler";
 
 @Module({
   imports: [
@@ -477,6 +478,7 @@ import { LobbyUpdatedHandler } from "./rest/lobby/event-handler/lobby-updated.ha
     GameResultsHandler,
     RoomNotReadyHandler,
     RoomReadyHandler,
+    LobbyReadyHandler,
     PartyInvalidatedHandler,
     SocketDelivery,
     SocketMessageService,

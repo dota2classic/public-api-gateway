@@ -25,6 +25,7 @@ import { PlayerAbandonedEvent } from "./gateway/events/bans/player-abandoned.eve
 import { PlayerSmurfDetectedEvent } from "./gateway/events/bans/player-smurf-detected.event";
 import { MatchRecordedEvent } from "./gateway/events/gs/match-recorded.event";
 import { BanSystemEvent } from "./gateway/events/gs/ban-system.event";
+import { LobbyReadyEvent } from "./gateway/events/lobby-ready.event";
 import { PlayerReportBanCreatedEvent } from "./gateway/events/bans/player-report-ban-created.event";
 import { NotificationCreatedEvent } from "./rest/notification/event/notification-created.event";
 import { LobbyUpdatedEvent } from "./rest/lobby/event/lobby-updated.event";
@@ -173,5 +174,10 @@ export class EventController {
   @EventPattern(LobbyUpdatedEvent.name)
   async LobbyUpdatedEvent(data: LobbyUpdatedEvent) {
     this.event(LobbyUpdatedEvent, data);
+  }
+
+  @EventPattern(LobbyReadyEvent.name)
+  async LobbyReadyEvent(data: LobbyReadyEvent) {
+    this.event(LobbyReadyEvent, data);
   }
 }

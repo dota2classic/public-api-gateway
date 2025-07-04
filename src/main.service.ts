@@ -57,7 +57,7 @@ export class MainService implements OnApplicationBootstrap {
       this.logger.error("Error connecting to redis", e);
     }
 
-    const publicEvents: any[] = [UserLoggedInEvent];
+    const publicEvents: any[] = [UserLoggedInEvent, LobbyReadyEvent];
 
     this.ebus
       .pipe(
