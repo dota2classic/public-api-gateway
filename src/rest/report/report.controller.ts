@@ -11,7 +11,7 @@ import {
   UseInterceptors,
 } from "@nestjs/common";
 import { ReqLoggingInterceptor } from "../../middleware/req-logging.interceptor";
-import { ApiTags } from "@nestjs/swagger";
+import { ApiQuery, ApiTags } from "@nestjs/swagger";
 import { CustomThrottlerGuard } from "../strategy/custom-throttler.guard";
 import { ModeratorGuard, WithUser } from "../../utils/decorator/with-user";
 import {
@@ -183,11 +183,15 @@ export class ReportController {
   }
 
   @WithPagination()
+  @ApiQuery({
+    name: "steam_id",
+    required: false,
+  })
   @Get("/punishment")
   public async getPaginationLog(
     @Query("page", ParseIntPipe) page: number,
     @Query("per_page", NullableIntPipe) perPage: number = 25,
-    @Query("steamId") steamId?: string,
+    @Query("steam_id") steamId?: string,
   ): Promise<PunishmentLogPageDto> {
     const [slice, cnt] = await this.punishmentLogEntityRepository.findAndCount({
       take: perPage,
