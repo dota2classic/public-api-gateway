@@ -8,7 +8,6 @@ import { EventBus, ofType, QueryBus } from "@nestjs/cqrs";
 import { ClientProxy } from "@nestjs/microservices";
 import { UserLoggedInEvent } from "./gateway/events/user/user-logged-in.event";
 import { TelegramNotificationService } from "./rest/notification/telegram-notification.service";
-import { LobbyReadyEvent } from "./gateway/events/lobby-ready.event";
 import { tap } from "rxjs";
 
 @Injectable()
@@ -57,7 +56,7 @@ export class MainService implements OnApplicationBootstrap {
       this.logger.error("Error connecting to redis", e);
     }
 
-    const publicEvents: any[] = [UserLoggedInEvent, LobbyReadyEvent];
+    const publicEvents: any[] = [UserLoggedInEvent];
 
     this.ebus
       .pipe(
