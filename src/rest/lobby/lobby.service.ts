@@ -40,6 +40,7 @@ export class LobbyService {
     private readonly datasource: DataSource,
     private readonly ebus: EventBus,
     @Inject("QueryCore") private readonly redisEventQueue: ClientProxy,
+    @Inject("MatchmakerEvents") private readonly matchmakerEvents: ClientProxy,
     private ms: PlayerApi,
   ) {}
 
@@ -282,28 +283,28 @@ export class LobbyService {
 
     // We need a lock for this maybe??
 
-    await this.closeLobby(id, user, LobbyAction.Start).then(() => {
+    await this.closeLobby(id, user, LobbyAction.Start).then(async () => {
       this.logger.log("Closed lobby, emitting lobby ready event");
-      this.redisEventQueue.emit(
-        LobbyReadyEvent.name,
-        new LobbyReadyEvent(
-          lobby.id,
-          MatchmakingMode.LOBBY,
-          lobby.map,
-          lobby.gameMode,
-          filledSlots.map(
-            (slot) =>
-              new MatchPlayer(
-                new PlayerId(slot.steamId),
-                slot.team,
-                slot.steamId,
-              ),
-          ),
-          Dota2Version.Dota_684,
-          lobby.fillBots,
-          lobby.enableCheats,
+
+      const evt = new LobbyReadyEvent(
+        lobby.id,
+        MatchmakingMode.LOBBY,
+        lobby.map,
+        lobby.gameMode,
+        filledSlots.map(
+          (slot) =>
+            new MatchPlayer(
+              new PlayerId(slot.steamId),
+              slot.team,
+              slot.steamId,
+            ),
         ),
+        Dota2Version.Dota_684,
+        lobby.fillBots,
+        lobby.enableCheats,
       );
+      await this.matchmakerEvents.emit(LobbyReadyEvent.name, evt).toPromise();
+      await this.redisEventQueue.emit(LobbyReadyEvent.name, evt).toPromise();
     });
   }
 

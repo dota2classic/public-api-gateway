@@ -26,7 +26,7 @@ export class MainService implements OnApplicationBootstrap {
 
   async onApplicationBootstrap() {
     await this.redisEvents();
-    await this.rmqEvents();
+    // await this.rmqEvents();
   }
 
   private async rmqEvents() {
@@ -37,7 +37,7 @@ export class MainService implements OnApplicationBootstrap {
       this.logger.error("Error connecting to rmq", e);
     }
 
-    const publicEvents: any[] = [LobbyReadyEvent];
+    const publicEvents: any[] = [];
 
     this.ebus
       .pipe(
