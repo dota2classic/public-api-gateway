@@ -303,7 +303,9 @@ export class LobbyService {
         lobby.fillBots,
         lobby.enableCheats,
       );
-      await this.matchmakerEvents.emit(LobbyReadyEvent.name, evt).toPromise();
+      await this.matchmakerEvents
+        .emit("RMQ" + LobbyReadyEvent.name, evt)
+        .toPromise();
       await this.redisEventQueue.emit(LobbyReadyEvent.name, evt).toPromise();
     });
   }
