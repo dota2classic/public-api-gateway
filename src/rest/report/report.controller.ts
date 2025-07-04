@@ -187,12 +187,15 @@ export class ReportController {
   public async getPaginationLog(
     @Query("page", ParseIntPipe) page: number,
     @Query("per_page", NullableIntPipe) perPage: number = 25,
+    @Query("steamId") steamId?: string,
   ): Promise<PunishmentLogPageDto> {
-    // mapPunishmentLog
     const [slice, cnt] = await this.punishmentLogEntityRepository.findAndCount({
       take: perPage,
       skip: page * perPage,
       relations: ["rule", "punishment"],
+      where: {
+        reportedSteamId: steamId || undefined,
+      },
       order: {
         createdAt: "DESC",
       },
