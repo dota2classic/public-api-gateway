@@ -26,6 +26,7 @@ import { shuffle } from "../../utils/shuffle";
 import { ClientProxy } from "@nestjs/microservices";
 import { PlayerApi } from "../../generated-api/gameserver";
 import { LobbyAction } from "./lobby.dto";
+import { PlayerLeaveQueueRequestedEvent } from "../../gateway/events/mm/player-leave-queue-requested.event";
 
 @Injectable()
 export class LobbyService {
@@ -123,6 +124,9 @@ export class LobbyService {
     lobby.slots.push(lse);
 
     this.lobbyUpdated(lobby);
+
+    await this.leaveAllQueues(lse.steamId);
+
     return lobby;
   }
 
@@ -392,5 +396,14 @@ export class LobbyService {
       this.logger.error("Error getting summary", e);
       return true;
     }
+  }
+
+  private async leaveAllQueues(steamId: string) {
+    await this.redisEventQueue
+      .emit(
+        PlayerLeaveQueueRequestedEvent.name,
+        new PlayerLeaveQueueRequestedEvent(steamId),
+      )
+      .toPromise();
   }
 }
