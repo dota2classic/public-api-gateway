@@ -5,10 +5,13 @@ import {
   RmqContext,
 } from "@nestjs/microservices";
 import { Controller, Logger } from "@nestjs/common";
-import { CommandBus, Constructor } from "@nestjs/cqrs";
+import { CommandBus } from "@nestjs/cqrs";
 import { ConfigService } from "@nestjs/config";
 import { PlayerFeedbackCreatedEvent } from "./gateway/events/player-feedback-created.event";
 import { CreateFeedbackNotificationCommand } from "./rest/notification/command-handler/CreateFeebackNotification/create-feedback-notification.command";
+import { RabbitSubscribe } from "@golevelup/nestjs-rabbitmq";
+import { MessageUpdatedEvent } from "./gateway/events/message-updated.event";
+import { TicketMessageHandler } from "./rest/notification/event-handler/ticket-message-handler.service";
 
 @Controller()
 export class RmqController {
@@ -16,6 +19,7 @@ export class RmqController {
 
   constructor(
     private readonly cbus: CommandBus,
+    private readonly ticketMessageHandler: TicketMessageHandler,
     private readonly config: ConfigService,
   ) {}
 
@@ -34,13 +38,14 @@ export class RmqController {
     );
   }
 
-  private async construct<T>(
-    constructor: Constructor<T>,
-    data: any,
-  ): Promise<T> {
-    const buff = data;
-    buff.__proto__ = constructor.prototype;
-    return buff;
+  @RabbitSubscribe({
+    exchange: "forum_message_exchange",
+    routingKey: MessageUpdatedEvent.name,
+    queue: "api-queue",
+  })
+  private async createTicketMessageNotification(msg: MessageUpdatedEvent) {
+    console.log("Handling poop");
+    await this.ticketMessageHandler.handle(msg);
   }
 
   private async processMessage<T>(msg: T, context: RmqContext) {

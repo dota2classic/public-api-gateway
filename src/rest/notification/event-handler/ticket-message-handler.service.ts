@@ -1,4 +1,4 @@
-import { EventsHandler, IEventHandler } from "@nestjs/cqrs";
+import { IEventHandler } from "@nestjs/cqrs";
 import { MessageUpdatedEvent } from "../../../gateway/events/message-updated.event";
 import {
   NotificationEntityType,
@@ -8,17 +8,17 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { PlayerFeedbackEntity } from "../../../entity/player-feedback.entity";
 import { ThreadType } from "../../../gateway/shared-types/thread-type";
-import { Logger } from "@nestjs/common";
+import { Injectable, Logger } from "@nestjs/common";
 import { NotificationService } from "../../notification/notification.service";
 import { TelegramNotificationService } from "../telegram-notification.service";
 import { UserProfileService } from "../../../service/user-profile.service";
 import { UserReportEntity } from "../../../entity/user-report.entity";
 
-@EventsHandler(MessageUpdatedEvent)
-export class NewTicketMessageCreatedHandler
+@Injectable()
+export class TicketMessageHandler
   implements IEventHandler<MessageUpdatedEvent>
 {
-  private logger = new Logger(NewTicketMessageCreatedHandler.name);
+  private logger = new Logger(TicketMessageHandler.name);
   constructor(
     private readonly notificationService: NotificationService,
     @InjectRepository(PlayerFeedbackEntity)

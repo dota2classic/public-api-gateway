@@ -102,7 +102,7 @@ import { AchievementCompleteHandler } from "./rest/notification/event-handler/ac
 import { AdminFeedbackController } from "./rest/feedback/admin-feedback.controller";
 import * as TelegramBot from "node-telegram-bot-api";
 import { TelegramNotificationService } from "./rest/notification/telegram-notification.service";
-import { NewTicketMessageCreatedHandler } from "./rest/notification/event-handler/new-ticket-message-created.handler";
+import { TicketMessageHandler } from "./rest/notification/event-handler/ticket-message-handler.service";
 import { MetricsService } from "./metrics.service";
 import { StorageController } from "./rest/storage/storage.controller";
 import { BlogpostController } from "./rest/blogpost/blogpost.controller";
@@ -149,6 +149,7 @@ import { RmqController } from "./rmq.controller";
 import Redis from "ioredis";
 import { LobbyUpdatedHandler } from "./rest/lobby/event-handler/lobby-updated.handler";
 import { LobbyReadyHandler } from "./socket/event-handler/lobby-ready.handler";
+import { RabbitMQConfig, RabbitMQModule } from "@golevelup/nestjs-rabbitmq";
 
 @Module({
   imports: [
@@ -239,6 +240,17 @@ import { LobbyReadyHandler } from "./socket/event-handler/lobby-ready.handler";
       },
       inject: [ConfigService],
       imports: [],
+    }),
+    RabbitMQModule.forRootAsync({
+      useFactory(config: ConfigService): RabbitMQConfig {
+        return {
+          exchanges: [],
+          enableControllerDiscovery: true,
+          uri: `amqp://${config.get("rabbitmq.user")}:${config.get("rabbitmq.password")}@${config.get("rabbitmq.host")}:${config.get("rabbitmq.port")}`,
+        };
+      },
+      imports: [],
+      inject: [ConfigService],
     }),
     ClientsModule.registerAsync([
       {
@@ -488,7 +500,7 @@ import { LobbyReadyHandler } from "./socket/event-handler/lobby-ready.handler";
     // Feedback
     PlayerNotLoadedHandler,
     CreateFeedbackNotificationHandler,
-    NewTicketMessageCreatedHandler,
+    TicketMessageHandler,
     PlayerReportBanCreatedHandler,
     TelegramNotificationService,
     FeedbackAssistantService,

@@ -1,3 +1,5 @@
+import { ConfigurableModuleAsyncOptions, DynamicModule } from "@nestjs/common";
+
 declare interface PromiseConstructor {
   combine<A, B>(promises: [Promise<A>, Promise<B>]): Promise<[A, B]>;
   combine<A, B, C>(
@@ -30,4 +32,16 @@ declare interface PromiseConstructor {
       Promise<G>,
     ],
   ): Promise<[A, B, C, D, E, F, G]>;
+}
+
+declare module "@golevelup/nestjs-rabbitmq" {
+  interface RabbitMQModule {
+    // You can extend instance methods here if needed
+  }
+
+  namespace RabbitMQModule {
+    function forRootAsync(
+      options: ConfigurableModuleAsyncOptions<any>,
+    ): DynamicModule;
+  }
 }
