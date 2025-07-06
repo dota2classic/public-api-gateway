@@ -44,7 +44,7 @@ export class RmqController {
   @RabbitSubscribe({
     exchange: "app.events",
     routingKey: PlayerNotLoadedEvent.name,
-    queue: "api-queue",
+    queue: `api-queue.${PlayerNotLoadedEvent.name}`,
   })
   private async createFeedbackForNotLoading(msg: PlayerNotLoadedEvent) {
     await this.playerNotLoadedHandler.handle(msg);
@@ -53,7 +53,7 @@ export class RmqController {
   @RabbitSubscribe({
     exchange: "app.events",
     routingKey: MessageUpdatedEvent.name,
-    queue: "api-queue",
+    queue: `api-queue.${MessageUpdatedEvent.name}`,
   })
   private async createTicketMessageNotification(msg: MessageUpdatedEvent) {
     await this.ticketMessageHandler.handle(msg);
