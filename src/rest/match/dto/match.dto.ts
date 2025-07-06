@@ -12,6 +12,7 @@ export class MmrChangeDto {
   change: number;
   is_hidden_mmr: boolean;
   calibration: boolean;
+  streak: number;
 }
 
 export class PlayerInMatchDto {

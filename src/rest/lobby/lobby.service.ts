@@ -27,6 +27,7 @@ import { ClientProxy } from "@nestjs/microservices";
 import { PlayerApi } from "../../generated-api/gameserver";
 import { LobbyAction } from "./lobby.dto";
 import { PlayerLeaveQueueRequestedEvent } from "../../gateway/events/mm/player-leave-queue-requested.event";
+import { AmqpConnection } from "@golevelup/nestjs-rabbitmq";
 
 @Injectable()
 export class LobbyService {
@@ -40,8 +41,8 @@ export class LobbyService {
     private readonly datasource: DataSource,
     private readonly ebus: EventBus,
     @Inject("QueryCore") private readonly redisEventQueue: ClientProxy,
-    @Inject("MatchmakerEvents") private readonly matchmakerEvents: ClientProxy,
     private ms: PlayerApi,
+    private readonly amqpConnection: AmqpConnection,
   ) {}
 
   public async createLobby(user: CurrentUserDto): Promise<LobbyEntity> {
@@ -303,9 +304,13 @@ export class LobbyService {
         lobby.fillBots,
         lobby.enableCheats,
       );
-      await this.matchmakerEvents
-        .emit("RMQ" + LobbyReadyEvent.name, evt)
-        .toPromise();
+
+      await this.amqpConnection.publish(
+        "app.events",
+        LobbyReadyEvent.name,
+        evt,
+      );
+
       await this.redisEventQueue.emit(LobbyReadyEvent.name, evt).toPromise();
     });
   }

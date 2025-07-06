@@ -48,6 +48,12 @@ export class GameserverMmrChangeDto {
      * @memberof GameserverMmrChangeDto
      */
     calibration: boolean;
+    /**
+     *
+     * @type {number}
+     * @memberof GameserverMmrChangeDto
+     */
+    streak: number;
 }
 
 export function GameserverMmrChangeDtoFromJSON(json: any): GameserverMmrChangeDto {
@@ -65,6 +71,7 @@ export function GameserverMmrChangeDtoFromJSONTyped(json: any, ignoreDiscriminat
         'is_hidden': json['is_hidden'],
         'change': json['change'],
         'calibration': json['calibration'],
+        'streak': json['streak'],
     };
 }
 
@@ -82,6 +89,7 @@ export function GameserverMmrChangeDtoToJSON(value?: GameserverMmrChangeDto | nu
         'is_hidden': value.is_hidden,
         'change': value.change,
         'calibration': value.calibration,
+        'streak': value.streak,
     };
 }
 

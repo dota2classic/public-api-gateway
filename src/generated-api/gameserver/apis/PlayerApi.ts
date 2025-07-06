@@ -13,41 +13,55 @@
  */
 
 
-import * as runtime from "../runtime";
+import * as runtime from '../runtime';
 
 import {
-  GameserverAbandonSessionDto,
-  GameserverAbandonSessionDtoToJSON,
-  GameserverAchievementDto,
-  GameserverAchievementDtoFromJSON,
-  GameserverBanStatusDto,
-  GameserverBanStatusDtoFromJSON,
-  GameserverDodgeListEntryDto,
-  GameserverDodgeListEntryDtoFromJSON,
-  GameserverDodgePlayerDto,
-  GameserverDodgePlayerDtoToJSON,
-  GameserverHeroStatsDto,
-  GameserverHeroStatsDtoFromJSON,
-  GameserverLeaderboardEntryPageDto,
-  GameserverLeaderboardEntryPageDtoFromJSON,
-  GameserverPlayerHeroPerformance,
-  GameserverPlayerHeroPerformanceFromJSON,
-  GameserverPlayerSummaryDto,
-  GameserverPlayerSummaryDtoFromJSON,
-  GameserverPlayerTeammatePage,
-  GameserverPlayerTeammatePageFromJSON,
-  GameserverReportPlayerDto,
-  GameserverReportPlayerDtoToJSON,
-  GameserverReportsAvailableDto,
-  GameserverReportsAvailableDtoFromJSON,
-  GameserverSmurfData,
-  GameserverSmurfDataFromJSON,
-  GameserverStartRecalibrationDto,
-  GameserverStartRecalibrationDtoToJSON,
-} from "../models";
+    GameserverAbandonSessionDto,
+    GameserverAbandonSessionDtoFromJSON,
+    GameserverAbandonSessionDtoToJSON,
+    GameserverAchievementDto,
+    GameserverAchievementDtoFromJSON,
+    GameserverAchievementDtoToJSON,
+    GameserverBanStatusDto,
+    GameserverBanStatusDtoFromJSON,
+    GameserverBanStatusDtoToJSON,
+    GameserverDodgeListEntryDto,
+    GameserverDodgeListEntryDtoFromJSON,
+    GameserverDodgeListEntryDtoToJSON,
+    GameserverDodgePlayerDto,
+    GameserverDodgePlayerDtoFromJSON,
+    GameserverDodgePlayerDtoToJSON,
+    GameserverHeroStatsDto,
+    GameserverHeroStatsDtoFromJSON,
+    GameserverHeroStatsDtoToJSON,
+    GameserverLeaderboardEntryPageDto,
+    GameserverLeaderboardEntryPageDtoFromJSON,
+    GameserverLeaderboardEntryPageDtoToJSON,
+    GameserverPlayerHeroPerformance,
+    GameserverPlayerHeroPerformanceFromJSON,
+    GameserverPlayerHeroPerformanceToJSON,
+    GameserverPlayerSummaryDto,
+    GameserverPlayerSummaryDtoFromJSON,
+    GameserverPlayerSummaryDtoToJSON,
+    GameserverPlayerTeammatePage,
+    GameserverPlayerTeammatePageFromJSON,
+    GameserverPlayerTeammatePageToJSON,
+    GameserverReportPlayerDto,
+    GameserverReportPlayerDtoFromJSON,
+    GameserverReportPlayerDtoToJSON,
+    GameserverReportsAvailableDto,
+    GameserverReportsAvailableDtoFromJSON,
+    GameserverReportsAvailableDtoToJSON,
+    GameserverSmurfData,
+    GameserverSmurfDataFromJSON,
+    GameserverSmurfDataToJSON,
+    GameserverStartRecalibrationDto,
+    GameserverStartRecalibrationDtoFromJSON,
+    GameserverStartRecalibrationDtoToJSON,
+} from '../models';
 
 export interface PlayerControllerAbandonSessionRequest {
-  gameserverAbandonSessionDto: GameserverAbandonSessionDto;
+    gameserverAbandonSessionDto: GameserverAbandonSessionDto;
 }
 
 export interface PlayerControllerBanInfoRequest {

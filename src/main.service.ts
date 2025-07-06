@@ -9,6 +9,8 @@ import { ClientProxy } from "@nestjs/microservices";
 import { UserLoggedInEvent } from "./gateway/events/user/user-logged-in.event";
 import { TelegramNotificationService } from "./rest/notification/telegram-notification.service";
 import { tap } from "rxjs";
+import { FeedbackCreatedEvent } from "./rest/feedback/event/feedback-created.event";
+import { AmqpConnection } from "@golevelup/nestjs-rabbitmq";
 
 @Injectable()
 export class MainService implements OnApplicationBootstrap {
@@ -18,33 +20,27 @@ export class MainService implements OnApplicationBootstrap {
     private readonly qbus: QueryBus,
     private readonly ebus: EventBus,
     @Inject("QueryCore") private readonly redisEventQueue: ClientProxy,
-    @Inject("MatchmakerEvents") private readonly matchmakerEvents: ClientProxy,
+    private readonly amqpConnection: AmqpConnection,
 
     private readonly t: TelegramNotificationService,
   ) {}
 
   async onApplicationBootstrap() {
     await this.redisEvents();
-    // await this.rmqEvents();
+    await this.rmqEvents();
   }
 
   private async rmqEvents() {
-    try {
-      await this.matchmakerEvents.connect();
-      this.logger.log("Connected to Redis");
-    } catch (e) {
-      this.logger.error("Error connecting to rmq", e);
-    }
-
-    const publicEvents: any[] = [];
+    const publicEvents: any[] = [FeedbackCreatedEvent];
 
     this.ebus
-      .pipe(
-        ofType(...publicEvents),
-        tap((msg) => this.logger.log("Publishing RMQ message", msg)),
-      )
+      .pipe(ofType(...publicEvents))
       .subscribe((t) =>
-        this.matchmakerEvents.emit("RMQ" + t.constructor.name, t),
+        this.amqpConnection
+          .publish("app.events", t.constructor.name, t)
+          .then(() =>
+            this.logger.log(`Publshed RMQ message ${t.constructor.name}`),
+          ),
       );
   }
 

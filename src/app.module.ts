@@ -244,7 +244,12 @@ import { RabbitMQConfig, RabbitMQModule } from "@golevelup/nestjs-rabbitmq";
     RabbitMQModule.forRootAsync({
       useFactory(config: ConfigService): RabbitMQConfig {
         return {
-          exchanges: [],
+          exchanges: [
+            {
+              name: "app.events",
+              type: "topic",
+            },
+          ],
           enableControllerDiscovery: true,
           uri: `amqp://${config.get("rabbitmq.user")}:${config.get("rabbitmq.password")}@${config.get("rabbitmq.host")}:${config.get("rabbitmq.port")}`,
         };
@@ -269,32 +274,6 @@ import { RabbitMQConfig, RabbitMQModule } from "@golevelup/nestjs-rabbitmq";
                 },
               ],
               queue: config.get<string>("rabbitmq.payment_queue"),
-              queueOptions: {
-                durable: true,
-              },
-              prefetchCount: 5,
-            },
-          };
-        },
-        inject: [ConfigService],
-        imports: [],
-      },
-      {
-        name: "MatchmakerEvents",
-        useFactory(config: ConfigService): RmqOptions {
-          return {
-            transport: Transport.RMQ,
-            options: {
-              urls: [
-                {
-                  hostname: config.get<string>("rabbitmq.host"),
-                  port: config.get<number>("rabbitmq.port"),
-                  protocol: "amqp",
-                  username: config.get<string>("rabbitmq.user"),
-                  password: config.get<string>("rabbitmq.password"),
-                },
-              ],
-              queue: config.get<string>("rabbitmq.matchmaker_events"),
               queueOptions: {
                 durable: true,
               },

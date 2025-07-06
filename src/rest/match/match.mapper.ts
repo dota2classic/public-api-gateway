@@ -31,6 +31,7 @@ export class MatchMapper {
     change: it.change,
     is_hidden_mmr: it.is_hidden,
     calibration: it.calibration,
+    streak: it.streak,
   });
 
   public mapPlayerInMatch = async (

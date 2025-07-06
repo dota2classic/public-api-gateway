@@ -12,6 +12,8 @@ import { CreateFeedbackNotificationCommand } from "./rest/notification/command-h
 import { RabbitSubscribe } from "@golevelup/nestjs-rabbitmq";
 import { MessageUpdatedEvent } from "./gateway/events/message-updated.event";
 import { TicketMessageHandler } from "./rest/notification/event-handler/ticket-message-handler.service";
+import { PlayerNotLoadedEvent } from "./gateway/events/bans/player-not-loaded.event";
+import { PlayerNotLoadedHandler } from "./rest/feedback/event-handler/player-not-loaded.handler";
 
 @Controller()
 export class RmqController {
@@ -20,6 +22,7 @@ export class RmqController {
   constructor(
     private readonly cbus: CommandBus,
     private readonly ticketMessageHandler: TicketMessageHandler,
+    private readonly playerNotLoadedHandler: PlayerNotLoadedHandler,
     private readonly config: ConfigService,
   ) {}
 
@@ -39,12 +42,20 @@ export class RmqController {
   }
 
   @RabbitSubscribe({
-    exchange: "forum_message_exchange",
+    exchange: "app.events",
+    routingKey: PlayerNotLoadedEvent.name,
+    queue: "api-queue",
+  })
+  private async createFeedbackForNotLoading(msg: PlayerNotLoadedEvent) {
+    await this.playerNotLoadedHandler.handle(msg);
+  }
+
+  @RabbitSubscribe({
+    exchange: "app.events",
     routingKey: MessageUpdatedEvent.name,
     queue: "api-queue",
   })
   private async createTicketMessageNotification(msg: MessageUpdatedEvent) {
-    console.log("Handling poop");
     await this.ticketMessageHandler.handle(msg);
   }
 
