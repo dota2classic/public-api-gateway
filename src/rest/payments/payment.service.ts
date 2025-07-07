@@ -1,4 +1,4 @@
-import { Inject, Injectable, Logger } from "@nestjs/common";
+import { Injectable, Logger } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { ApisauceInstance, create } from "apisauce";
 import { InjectRepository } from "@nestjs/typeorm";
@@ -12,7 +12,6 @@ import {
   UserPaymentEntity,
 } from "../../entity/user-payment.entity";
 import { UserSubscriptionPaidEvent } from "../../gateway/events/user/user-subscription-paid.event";
-import { ClientProxy } from "@nestjs/microservices";
 import { SubscriptionProductEntity } from "../../entity/subscription-product.entity";
 import { NotificationService } from "../notification/notification.service";
 import {
@@ -21,6 +20,7 @@ import {
 } from "../../entity/notification.entity";
 import * as crypto from "crypto";
 import { PayanywayPaymentAdapter } from "./payanyway-payment-adapter";
+import { AmqpConnection } from "@golevelup/nestjs-rabbitmq";
 
 @Injectable()
 export class PaymentService {
@@ -36,9 +36,9 @@ export class PaymentService {
     @InjectRepository(SubscriptionProductEntity)
     private readonly subscriptionProductEntityRepository: Repository<SubscriptionProductEntity>,
     private readonly dataSource: DataSource,
-    @Inject("PaymentQueue") private readonly rmq: ClientProxy,
     private readonly notification: NotificationService,
     private readonly payanywayAdapter: PayanywayPaymentAdapter,
+    private readonly amqpConnection: AmqpConnection,
   ) {
     const token = btoa(
       `${config.get("selfwork.shopId")}:${config.get("selfwork.token")}`,
@@ -282,18 +282,15 @@ export class PaymentService {
         "700days",
       );
 
-      const result = await this.rmq
-        .send<boolean>(
-          UserSubscriptionPaidEvent.name,
-          new UserSubscriptionPaidEvent(
-            payment.steamId,
-            product.months * PaymentService.DAYS_IN_MONTH,
-          ), // For now
-        )
-        .toPromise();
-      this.logger.log("Successfully awaited result of add days command", {
-        result,
-      });
+      await this.amqpConnection.publish(
+        "app.events",
+        UserSubscriptionPaidEvent.name,
+        new UserSubscriptionPaidEvent(
+          payment.steamId,
+          product.months * PaymentService.DAYS_IN_MONTH,
+        ),
+      );
+      this.logger.log("Successfully awaited result of add days command");
     });
   }
 }
