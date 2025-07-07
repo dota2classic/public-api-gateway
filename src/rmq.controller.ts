@@ -9,6 +9,8 @@ import { TicketMessageHandler } from "./rest/notification/event-handler/ticket-m
 import { PlayerNotLoadedEvent } from "./gateway/events/bans/player-not-loaded.event";
 import { PlayerNotLoadedHandler } from "./rest/feedback/event-handler/player-not-loaded.handler";
 import { PlayerFeedbackCreatedHandler } from "./rest/notification/event-handler/player-feedback-created.handler";
+import { FeedbackCreatedEvent } from "./rest/feedback/event/feedback-created.event";
+import { FeedbackCreatedHandler } from "./rest/notification/event-handler/feedback-created.handler";
 
 @Controller()
 export class RmqController {
@@ -19,8 +21,18 @@ export class RmqController {
     private readonly ticketMessageHandler: TicketMessageHandler,
     private readonly playerNotLoadedHandler: PlayerNotLoadedHandler,
     private readonly playerFeedbackCreatedHandler: PlayerFeedbackCreatedHandler,
+    private readonly feedbackCreatedHandler: FeedbackCreatedHandler,
     private readonly config: ConfigService,
   ) {}
+
+  @RabbitSubscribe({
+    exchange: "app.events",
+    routingKey: FeedbackCreatedEvent.name,
+    queue: `api-queue.${FeedbackCreatedEvent.name}`,
+  })
+  async FeedbackCreatedEvent(data: FeedbackCreatedEvent) {
+    await this.feedbackCreatedHandler.handle(data);
+  }
 
   @RabbitSubscribe({
     exchange: "app.events",
