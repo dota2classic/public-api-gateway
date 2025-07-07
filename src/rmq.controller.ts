@@ -1,19 +1,14 @@
-import {
-  Ctx,
-  MessagePattern,
-  Payload,
-  RmqContext,
-} from "@nestjs/microservices";
+import { RmqContext } from "@nestjs/microservices";
 import { Controller, Logger } from "@nestjs/common";
 import { CommandBus } from "@nestjs/cqrs";
 import { ConfigService } from "@nestjs/config";
 import { PlayerFeedbackCreatedEvent } from "./gateway/events/player-feedback-created.event";
-import { CreateFeedbackNotificationCommand } from "./rest/notification/command-handler/CreateFeebackNotification/create-feedback-notification.command";
 import { RabbitSubscribe } from "@golevelup/nestjs-rabbitmq";
 import { MessageUpdatedEvent } from "./gateway/events/message-updated.event";
 import { TicketMessageHandler } from "./rest/notification/event-handler/ticket-message-handler.service";
 import { PlayerNotLoadedEvent } from "./gateway/events/bans/player-not-loaded.event";
 import { PlayerNotLoadedHandler } from "./rest/feedback/event-handler/player-not-loaded.handler";
+import { PlayerFeedbackCreatedHandler } from "./rest/notification/event-handler/player-feedback-created.handler";
 
 @Controller()
 export class RmqController {
@@ -23,22 +18,17 @@ export class RmqController {
     private readonly cbus: CommandBus,
     private readonly ticketMessageHandler: TicketMessageHandler,
     private readonly playerNotLoadedHandler: PlayerNotLoadedHandler,
+    private readonly playerFeedbackCreatedHandler: PlayerFeedbackCreatedHandler,
     private readonly config: ConfigService,
   ) {}
 
-  @MessagePattern("RMQ" + PlayerFeedbackCreatedEvent.name)
-  async PlayerFeedbackCreatedEvent(
-    @Payload() data: PlayerFeedbackCreatedEvent,
-    @Ctx() context: RmqContext,
-  ) {
-    await this.processMessage(
-      new CreateFeedbackNotificationCommand(
-        data.receiverSteamId,
-        data.aspect,
-        data.matchId,
-      ),
-      context,
-    );
+  @RabbitSubscribe({
+    exchange: "app.events",
+    routingKey: PlayerFeedbackCreatedEvent.name,
+    queue: `api-queue.${PlayerFeedbackCreatedEvent.name}`,
+  })
+  async PlayerFeedbackCreatedEvent(data: PlayerFeedbackCreatedEvent) {
+    await this.playerFeedbackCreatedHandler.handle(data);
   }
 
   @RabbitSubscribe({
