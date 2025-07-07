@@ -11,6 +11,7 @@ import { TelegramNotificationService } from "./rest/notification/telegram-notifi
 import { tap } from "rxjs";
 import { FeedbackCreatedEvent } from "./rest/feedback/event/feedback-created.event";
 import { AmqpConnection } from "@golevelup/nestjs-rabbitmq";
+import { UserSubscriptionPaidEvent } from "./gateway/events/user/user-subscription-paid.event";
 
 @Injectable()
 export class MainService implements OnApplicationBootstrap {
@@ -31,7 +32,10 @@ export class MainService implements OnApplicationBootstrap {
   }
 
   private async rmqEvents() {
-    const publicEvents: any[] = [FeedbackCreatedEvent];
+    const publicEvents: any[] = [
+      FeedbackCreatedEvent,
+      UserSubscriptionPaidEvent,
+    ];
 
     this.ebus
       .pipe(ofType(...publicEvents))

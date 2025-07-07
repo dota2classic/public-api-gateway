@@ -21,6 +21,7 @@ import {
 import * as crypto from "crypto";
 import { PayanywayPaymentAdapter } from "./payanyway-payment-adapter";
 import { AmqpConnection } from "@golevelup/nestjs-rabbitmq";
+import { EventBus } from "@nestjs/cqrs";
 
 @Injectable()
 export class PaymentService {
@@ -39,6 +40,7 @@ export class PaymentService {
     private readonly notification: NotificationService,
     private readonly payanywayAdapter: PayanywayPaymentAdapter,
     private readonly amqpConnection: AmqpConnection,
+    private readonly ebus: EventBus,
   ) {
     const token = btoa(
       `${config.get("selfwork.shopId")}:${config.get("selfwork.token")}`,
@@ -282,9 +284,7 @@ export class PaymentService {
         "700days",
       );
 
-      await this.amqpConnection.publish(
-        "app.events",
-        UserSubscriptionPaidEvent.name,
+      this.ebus.publish(
         new UserSubscriptionPaidEvent(
           payment.steamId,
           product.months * PaymentService.DAYS_IN_MONTH,
