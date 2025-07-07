@@ -13,6 +13,7 @@ import { CurrentUserDto } from "../../utils/decorator/current-user";
 import { ForumApi } from "../../generated-api/forum";
 import { FeedbackAssistantService } from "./feedback-assistant.service";
 import { Role } from "../../gateway/shared-types/roles";
+import { AmqpConnection } from "@golevelup/nestjs-rabbitmq";
 
 @Injectable()
 export class FeedbackService implements OnApplicationBootstrap {
@@ -29,6 +30,7 @@ export class FeedbackService implements OnApplicationBootstrap {
     private readonly ebus: EventBus,
     private readonly forumApi: ForumApi,
     private readonly feedbackAssistant: FeedbackAssistantService,
+    private readonly amqpConnection: AmqpConnection,
   ) {}
 
   public async createFeedbackForPlayer(
@@ -60,7 +62,11 @@ export class FeedbackService implements OnApplicationBootstrap {
       return playerFeedback;
     });
 
-    this.ebus.publish(new FeedbackCreatedEvent(feedback.id, steamId));
+    await this.amqpConnection.publish(
+      "app.events",
+      FeedbackCreatedEvent.name,
+      new FeedbackCreatedEvent(feedback.id, steamId),
+    );
 
     return feedback;
   }

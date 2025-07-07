@@ -9,7 +9,6 @@ import { ClientProxy } from "@nestjs/microservices";
 import { UserLoggedInEvent } from "./gateway/events/user/user-logged-in.event";
 import { TelegramNotificationService } from "./rest/notification/telegram-notification.service";
 import { tap } from "rxjs";
-import { FeedbackCreatedEvent } from "./rest/feedback/event/feedback-created.event";
 import { AmqpConnection } from "@golevelup/nestjs-rabbitmq";
 import { UserSubscriptionPaidEvent } from "./gateway/events/user/user-subscription-paid.event";
 
@@ -32,10 +31,7 @@ export class MainService implements OnApplicationBootstrap {
   }
 
   private async rmqEvents() {
-    const publicEvents: any[] = [
-      FeedbackCreatedEvent,
-      UserSubscriptionPaidEvent,
-    ];
+    const publicEvents: any[] = [UserSubscriptionPaidEvent];
 
     this.ebus
       .pipe(ofType(...publicEvents))
