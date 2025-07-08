@@ -138,6 +138,7 @@ export class PlayerFlagDto {
   steamId: string;
   ignoreSmurf: boolean;
   disableReports: boolean;
+  disableStreams: boolean;
 }
 
 export class UpdatePlayerFlagDto extends PartialType(PlayerFlagDto) {}

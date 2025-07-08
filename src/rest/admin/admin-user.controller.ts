@@ -219,7 +219,12 @@ export class AdminUserController {
   public async playerFlags(@Param("id") id: string): Promise<PlayerFlagDto> {
     const ex = await this.playerFlagsRepo.findOne({ where: { steamId: id } });
     if (!ex) {
-      return { steamId: id, ignoreSmurf: false, disableReports: false };
+      return {
+        steamId: id,
+        ignoreSmurf: false,
+        disableReports: false,
+        disableStreams: false,
+      };
     }
     return ex;
   }
@@ -237,6 +242,7 @@ export class AdminUserController {
       flags.steamId = id;
       flags.ignoreSmurf = false;
       flags.disableReports = false;
+      flags.disableStreams = false;
     }
     Object.assign(flags, dto);
     await this.playerFlagsRepo.save(flags);

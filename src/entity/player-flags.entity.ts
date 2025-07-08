@@ -19,4 +19,11 @@ export class PlayerFlagsEntity {
     default: false,
   })
   disableReports: boolean;
+
+  @Column({
+    name: "disable_streams",
+    type: "boolean",
+    default: false,
+  })
+  disableStreams: boolean;
 }

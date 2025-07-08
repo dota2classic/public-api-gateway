@@ -7,6 +7,9 @@ import { QueryBus } from "@nestjs/cqrs";
 import { GetAllConnectionsQuery } from "../gateway/queries/GetAllConnections/get-all-connections.query";
 import { UserConnection } from "../gateway/shared-types/user-connection";
 import { GetAllConnectionsQueryResult } from "../gateway/queries/GetAllConnections/get-all-connections-query.result";
+import { PlayerFlagsEntity } from "../entity/player-flags.entity";
+import { Repository } from "typeorm";
+import { InjectRepository } from "@nestjs/typeorm";
 
 interface StreamInfo {
   id: string;
@@ -47,6 +50,8 @@ export class TwitchService implements OnApplicationBootstrap {
   constructor(
     private readonly config: ConfigService,
     private readonly qbus: QueryBus,
+    @InjectRepository(PlayerFlagsEntity)
+    private readonly playerFlagsEntityRepository: Repository<PlayerFlagsEntity>,
   ) {
     this.oauth = create({
       baseURL: "https://id.twitch.tv",
@@ -78,8 +83,20 @@ export class TwitchService implements OnApplicationBootstrap {
       GetAllConnectionsQueryResult
     >(new GetAllConnectionsQuery(UserConnection.TWITCH));
 
+    const banned = await this.playerFlagsEntityRepository
+      .find({
+        where: {
+          disableStreams: true,
+        },
+      })
+      .then((t) => t.map((z) => z.steamId));
+
+    const legitStreamers = res.entries.filter(
+      (entry) => !banned.includes(entry.id.value),
+    );
+
     const streams = await this.getDotaStreams(
-      res.entries.map((it) => it.externalId),
+      legitStreamers.map((it) => it.externalId),
     );
 
     if (streams.length == 0) {
@@ -88,8 +105,8 @@ export class TwitchService implements OnApplicationBootstrap {
 
     return streams.map((stream) => ({
       stream,
-      steamId: res.entries.find((t) => t.externalId === stream.user_login)?.id
-        .value,
+      steamId: legitStreamers.find((t) => t.externalId === stream.user_login)
+        ?.id.value,
     }));
   }
 
