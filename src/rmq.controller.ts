@@ -11,6 +11,8 @@ import { PlayerNotLoadedHandler } from "./rest/feedback/event-handler/player-not
 import { PlayerFeedbackCreatedHandler } from "./rest/notification/event-handler/player-feedback-created.handler";
 import { FeedbackCreatedEvent } from "./rest/feedback/event/feedback-created.event";
 import { FeedbackCreatedHandler } from "./rest/notification/event-handler/feedback-created.handler";
+import { PlayerSmurfDetectedEvent } from "./gateway/events/bans/player-smurf-detected.event";
+import { PlayerSmurfDetectedHandler } from "./rest/notification/event-handler/player-smurf-detected.handler";
 
 @Controller()
 export class RmqController {
@@ -22,6 +24,7 @@ export class RmqController {
     private readonly playerNotLoadedHandler: PlayerNotLoadedHandler,
     private readonly playerFeedbackCreatedHandler: PlayerFeedbackCreatedHandler,
     private readonly feedbackCreatedHandler: FeedbackCreatedHandler,
+    private readonly smurfDetectedHandler: PlayerSmurfDetectedHandler,
     private readonly config: ConfigService,
   ) {}
 
@@ -59,6 +62,15 @@ export class RmqController {
   })
   private async createTicketMessageNotification(msg: MessageUpdatedEvent) {
     await this.ticketMessageHandler.handle(msg);
+  }
+
+  @RabbitSubscribe({
+    exchange: "app.events",
+    routingKey: PlayerSmurfDetectedEvent.name,
+    queue: `api-queue.${PlayerSmurfDetectedEvent.name}`,
+  })
+  private async handleSmurfDetection(msg: PlayerSmurfDetectedEvent) {
+    await this.smurfDetectedHandler.handle(msg);
   }
 
   private async processMessage<T>(msg: T, context: RmqContext) {

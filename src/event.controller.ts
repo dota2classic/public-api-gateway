@@ -21,7 +21,6 @@ import { RoomReadyEvent } from "./gateway/events/room-ready.event";
 import { MessageUpdatedEvent } from "./gateway/events/message-updated.event";
 import { AchievementCompleteEvent } from "./gateway/events/gs/achievement-complete.event";
 import { PlayerAbandonedEvent } from "./gateway/events/bans/player-abandoned.event";
-import { PlayerSmurfDetectedEvent } from "./gateway/events/bans/player-smurf-detected.event";
 import { MatchRecordedEvent } from "./gateway/events/gs/match-recorded.event";
 import { BanSystemEvent } from "./gateway/events/gs/ban-system.event";
 import { LobbyReadyEvent } from "./gateway/events/lobby-ready.event";
@@ -62,11 +61,6 @@ export class EventController {
   @EventPattern(GameResultsEvent.name)
   async GameResultsEvent(data: GameResultsEvent) {
     this.event(GameResultsEvent, data);
-  }
-
-  @EventPattern(PlayerSmurfDetectedEvent.name)
-  async PlayerSmurfDetectedEvent(data: PlayerSmurfDetectedEvent) {
-    this.event(PlayerSmurfDetectedEvent, data);
   }
 
   @EventPattern("QueueUpdatedEvent")

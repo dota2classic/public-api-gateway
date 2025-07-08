@@ -1,7 +1,7 @@
-import { EventBus, EventsHandler, IEventHandler } from "@nestjs/cqrs";
+import { EventBus, IEventHandler } from "@nestjs/cqrs";
 import { PlayerNotLoadedEvent } from "../../../gateway/events/bans/player-not-loaded.event";
 import { FeedbackService } from "../../feedback/feedback.service";
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger } from "@nestjs/common";
 
 @Injectable()
 export class PlayerNotLoadedHandler
@@ -19,5 +19,6 @@ export class PlayerNotLoadedHandler
       "PlayerNotLoadedEvent",
       event.playerId.value,
     );
+    // Also invalidate party
   }
 }
