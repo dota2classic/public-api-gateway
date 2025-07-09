@@ -7,10 +7,6 @@ import {
   Post,
 } from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
-import { FeedbackEntity } from "../../entity/feedback.entity";
-import { Repository } from "typeorm";
-import { InjectRepository } from "@nestjs/typeorm";
-import { PlayerFeedbackEntity } from "../../entity/player-feedback.entity";
 import { FeedbackMapper } from "./feedback.mapper";
 import { SubmitFeedbackDto } from "./feedback.dto";
 import { FeedbackService } from "./feedback.service";
@@ -19,21 +15,13 @@ import {
   CurrentUser,
   CurrentUserDto,
 } from "../../utils/decorator/current-user";
-import { ForumApi } from "../../generated-api/forum";
-import { EventBus } from "@nestjs/cqrs";
 
 @Controller("feedback")
 @ApiTags("feedback")
 export class FeedbackController {
   constructor(
-    @InjectRepository(FeedbackEntity)
-    private readonly feedbackEntityRepository: Repository<FeedbackEntity>,
-    @InjectRepository(PlayerFeedbackEntity)
-    private readonly playerFeedbackEntityRepository: Repository<PlayerFeedbackEntity>,
     private readonly mapper: FeedbackMapper,
     private readonly feedbackService: FeedbackService,
-    private readonly forumApi: ForumApi,
-    private readonly ebus: EventBus,
   ) {}
 
   // TODO: with user

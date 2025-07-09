@@ -83,6 +83,14 @@ export class TicketMessageHandler
     threadId: string,
   ) {
     const playerFeedbackId = Number(threadId);
+
+    if (Number.isNaN(playerFeedbackId)) {
+      this.logger.warn("Received playerFeedbackId is Nan!", {
+        threadId,
+        messageId: event.id,
+      });
+      return;
+    }
     const pFeedback = await this.playerFeedbackEntityRepository.findOne({
       where: {
         id: playerFeedbackId,
