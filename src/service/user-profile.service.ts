@@ -49,9 +49,11 @@ export class UserProfileService {
 
   // @memoize2({ maxAge: 10_000 })
   private async getProfileDecorations(steamId: string) {
-    return this.userProfileDecorationPreferencesEntityRepository.findOne({
-      where: { steamId },
-    });
+    return this.userProfileDecorationPreferencesEntityRepository
+      .findOne({
+        where: { steamId },
+      })
+      .catch(() => undefined);
   }
 
   public name = async (steamId: string) =>
