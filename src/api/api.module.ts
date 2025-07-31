@@ -18,6 +18,10 @@ import {
   Configuration as MConfiguration,
   MatchmakerApi,
 } from "../generated-api/matchmaker";
+import {
+  Configuration as TConfiguration,
+  TradeApi,
+} from "../generated-api/tradebot";
 
 @Global()
 @Module({
@@ -104,6 +108,15 @@ import {
       },
       inject: [ConfigService],
     },
+    {
+      provide: TradeApi,
+      useFactory: (config: ConfigService) => {
+        return new TradeApi(
+          new TConfiguration({ basePath: config.get("api.tradeApiUrl") }),
+        );
+      },
+      inject: [ConfigService],
+    },
   ],
   exports: [
     MatchApi,
@@ -114,6 +127,7 @@ import {
     RecordApi,
     ForumApi,
     MatchmakerApi,
+    TradeApi,
     PrometheusDriver,
   ],
 })
