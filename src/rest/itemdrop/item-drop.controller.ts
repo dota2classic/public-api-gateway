@@ -7,7 +7,7 @@ import {
   CurrentUserDto,
 } from "../../utils/decorator/current-user";
 import { ItemDropMapper } from "./item-drop.mapper";
-import { TradeUserDto, UpdateUserDto } from "./item-drop.dto";
+import { TradeUserDto, UpdateTradeLinkDto } from "./item-drop.dto";
 
 @Controller("drops")
 @ApiTags("drops")
@@ -36,7 +36,7 @@ export class ItemDropController {
   @Post("user")
   public async updateTradeLink(
     @CurrentUser() user: CurrentUserDto,
-    @Body() dto: UpdateUserDto,
+    @Body() dto: UpdateTradeLinkDto,
   ): Promise<TradeUserDto> {
     return this.api
       .tradeControllerUpdateUser(user.steam_id, {

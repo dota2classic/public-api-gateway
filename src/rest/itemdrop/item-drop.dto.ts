@@ -26,7 +26,7 @@ export class DroppedItemDto {
   item: MarketItemDto;
 }
 
-export class UpdateUserDto {
+export class UpdateTradeLinkDto {
   tradeUrl: string;
 }
 
