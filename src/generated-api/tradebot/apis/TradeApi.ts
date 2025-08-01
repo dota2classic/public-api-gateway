@@ -53,6 +53,23 @@ export class TradeApi extends runtime.BaseAPI {
 
     /**
      */
+    tradeControllerClaimDrops = async (steamId: string): Promise<string> => {
+        const response = await this.tradeControllerClaimDropsRaw({ steamId: steamId });
+        return await response.value();
+    }
+
+    /**
+     */
+    private async tradeControllerClaimDropsRaw(requestParameters: TradeControllerClaimDropsRequest): Promise<runtime.ApiResponse<string>> {
+        this.tradeControllerClaimDropsValidation(requestParameters);
+        const context = this.tradeControllerClaimDropsContext(requestParameters);
+        const response = await this.request(context);
+
+        return new runtime.TextApiResponse(response) as any;
+    }
+
+    /**
+     */
     tradeControllerClaimDropsContext(requestParameters: TradeControllerClaimDropsRequest): runtime.RequestOpts {
         const queryParameters: any = {};
 
@@ -68,8 +85,33 @@ export class TradeApi extends runtime.BaseAPI {
 
     /**
      */
-    tradeControllerClaimDrops = async (steamId: string): Promise<void> => {
-        await this.tradeControllerClaimDropsRaw({ steamId: steamId });
+    private tradeControllerClaimDropsValidation(requestParameters: TradeControllerClaimDropsRequest) {
+        if (requestParameters.steamId === null || requestParameters.steamId === undefined) {
+            throw new runtime.RequiredError('steamId','Required parameter requestParameters.steamId was null or undefined when calling tradeControllerClaimDrops.');
+        }
+    }
+
+    /**
+     */
+    private async tradeControllerDiscardDropRaw(requestParameters: TradeControllerDiscardDropRequest): Promise<runtime.ApiResponse<void>> {
+        this.tradeControllerDiscardDropValidation(requestParameters);
+        const context = this.tradeControllerDiscardDropContext(requestParameters);
+        const response = await this.request(context);
+
+        return new runtime.VoidApiResponse(response);
+    }
+
+
+
+    /**
+     */
+    private tradeControllerDiscardDropValidation(requestParameters: TradeControllerDiscardDropRequest) {
+        if (requestParameters.steamId === null || requestParameters.steamId === undefined) {
+            throw new runtime.RequiredError('steamId','Required parameter requestParameters.steamId was null or undefined when calling tradeControllerDiscardDrop.');
+        }
+        if (requestParameters.assetId === null || requestParameters.assetId === undefined) {
+            throw new runtime.RequiredError('assetId','Required parameter requestParameters.assetId was null or undefined when calling tradeControllerDiscardDrop.');
+        }
     }
 
     /**
@@ -91,6 +133,26 @@ export class TradeApi extends runtime.BaseAPI {
      */
     tradeControllerDiscardDrop = async (steamId: string, assetId: string): Promise<void> => {
         await this.tradeControllerDiscardDropRaw({ steamId: steamId, assetId: assetId });
+    }
+
+    /**
+     */
+    private async tradeControllerGetDropsRaw(requestParameters: TradeControllerGetDropsRequest): Promise<runtime.ApiResponse<Array<TradeBotDroppedItemDto>>> {
+        this.tradeControllerGetDropsValidation(requestParameters);
+        const context = this.tradeControllerGetDropsContext(requestParameters);
+        const response = await this.request(context);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(TradeBotDroppedItemDtoFromJSON));
+    }
+
+
+
+    /**
+     */
+    private tradeControllerGetDropsValidation(requestParameters: TradeControllerGetDropsRequest) {
+        if (requestParameters.steamId === null || requestParameters.steamId === undefined) {
+            throw new runtime.RequiredError('steamId','Required parameter requestParameters.steamId was null or undefined when calling tradeControllerGetDrops.');
+        }
     }
 
     /**
@@ -117,6 +179,26 @@ export class TradeApi extends runtime.BaseAPI {
 
     /**
      */
+    private async tradeControllerGetUserRaw(requestParameters: TradeControllerGetUserRequest): Promise<runtime.ApiResponse<TradeBotUserDto>> {
+        this.tradeControllerGetUserValidation(requestParameters);
+        const context = this.tradeControllerGetUserContext(requestParameters);
+        const response = await this.request(context);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => TradeBotUserDtoFromJSON(jsonValue));
+    }
+
+
+
+    /**
+     */
+    private tradeControllerGetUserValidation(requestParameters: TradeControllerGetUserRequest) {
+        if (requestParameters.steamId === null || requestParameters.steamId === undefined) {
+            throw new runtime.RequiredError('steamId','Required parameter requestParameters.steamId was null or undefined when calling tradeControllerGetUser.');
+        }
+    }
+
+    /**
+     */
     tradeControllerGetUserContext(requestParameters: TradeControllerGetUserRequest): runtime.RequestOpts {
         const queryParameters: any = {};
 
@@ -135,6 +217,29 @@ export class TradeApi extends runtime.BaseAPI {
     tradeControllerGetUser = async (steamId: string): Promise<TradeBotUserDto> => {
         const response = await this.tradeControllerGetUserRaw({ steamId: steamId });
         return await response.value();
+    }
+
+    /**
+     */
+    private async tradeControllerUpdateUserRaw(requestParameters: TradeControllerUpdateUserRequest): Promise<runtime.ApiResponse<TradeBotUserDto>> {
+        this.tradeControllerUpdateUserValidation(requestParameters);
+        const context = this.tradeControllerUpdateUserContext(requestParameters);
+        const response = await this.request(context);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => TradeBotUserDtoFromJSON(jsonValue));
+    }
+
+
+
+    /**
+     */
+    private tradeControllerUpdateUserValidation(requestParameters: TradeControllerUpdateUserRequest) {
+        if (requestParameters.steamId === null || requestParameters.steamId === undefined) {
+            throw new runtime.RequiredError('steamId','Required parameter requestParameters.steamId was null or undefined when calling tradeControllerUpdateUser.');
+        }
+        if (requestParameters.tradeBotUpdateUserDto === null || requestParameters.tradeBotUpdateUserDto === undefined) {
+            throw new runtime.RequiredError('tradeBotUpdateUserDto','Required parameter requestParameters.tradeBotUpdateUserDto was null or undefined when calling tradeControllerUpdateUser.');
+        }
     }
 
     /**
@@ -160,102 +265,6 @@ export class TradeApi extends runtime.BaseAPI {
     tradeControllerUpdateUser = async (steamId: string, tradeBotUpdateUserDto: TradeBotUpdateUserDto): Promise<TradeBotUserDto> => {
         const response = await this.tradeControllerUpdateUserRaw({ steamId: steamId, tradeBotUpdateUserDto: tradeBotUpdateUserDto });
         return await response.value();
-    }
-
-    /**
-     */
-    private async tradeControllerClaimDropsRaw(requestParameters: TradeControllerClaimDropsRequest): Promise<runtime.ApiResponse<void>> {
-        this.tradeControllerClaimDropsValidation(requestParameters);
-        const context = this.tradeControllerClaimDropsContext(requestParameters);
-        const response = await this.request(context);
-
-        return new runtime.VoidApiResponse(response);
-    }
-
-    /**
-     */
-    private tradeControllerClaimDropsValidation(requestParameters: TradeControllerClaimDropsRequest) {
-        if (requestParameters.steamId === null || requestParameters.steamId === undefined) {
-            throw new runtime.RequiredError('steamId','Required parameter requestParameters.steamId was null or undefined when calling tradeControllerClaimDrops.');
-        }
-    }
-
-    /**
-     */
-    private async tradeControllerDiscardDropRaw(requestParameters: TradeControllerDiscardDropRequest): Promise<runtime.ApiResponse<void>> {
-        this.tradeControllerDiscardDropValidation(requestParameters);
-        const context = this.tradeControllerDiscardDropContext(requestParameters);
-        const response = await this.request(context);
-
-        return new runtime.VoidApiResponse(response);
-    }
-
-    /**
-     */
-    private tradeControllerDiscardDropValidation(requestParameters: TradeControllerDiscardDropRequest) {
-        if (requestParameters.steamId === null || requestParameters.steamId === undefined) {
-            throw new runtime.RequiredError('steamId','Required parameter requestParameters.steamId was null or undefined when calling tradeControllerDiscardDrop.');
-        }
-        if (requestParameters.assetId === null || requestParameters.assetId === undefined) {
-            throw new runtime.RequiredError('assetId','Required parameter requestParameters.assetId was null or undefined when calling tradeControllerDiscardDrop.');
-        }
-    }
-
-    /**
-     */
-    private async tradeControllerGetDropsRaw(requestParameters: TradeControllerGetDropsRequest): Promise<runtime.ApiResponse<Array<TradeBotDroppedItemDto>>> {
-        this.tradeControllerGetDropsValidation(requestParameters);
-        const context = this.tradeControllerGetDropsContext(requestParameters);
-        const response = await this.request(context);
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(TradeBotDroppedItemDtoFromJSON));
-    }
-
-    /**
-     */
-    private tradeControllerGetDropsValidation(requestParameters: TradeControllerGetDropsRequest) {
-        if (requestParameters.steamId === null || requestParameters.steamId === undefined) {
-            throw new runtime.RequiredError('steamId','Required parameter requestParameters.steamId was null or undefined when calling tradeControllerGetDrops.');
-        }
-    }
-
-    /**
-     */
-    private async tradeControllerGetUserRaw(requestParameters: TradeControllerGetUserRequest): Promise<runtime.ApiResponse<TradeBotUserDto>> {
-        this.tradeControllerGetUserValidation(requestParameters);
-        const context = this.tradeControllerGetUserContext(requestParameters);
-        const response = await this.request(context);
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => TradeBotUserDtoFromJSON(jsonValue));
-    }
-
-    /**
-     */
-    private tradeControllerGetUserValidation(requestParameters: TradeControllerGetUserRequest) {
-        if (requestParameters.steamId === null || requestParameters.steamId === undefined) {
-            throw new runtime.RequiredError('steamId','Required parameter requestParameters.steamId was null or undefined when calling tradeControllerGetUser.');
-        }
-    }
-
-    /**
-     */
-    private async tradeControllerUpdateUserRaw(requestParameters: TradeControllerUpdateUserRequest): Promise<runtime.ApiResponse<TradeBotUserDto>> {
-        this.tradeControllerUpdateUserValidation(requestParameters);
-        const context = this.tradeControllerUpdateUserContext(requestParameters);
-        const response = await this.request(context);
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => TradeBotUserDtoFromJSON(jsonValue));
-    }
-
-    /**
-     */
-    private tradeControllerUpdateUserValidation(requestParameters: TradeControllerUpdateUserRequest) {
-        if (requestParameters.steamId === null || requestParameters.steamId === undefined) {
-            throw new runtime.RequiredError('steamId','Required parameter requestParameters.steamId was null or undefined when calling tradeControllerUpdateUser.');
-        }
-        if (requestParameters.tradeBotUpdateUserDto === null || requestParameters.tradeBotUpdateUserDto === undefined) {
-            throw new runtime.RequiredError('tradeBotUpdateUserDto','Required parameter requestParameters.tradeBotUpdateUserDto was null or undefined when calling tradeControllerUpdateUser.');
-        }
     }
 
 }

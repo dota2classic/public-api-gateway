@@ -12,6 +12,7 @@
  * Do not edit the class manually.
  */
 
+import { exists } from '../runtime';
 import { TradeBotMarketItemDto, TradeBotMarketItemDtoFromJSON, TradeBotMarketItemDtoToJSON } from './';
 
 /**
@@ -20,6 +21,12 @@ import { TradeBotMarketItemDto, TradeBotMarketItemDtoFromJSON, TradeBotMarketIte
  * @interface TradeBotDroppedItemDto
  */
 export class TradeBotDroppedItemDto {
+    /**
+     *
+     * @type {string}
+     * @memberof TradeBotDroppedItemDto
+     */
+    assetId: string;
     /**
      *
      * @type {number}
@@ -44,6 +51,12 @@ export class TradeBotDroppedItemDto {
      * @memberof TradeBotDroppedItemDto
      */
     item: TradeBotMarketItemDto;
+    /**
+     *
+     * @type {string}
+     * @memberof TradeBotDroppedItemDto
+     */
+    activeTradeId?: string;
 }
 
 export function TradeBotDroppedItemDtoFromJSON(json: any): TradeBotDroppedItemDto {
@@ -56,10 +69,12 @@ export function TradeBotDroppedItemDtoFromJSONTyped(json: any, ignoreDiscriminat
     }
     return {
 
+        'assetId': json['assetId'],
         'matchId': json['matchId'],
         'droppedAt': json['droppedAt'],
         'expires': json['expires'],
         'item': TradeBotMarketItemDtoFromJSON(json['item']),
+        'activeTradeId': !exists(json, 'activeTradeId') ? undefined : json['activeTradeId'],
     };
 }
 
@@ -72,10 +87,12 @@ export function TradeBotDroppedItemDtoToJSON(value?: TradeBotDroppedItemDto | nu
     }
     return {
 
+        'assetId': value.assetId,
         'matchId': value.matchId,
         'droppedAt': value.droppedAt,
         'expires': value.expires,
         'item': TradeBotMarketItemDtoToJSON(value.item),
+        'activeTradeId': value.activeTradeId,
     };
 }
 

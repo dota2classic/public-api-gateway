@@ -12,7 +12,14 @@
  * Do not edit the class manually.
  */
 
-import { TradeBotItemQuality, TradeBotItemQualityFromJSON, TradeBotItemQualityToJSON } from './';
+import {
+  TradeBotItemQuality,
+  TradeBotItemQualityFromJSON,
+  TradeBotItemQualityToJSON,
+  TradeBotItemRarity,
+  TradeBotItemRarityFromJSON,
+  TradeBotItemRarityToJSON,
+} from './';
 
 /**
  *
@@ -26,6 +33,12 @@ export class TradeBotMarketItemDto {
      * @memberof TradeBotMarketItemDto
      */
     quality: TradeBotItemQuality;
+    /**
+     *
+     * @type {TradeBotItemRarity}
+     * @memberof TradeBotMarketItemDto
+     */
+    rarity: TradeBotItemRarity;
     /**
      *
      * @type {string}
@@ -44,6 +57,12 @@ export class TradeBotMarketItemDto {
      * @memberof TradeBotMarketItemDto
      */
     icon: string;
+    /**
+     *
+     * @type {string}
+     * @memberof TradeBotMarketItemDto
+     */
+    type: string;
 }
 
 export function TradeBotMarketItemDtoFromJSON(json: any): TradeBotMarketItemDto {
@@ -57,9 +76,11 @@ export function TradeBotMarketItemDtoFromJSONTyped(json: any, ignoreDiscriminato
     return {
 
         'quality': TradeBotItemQualityFromJSON(json['quality']),
+        'rarity': TradeBotItemRarityFromJSON(json['rarity']),
         'marketHashName': json['marketHashName'],
         'price': json['price'],
         'icon': json['icon'],
+        'type': json['type'],
     };
 }
 
@@ -73,9 +94,11 @@ export function TradeBotMarketItemDtoToJSON(value?: TradeBotMarketItemDto | null
     return {
 
         'quality': TradeBotItemQualityToJSON(value.quality),
+        'rarity': TradeBotItemRarityToJSON(value.rarity),
         'marketHashName': value.marketHashName,
         'price': value.price,
         'icon': value.icon,
+        'type': value.type,
     };
 }
 

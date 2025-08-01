@@ -13,6 +13,13 @@ import { FeedbackCreatedEvent } from "./rest/feedback/event/feedback-created.eve
 import { FeedbackCreatedHandler } from "./rest/notification/event-handler/feedback-created.handler";
 import { PlayerSmurfDetectedEvent } from "./gateway/events/bans/player-smurf-detected.event";
 import { PlayerSmurfDetectedHandler } from "./rest/notification/event-handler/player-smurf-detected.handler";
+import { NotificationService } from "./rest/notification/notification.service";
+import { TradeOfferExpiredEvent } from "./gateway/events/trade-offer-expired.event";
+import {
+  NotificationEntityType,
+  NotificationType,
+} from "./entity/notification.entity";
+import { ItemDroppedEvent } from "./gateway/events/item-dropped.event";
 
 @Controller()
 export class RmqController {
@@ -25,6 +32,7 @@ export class RmqController {
     private readonly playerFeedbackCreatedHandler: PlayerFeedbackCreatedHandler,
     private readonly feedbackCreatedHandler: FeedbackCreatedHandler,
     private readonly smurfDetectedHandler: PlayerSmurfDetectedHandler,
+    private readonly notification: NotificationService,
     private readonly config: ConfigService,
   ) {}
 
@@ -71,6 +79,34 @@ export class RmqController {
   })
   private async handleSmurfDetection(msg: PlayerSmurfDetectedEvent) {
     await this.smurfDetectedHandler.handle(msg);
+  }
+
+  @RabbitSubscribe({
+    exchange: "app.events",
+    routingKey: TradeOfferExpiredEvent.name,
+    queue: `api-queue.${TradeOfferExpiredEvent.name}`,
+  })
+  private async handleTradeOfferExpired(msg: TradeOfferExpiredEvent) {
+    await this.notification.createNotification(
+      msg.steamId,
+      msg.steamId,
+      NotificationEntityType.PLAYER,
+      NotificationType.TRADE_OFFER_EXPIRED,
+    );
+  }
+
+  @RabbitSubscribe({
+    exchange: "app.events",
+    routingKey: ItemDroppedEvent.name,
+    queue: `api-queue.${ItemDroppedEvent.name}`,
+  })
+  private async handleItemDroppedEvent(msg: ItemDroppedEvent) {
+    await this.notification.createNotification(
+      msg.steamId,
+      msg.steamId,
+      NotificationEntityType.PLAYER,
+      NotificationType.ITEM_DROPPED,
+    );
   }
 
   private async processMessage<T>(msg: T, context: RmqContext) {

@@ -150,6 +150,9 @@ import Redis from "ioredis";
 import { LobbyUpdatedHandler } from "./rest/lobby/event-handler/lobby-updated.handler";
 import { LobbyReadyHandler } from "./socket/event-handler/lobby-ready.handler";
 import { RabbitMQConfig, RabbitMQModule } from "@golevelup/nestjs-rabbitmq";
+import { ItemDropController } from "./rest/itemdrop/item-drop.controller";
+import { ItemDropMapper } from "./rest/itemdrop/item-drop.mapper";
+import { ItemDropService } from "./service/item-drop.service";
 
 @Module({
   imports: [
@@ -315,6 +318,7 @@ import { RabbitMQConfig, RabbitMQModule } from "@golevelup/nestjs-rabbitmq";
     LobbyController,
 
     RecordController,
+    ItemDropController,
 
     MetaController,
     StatsController,
@@ -438,6 +442,7 @@ import { RabbitMQConfig, RabbitMQModule } from "@golevelup/nestjs-rabbitmq";
     CustomizationMapper,
     RuleMapper,
     ReportMapper,
+    ItemDropMapper,
 
     LiveMatchUpdateHandler,
     ReadyCheckStartedHandler,
@@ -451,6 +456,7 @@ import { RabbitMQConfig, RabbitMQModule } from "@golevelup/nestjs-rabbitmq";
 
     // API
     PartyService,
+    ItemDropService,
 
     // Socket
     SocketGateway,
