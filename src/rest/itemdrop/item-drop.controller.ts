@@ -90,7 +90,7 @@ export class ItemDropController {
       },
     });
 
-    const purchasePrice = product.months * product.price;
+    const purchasePrice = product.months * product.price * 100;
     if (balance.balance < purchasePrice) {
       throw "Недостаточный баланс!";
     }

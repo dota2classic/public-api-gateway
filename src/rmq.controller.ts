@@ -20,11 +20,6 @@ import {
   NotificationType,
 } from "./entity/notification.entity";
 import { ItemDroppedEvent } from "./gateway/events/item-dropped.event";
-import { MarketItemDto } from "./rest/itemdrop/item-drop.dto";
-import {
-  TradeBotItemQuality,
-  TradeBotItemRarity,
-} from "./generated-api/tradebot";
 import { ItemDropService } from "./service/item-drop.service";
 
 @Controller()
@@ -108,19 +103,6 @@ export class RmqController {
     queue: `api-queue.${ItemDroppedEvent.name}`,
   })
   private async handleItemDroppedEvent(msg: ItemDroppedEvent) {
-    await this.notification.createNotification(
-      msg.steamId,
-      JSON.stringify({
-        marketHashName: msg.item.marketHashName,
-        quality: msg.item.quality as TradeBotItemQuality,
-        type: msg.item.type,
-        image: `https://community.fastly.steamstatic.com/economy/image/${msg.item.icon}`,
-        rarity: msg.item.rarity as TradeBotItemRarity,
-      } satisfies MarketItemDto),
-      NotificationEntityType.PLAYER,
-      NotificationType.ITEM_DROPPED,
-    );
-
     await this.itemDropService.onItemDrop(msg);
   }
 
