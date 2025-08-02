@@ -2,6 +2,8 @@ export * from './TradeBotDroppedItemDto';
 export * from './TradeBotItemQuality';
 export * from './TradeBotItemRarity';
 export * from './TradeBotMarketItemDto';
+export * from './TradeBotPurchaseDto';
+export * from './TradeBotTradeOfferDto';
 export * from './TradeBotUpdateUserDto';
 export * from './TradeBotUserDto';
 export * from "../../mapped-models"

@@ -2,9 +2,15 @@ import { Injectable } from "@nestjs/common";
 import {
   TradeBotDroppedItemDto,
   TradeBotMarketItemDto,
+  TradeBotTradeOfferDto,
   TradeBotUserDto,
 } from "../../generated-api/tradebot";
-import { DroppedItemDto, MarketItemDto, TradeUserDto } from "./item-drop.dto";
+import {
+  DroppedItemDto,
+  MarketItemDto,
+  TradeOfferDto,
+  TradeUserDto,
+} from "./item-drop.dto";
 
 @Injectable()
 export class ItemDropMapper {
@@ -32,5 +38,10 @@ export class ItemDropMapper {
   public mapUser = (user: TradeBotUserDto): TradeUserDto => ({
     tradeUrl: user.tradeLink,
     steamId: user.steamId,
+    balance: user.balance,
+  });
+
+  public mapOffer = (offer: TradeBotTradeOfferDto): TradeOfferDto => ({
+    ...offer,
   });
 }

@@ -7,7 +7,16 @@ import {
   CurrentUserDto,
 } from "../../utils/decorator/current-user";
 import { ItemDropMapper } from "./item-drop.mapper";
-import { TradeUserDto, UpdateTradeLinkDto } from "./item-drop.dto";
+import {
+  PurchaseWithTradeBalanceDto,
+  TradeOfferDto,
+  TradeUserDto,
+  UpdateTradeLinkDto,
+} from "./item-drop.dto";
+import { PaymentService } from "../payments/payment.service";
+import { SubscriptionProductEntity } from "../../entity/subscription-product.entity";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Repository } from "typeorm";
 
 @Controller("drops")
 @ApiTags("drops")
@@ -15,6 +24,9 @@ export class ItemDropController {
   constructor(
     private readonly api: TradeApi,
     private readonly mapper: ItemDropMapper,
+    private readonly paymentService: PaymentService,
+    @InjectRepository(SubscriptionProductEntity)
+    private readonly subscriptionProductEntityRepository: Repository<SubscriptionProductEntity>,
   ) {}
 
   @WithUser()
@@ -53,6 +65,48 @@ export class ItemDropController {
     return this.api
       .tradeControllerGetUser(user.steam_id)
       .then(this.mapper.mapUser);
+  }
+
+  @WithUser()
+  @Get("user/trades")
+  public async getTrades(
+    @CurrentUser() user: CurrentUserDto,
+  ): Promise<TradeOfferDto[]> {
+    return this.api
+      .tradeControllerGetOfferHistory(user.steam_id)
+      .then((offers) => offers.map(this.mapper.mapOffer));
+  }
+
+  @WithUser()
+  @Post("user/subscription")
+  public async purchaseSubscriptionWithTradeBalance(
+    @CurrentUser() user: CurrentUserDto,
+    @Body() dto: PurchaseWithTradeBalanceDto,
+  ): Promise<TradeUserDto> {
+    const balance = await this.getUser(user);
+    const product = await this.subscriptionProductEntityRepository.findOne({
+      where: {
+        id: dto.productId,
+      },
+    });
+
+    const purchasePrice = product.months * product.price;
+    if (balance.balance < purchasePrice) {
+      throw "Недостаточный баланс!";
+    }
+
+    const paymentId = `Trade balance purchase ${new Date().toISOString()} by ${user.steam_id}`;
+
+    await this.api.tradeControllerPurchase(user.steam_id, {
+      amount: purchasePrice,
+    });
+
+    const payment = await this.paymentService.createPayment(
+      user.steam_id,
+      dto.productId,
+    );
+    await this.paymentService.handleSuccessfulPayment(payment.id, paymentId);
+    return this.getUser(user);
   }
 
   @WithUser()

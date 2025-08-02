@@ -33,4 +33,17 @@ export class UpdateTradeLinkDto {
 export class TradeUserDto {
   steamId: string;
   tradeUrl?: string;
+  balance: number;
+}
+
+export class TradeOfferDto {
+  id: string;
+  amount: number;
+  itemCount: number;
+  incoming: boolean;
+  createdAt: string;
+}
+
+export class PurchaseWithTradeBalanceDto {
+  productId: number;
 }

@@ -25,7 +25,7 @@ export class ItemDropService {
     await this.forumApi.forumControllerPostMessage(
       "forum_17aa3530-d152-462e-a032-909ae69019ed",
       {
-        content: `Игроку https://dotaclassic.ru/players/${evt.steamId} выпала награда "${evt.marketHashName}" за игру в матче ${evt.matchId}!`,
+        content: `Игроку https://dotaclassic.ru/players/${evt.steamId} выпала награда "${evt.item.marketHashName}" за игру в матче ${evt.matchId}!`,
         author: {
           steam_id: "159907143",
           roles: [],
