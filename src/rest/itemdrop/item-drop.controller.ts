@@ -1,16 +1,30 @@
-import { Body, Controller, Delete, Get, Param, Post } from "@nestjs/common";
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  ParseIntPipe,
+  Patch,
+  Post,
+} from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
 import { TradeApi } from "../../generated-api/tradebot";
-import { WithUser } from "../../utils/decorator/with-user";
+import { AdminGuard, WithUser } from "../../utils/decorator/with-user";
 import {
   CurrentUser,
   CurrentUserDto,
 } from "../../utils/decorator/current-user";
 import { ItemDropMapper } from "./item-drop.mapper";
 import {
+  CreateDropTierDto,
+  DropSettingsDto,
+  DropTierDto,
   PurchaseWithTradeBalanceDto,
   TradeOfferDto,
   TradeUserDto,
+  UpdateDropSettingsDto,
+  UpdateDropTierDto,
   UpdateTradeLinkDto,
 } from "./item-drop.dto";
 import { PaymentService } from "../payments/payment.service";
@@ -116,5 +130,51 @@ export class ItemDropController {
     @Param("id") assetId: string,
   ) {
     await this.api.tradeControllerDiscardDrop(user.steam_id, assetId);
+  }
+
+  // Tier CRUD
+  @AdminGuard()
+  @WithUser()
+  @Get("tiers")
+  public async getDropTiers(): Promise<DropTierDto[]> {
+    return this.api.tradeControllerGetDropTiers();
+  }
+
+  @AdminGuard()
+  @WithUser()
+  @Post("tiers")
+  public async createDropTier(@Body() dto: CreateDropTierDto) {
+    return this.api.tradeControllerCreateDropTier(dto);
+  }
+
+  @AdminGuard()
+  @WithUser()
+  @Patch("tiers/:id")
+  public async updateTier(
+    @Param("id", ParseIntPipe) id: number,
+    @Body() dto: UpdateDropTierDto,
+  ) {
+    await this.api.tradeControllerUpdateTier(id, dto);
+  }
+
+  @AdminGuard()
+  @WithUser()
+  @Delete("tiers/:id")
+  public async deleteTier(@Param("id", ParseIntPipe) id: number) {
+    await this.api.tradeControllerDeleteTier(id);
+  }
+
+  @AdminGuard()
+  @WithUser()
+  @Get("settings")
+  public async getSettings(): Promise<DropSettingsDto> {
+    return this.api.tradeControllerGetSettings();
+  }
+
+  @AdminGuard()
+  @WithUser()
+  @Patch("settings")
+  public async updateSettings(@Body() dto: UpdateDropSettingsDto) {
+    await this.api.tradeControllerUpdateSettings(dto);
   }
 }

@@ -16,12 +16,22 @@
 import * as runtime from "../runtime";
 
 import {
+  TradeBotCreateDropTierDto,
+  TradeBotCreateDropTierDtoToJSON,
   TradeBotDroppedItemDto,
   TradeBotDroppedItemDtoFromJSON,
+  TradeBotDropSettingsDto,
+  TradeBotDropSettingsDtoFromJSON,
+  TradeBotDropTierDto,
+  TradeBotDropTierDtoFromJSON,
   TradeBotPurchaseDto,
   TradeBotPurchaseDtoToJSON,
   TradeBotTradeOfferDto,
   TradeBotTradeOfferDtoFromJSON,
+  TradeBotUpdateDropSettingsDto,
+  TradeBotUpdateDropSettingsDtoToJSON,
+  TradeBotUpdateDropTierDto,
+  TradeBotUpdateDropTierDtoToJSON,
   TradeBotUpdateUserDto,
   TradeBotUpdateUserDtoToJSON,
   TradeBotUserDto,
@@ -30,6 +40,14 @@ import {
 
 export interface TradeControllerClaimDropsRequest {
   steamId: string;
+}
+
+export interface TradeControllerCreateDropTierRequest {
+    tradeBotCreateDropTierDto: TradeBotCreateDropTierDto;
+}
+
+export interface TradeControllerDeleteTierRequest {
+    id: number;
 }
 
 export interface TradeControllerDiscardDropRequest {
@@ -52,6 +70,15 @@ export interface TradeControllerGetUserRequest {
 export interface TradeControllerPurchaseRequest {
     steamId: string;
     tradeBotPurchaseDto: TradeBotPurchaseDto;
+}
+
+export interface TradeControllerUpdateSettingsRequest {
+    tradeBotUpdateDropSettingsDto: TradeBotUpdateDropSettingsDto;
+}
+
+export interface TradeControllerUpdateTierRequest {
+    id: number;
+    tradeBotUpdateDropTierDto: TradeBotUpdateDropTierDto;
 }
 
 export interface TradeControllerUpdateUserRequest {
@@ -78,13 +105,6 @@ export class TradeApi extends runtime.BaseAPI {
 
     /**
      */
-    tradeControllerClaimDrops = async (steamId: string): Promise<string> => {
-        const response = await this.tradeControllerClaimDropsRaw({ steamId: steamId });
-        return await response.value();
-    }
-
-    /**
-     */
     tradeControllerClaimDropsContext(requestParameters: TradeControllerClaimDropsRequest): runtime.RequestOpts {
         const queryParameters: any = {};
 
@@ -100,6 +120,80 @@ export class TradeApi extends runtime.BaseAPI {
 
     /**
      */
+    tradeControllerCreateDropTierContext(requestParameters: TradeControllerCreateDropTierRequest): runtime.RequestOpts {
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+        return {
+            path: `/trade/tiers`,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+            body: TradeBotCreateDropTierDtoToJSON(requestParameters.tradeBotCreateDropTierDto),
+        };
+    }
+
+    /**
+     */
+    tradeControllerClaimDrops = async (steamId: string): Promise<string> => {
+        const response = await this.tradeControllerClaimDropsRaw({ steamId: steamId });
+        return await response.value();
+    }
+
+    /**
+     */
+    tradeControllerCreateDropTier = async (tradeBotCreateDropTierDto: TradeBotCreateDropTierDto): Promise<void> => {
+        await this.tradeControllerCreateDropTierRaw({ tradeBotCreateDropTierDto: tradeBotCreateDropTierDto });
+    }
+
+    /**
+     */
+    tradeControllerDeleteTierContext(requestParameters: TradeControllerDeleteTierRequest): runtime.RequestOpts {
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        return {
+            path: `/trade/tiers/{id}`.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters.id))),
+            method: 'DELETE',
+            headers: headerParameters,
+            query: queryParameters,
+        };
+    }
+
+    /**
+     */
+    tradeControllerDeleteTier = async (id: number): Promise<void> => {
+        await this.tradeControllerDeleteTierRaw({ id: id });
+    }
+
+    /**
+     */
+    tradeControllerGetDropTiersContext(): runtime.RequestOpts {
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        return {
+            path: `/trade/tiers`,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        };
+    }
+
+    /**
+     */
+    tradeControllerGetDropTiers = async (): Promise<Array<TradeBotDropTierDto>> => {
+        const response = await this.tradeControllerGetDropTiersRaw();
+        return await response.value();
+    }
+
+    /**
+     */
     tradeControllerGetOfferHistoryContext(requestParameters: TradeControllerGetOfferHistoryRequest): runtime.RequestOpts {
         const queryParameters: any = {};
 
@@ -111,6 +205,28 @@ export class TradeApi extends runtime.BaseAPI {
             headers: headerParameters,
             query: queryParameters,
         };
+    }
+
+    /**
+     */
+    tradeControllerGetSettingsContext(): runtime.RequestOpts {
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        return {
+            path: `/trade/settings`,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        };
+    }
+
+    /**
+     */
+    tradeControllerGetSettings = async (): Promise<TradeBotDropSettingsDto> => {
+        const response = await this.tradeControllerGetSettingsRaw();
+        return await response.value();
     }
 
     /**
@@ -159,6 +275,54 @@ export class TradeApi extends runtime.BaseAPI {
 
     /**
      */
+    tradeControllerPurchaseContext(requestParameters: TradeControllerPurchaseRequest): runtime.RequestOpts {
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+        return {
+            path: `/trade/user/{steamId}/purchase`.replace(`{${"steamId"}}`, encodeURIComponent(String(requestParameters.steamId))),
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+            body: TradeBotPurchaseDtoToJSON(requestParameters.tradeBotPurchaseDto),
+        };
+    }
+
+    /**
+     */
+    tradeControllerPurchase = async (steamId: string, tradeBotPurchaseDto: TradeBotPurchaseDto): Promise<void> => {
+        await this.tradeControllerPurchaseRaw({ steamId: steamId, tradeBotPurchaseDto: tradeBotPurchaseDto });
+    }
+
+    /**
+     */
+    tradeControllerUpdateSettingsContext(requestParameters: TradeControllerUpdateSettingsRequest): runtime.RequestOpts {
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+        return {
+            path: `/trade/settings`,
+            method: 'PATCH',
+            headers: headerParameters,
+            query: queryParameters,
+            body: TradeBotUpdateDropSettingsDtoToJSON(requestParameters.tradeBotUpdateDropSettingsDto),
+        };
+    }
+
+    /**
+     */
+    tradeControllerUpdateSettings = async (tradeBotUpdateDropSettingsDto: TradeBotUpdateDropSettingsDto): Promise<void> => {
+        await this.tradeControllerUpdateSettingsRaw({ tradeBotUpdateDropSettingsDto: tradeBotUpdateDropSettingsDto });
+    }
+
+    /**
+     */
     private async tradeControllerGetDropsRaw(requestParameters: TradeControllerGetDropsRequest): Promise<runtime.ApiResponse<Array<TradeBotDroppedItemDto>>> {
         this.tradeControllerGetDropsValidation(requestParameters);
         const context = this.tradeControllerGetDropsContext(requestParameters);
@@ -201,14 +365,7 @@ export class TradeApi extends runtime.BaseAPI {
 
     /**
      */
-    tradeControllerGetOfferHistory = async (steamId: string): Promise<Array<TradeBotTradeOfferDto>> => {
-        const response = await this.tradeControllerGetOfferHistoryRaw({ steamId: steamId });
-        return await response.value();
-    }
-
-    /**
-     */
-    tradeControllerPurchaseContext(requestParameters: TradeControllerPurchaseRequest): runtime.RequestOpts {
+    tradeControllerUpdateTierContext(requestParameters: TradeControllerUpdateTierRequest): runtime.RequestOpts {
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
@@ -216,18 +373,18 @@ export class TradeApi extends runtime.BaseAPI {
         headerParameters['Content-Type'] = 'application/json';
 
         return {
-            path: `/trade/user/{steamId}/purchase`.replace(`{${"steamId"}}`, encodeURIComponent(String(requestParameters.steamId))),
-            method: 'POST',
+            path: `/trade/tiers/{id}`.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters.id))),
+            method: 'PATCH',
             headers: headerParameters,
             query: queryParameters,
-            body: TradeBotPurchaseDtoToJSON(requestParameters.tradeBotPurchaseDto),
+            body: TradeBotUpdateDropTierDtoToJSON(requestParameters.tradeBotUpdateDropTierDto),
         };
     }
 
     /**
      */
-    tradeControllerPurchase = async (steamId: string, tradeBotPurchaseDto: TradeBotPurchaseDto): Promise<void> => {
-        await this.tradeControllerPurchaseRaw({ steamId: steamId, tradeBotPurchaseDto: tradeBotPurchaseDto });
+    tradeControllerUpdateTier = async (id: number, tradeBotUpdateDropTierDto: TradeBotUpdateDropTierDto): Promise<void> => {
+        await this.tradeControllerUpdateTierRaw({ id: id, tradeBotUpdateDropTierDto: tradeBotUpdateDropTierDto });
     }
 
     /**
@@ -235,6 +392,49 @@ export class TradeApi extends runtime.BaseAPI {
     private tradeControllerClaimDropsValidation(requestParameters: TradeControllerClaimDropsRequest) {
         if (requestParameters.steamId === null || requestParameters.steamId === undefined) {
             throw new runtime.RequiredError('steamId','Required parameter requestParameters.steamId was null or undefined when calling tradeControllerClaimDrops.');
+        }
+    }
+
+    /**
+     */
+    tradeControllerGetOfferHistory = async (steamId: string): Promise<Array<TradeBotTradeOfferDto>> => {
+        const response = await this.tradeControllerGetOfferHistoryRaw({ steamId: steamId });
+        return await response.value();
+    }
+
+    /**
+     */
+    private async tradeControllerCreateDropTierRaw(requestParameters: TradeControllerCreateDropTierRequest): Promise<runtime.ApiResponse<void>> {
+        this.tradeControllerCreateDropTierValidation(requestParameters);
+        const context = this.tradeControllerCreateDropTierContext(requestParameters);
+        const response = await this.request(context);
+
+        return new runtime.VoidApiResponse(response);
+    }
+
+    /**
+     */
+    private tradeControllerCreateDropTierValidation(requestParameters: TradeControllerCreateDropTierRequest) {
+        if (requestParameters.tradeBotCreateDropTierDto === null || requestParameters.tradeBotCreateDropTierDto === undefined) {
+            throw new runtime.RequiredError('tradeBotCreateDropTierDto','Required parameter requestParameters.tradeBotCreateDropTierDto was null or undefined when calling tradeControllerCreateDropTier.');
+        }
+    }
+
+    /**
+     */
+    private async tradeControllerDeleteTierRaw(requestParameters: TradeControllerDeleteTierRequest): Promise<runtime.ApiResponse<void>> {
+        this.tradeControllerDeleteTierValidation(requestParameters);
+        const context = this.tradeControllerDeleteTierContext(requestParameters);
+        const response = await this.request(context);
+
+        return new runtime.VoidApiResponse(response);
+    }
+
+    /**
+     */
+    private tradeControllerDeleteTierValidation(requestParameters: TradeControllerDeleteTierRequest) {
+        if (requestParameters.id === null || requestParameters.id === undefined) {
+            throw new runtime.RequiredError('id','Required parameter requestParameters.id was null or undefined when calling tradeControllerDeleteTier.');
         }
     }
 
@@ -282,6 +482,44 @@ export class TradeApi extends runtime.BaseAPI {
 
     /**
      */
+    private async tradeControllerPurchaseRaw(requestParameters: TradeControllerPurchaseRequest): Promise<runtime.ApiResponse<void>> {
+        this.tradeControllerPurchaseValidation(requestParameters);
+        const context = this.tradeControllerPurchaseContext(requestParameters);
+        const response = await this.request(context);
+
+        return new runtime.VoidApiResponse(response);
+    }
+
+
+
+    /**
+     */
+    private tradeControllerPurchaseValidation(requestParameters: TradeControllerPurchaseRequest) {
+        if (requestParameters.steamId === null || requestParameters.steamId === undefined) {
+            throw new runtime.RequiredError('steamId','Required parameter requestParameters.steamId was null or undefined when calling tradeControllerPurchase.');
+        }
+        if (requestParameters.tradeBotPurchaseDto === null || requestParameters.tradeBotPurchaseDto === undefined) {
+            throw new runtime.RequiredError('tradeBotPurchaseDto','Required parameter requestParameters.tradeBotPurchaseDto was null or undefined when calling tradeControllerPurchase.');
+        }
+    }
+
+    /**
+     */
+    private async tradeControllerGetDropTiersRaw(): Promise<runtime.ApiResponse<Array<TradeBotDropTierDto>>> {
+        this.tradeControllerGetDropTiersValidation();
+        const context = this.tradeControllerGetDropTiersContext();
+        const response = await this.request(context);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(TradeBotDropTierDtoFromJSON));
+    }
+
+    /**
+     */
+    private tradeControllerGetDropTiersValidation() {
+    }
+
+    /**
+     */
     private async tradeControllerGetOfferHistoryRaw(requestParameters: TradeControllerGetOfferHistoryRequest): Promise<runtime.ApiResponse<Array<TradeBotTradeOfferDto>>> {
         this.tradeControllerGetOfferHistoryValidation(requestParameters);
         const context = this.tradeControllerGetOfferHistoryContext(requestParameters);
@@ -300,9 +538,24 @@ export class TradeApi extends runtime.BaseAPI {
 
     /**
      */
-    private async tradeControllerPurchaseRaw(requestParameters: TradeControllerPurchaseRequest): Promise<runtime.ApiResponse<void>> {
-        this.tradeControllerPurchaseValidation(requestParameters);
-        const context = this.tradeControllerPurchaseContext(requestParameters);
+    private async tradeControllerGetSettingsRaw(): Promise<runtime.ApiResponse<TradeBotDropSettingsDto>> {
+        this.tradeControllerGetSettingsValidation();
+        const context = this.tradeControllerGetSettingsContext();
+        const response = await this.request(context);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => TradeBotDropSettingsDtoFromJSON(jsonValue));
+    }
+
+    /**
+     */
+    private tradeControllerGetSettingsValidation() {
+    }
+
+    /**
+     */
+    private async tradeControllerUpdateSettingsRaw(requestParameters: TradeControllerUpdateSettingsRequest): Promise<runtime.ApiResponse<void>> {
+        this.tradeControllerUpdateSettingsValidation(requestParameters);
+        const context = this.tradeControllerUpdateSettingsContext(requestParameters);
         const response = await this.request(context);
 
         return new runtime.VoidApiResponse(response);
@@ -310,12 +563,30 @@ export class TradeApi extends runtime.BaseAPI {
 
     /**
      */
-    private tradeControllerPurchaseValidation(requestParameters: TradeControllerPurchaseRequest) {
-        if (requestParameters.steamId === null || requestParameters.steamId === undefined) {
-            throw new runtime.RequiredError('steamId','Required parameter requestParameters.steamId was null or undefined when calling tradeControllerPurchase.');
+    private tradeControllerUpdateSettingsValidation(requestParameters: TradeControllerUpdateSettingsRequest) {
+        if (requestParameters.tradeBotUpdateDropSettingsDto === null || requestParameters.tradeBotUpdateDropSettingsDto === undefined) {
+            throw new runtime.RequiredError('tradeBotUpdateDropSettingsDto','Required parameter requestParameters.tradeBotUpdateDropSettingsDto was null or undefined when calling tradeControllerUpdateSettings.');
         }
-        if (requestParameters.tradeBotPurchaseDto === null || requestParameters.tradeBotPurchaseDto === undefined) {
-            throw new runtime.RequiredError('tradeBotPurchaseDto','Required parameter requestParameters.tradeBotPurchaseDto was null or undefined when calling tradeControllerPurchase.');
+    }
+
+    /**
+     */
+    private async tradeControllerUpdateTierRaw(requestParameters: TradeControllerUpdateTierRequest): Promise<runtime.ApiResponse<void>> {
+        this.tradeControllerUpdateTierValidation(requestParameters);
+        const context = this.tradeControllerUpdateTierContext(requestParameters);
+        const response = await this.request(context);
+
+        return new runtime.VoidApiResponse(response);
+    }
+
+    /**
+     */
+    private tradeControllerUpdateTierValidation(requestParameters: TradeControllerUpdateTierRequest) {
+        if (requestParameters.id === null || requestParameters.id === undefined) {
+            throw new runtime.RequiredError('id','Required parameter requestParameters.id was null or undefined when calling tradeControllerUpdateTier.');
+        }
+        if (requestParameters.tradeBotUpdateDropTierDto === null || requestParameters.tradeBotUpdateDropTierDto === undefined) {
+            throw new runtime.RequiredError('tradeBotUpdateDropTierDto','Required parameter requestParameters.tradeBotUpdateDropTierDto was null or undefined when calling tradeControllerUpdateTier.');
         }
     }
 
