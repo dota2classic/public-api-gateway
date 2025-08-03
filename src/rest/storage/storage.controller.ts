@@ -34,15 +34,6 @@ import { parseLogFile } from "../../utils/parseLogFile";
 import { GlobalHttpCacheInterceptor } from "../../utils/cache-global";
 import { CacheTTL } from "@nestjs/cache-manager";
 
-interface IFile {
-  fieldname: string;
-  originalname: string;
-  encoding: string;
-  mimetype: string;
-  buffer: Buffer;
-  size: number;
-}
-
 @UseInterceptors(ReqLoggingInterceptor)
 @Controller("storage")
 @ApiTags("storage")
