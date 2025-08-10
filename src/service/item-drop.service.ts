@@ -39,7 +39,7 @@ export class ItemDropService {
       await this.forumApi.forumControllerPostMessage(
         "forum_17aa3530-d152-462e-a032-909ae69019ed",
         {
-          content: `Игроку https://dotaclassic.ru/players/${evt.steamId} выпала награда "${evt.item.marketHashName}" за игру в матче https://dotaclassic.ru/matches/${evt.matchId}\n https://community.fastly.steamstatic.com/economy/image/${evt.item.icon}/item.png`,
+          content: `Игроку https://dotaclassic.ru/players/${evt.steamId} выпала награда <${evt.item.rarity}>"${evt.item.marketHashName}"</${evt.item.rarity}> за игру в матче https://dotaclassic.ru/matches/${evt.matchId}\n https://community.fastly.steamstatic.com/economy/image/${evt.item.icon}/item.png`,
           author: {
             steam_id: "159907143",
             roles: [],
