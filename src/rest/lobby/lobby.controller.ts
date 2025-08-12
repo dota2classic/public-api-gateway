@@ -142,6 +142,7 @@ export class LobbyController {
         dto.name,
         dto.enableCheats,
         dto.fillBots,
+        dto.patch,
       )
       .then((item) => this.lobbyMapper.mapLobby(item, user.steam_id));
   }

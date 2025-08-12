@@ -99,6 +99,7 @@ export class AdminUserController {
       game_mode: b.dotaGameMode,
       enableCheats: b.enableCheats,
       fillBots: b.fillBots,
+      patch: b.patch,
     });
 
     return this.infoApi.infoControllerGamemodes().then((t) =>

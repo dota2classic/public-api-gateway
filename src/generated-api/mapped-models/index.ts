@@ -8,4 +8,6 @@ export * from "./BanReason";
 export * from "./Role";
 export * from "./PlayerAspect";
 export * from "./MatchAccessLevel";
+export * from "./DotaPatch";
+
 

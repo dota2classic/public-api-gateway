@@ -4,6 +4,7 @@ import { Dota_GameMode } from "../../gateway/shared-types/dota-game-mode";
 import { Dota_Map } from "../../gateway/shared-types/dota-map";
 import { MessageObjectDto } from "../match/dto/match.dto";
 import { IsOptional, MinLength } from "class-validator";
+import { DotaPatch } from "../../gateway/constants/patch";
 
 export class LobbySlotDto {
   user: UserDTO;
@@ -28,6 +29,9 @@ export class LobbyDto {
 
   @ApiProperty({ enum: Dota_Map, enumName: "Dota_Map" })
   map: Dota_Map;
+
+  @ApiProperty({ enum: DotaPatch, enumName: "DotaPatch" })
+  patch: DotaPatch;
 
   password?: string;
   requiresPassword: boolean;
@@ -54,6 +58,9 @@ export class UpdateLobbyDto {
 
   fillBots?: boolean;
   enableCheats?: boolean;
+
+  @ApiProperty({ enum: DotaPatch, enumName: "DotaPatch" })
+  patch?: DotaPatch;
 }
 
 export class KickPlayerDto {

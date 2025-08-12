@@ -31,6 +31,7 @@ export class LobbyMapper {
       password: mapFor === lobby.ownerSteamId ? lobby.password : "****",
       enableCheats: lobby.enableCheats,
       fillBots: lobby.fillBots,
+      patch: lobby.patch,
     };
   };
 }

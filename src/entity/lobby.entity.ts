@@ -2,6 +2,7 @@ import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { LobbySlotEntity } from "./lobby-slot.entity";
 import { Dota_GameMode } from "../gateway/shared-types/dota-game-mode";
 import { Dota_Map } from "../gateway/shared-types/dota-map";
+import { DotaPatch } from "../gateway/constants/patch";
 
 @Entity()
 export class LobbyEntity {
@@ -34,6 +35,14 @@ export class LobbyEntity {
 
   @Column({ name: "enable_cheats", default: false })
   public enableCheats: boolean;
+
+  @Column({
+    name: "patch",
+    default: DotaPatch.DOTA_684,
+    enum: DotaPatch,
+    type: "enum",
+  })
+  public patch: DotaPatch;
 
   constructor(ownerSteamId: string) {
     this.ownerSteamId = ownerSteamId;
