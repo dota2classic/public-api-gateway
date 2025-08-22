@@ -41,9 +41,15 @@ export class LobbySlotEntity {
   ])
   lobby: Relation<LobbySlotEntity>;
 
-  constructor(lobbyId: string, team: DotaTeam | undefined, index: number) {
+  constructor(
+    lobbyId: string,
+    team: DotaTeam | undefined,
+    index: number,
+    steamId = undefined,
+  ) {
     this.lobbyId = lobbyId;
     this.team = team;
     this.indexInTeam = index;
+    this.steamId = steamId;
   }
 }

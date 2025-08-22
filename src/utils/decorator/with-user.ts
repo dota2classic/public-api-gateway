@@ -58,6 +58,7 @@ export class RoleGuard implements CanActivate {
 
     // @ts-ignore
     const user: CurrentUserDto | undefined = request.user;
+    console.log(user)
     return !!user?.roles.find((t) => this.role.includes(t));
   }
 }

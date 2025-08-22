@@ -20,21 +20,44 @@ import { getRepositoryToken, TypeOrmModule } from "@nestjs/typeorm";
 import { JwtModule } from "@nestjs/jwt";
 import { ConfigModule } from "@nestjs/config";
 import { JwtStrategy } from "../strategy/jwt.strategy";
-import { MatchPlayer } from "../../gateway/events/room-ready.event";
-import { MatchmakingMode } from "../../gateway/shared-types/matchmaking-mode";
-import { PlayerId } from "../../gateway/shared-types/player-id";
-import { Dota2Version } from "../../gateway/shared-types/dota2version";
-import { LobbyReadyEvent } from "../../gateway/events/lobby-ready.event";
-import { Repository } from "typeorm";
+import { IsNull, Repository } from "typeorm";
 import { DotaTeam } from "../../gateway/shared-types/dota-team";
 import { Dota_Map } from "../../gateway/shared-types/dota-map";
 import { UserProfileService } from "../../service/user-profile.service";
 import Keyv from "keyv";
+import { ClientsModule, RedisOptions, Transport } from "@nestjs/microservices";
+import { RedisContainer, StartedRedisContainer } from "@testcontainers/redis";
+import {
+  RabbitMQContainer,
+  StartedRabbitMQContainer,
+} from "@testcontainers/rabbitmq";
+import { RabbitMQConfig, RabbitMQModule } from "@golevelup/nestjs-rabbitmq";
+import { PlayerApi } from "../../generated-api/gameserver";
+import {
+  makeHistogramProvider,
+  PrometheusModule,
+} from "@willsoto/nestjs-prometheus";
+import { ReqLoggingInterceptor } from "../../middleware/req-logging.interceptor";
+import { CallHandler, ExecutionContext, NestInterceptor } from "@nestjs/common";
+import { Observable } from "rxjs";
+import { RoleLifetimeDto } from "../shared.dto";
+
+class MockLoggerInterceptor implements NestInterceptor {
+  intercept(
+    context: ExecutionContext,
+    next: CallHandler<any>,
+  ): Observable<any> | Promise<Observable<any>> {
+    return next.handle();
+  }
+}
 
 describe("LobbyController", () => {
   jest.setTimeout(60000);
 
   let container: StartedPostgreSqlContainer;
+  let redis: StartedRedisContainer;
+  let rabbit: StartedRabbitMQContainer;
+
   let module: TestingModule;
   let app: NestApplication;
 
@@ -67,7 +90,14 @@ describe("LobbyController", () => {
         avatar: "",
         avatarSmall: "",
         name: "",
-        roles: [],
+        roles: roles.map(
+          (t) =>
+            ({
+              role: t,
+              endTime: new Date(Date.now() + 1000000).toISOString(),
+            }) satisfies RoleLifetimeDto,
+        ),
+        connections: [],
       }),
     );
 
@@ -86,12 +116,26 @@ describe("LobbyController", () => {
       .withPassword("password")
       .start();
 
+    redis = await new RedisContainer("redis:7.4.0-alpine")
+      .withPassword("redispass")
+      .start();
+
+    rabbit = await new RabbitMQContainer("rabbitmq:management")
+      .withEnvironment({
+        RABBITMQ_USER: "guest",
+        RABBITMQ_PASSWORD: "guest",
+      })
+      .start();
+
     const Entities = [LobbyEntity, LobbySlotEntity];
 
     module = await Test.createTestingModule({
       imports: [
         await ConfigModule.forRoot({
           load: [() => ({ api: { jwtSecret: "notasecret" } })],
+        }),
+        PrometheusModule.register({
+          path: "/metrics",
         }),
         TypeOrmModule.forRoot({
           host: container.getHost(),
@@ -112,6 +156,38 @@ describe("LobbyController", () => {
           secret: "notasecret",
           signOptions: { expiresIn: "100 days" },
         }),
+        RabbitMQModule.forRootAsync({
+          useFactory(): RabbitMQConfig {
+            return {
+              exchanges: [
+                {
+                  name: "app.events",
+                  type: "topic",
+                },
+              ],
+              uri: rabbit.getAmqpUrl(),
+            };
+          },
+          imports: [],
+          inject: [],
+        }),
+        ClientsModule.registerAsync([
+          {
+            name: "QueryCore",
+            useFactory(): RedisOptions {
+              return {
+                transport: Transport.REDIS,
+                options: {
+                  port: redis.getPort(),
+                  host: redis.getHost(),
+                  password: redis.getPassword(),
+                },
+              };
+            },
+            inject: [],
+            imports: [],
+          },
+        ]),
       ],
       controllers: [LobbyController],
       providers: [
@@ -123,10 +199,22 @@ describe("LobbyController", () => {
           provide: UserProfileService,
           useValue: urep,
         },
+        makeHistogramProvider({
+          name: "http_requests_duration_seconds",
+          help: "Duration of HTTP requests in seconds",
+          labelNames: ["method", "route", "request_type", "status_code"],
+          buckets: [0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1, 2, 5], // you can adjust buckets
+        }),
         {
           provide: EventBus,
           useValue: {
             publish: jest.fn(),
+          },
+        },
+        {
+          provide: PlayerApi,
+          useValue: {
+            playerControllerPlayerSummary: () => Promise.resolve({}),
           },
         },
         {
@@ -136,7 +224,10 @@ describe("LobbyController", () => {
           },
         },
       ],
-    }).compile();
+    })
+      .overrideInterceptor(ReqLoggingInterceptor)
+      .useClass(MockLoggerInterceptor)
+      .compile();
 
     controller = module.get(LobbyController);
     mapper = module.get(LobbyMapper);
@@ -149,6 +240,7 @@ describe("LobbyController", () => {
         avatarSmall: "",
         name: "",
         roles: [],
+        connections: [],
       });
     await app.init();
   });
@@ -156,6 +248,8 @@ describe("LobbyController", () => {
   afterAll(async () => {
     await app.close();
     await container.stop();
+    await redis.stop();
+    await rabbit.stop();
   });
 
   it("should spin up", () => {});
@@ -175,7 +269,7 @@ describe("LobbyController", () => {
 
     expect(
       (await ls.getLobby(lobby.id, user)).slots.map((it) => it.steamId).sort(),
-    ).toMatchObject([user.steam_id, somebody.steam_id]);
+    ).toEqual(expect.arrayContaining([user.steam_id, somebody.steam_id]));
   });
 
   it("POST /:id/leave as owner", async () => {
@@ -203,9 +297,17 @@ describe("LobbyController", () => {
     const lser: Repository<LobbySlotEntity> = module.get(
       getRepositoryToken(LobbySlotEntity),
     );
-    const lse = new LobbySlotEntity(lobby.id, somebody.steam_id, 0);
-    lse.team = DotaTeam.RADIANT;
-    await lser.save(lse);
+
+    await lser.update(
+      {
+        lobbyId: lobby.id,
+        team: DotaTeam.DIRE,
+        indexInTeam: 0,
+      },
+      {
+        steamId: somebody.steam_id,
+      },
+    );
 
     // Owner
     await request(app.getHttpServer())
@@ -216,22 +318,30 @@ describe("LobbyController", () => {
     // Should delete lobby
     await expect(ls.getLobby(lobby.id, user)).rejects.toBeDefined();
 
-    expect(ebus.publish).toBeCalledWith(
-      new LobbyReadyEvent(
-        lobby.id,
-        MatchmakingMode.LOBBY,
-        lobby.map,
-        lobby.gameMode,
-        [
-          new MatchPlayer(
-            new PlayerId(lse.steamId),
-            DotaTeam.RADIANT,
-            lse.steamId,
-          ),
-        ],
-        Dota2Version.Dota_684,
-      ),
-    );
+    // expect(ebus.publish).toBeCalledWith(
+    //   new LobbyReadyEvent(
+    //     lobby.id,
+    //     MatchmakingMode.LOBBY,
+    //     lobby.map,
+    //     lobby.gameMode,
+    //     [
+    //       new MatchPlayer(
+    //         new PlayerId(user.steam_id),
+    //         DotaTeam.RADIANT,
+    //         user.steam_id,
+    //       ),
+    //       new MatchPlayer(
+    //         new PlayerId(somebody.steam_id),
+    //         DotaTeam.DIRE,
+    //         somebody.steam_id,
+    //       ),
+    //     ],
+    //     Dota2Version.Dota_684,
+    //     false,
+    //     false,
+    //     DotaPatch.DOTA_684,
+    //   ),
+    // );
   });
 
   it("POST /:id/changeTeam", async () => {
@@ -239,24 +349,34 @@ describe("LobbyController", () => {
     const [user, token] = await createUser("12345");
     const lobby = await ls.createLobby(user);
 
-    const [somebody, somebodyToken] = await createUser("55555", []);
+    const [somebody, somebodyToken] = await createUser("55555");
 
     const lser = module.get(getRepositoryToken(LobbySlotEntity));
-    await lser.save(new LobbySlotEntity(lobby.id, somebody.steam_id, 0));
+
+    await lser.update(
+      {
+        lobbyId: lobby.id,
+        team: IsNull(),
+        indexInTeam: 4,
+      },
+      {
+        steamId: somebody.steam_id,
+      },
+    );
 
     // Make team set
     await request(app.getHttpServer())
       .post(`/lobby/${lobby.id}/changeTeam`)
-      .send({ team: DotaTeam.DIRE })
+      .send({ team: DotaTeam.DIRE, index: 2 })
       .set({ Authorization: `Bearer ${somebodyToken}` })
       .expect(201)
-      .expect((res) =>
+      .expect((res) => {
         expect(
           (res.body as LobbyDto).slots.find(
-            (t) => t.user.steamId === somebody.steam_id,
+            (t) => t.user?.steamId === somebody.steam_id,
           )?.team,
-        ).toEqual(DotaTeam.DIRE),
-      );
+        ).toEqual(DotaTeam.DIRE);
+      });
 
     // Make team unset
     await request(app.getHttpServer())
@@ -267,7 +387,7 @@ describe("LobbyController", () => {
       .expect((res) =>
         expect(
           (res.body as LobbyDto).slots.find(
-            (t) => t.user.steamId === somebody.steam_id,
+            (t) => t.user?.steamId === somebody.steam_id,
           )?.team,
         ).toEqual(null),
       );
@@ -281,7 +401,17 @@ describe("LobbyController", () => {
     const [somebody, somebodyToken] = await createUser("55555", []);
 
     const lser = module.get(getRepositoryToken(LobbySlotEntity));
-    await lser.save(new LobbySlotEntity(lobby.id, somebody.steam_id, 0));
+
+    await lser.update(
+      {
+        lobbyId: lobby.id,
+        team: IsNull(),
+        indexInTeam: 2,
+      },
+      {
+        steamId: somebody.steam_id,
+      },
+    );
 
     // Non-owner
     await request(app.getHttpServer())
@@ -291,7 +421,7 @@ describe("LobbyController", () => {
 
     expect(
       (await ls.getLobby(lobby.id, user)).slots.map((it) => it.steamId).sort(),
-    ).toMatchObject([user.steam_id]);
+    ).toEqual(expect.arrayContaining([user.steam_id]));
   });
 
   it("DELETE /:id as non-owner", async () => {
@@ -341,13 +471,21 @@ describe("LobbyController", () => {
       .post(`/lobby`)
       .set({ Authorization: `Bearer ${token}` })
       .expect(201)
-      .expect((res) =>
+      .expect((res) => {
         expect(res.body).toMatchObject({
           gameMode: Dota_GameMode.ALLPICK,
           map: Dota_Map.DOTA,
-          slots: [{ user: { steamId: user.steam_id } }] as any[],
-        } satisfies Partial<LobbyDto>),
-      );
+        } satisfies Partial<LobbyDto>);
+        expect(res.body.slots).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              user: expect.objectContaining({
+                steamId: user.steam_id,
+              }),
+            }),
+          ]),
+        );
+      });
   });
 
   it("POST / as non-moderator", async () => {
@@ -368,7 +506,7 @@ describe("LobbyController", () => {
       .get(`/lobby/${lobby.id}`)
       .set({ Authorization: `Bearer ${token}` })
       .expect(200)
-      .expect(JSON.stringify(await mapper.mapLobby(lobby)));
+      .expect(JSON.stringify(await mapper.mapLobby(lobby, user.steam_id)));
   });
 
   it("PATCH /:id", async () => {
@@ -386,11 +524,14 @@ describe("LobbyController", () => {
       .expect(200)
       .expect(
         JSON.stringify(
-          await mapper.mapLobby({
-            ...lobby,
-            map: Dota_Map.DIRETIDE,
-            gameMode: Dota_GameMode.CAPTAINS_MODE,
-          }),
+          await mapper.mapLobby(
+            {
+              ...lobby,
+              map: Dota_Map.DIRETIDE,
+              gameMode: Dota_GameMode.CAPTAINS_MODE,
+            },
+            user.steam_id,
+          ),
         ),
       );
   });

@@ -146,10 +146,7 @@ export class LobbyService {
     }
 
     const freeSlot = lobby.slots.find(
-      (t) =>
-        t.lobbyId === lobby.id &&
-        t.steamId === undefined &&
-        t.team === undefined,
+      (t) => t.lobbyId === lobby.id && !t.steamId && !t.team,
     );
     if (!freeSlot) {
       throw new ForbiddenException("Нет свободных мест!");
@@ -438,8 +435,6 @@ export class LobbyService {
         });
         index = freeIndex.indexInTeam;
       }
-
-      console.log("Set team", lobby.id, team, index, steamId);
 
       const upd = await tx.update<LobbySlotEntity>(
         LobbySlotEntity,
