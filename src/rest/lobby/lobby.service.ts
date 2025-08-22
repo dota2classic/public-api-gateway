@@ -4,11 +4,12 @@ import {
   Inject,
   Injectable,
   Logger,
+  NotFoundException,
 } from "@nestjs/common";
 import { LobbyEntity } from "../../entity/lobby.entity";
 import { LobbySlotEntity } from "../../entity/lobby-slot.entity";
 import { InjectRepository } from "@nestjs/typeorm";
-import { DataSource, Repository } from "typeorm";
+import { DataSource, IsNull, Repository } from "typeorm";
 import { CurrentUserDto } from "../../utils/decorator/current-user";
 import { Role } from "../../gateway/shared-types/roles";
 import { HttpStatusCode } from "axios";
@@ -67,10 +68,34 @@ export class LobbyService {
       hostedLobbies.map((l) => this.closeLobby(l.id, user, LobbyAction.Close)),
     );
 
-    let lobby = new LobbyEntity(user.steam_id);
-    lobby = await this.lobbyEntityRepository.save(lobby);
-    const lse = new LobbySlotEntity(lobby.id, user.steam_id, 0);
-    await this.lobbySlotEntityRepository.save(lse);
+    const lobby = await this.datasource.transaction(async (tx) => {
+      // Create lobby entity
+      let lobby = new LobbyEntity(user.steam_id);
+      await tx.save(LobbyEntity, lobby);
+
+      const slots: LobbySlotEntity[] = [];
+
+      let leaderAssigned: boolean = false;
+      // populate team slots
+      for (const team of [DotaTeam.RADIANT, DotaTeam.DIRE]) {
+        for (let i = 0; i < 5; i++) {
+          const lse = new LobbySlotEntity(lobby.id, team, i);
+          if (!leaderAssigned) {
+            leaderAssigned = true;
+            lse.steamId = user.steam_id;
+          }
+          slots.push(lse);
+        }
+      }
+      // Populate unassigned slots
+      for (let i = 0; i < 20; i++) {
+        slots.push(new LobbySlotEntity(lobby.id, undefined, i));
+      }
+
+      await tx.insert(LobbySlotEntity, slots);
+
+      return lobby;
+    });
 
     return this.getLobby(lobby.id, user).then(this.lobbyUpdated);
   }
@@ -120,15 +145,22 @@ export class LobbyService {
       throw new ForbiddenException("Wrong password");
     }
 
-    const lse = await this.lobbySlotEntityRepository.save(
-      new LobbySlotEntity(lobby.id, user.steam_id, 0),
+    const freeSlot = lobby.slots.find(
+      (t) =>
+        t.lobbyId === lobby.id &&
+        t.steamId === undefined &&
+        t.team === undefined,
     );
+    if (!freeSlot) {
+      throw new ForbiddenException("Нет свободных мест!");
+    }
 
-    lobby.slots.push(lse);
+    freeSlot.steamId = user.steam_id;
+    await this.lobbySlotEntityRepository.save(freeSlot);
 
     this.lobbyUpdated(lobby);
 
-    await this.leaveAllQueues(lse.steamId);
+    await this.leaveAllQueues(user.steam_id);
 
     return lobby;
   }
@@ -176,9 +208,9 @@ export class LobbyService {
       where: { id },
     });
 
-    if (
-      lobby.slots.findIndex((slot) => slot.steamId === user.steam_id) === -1
-    ) {
+    const slot = lobby.slots.find((slot) => slot.steamId === user.steam_id);
+
+    if (!slot) {
       throw new HttpException("Not in lobby", HttpStatusCode.Conflict);
     }
 
@@ -187,15 +219,18 @@ export class LobbyService {
       return this.closeLobby(id, user, LobbyAction.Close);
     }
 
-    await this.lobbySlotEntityRepository.delete({
-      steamId: user.steam_id,
-      lobbyId: lobby.id,
-    });
-    lobby.slots.splice(
-      lobby.slots.findIndex((t) => t.steamId === user.steam_id),
-      1,
+    await this.lobbySlotEntityRepository.update(
+      {
+        steamId: user.steam_id,
+        lobbyId: lobby.id,
+      },
+      {
+        steamId: null,
+      },
     );
 
+    // emit evt
+    slot.steamId = undefined;
     await this.redisEventQueue.emit(
       LobbyUpdatedEvent.name,
       new LobbyUpdatedEvent(
@@ -262,14 +297,40 @@ export class LobbyService {
     if (lobby.ownerSteamId !== user.steam_id) {
       throw new ForbiddenException("Only lobby owner can shuffle teams");
     }
-    let playerPool = lobby.slots.filter((t) => t.team !== undefined);
-    playerPool = shuffle(playerPool);
-    const middle = Math.floor(playerPool.length / 2);
-    for (let i = 0; i < playerPool.length; i++) {
-      const plr = playerPool[i];
-      plr.team = i < middle ? DotaTeam.RADIANT : DotaTeam.DIRE;
-    }
-    await this.lobbySlotEntityRepository.save(playerPool);
+
+    await this.datasource.transaction(async (tx) => {
+      // Find all team slots of lobby for update
+      const slots = await tx
+        .createQueryBuilder<LobbySlotEntity>(LobbySlotEntity, "slot")
+        .useTransaction(true)
+        .setLock("pessimistic_write")
+        .where("slot.lobby_id = :lobbyId", { lobbyId: lobby.id })
+        .andWhere("slot.team IS NOT NULL")
+        .getMany();
+
+      // Create pool of players
+      let playerPool = Array.from(
+        new Set(slots.filter((t) => t.steamId).map((t) => t.steamId)),
+      );
+      playerPool = shuffle(playerPool);
+
+      // Clean them up
+      slots.forEach((slot) => (slot.steamId = null));
+
+      // Assign player pool
+      for (let i = 0; i < Math.min(10, playerPool.length); i++) {
+        const indexInTeam = Math.floor(i / 2);
+        const team = i % 2 === 0 ? DotaTeam.RADIANT : DotaTeam.DIRE;
+        const slot = slots.find(
+          (t) => t.team === team && t.indexInTeam === indexInTeam,
+        );
+        slot.steamId = playerPool[i];
+      }
+
+      // Save slots
+      await tx.save(LobbySlotEntity, slots);
+    });
+
     return this.getLobby(id, user).then(this.lobbyUpdated);
   }
 
@@ -277,7 +338,7 @@ export class LobbyService {
   public async startLobby(id: string, user: CurrentUserDto) {
     const lobby = await this.getLobby(id, user);
 
-    const filledSlots = lobby.slots.filter((it) => it.team);
+    const filledSlots = lobby.slots.filter((it) => it.team && it.steamId);
     if (filledSlots.length === 0) {
       throw new HttpException(
         "Lobby must have at least 1 player in any team",
@@ -328,21 +389,21 @@ export class LobbyService {
   ): Promise<LobbyEntity> {
     const lobby = await this.getLobby(id, user);
 
-    let lse: LobbySlotEntity;
+    let playerInLobby = false;
     if (steamId) {
       if (user.steam_id !== lobby.ownerSteamId && user.steam_id !== steamId) {
         throw new ForbiddenException(
           "Only moderator or admin can manage players in lobby, or the player itself",
         );
       }
-      lse = await this.lobbySlotEntityRepository.findOneOrFail({
+      playerInLobby = await this.lobbySlotEntityRepository.exists({
         where: {
           lobbyId: id,
           steamId: steamId,
         },
       });
     } else {
-      lse = await this.lobbySlotEntityRepository.findOneOrFail({
+      playerInLobby = await this.lobbySlotEntityRepository.exists({
         where: {
           lobbyId: id,
           steamId: user.steam_id,
@@ -350,9 +411,52 @@ export class LobbyService {
       });
     }
 
-    lse.team = team || null;
-    lse.indexInTeam = index;
-    await this.lobbySlotEntityRepository.save(lse);
+    if (!playerInLobby) {
+      throw new NotFoundException("Player not in lobby");
+    }
+
+    // move player
+    await this.datasource.transaction(async (tx) => {
+      // Free previous slots
+      await tx.update<LobbySlotEntity>(
+        LobbySlotEntity,
+        {
+          lobbyId: lobby.id,
+          steamId: user.steam_id,
+        },
+        { steamId: null },
+      );
+
+      // Extra logic for "unassigned" team
+      if (!team) {
+        const freeIndex = await tx.findOne<LobbySlotEntity>(LobbySlotEntity, {
+          where: {
+            lobbyId: lobby.id,
+            team: null,
+            steamId: undefined,
+          },
+        });
+        index = freeIndex.indexInTeam;
+      }
+
+      console.log("Set team", lobby.id, team, index, steamId);
+
+      const upd = await tx.update<LobbySlotEntity>(
+        LobbySlotEntity,
+        {
+          lobbyId: lobby.id,
+          team: team ? team : IsNull(),
+          indexInTeam: index,
+        },
+        {
+          steamId: user.steam_id,
+        },
+      );
+
+      if (!upd.affected) {
+        throw new NotFoundException("Target slot not found!");
+      }
+    });
 
     return this.getLobby(id, user).then(this.lobbyUpdated);
   }

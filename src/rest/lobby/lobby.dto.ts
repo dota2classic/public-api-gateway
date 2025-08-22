@@ -7,7 +7,7 @@ import { IsOptional, MinLength } from "class-validator";
 import { DotaPatch } from "../../gateway/constants/patch";
 
 export class LobbySlotDto {
-  user: UserDTO;
+  user?: UserDTO;
 
   index: number;
   team?: number;
