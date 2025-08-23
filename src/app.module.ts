@@ -153,6 +153,7 @@ import { RabbitMQConfig, RabbitMQModule } from "@golevelup/nestjs-rabbitmq";
 import { ItemDropController } from "./rest/itemdrop/item-drop.controller";
 import { ItemDropMapper } from "./rest/itemdrop/item-drop.mapper";
 import { ItemDropService } from "./service/item-drop.service";
+import { PlayerFinishedMatchHandler } from "./rest/notification/event-handler/player-finished-match.handler";
 
 @Module({
   imports: [
@@ -451,6 +452,7 @@ import { ItemDropService } from "./service/item-drop.service";
     GameResultsHandler,
     MatchFinishedHandler,
     FeedbackCreatedHandler,
+    PlayerFinishedMatchHandler,
     AchievementCompleteHandler,
     PlayerAbandonedHandler,
 

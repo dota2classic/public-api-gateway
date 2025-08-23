@@ -1,4 +1,3 @@
-import { RmqContext } from "@nestjs/microservices";
 import { Controller, Logger } from "@nestjs/common";
 import { CommandBus } from "@nestjs/cqrs";
 import { ConfigService } from "@nestjs/config";
@@ -21,6 +20,8 @@ import {
 } from "./entity/notification.entity";
 import { ItemDroppedEvent } from "./gateway/events/item-dropped.event";
 import { ItemDropService } from "./service/item-drop.service";
+import { PlayerFinishedMatchEvent } from "./gateway/events/gs/player-finished-match.event";
+import { PlayerFinishedMatchHandler } from "./rest/notification/event-handler/player-finished-match.handler";
 
 @Controller()
 export class RmqController {
@@ -32,11 +33,21 @@ export class RmqController {
     private readonly playerNotLoadedHandler: PlayerNotLoadedHandler,
     private readonly playerFeedbackCreatedHandler: PlayerFeedbackCreatedHandler,
     private readonly feedbackCreatedHandler: FeedbackCreatedHandler,
+    private readonly playerFinishedMatchHandler: PlayerFinishedMatchHandler,
     private readonly smurfDetectedHandler: PlayerSmurfDetectedHandler,
     private readonly notification: NotificationService,
     private readonly itemDropService: ItemDropService,
     private readonly config: ConfigService,
   ) {}
+
+  @RabbitSubscribe({
+    exchange: "app.events",
+    routingKey: PlayerFinishedMatchEvent.name,
+    queue: `api-queue.${PlayerFinishedMatchEvent.name}`,
+  })
+  async PlayerFinishedMatchEvent(data: PlayerFinishedMatchEvent) {
+    await this.playerFinishedMatchHandler.handle(data);
+  }
 
   @RabbitSubscribe({
     exchange: "app.events",
@@ -104,18 +115,5 @@ export class RmqController {
   })
   private async handleItemDroppedEvent(msg: ItemDroppedEvent) {
     await this.itemDropService.onItemDrop(msg);
-  }
-
-  private async processMessage<T>(msg: T, context: RmqContext) {
-    const channel = context.getChannelRef();
-    const originalMsg = context.getMessage();
-
-    return Promise.resolve(msg)
-      .then((cmd) => this.cbus.execute(cmd))
-      .then(() => channel.ack(originalMsg))
-      .catch((e) => {
-        this.logger.error(`Error while processing message`, e);
-        channel.nack(originalMsg);
-      });
   }
 }
