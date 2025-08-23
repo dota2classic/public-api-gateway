@@ -28,7 +28,7 @@ export class FeedbackCreatedHandler
       event.playerFeedbackId.toString(),
       NotificationEntityType.FEEDBACK,
       NotificationType.FEEDBACK_CREATED,
-      "10m",
+      "3m",
     );
   }
 }

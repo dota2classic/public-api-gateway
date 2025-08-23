@@ -13,6 +13,7 @@ export class FeedbackDto {
   comment: string;
   options: FeedbackOptionDto[];
 
+  needsTicket: boolean;
   ticketId?: string;
 }
 
@@ -25,13 +26,13 @@ export class SubmittedFeedbackOptionDto {
 export class SubmitFeedbackDto {
   comment?: string;
   options: SubmittedFeedbackOptionDto[];
-
-  createTicket: boolean;
 }
 
 export class UpdateFeedbackDto {
   tag: string;
   title: string;
+
+  createTicket: boolean;
 }
 
 export class CreateFeedbackDto {
@@ -52,6 +53,7 @@ export class FeedbackTemplateDto {
   id: number;
   tag: string;
   title: string;
+  needsTicket: boolean;
   options: FeedbackTemplateOptionDto[];
 }
 

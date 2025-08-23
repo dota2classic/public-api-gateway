@@ -15,6 +15,9 @@ import {
   CurrentUser,
   CurrentUserDto,
 } from "../../utils/decorator/current-user";
+import { FeedbackEntity } from "../../entity/feedback.entity";
+import { Repository } from "typeorm";
+import { InjectRepository } from "@nestjs/typeorm";
 
 @Controller("feedback")
 @ApiTags("feedback")
@@ -22,6 +25,8 @@ export class FeedbackController {
   constructor(
     private readonly mapper: FeedbackMapper,
     private readonly feedbackService: FeedbackService,
+    @InjectRepository(FeedbackEntity)
+    private readonly feedbackEntityRepository: Repository<FeedbackEntity>,
   ) {}
 
   // TODO: with user
@@ -38,7 +43,6 @@ export class FeedbackController {
         dto.options,
         dto.comment,
         user.steam_id,
-        true,
         user,
       )
       .then(([feedback, ticketId]) =>

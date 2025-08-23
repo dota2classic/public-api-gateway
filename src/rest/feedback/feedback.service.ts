@@ -93,7 +93,6 @@ export class FeedbackService implements OnApplicationBootstrap {
     options: SubmittedFeedbackOptionDto[],
     comment: string,
     steamId: string,
-    createTicket: boolean,
     user: CurrentUserDto,
   ): Promise<[PlayerFeedbackEntity, string | undefined]> {
     const feedback = await this.datasource.transaction<PlayerFeedbackEntity>(
@@ -144,7 +143,7 @@ export class FeedbackService implements OnApplicationBootstrap {
     );
 
     let ticketId: string | undefined = undefined;
-    if (createTicket) {
+    if (feedback.feedback.needsTicket) {
       ticketId = await this.handleCreateTicket(
         feedback,
         user,
@@ -212,7 +211,12 @@ ${comment}
     return thread.id;
   }
 
-  async updateFeedback(id: number, title: string, tag: string) {
+  async updateFeedback(
+    id: number,
+    title: string,
+    tag: string,
+    createTicket: boolean,
+  ) {
     const fe = await this.feedbackEntityRepository.findOneOrFail({
       where: {
         id,
@@ -222,6 +226,7 @@ ${comment}
 
     fe.title = title;
     fe.tag = tag;
+    fe.needsTicket = createTicket;
 
     return this.feedbackEntityRepository.save(fe);
   }

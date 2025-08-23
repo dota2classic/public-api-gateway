@@ -89,7 +89,7 @@ export class AdminFeedbackController {
     @Body() b: UpdateFeedbackDto,
   ): Promise<FeedbackTemplateDto> {
     return this.feedbackService
-      .updateFeedback(feedbackId, b.title, b.tag)
+      .updateFeedback(feedbackId, b.title, b.tag, b.createTicket)
       .then(this.mapper.mapFeedbackTemplate);
   }
 

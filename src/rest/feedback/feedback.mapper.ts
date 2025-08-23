@@ -20,6 +20,7 @@ export class FeedbackMapper {
     finished: it.finished,
     comment: it.comment,
     ticketId: ticketId,
+    needsTicket: it.feedback.needsTicket,
     options: it.optionResults.map((option) => ({
       id: option.id,
       option: option.option,
@@ -31,6 +32,7 @@ export class FeedbackMapper {
     tag: it.tag,
     id: it.id,
     title: it.title,
+    needsTicket: it.needsTicket,
     options: it.options.map((option) => ({
       id: option.id,
       option: option.option,

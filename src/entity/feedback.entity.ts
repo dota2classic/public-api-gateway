@@ -25,6 +25,12 @@ export class FeedbackEntity {
   @OneToMany(() => PlayerFeedbackEntity, (t) => t.feedback, { eager: false })
   submitted: Relation<PlayerFeedbackEntity>[];
 
+  @Column({
+    name: "need_ticket",
+    default: true
+  })
+  needsTicket: boolean;
+
   @Column({ name: "title" })
   title: string;
 }
