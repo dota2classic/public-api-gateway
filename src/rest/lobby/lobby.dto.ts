@@ -5,6 +5,7 @@ import { Dota_Map } from "../../gateway/shared-types/dota-map";
 import { MessageObjectDto } from "../match/dto/match.dto";
 import { IsOptional, MinLength } from "class-validator";
 import { DotaPatch } from "../../gateway/constants/patch";
+import { Region } from "../../gateway/shared-types/region";
 
 export class LobbySlotDto {
   user?: UserDTO;
@@ -33,6 +34,9 @@ export class LobbyDto {
   @ApiProperty({ enum: DotaPatch, enumName: "DotaPatch" })
   patch: DotaPatch;
 
+  @ApiProperty({ enum: Region, enumName: "Region" })
+  region: Region;
+
   password?: string;
   requiresPassword: boolean;
 
@@ -48,6 +52,9 @@ export class UpdateLobbyDto {
 
   @ApiProperty({ enum: Dota_Map, enumName: "Dota_Map" })
   map?: Dota_Map;
+
+  @ApiProperty({ enum: Region, enumName: "Region" })
+  region?: Region;
 
   @IsOptional()
   @MinLength(1)

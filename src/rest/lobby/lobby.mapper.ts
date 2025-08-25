@@ -32,6 +32,7 @@ export class LobbyMapper {
       enableCheats: lobby.enableCheats,
       fillBots: lobby.fillBots,
       patch: lobby.patch,
+      region: lobby.region,
     };
   };
 }

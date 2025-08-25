@@ -30,6 +30,7 @@ import { LobbyAction } from "./lobby.dto";
 import { PlayerLeaveQueueRequestedEvent } from "../../gateway/events/mm/player-leave-queue-requested.event";
 import { AmqpConnection } from "@golevelup/nestjs-rabbitmq";
 import { DotaPatch } from "../../gateway/constants/patch";
+import { Region } from "../../gateway/shared-types/region";
 
 @Injectable()
 export class LobbyService {
@@ -252,6 +253,7 @@ export class LobbyService {
     enableCheats: boolean,
     fillBots: boolean,
     patch: DotaPatch,
+    region?: Region,
   ): Promise<LobbyEntity> {
     let lobby = await this.getLobby(id, user);
 
@@ -268,6 +270,7 @@ export class LobbyService {
     lobby.fillBots = fillBots;
     lobby.enableCheats = enableCheats;
     lobby.patch = patch;
+    lobby.region = region;
 
     await this.lobbyEntityRepository.save(lobby);
 
@@ -365,6 +368,7 @@ export class LobbyService {
         lobby.fillBots,
         lobby.enableCheats,
         lobby.patch,
+        lobby.region,
       );
 
       await this.amqpConnection.publish(

@@ -3,6 +3,7 @@ import { LobbySlotEntity } from "./lobby-slot.entity";
 import { Dota_GameMode } from "../gateway/shared-types/dota-game-mode";
 import { Dota_Map } from "../gateway/shared-types/dota-map";
 import { DotaPatch } from "../gateway/constants/patch";
+import { Region } from "../gateway/shared-types/region";
 
 @Entity()
 export class LobbyEntity {
@@ -43,6 +44,14 @@ export class LobbyEntity {
     type: "enum",
   })
   public patch: DotaPatch;
+
+  @Column({
+    name: "region",
+    default: Region.RU_MOSCOW,
+    enum: Region,
+    type: "enum",
+  })
+  public region: Region;
 
   constructor(ownerSteamId: string) {
     this.ownerSteamId = ownerSteamId;
