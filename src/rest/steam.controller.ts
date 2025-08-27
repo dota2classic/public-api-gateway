@@ -150,9 +150,9 @@ export class SteamController {
       usr!!.avatarfull,
     );
 
-    const redirectPath =
-      isHrefRedirect ||
-      `${this.config.get("api.frontUrl")}/players/${steam32id}}`;
+    const redirectPath = isHrefRedirect
+      ? req.cookies["d2c:auth_redirect"]
+      : `${this.config.get("api.frontUrl")}/players/${steam32id}}`;
 
     res
       .setCookie(TOKEN_KEY, token, this.TOKEN_COOKIE_OPTIONS()) // 30 days expires
