@@ -87,6 +87,25 @@ export class SteamController {
       .send(newToken);
   }
 
+  @Get("login_init")
+  @ApiExcludeEndpoint()
+  async steamAuthPre(@Req() req: FastifyRequest, @Res() res: FastifyReply) {
+    // Save current URL or hostname
+    const currentUrl = `${req.protocol}://${req.hostname}${req.originalUrl}`;
+
+    console.log("Setting current url as cookie!", currentUrl);
+
+    res
+      .setCookie("d2c:auth_redirect", req.query["redirect"], {
+        httpOnly: false,
+        sameSite: "lax",
+        path: "/",
+        domain: `.${this.config.get("api.baseDomain")}`,
+        maxAge: 60 * 60 * 24 * 7, // optional expiry
+      })
+      .redirect("/v1/auth/steam", 302);
+  }
+
   @Get()
   @ApiExcludeEndpoint()
   @UseGuards(AuthGuard("steam"))
