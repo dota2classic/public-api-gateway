@@ -33,12 +33,16 @@ import { FastifyReply, FastifyRequest } from "fastify";
 export class SteamController {
   private logger = new Logger(SteamController.name);
 
-  public static TOKEN_COOKIE_OPTIONS: () => CookieOptions = () => ({
-    maxAge: 1000 * 60 * 60 * 24 * 30,
-    path: "/",
-    httpOnly: false,
-    expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30),
-  });
+  public TOKEN_COOKIE_OPTIONS: () => CookieOptions = () => {
+    return {
+      maxAge: 1000 * 60 * 60 * 24 * 30,
+      path: "/",
+      httpOnly: false,
+      expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30),
+      secure: true,
+      domain: `.${this.config.get("api.baseDomain")}`,
+    };
+  };
   constructor(
     private readonly jwtService: JwtService,
     private readonly authService: AuthService,
@@ -78,7 +82,7 @@ export class SteamController {
     const newToken = await this.authService.refreshToken(token);
 
     res
-      .setCookie(TOKEN_KEY, newToken, SteamController.TOKEN_COOKIE_OPTIONS())
+      .setCookie(TOKEN_KEY, newToken, this.TOKEN_COOKIE_OPTIONS())
       .status(200)
       .send(newToken);
   }
@@ -127,11 +131,13 @@ export class SteamController {
       ),
     );
 
-    const isStoreRedirect = req.cookies["d2c:auth_redirect"] === "store";
+    console.log("AUTH REDIRECT: HOSTNAME", req.hostname);
 
-    this.logger.log(
-      "Redirecting to: " + (isStoreRedirect ? "store" : "profile"),
-    );
+    const isHrefRedirect =
+      req.cookies["d2c:auth_redirect"] &&
+      req.cookies["d2c:auth_redirect"].startsWith("https");
+
+    this.logger.log("Redirecting to: " + (isHrefRedirect ? "href" : "profile"));
 
     const token = await this.authService.createToken(
       steam32id,
@@ -139,10 +145,12 @@ export class SteamController {
       usr!!.avatarfull,
     );
 
-    const redirectPath = isStoreRedirect ? "/store" : `/players/${steam32id}`;
+    const redirectPath =
+      isHrefRedirect ||
+      `${this.config.get("api.frontUrl")}/players/${steam32id}}`;
 
     res
-      .setCookie(TOKEN_KEY, token, SteamController.TOKEN_COOKIE_OPTIONS()) // 30 days expires
+      .setCookie(TOKEN_KEY, token, this.TOKEN_COOKIE_OPTIONS()) // 30 days expires
       .redirect(`${this.config.get("api.frontUrl")}${redirectPath}`, 302);
   }
 }

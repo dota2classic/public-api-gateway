@@ -62,6 +62,8 @@ export class TwitchController {
 
     await new Promise((resolve) => setTimeout(resolve, 1000));
 
+    console.log("TWITCH REDIRECT: HOSTNAME", req.hostname);
+
     res
       .status(302)
       .redirect(`${this.config.get("api.frontUrl")}/players/${steam_id}`, 302);
