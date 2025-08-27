@@ -132,6 +132,11 @@ export class SteamController {
     );
 
     console.log("AUTH REDIRECT: HOSTNAME", req.hostname);
+    console.log(
+      "Refererer",
+      req.originalUrl,
+      req.headers["referer"] || req.headers["referrer"],
+    );
 
     const isHrefRedirect =
       req.cookies["d2c:auth_redirect"] &&
@@ -151,6 +156,6 @@ export class SteamController {
 
     res
       .setCookie(TOKEN_KEY, token, this.TOKEN_COOKIE_OPTIONS()) // 30 days expires
-      .redirect(`${this.config.get("api.frontUrl")}${redirectPath}`, 302);
+      .redirect(redirectPath, 302);
   }
 }
