@@ -150,13 +150,6 @@ export class SteamController {
       ),
     );
 
-    console.log("AUTH REDIRECT: HOSTNAME", req.hostname);
-    console.log(
-      "Refererer",
-      req.originalUrl,
-      req.headers["referer"] || req.headers["referrer"],
-    );
-
     const isHrefRedirect =
       req.cookies["d2c:auth_redirect"] &&
       req.cookies["d2c:auth_redirect"].startsWith("https");
