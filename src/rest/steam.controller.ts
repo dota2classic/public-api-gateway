@@ -40,7 +40,7 @@ export class SteamController {
       httpOnly: false,
       expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30),
       secure: true,
-      domain: `${this.config.get("api.baseDomain")}`,
+      domain: `.${this.config.get("api.baseDomain")}`,
     };
   };
   constructor(
