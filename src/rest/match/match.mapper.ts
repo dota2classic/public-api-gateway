@@ -43,6 +43,7 @@ export class MatchMapper {
       partyIndex: dto.partyIndex,
       user: await this.user.userDto(it.steam_id),
       mmr: it.mmr && this.mapMmr(it.mmr),
+      bear: dto.bear,
     };
   };
 
