@@ -50,8 +50,10 @@ export class MatchMapper {
     it: GameserverMatchDto,
     mapForSteamId?: string,
   ): Promise<MatchDto> => {
-    const timeDiff = new Date().getTime() - new Date(it.timestamp).getTime();
-
+    const [radiant, dire] = await Promise.combine([
+      Promise.all(it.radiant.map(this.mapPlayerInMatch)),
+      Promise.all(it.dire.map(this.mapPlayerInMatch)),
+    ]);
     return {
       id: it.id,
       mode: it.mode,
@@ -59,8 +61,12 @@ export class MatchMapper {
       winner: it.winner,
       duration: it.duration,
       timestamp: it.timestamp,
-      radiant: await Promise.all(it.radiant.map(this.mapPlayerInMatch)),
-      dire: await Promise.all(it.dire.map(this.mapPlayerInMatch)),
+      radiant,
+      dire,
+
+      towers: it.towerStatus,
+      barracks: it.barrackStatus,
+
       replayUrl:
         it.id > 16500 && it.mode !== MatchmakingMode.BOTS
           ? `${this.configService.get("api.replayUrl")}${it.id}.dem`

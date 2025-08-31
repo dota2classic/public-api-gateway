@@ -44,6 +44,8 @@ export class PlayerInMatchDto {
   abandoned: boolean;
 
   mmr?: MmrChangeDto;
+
+  bear?: number[];
 }
 
 export class MatchDto {
@@ -65,6 +67,9 @@ export class MatchDto {
 
   timestamp: string;
   replayUrl?: string;
+
+  towers: number[];
+  barracks: number[];
 }
 
 export class MatchReportInfoDto {

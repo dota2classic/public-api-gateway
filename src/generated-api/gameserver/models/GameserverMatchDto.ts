@@ -78,6 +78,18 @@ export class GameserverMatchDto {
      * @memberof GameserverMatchDto
      */
     timestamp: string;
+    /**
+     *
+     * @type {Array<number>}
+     * @memberof GameserverMatchDto
+     */
+    towerStatus: Array<number>;
+    /**
+     *
+     * @type {Array<number>}
+     * @memberof GameserverMatchDto
+     */
+    barrackStatus: Array<number>;
 }
 
 export function GameserverMatchDtoFromJSON(json: any): GameserverMatchDto {
@@ -98,6 +110,8 @@ export function GameserverMatchDtoFromJSONTyped(json: any, ignoreDiscriminator: 
         'winner': json['winner'],
         'duration': json['duration'],
         'timestamp': json['timestamp'],
+        'towerStatus': json['towerStatus'],
+        'barrackStatus': json['barrackStatus'],
     };
 }
 
@@ -118,6 +132,8 @@ export function GameserverMatchDtoToJSON(value?: GameserverMatchDto | null): any
         'winner': value.winner,
         'duration': value.duration,
         'timestamp': value.timestamp,
+        'towerStatus': value.towerStatus,
+        'barrackStatus': value.barrackStatus,
     };
 }
 
