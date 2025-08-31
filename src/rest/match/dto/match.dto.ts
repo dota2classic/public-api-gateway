@@ -129,6 +129,8 @@ export class LiveMatchDto {
   duration: number;
   server: string;
   timestamp: number;
+  towers: number[];
+  barracks: number[];
   heroes: MatchSlotInfo[];
 }
 
