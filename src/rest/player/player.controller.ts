@@ -43,12 +43,12 @@ import { WithPagination } from "../../utils/decorator/pagination";
 import { NullableIntPipe } from "../../utils/pipes";
 import { PartyService } from "../party.service";
 import { ReqLoggingInterceptor } from "../../middleware/req-logging.interceptor";
-import { SocketDelivery } from "../../socket/socket-delivery";
 import { UserProfileService } from "../../service/user-profile.service";
 import { UserRelationService } from "../../service/user-relation.service";
 import { UserRelationStatus } from "../../gateway/shared-types/user-relation";
 import { DataSource } from "typeorm";
 import { GlobalHttpCacheInterceptor } from "../../utils/cache-global";
+import { SocketGateway } from "../../socket/socket.gateway";
 
 @UseInterceptors(ReqLoggingInterceptor)
 @Controller("player")
@@ -60,7 +60,7 @@ export class PlayerController {
     @Inject("QueryCore") private readonly redisEventQueue: ClientProxy,
     private readonly partyService: PartyService,
     private readonly ms: PlayerApi,
-    private readonly socketDelivery: SocketDelivery,
+    private readonly socketGateway: SocketGateway,
     private readonly userProfile: UserProfileService,
     private readonly relation: UserRelationService,
     private readonly ds: DataSource,
@@ -244,7 +244,7 @@ export class PlayerController {
     @Query("count", NullableIntPipe) count: number = 30,
     @CurrentUser() user: D2CUser,
   ): Promise<UserDTO[]> {
-    const online = this.socketDelivery.getOnline();
+    const online = await this.socketGateway.getOnlineSteamIds();
 
     const parametrizedLike = `%${name.replace(/%/g, "")}%`;
     const a = await this.ds.query<{ steam_id: string }[]>(

@@ -171,9 +171,13 @@ export class SocketGateway implements OnGatewayDisconnect, OnGatewayConnection {
     this.metrics.recordOnline(await this.getOnlineUsers());
   }
 
-  private async updateOnline() {
+  public async getOnlineSteamIds() {
     const steamKeys: string[] = await this.redis.keys("connected_steamId:*");
-    const steamIds = steamKeys.map((t) => t.replace("connected_steamId:", ""));
+    return steamKeys.map((t) => t.replace("connected_steamId:", ""));
+  }
+
+  private async updateOnline() {
+    const steamIds = await this.getOnlineSteamIds();
     this.logger.log("Online update", {
       authorized: steamIds.length,
     });
