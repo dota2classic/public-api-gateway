@@ -28,15 +28,17 @@ export class RecordController {
   public async records(): Promise<PlayerRecordsResponse> {
     const records = await this.api.recordControllerRecords();
 
-    const [overall, month, season] = await Promise.all([
+    const [overall, month, season, day] = await Promise.all([
       Promise.all(records.overall.map(this.mapper.mapPlayerRecord)),
       Promise.all(records.month.map(this.mapper.mapPlayerRecord)),
       Promise.all(records.season.map(this.mapper.mapPlayerRecord)),
+      Promise.all(records.day.map(this.mapper.mapPlayerRecord)),
     ]);
     return {
-      overall: overall,
-      month: month,
-      season: season,
+      overall,
+      month,
+      season,
+      day,
     };
   }
 
@@ -47,15 +49,22 @@ export class RecordController {
   ): Promise<PlayerRecordsResponse> {
     const records = await this.api.recordControllerPlayerRecord(steamId);
 
-    const [overall, month, season] = await Promise.all([
+    const [overall, month, season, day] = await Promise.all([
       Promise.all(records.overall.map(this.mapper.mapPlayerRecord)),
       Promise.all(records.month.map(this.mapper.mapPlayerRecord)),
       Promise.all(records.season.map(this.mapper.mapPlayerRecord)),
+      Promise.all(records.day.map(this.mapper.mapPlayerRecord)),
     ]);
     return {
-      overall: overall,
-      month: month,
-      season: season,
+      overall,
+      month,
+      season,
+      day,
     };
+  }
+
+  @Get('daily')
+  public async dailyRecords(){
+    this.api.recordControllerPlayerDaily().then(all => all.map(this.mapper.mapDailyRecord))
   }
 }

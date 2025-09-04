@@ -1,6 +1,9 @@
 import { Injectable } from "@nestjs/common";
-import { PlayerRecordDto } from "./record.dto";
-import { GameserverPlayerRecordDto } from "../../generated-api/gameserver";
+import { PlayerDailyRecord, PlayerRecordDto } from "./record.dto";
+import {
+  GameserverPlayerDailyRecord,
+  GameserverPlayerRecordDto,
+} from "../../generated-api/gameserver";
 import { MatchMapper } from "../match/match.mapper";
 import { UserProfileService } from "../../service/user-profile.service";
 
@@ -18,6 +21,18 @@ export class RecordMapper {
       player: await this.urepo.userDto(it.steamId),
       match: it.match && (await this.matchMapper.mapMatch(it.match)),
       recordType: it.recordType,
+    };
+  };
+
+  public mapDailyRecord = async (
+    it: GameserverPlayerDailyRecord,
+  ): Promise<PlayerDailyRecord> => {
+    return {
+      player: await this.urepo.userDto(it.steam_id),
+      mmrChange: it.mmr_change,
+      games: it.games,
+      loss: it.loss,
+      wins: it.wins,
     };
   };
 }

@@ -22,6 +22,7 @@ export * from './GameserverMatchReportMatrixDto';
 export * from './GameserverMatchmakingModeInfoDto';
 export * from './GameserverMmrChangeDto';
 export * from './GameserverPlayerAspectCountDto';
+export * from './GameserverPlayerDailyRecord';
 export * from './GameserverPlayerGameSessionDto';
 export * from './GameserverPlayerHeroPerformance';
 export * from './GameserverPlayerInMatchDto';
