@@ -7,7 +7,7 @@ import {
 } from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
 import { RecordApi } from "../../generated-api/gameserver";
-import { PlayerRecordsResponse } from "./record.dto";
+import { PlayerDailyRecord, PlayerRecordsResponse } from "./record.dto";
 import { RecordMapper } from "./record.mapper";
 import { CacheTTL } from "@nestjs/cache-manager";
 import { GlobalHttpCacheInterceptor } from "../../utils/cache-global";
@@ -63,8 +63,10 @@ export class RecordController {
     };
   }
 
-  @Get('daily')
-  public async dailyRecords(){
-    this.api.recordControllerPlayerDaily().then(all => all.map(this.mapper.mapDailyRecord))
+  @Get("daily")
+  public async dailyRecords(): Promise<PlayerDailyRecord[]> {
+    return this.api
+      .recordControllerPlayerDaily()
+      .then((all) => Promise.all(all.map(this.mapper.mapDailyRecord)));
   }
 }
