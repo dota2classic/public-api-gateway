@@ -23,6 +23,11 @@ import {
   TradeApi,
 } from "../generated-api/tradebot";
 
+import * as http from "http";
+import * as https from "https";
+// Create a keep-alive agent for HTTP
+const httpAgent = new http.Agent({ keepAlive: true });
+const httpsAgent = new https.Agent({ keepAlive: true });
 const fetchProvider: typeof fetch = (
   input: RequestInfo | URL,
   init?: RequestInit,
@@ -30,7 +35,9 @@ const fetchProvider: typeof fetch = (
   return fetch(input, {
     ...init,
     keepalive: true,
-  });
+    agent: (parsedURL) =>
+      parsedURL.protocol === "https:" ? httpsAgent : httpAgent,
+  } as RequestInit);
 };
 
 @Global()
