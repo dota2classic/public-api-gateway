@@ -23,6 +23,16 @@ import {
   TradeApi,
 } from "../generated-api/tradebot";
 
+const fetchProvider: typeof fetch = (
+  input: RequestInfo | URL,
+  init?: RequestInit,
+) => {
+  return fetch(input, {
+    ...init,
+    keepalive: true,
+  });
+};
+
 @Global()
 @Module({
   providers: [
@@ -40,7 +50,10 @@ import {
       provide: MatchApi,
       useFactory: (config: ConfigService) => {
         return new MatchApi(
-          new GSConfiguration({ basePath: config.get("api.gameserverApiUrl") }),
+          new GSConfiguration({
+            basePath: config.get("api.gameserverApiUrl"),
+            fetchApi: fetchProvider,
+          }),
         );
       },
       inject: [ConfigService],
@@ -49,7 +62,10 @@ import {
       provide: MetaApi,
       useFactory: (config: ConfigService) => {
         return new MetaApi(
-          new GSConfiguration({ basePath: config.get("api.gameserverApiUrl") }),
+          new GSConfiguration({
+            basePath: config.get("api.gameserverApiUrl"),
+            fetchApi: fetchProvider,
+          }),
         );
       },
       inject: [ConfigService],
@@ -58,7 +74,10 @@ import {
       provide: CrimeApi,
       useFactory: (config: ConfigService) => {
         return new CrimeApi(
-          new GSConfiguration({ basePath: config.get("api.gameserverApiUrl") }),
+          new GSConfiguration({
+            basePath: config.get("api.gameserverApiUrl"),
+            fetchApi: fetchProvider,
+          }),
         );
       },
       inject: [ConfigService],
@@ -67,7 +86,10 @@ import {
       provide: PlayerApi,
       useFactory: (config: ConfigService) => {
         return new PlayerApi(
-          new GSConfiguration({ basePath: config.get("api.gameserverApiUrl") }),
+          new GSConfiguration({
+            basePath: config.get("api.gameserverApiUrl"),
+            fetchApi: fetchProvider,
+          }),
         );
       },
       inject: [ConfigService],
@@ -76,7 +98,10 @@ import {
       provide: InfoApi,
       useFactory: (config: ConfigService) => {
         return new InfoApi(
-          new GSConfiguration({ basePath: config.get("api.gameserverApiUrl") }),
+          new GSConfiguration({
+            basePath: config.get("api.gameserverApiUrl"),
+            fetchApi: fetchProvider,
+          }),
         );
       },
       inject: [ConfigService],
@@ -85,7 +110,10 @@ import {
       provide: RecordApi,
       useFactory: (config: ConfigService) => {
         return new RecordApi(
-          new GSConfiguration({ basePath: config.get("api.gameserverApiUrl") }),
+          new GSConfiguration({
+            basePath: config.get("api.gameserverApiUrl"),
+            fetchApi: fetchProvider,
+          }),
         );
       },
       inject: [ConfigService],
@@ -94,7 +122,10 @@ import {
       provide: ForumApi,
       useFactory: (config: ConfigService) => {
         return new ForumApi(
-          new FConfiguratin({ basePath: config.get("api.forumApiUrl") }),
+          new FConfiguratin({
+            basePath: config.get("api.forumApiUrl"),
+            fetchApi: fetchProvider,
+          }),
         );
       },
       inject: [ConfigService],
@@ -103,7 +134,10 @@ import {
       provide: MatchmakerApi,
       useFactory: (config: ConfigService) => {
         return new MatchmakerApi(
-          new MConfiguration({ basePath: config.get("api.matchmakerApiUrl") }),
+          new MConfiguration({
+            basePath: config.get("api.matchmakerApiUrl"),
+            fetchApi: fetchProvider,
+          }),
         );
       },
       inject: [ConfigService],
@@ -112,7 +146,10 @@ import {
       provide: TradeApi,
       useFactory: (config: ConfigService) => {
         return new TradeApi(
-          new TConfiguration({ basePath: config.get("api.tradeApiUrl") }),
+          new TConfiguration({
+            basePath: config.get("api.tradeApiUrl"),
+            fetchApi: fetchProvider,
+          }),
         );
       },
       inject: [ConfigService],
