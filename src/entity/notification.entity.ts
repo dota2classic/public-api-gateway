@@ -2,6 +2,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  Index,
   PrimaryColumn,
   PrimaryGeneratedColumn,
 } from "typeorm";
@@ -47,6 +48,7 @@ export class NotificationEntity {
   @Column({ name: "ttl", type: "interval", default: "1day" })
   ttl: string;
 
+  @Index("idx_notification_entity_acknowledged")
   @Column({ name: "acknowledged", default: false })
   acknowledged: boolean;
 
