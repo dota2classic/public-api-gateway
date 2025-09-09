@@ -8,7 +8,7 @@ import { ForumApi } from "../../generated-api/forum";
 export class MessageCreatedHandler
   implements IEventHandler<MessageCreatedEvent>
 {
-  private static TELEGRAM_MESSAGE_SPAN = 10;
+  private static TELEGRAM_MESSAGE_SPAN = 50;
   private static TELEGRAM_MESSAGE_SPAN_KEY = "telegram_message_span_counter";
   private logger = new Logger(MessageCreatedHandler.name);
 
@@ -37,7 +37,7 @@ export class MessageCreatedHandler
       await this.forumApi.forumControllerPostMessage(
         "forum_17aa3530-d152-462e-a032-909ae69019ed",
         {
-          content: `Подписывайся на наш телеграм канал! https://t.me/dota2classicru - мем, новости проекта и другие интересные посты!`,
+          content: `Подписывайся на наш телеграм канал! https://t.me/dota2classicru - мемы, новости проекта, интересная статистика и другие интересные посты!`,
           author: {
             steam_id: "159907143",
             roles: [],
