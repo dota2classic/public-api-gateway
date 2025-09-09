@@ -46,7 +46,7 @@ export class MessageCreatedHandler
       );
     } catch (e) {
       this.logger.warn(
-        "There wa an issue sending message that item dropped!",
+        "There wa an issue sending message about telegram stuff",
         e,
       );
     }
