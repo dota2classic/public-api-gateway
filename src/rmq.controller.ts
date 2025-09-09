@@ -1,5 +1,5 @@
 import { Controller, Logger } from "@nestjs/common";
-import { CommandBus } from "@nestjs/cqrs";
+import { CommandBus, EventBus } from "@nestjs/cqrs";
 import { ConfigService } from "@nestjs/config";
 import { PlayerFeedbackCreatedEvent } from "./gateway/events/player-feedback-created.event";
 import { RabbitSubscribe } from "@golevelup/nestjs-rabbitmq";
@@ -22,6 +22,7 @@ import { ItemDroppedEvent } from "./gateway/events/item-dropped.event";
 import { ItemDropService } from "./service/item-drop.service";
 import { PlayerFinishedMatchEvent } from "./gateway/events/gs/player-finished-match.event";
 import { PlayerFinishedMatchHandler } from "./rest/notification/event-handler/player-finished-match.handler";
+import { MessageCreatedEvent } from "./cache/message-created.event";
 
 @Controller()
 export class RmqController {
@@ -38,6 +39,7 @@ export class RmqController {
     private readonly notification: NotificationService,
     private readonly itemDropService: ItemDropService,
     private readonly config: ConfigService,
+    private readonly ebus: EventBus,
   ) {}
 
   @RabbitSubscribe({
@@ -83,6 +85,9 @@ export class RmqController {
   })
   private async createTicketMessageNotification(msg: MessageUpdatedEvent) {
     await this.ticketMessageHandler.handle(msg);
+    if (msg.createdAt === msg.updatedAt) {
+      this.ebus.publish(new MessageCreatedEvent(msg));
+    }
   }
 
   @RabbitSubscribe({

@@ -154,6 +154,7 @@ import { ItemDropController } from "./rest/itemdrop/item-drop.controller";
 import { ItemDropMapper } from "./rest/itemdrop/item-drop.mapper";
 import { ItemDropService } from "./service/item-drop.service";
 import { PlayerFinishedMatchHandler } from "./rest/notification/event-handler/player-finished-match.handler";
+import { MessageCreatedHandler } from "./cache/event-handler/message-created.handler";
 
 @Module({
   imports: [
@@ -491,6 +492,7 @@ import { PlayerFinishedMatchHandler } from "./rest/notification/event-handler/pl
     PlayerReportBanCreatedHandler,
     TelegramNotificationService,
     FeedbackAssistantService,
+    MessageCreatedHandler,
 
     //
     PaymentService,
