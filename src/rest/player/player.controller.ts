@@ -247,19 +247,24 @@ export class PlayerController {
     const online = await this.socketGateway.getOnlineSteamIds();
 
     const parametrizedLike = `%${name.replace(/%/g, "")}%`;
+
+    const onlineArray = online.map((t) => `'${t}'`).join(",");
+
     const a = await this.ds.query<{ steam_id: string }[]>(
       `
-select
+SELECT
     ue.steam_id,
-    case when ue.steam_id in ($2) then 10000 else 1 end as score
-from
-    user_entity ue
-where
-    ue.name ilike $1
-order by 2 desc
-limit $3
+    CASE 
+        WHEN ARRAY[${onlineArray}]::text[] @> ARRAY[ue.steam_id::text] 
+        THEN 10000 
+        ELSE 1 
+    END AS score
+FROM user_entity ue
+WHERE ue.name ILIKE $1
+ORDER BY score DESC
+LIMIT $2;
     `,
-      [parametrizedLike, online, count],
+      [parametrizedLike, count],
     );
 
     return Promise.all(a.map((t) => this.userProfile.userDto(t.steam_id)));
