@@ -57,12 +57,15 @@ export class ItemDropController {
   @Post("item")
   public async claimDrops(@CurrentUser() user: CurrentUserDto) {
     // https://steamcommunity.com/tradeoffer/8314831115/
-    try {
-      return this.api.tradeControllerClaimDrops(user.steam_id);
-    } catch (e) {
-      const err = (await e.json()) as { message: string };
-      throw new HttpException({ message: err.message }, HttpStatus.BAD_REQUEST);
-    }
+    return this.api
+      .tradeControllerClaimDrops(user.steam_id)
+      .catch(async (e) => {
+        const err = (await e.json()) as { message: string };
+        throw new HttpException(
+          { message: err.message },
+          HttpStatus.BAD_REQUEST,
+        );
+      });
   }
 
   @WithUser()
