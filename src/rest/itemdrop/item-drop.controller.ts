@@ -33,7 +33,6 @@ import { PaymentService } from "../payments/payment.service";
 import { SubscriptionProductEntity } from "../../entity/subscription-product.entity";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
-import { Response } from "node-fetch";
 
 @Controller("drops")
 @ApiTags("drops")
