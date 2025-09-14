@@ -3,6 +3,8 @@ import {
   Controller,
   Delete,
   Get,
+  HttpException,
+  HttpStatus,
   Param,
   ParseIntPipe,
   Patch,
@@ -31,6 +33,7 @@ import { PaymentService } from "../payments/payment.service";
 import { SubscriptionProductEntity } from "../../entity/subscription-product.entity";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
+import { Response } from "node-fetch";
 
 @Controller("drops")
 @ApiTags("drops")
@@ -58,8 +61,13 @@ export class ItemDropController {
     try {
       return this.api.tradeControllerClaimDrops(user.steam_id);
     } catch (e) {
-      console.log("Error claiming drops!");
-      console.log(e);
+      if (e instanceof Response) {
+        const err = (await e.json()) as { message: string };
+        throw new HttpException(
+          { message: err.message },
+          HttpStatus.BAD_REQUEST,
+        );
+      }
     }
   }
 
