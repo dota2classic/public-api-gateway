@@ -55,7 +55,12 @@ export class ItemDropController {
   @Post("item")
   public async claimDrops(@CurrentUser() user: CurrentUserDto) {
     // https://steamcommunity.com/tradeoffer/8314831115/
-    return this.api.tradeControllerClaimDrops(user.steam_id);
+    try {
+      return this.api.tradeControllerClaimDrops(user.steam_id);
+    } catch (e) {
+      console.log("Error claiming drops!");
+      console.log(e);
+    }
   }
 
   @WithUser()
