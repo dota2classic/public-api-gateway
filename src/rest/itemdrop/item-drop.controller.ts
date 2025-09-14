@@ -60,13 +60,8 @@ export class ItemDropController {
     try {
       return this.api.tradeControllerClaimDrops(user.steam_id);
     } catch (e) {
-      if (e instanceof Response) {
-        const err = (await e.json()) as { message: string };
-        throw new HttpException(
-          { message: err.message },
-          HttpStatus.BAD_REQUEST,
-        );
-      }
+      const err = (await e.json()) as { message: string };
+      throw new HttpException({ message: err.message }, HttpStatus.BAD_REQUEST);
     }
   }
 
