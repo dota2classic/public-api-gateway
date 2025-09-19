@@ -1,36 +1,38 @@
-# ---------------------------
-# Base image with dependencies
-# ---------------------------
-FROM node:20-alpine3.19 AS deps
+###################
+# BUILD FOR PRODUCTION
+###################
+
+FROM node:20-alpine As build
+
 WORKDIR /usr/src/app
 
-# Install only prod deps first (faster caching)
-COPY package.json yarn.lock ./
-RUN yarn install --frozen-lockfile --production=true
+COPY --chown=node:node package*.json ./
 
-# ---------------------------
-# Build image with dev deps
-# ---------------------------
-FROM node:20-alpine3.19 AS build
-WORKDIR /usr/src/app
+# In order to run `npm run build` we need access to the Nest CLI which is a dev dependency. In the previous development stage we ran `npm ci` which installed all dependencies, so we can copy over the node_modules directory from the development image
+COPY --chown=node:node --from=development /usr/src/app/node_modules ./node_modules
 
-# Install all deps (prod + dev) for building
-COPY package.json yarn.lock ./
-RUN yarn install --frozen-lockfile
-COPY . .
-RUN yarn build
+COPY --chown=node:node . .
 
-# ---------------------------
-# Final production image
-# ---------------------------
-FROM node:20-alpine3.19 AS production
-WORKDIR /usr/src/app
+# Run the build command which creates the production bundle
+RUN npm run build
 
-# Copy only prod deps from deps stage
-COPY --from=deps /usr/src/app/node_modules ./node_modules
+# Set NODE_ENV environment variable
+ENV NODE_ENV production
 
-# Copy built app
-COPY --from=build /usr/src/app/dist ./dist
-COPY package.json yarn.lock ./
+# Running `npm ci` removes the existing node_modules directory and passing in --only=production ensures that only the production dependencies are installed. This ensures that the node_modules directory is as optimized as possible
+RUN npm ci --only=production && npm cache clean --force
 
-CMD ["node", "dist/main"]
+USER node
+
+###################
+# PRODUCTION
+###################
+
+FROM node:20-alpine As production
+
+# Copy the bundled code from the build stage to the production image
+COPY --chown=node:node --from=build /usr/src/app/node_modules ./node_modules
+COPY --chown=node:node --from=build /usr/src/app/dist ./dist
+
+# Start the server using the production build
+CMD [ "node", "dist/main.js" ]
