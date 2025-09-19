@@ -22,8 +22,6 @@ import fastyfyMultipart from "@fastify/multipart";
 // import duration from 'dayjs/plugin/duration' // ES 2015
 
 async function bootstrap() {
-  // Start SDK before nestjs factory create
-  // await otelSDK.start();
   const parsedConfig = configuration();
   const config = new ConfigService(parsedConfig);
 
