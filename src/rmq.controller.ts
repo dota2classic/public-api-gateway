@@ -1,5 +1,5 @@
 import { Controller, Logger } from "@nestjs/common";
-import { CommandBus, EventBus } from "@nestjs/cqrs";
+import { CommandBus, Constructor, EventBus } from "@nestjs/cqrs";
 import { ConfigService } from "@nestjs/config";
 import { PlayerFeedbackCreatedEvent } from "./gateway/events/player-feedback-created.event";
 import { RabbitSubscribe } from "@golevelup/nestjs-rabbitmq";
@@ -23,6 +23,7 @@ import { ItemDropService } from "./service/item-drop.service";
 import { PlayerFinishedMatchEvent } from "./gateway/events/gs/player-finished-match.event";
 import { PlayerFinishedMatchHandler } from "./rest/notification/event-handler/player-finished-match.handler";
 import { MessageCreatedEvent } from "./cache/message-created.event";
+import { MatchHighlightsEvent } from "./gateway/events/match-highlights.event";
 
 @Controller()
 export class RmqController {
@@ -120,5 +121,20 @@ export class RmqController {
   })
   private async handleItemDroppedEvent(msg: ItemDroppedEvent) {
     await this.itemDropService.onItemDrop(msg);
+  }
+
+  @RabbitSubscribe({
+    exchange: "app.events",
+    routingKey: MatchHighlightsEvent.name,
+    queue: `api-queue.${MatchHighlightsEvent.name}`,
+  })
+  private async handleMatchHighlightsReceived(msg: MatchHighlightsEvent) {
+    this.event(MatchHighlightsEvent, msg);
+  }
+
+  private event<T>(constructor: Constructor<T>, data: any) {
+    const buff = data;
+    buff.__proto__ = constructor.prototype;
+    this.ebus.publish(buff);
   }
 }

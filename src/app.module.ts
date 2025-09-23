@@ -155,6 +155,7 @@ import { ItemDropMapper } from "./rest/itemdrop/item-drop.mapper";
 import { ItemDropService } from "./service/item-drop.service";
 import { PlayerFinishedMatchHandler } from "./rest/notification/event-handler/player-finished-match.handler";
 import { MessageCreatedHandler } from "./cache/event-handler/message-created.handler";
+import { MatchHighlightsHandler } from "./service/match-highlights.handler";
 
 @Module({
   imports: [
@@ -456,6 +457,7 @@ import { MessageCreatedHandler } from "./cache/event-handler/message-created.han
     PlayerFinishedMatchHandler,
     AchievementCompleteHandler,
     PlayerAbandonedHandler,
+    MatchHighlightsHandler,
 
     // API
     PartyService,
