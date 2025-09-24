@@ -2,15 +2,24 @@ import { EventsHandler, IEventHandler } from "@nestjs/cqrs";
 import { MatchHighlightsEvent } from "../gateway/events/match-highlights.event";
 import { TelegramNotificationService } from "../rest/notification/telegram-notification.service";
 import { formatDuration } from "../utils/format-duration";
+import { DemoHighlightsEntity } from "../entity/demo-highlights.entity";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Repository } from "typeorm";
 
 @EventsHandler(MatchHighlightsEvent)
 export class MatchHighlightsHandler
   implements IEventHandler<MatchHighlightsEvent>
 {
-  constructor(private readonly telegram: TelegramNotificationService) {}
+  constructor(
+    private readonly telegram: TelegramNotificationService,
+    @InjectRepository(DemoHighlightsEntity)
+    private readonly demoHighlightsEntityRepository: Repository<DemoHighlightsEntity>,
+  ) {}
 
   async handle(event: MatchHighlightsEvent) {
     if (event.highlights.length == 0) return;
+
+    await this.saveHighlights(event);
 
     const highlights = event.highlights
       .sort((a, b) => a.gameTime - b.gameTime)
@@ -28,5 +37,12 @@ ${highlights}
 
   private formatHeroName(name: string) {
     return name.replace("npc_dota_hero_", "");
+  }
+
+  private async saveHighlights(event: MatchHighlightsEvent) {
+    await this.demoHighlightsEntityRepository.save({
+      matchId: event.matchId,
+      highlights: event,
+    });
   }
 }
