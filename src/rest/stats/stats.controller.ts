@@ -1,4 +1,4 @@
-import { Controller, Get, UseInterceptors } from "@nestjs/common";
+import { Controller, Get, Param, UseInterceptors } from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
 import {
   GameserverGameSessionDto,
@@ -23,6 +23,7 @@ import { StatsService } from "./stats.service";
 import { MaintenanceEntity } from "../../entity/maintenance.entity";
 import { Repository } from "typeorm";
 import { InjectRepository } from "@nestjs/typeorm";
+import { DemoHighlightsEntity } from "../../entity/demo-highlights.entity";
 
 @UseInterceptors(ReqLoggingInterceptor)
 @Controller("stats")
@@ -35,7 +36,16 @@ export class StatsController {
     private readonly statsService: StatsService,
     @InjectRepository(MaintenanceEntity)
     private readonly maintenanceEntityRepository: Repository<MaintenanceEntity>,
+    @InjectRepository(DemoHighlightsEntity)
+    private readonly demoHighlightsEntityRepository: Repository<DemoHighlightsEntity>,
   ) {}
+
+  @Get("/highlights/:id")
+  public async getHighlights(@Param("id") id: number) {
+    return this.demoHighlightsEntityRepository.findOneBy({
+      matchId: id,
+    });
+  }
 
   @UseInterceptors(GlobalHttpCacheInterceptor)
   @CacheTTL(5)

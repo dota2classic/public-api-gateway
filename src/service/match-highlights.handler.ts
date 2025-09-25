@@ -22,9 +22,9 @@ export class MatchHighlightsHandler
     await this.saveHighlights(event);
 
     const highlights = event.highlights
-      .sort((a, b) => a.gameTime - b.gameTime)
+      .sort((a, b) => a.start.time - b.start.time)
       .map((h) => {
-        return `<b>[${formatDuration(h.gameTime)}]</b> ${this.formatHeroName(h.hero)}: ${h.comment}`;
+        return `<b>[${formatDuration(h.start.time)}]</b> ${this.formatHeroName(h.hero)}: ${h.comment}`;
       })
       .join("\n");
     const text = `[ХАЙЛАЙТЫ]
