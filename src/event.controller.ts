@@ -19,9 +19,7 @@ import { UserUpdatedEvent } from "./gateway/events/user/user-updated.event";
 import { MatchCancelledEvent } from "./gateway/events/match-cancelled.event";
 import { RoomReadyEvent } from "./gateway/events/room-ready.event";
 import { MessageUpdatedEvent } from "./gateway/events/message-updated.event";
-import { AchievementCompleteEvent } from "./gateway/events/gs/achievement-complete.event";
 import { PlayerAbandonedEvent } from "./gateway/events/bans/player-abandoned.event";
-import { MatchRecordedEvent } from "./gateway/events/gs/match-recorded.event";
 import { BanSystemEvent } from "./gateway/events/gs/ban-system.event";
 import { LobbyReadyEvent } from "./gateway/events/lobby-ready.event";
 import { PlayerReportBanCreatedEvent } from "./gateway/events/bans/player-report-ban-created.event";
@@ -94,11 +92,6 @@ export class EventController {
     this.event(MatchStartedEvent, data);
   }
 
-  @EventPattern(MatchRecordedEvent.name)
-  async MatchRecordedEvent(data: MatchRecordedEvent) {
-    this.event(MatchRecordedEvent, data);
-  }
-
   @EventPattern(MatchFinishedEvent.name)
   async MatchFinishedEvent(data: MatchFinishedEvent) {
     this.event(MatchFinishedEvent, data);
@@ -142,11 +135,6 @@ export class EventController {
   @EventPattern(MessageUpdatedEvent.name)
   async MessageUpdatedEvent(data: MessageUpdatedEvent) {
     this.event(MessageUpdatedEvent, data);
-  }
-
-  @EventPattern(AchievementCompleteEvent.name)
-  async AchievementCompleteEvent(data: AchievementCompleteEvent) {
-    this.event(AchievementCompleteEvent, data);
   }
 
   @EventPattern(PlayerAbandonedEvent.name)
