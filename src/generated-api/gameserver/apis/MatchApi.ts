@@ -13,22 +13,19 @@
  */
 
 
-import * as runtime from '../runtime';
+import * as runtime from "../runtime";
 
 import {
-    GameserverMatchDto,
-    GameserverMatchDtoFromJSON,
-    GameserverMatchDtoToJSON,
-    GameserverMatchPageDto,
-    GameserverMatchPageDtoFromJSON,
-    GameserverMatchPageDtoToJSON,
-    GameserverMatchReportMatrixDto,
-    GameserverMatchReportMatrixDtoFromJSON,
-    GameserverMatchReportMatrixDtoToJSON,
-} from '../models';
+  GameserverMatchDto,
+  GameserverMatchDtoFromJSON,
+  GameserverMatchPageDto,
+  GameserverMatchPageDtoFromJSON,
+  GameserverMatchReportMatrixDto,
+  GameserverMatchReportMatrixDtoFromJSON,
+} from "../models";
 
-export interface MatchControllerGetFakeRequestRequest {
-    id: number;
+export interface MatchControllerFakeRequest {
+  id: number;
 }
 
 export interface MatchControllerGetMatchRequest {
@@ -67,13 +64,13 @@ export class MatchApi extends runtime.BaseAPI {
 
     /**
      */
-    matchControllerFakeContext(): runtime.RequestOpts {
+    matchControllerFakeContext(requestParameters: MatchControllerFakeRequest): runtime.RequestOpts {
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
 
         return {
-            path: `/match/fake`,
+            path: `/match/{id}/ranked_process`.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters.id))),
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
@@ -82,37 +79,16 @@ export class MatchApi extends runtime.BaseAPI {
 
     /**
      */
-    matchControllerFake = async (): Promise<number> => {
-        const response = await this.matchControllerFakeRaw();
+    matchControllerFake = async (id: number): Promise<number> => {
+        const response = await this.matchControllerFakeRaw({ id: id });
         return await response.value();
     }
 
     /**
      */
-    matchControllerGetFakeRequestContext(requestParameters: MatchControllerGetFakeRequestRequest): runtime.RequestOpts {
-        const queryParameters: any = {};
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-        return {
-            path: `/match/fake/{id}`.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters.id))),
-            method: 'GET',
-            headers: headerParameters,
-            query: queryParameters,
-        };
-    }
-
-    /**
-     */
-    matchControllerGetFakeRequest = async (id: number): Promise<void> => {
-        await this.matchControllerGetFakeRequestRaw({ id: id });
-    }
-
-    /**
-     */
-    private async matchControllerFakeRaw(): Promise<runtime.ApiResponse<number>> {
-        this.matchControllerFakeValidation();
-        const context = this.matchControllerFakeContext();
+    private async matchControllerFakeRaw(requestParameters: MatchControllerFakeRequest): Promise<runtime.ApiResponse<number>> {
+        this.matchControllerFakeValidation(requestParameters);
+        const context = this.matchControllerFakeContext(requestParameters);
         const response = await this.request(context);
 
         return new runtime.TextApiResponse(response) as any;
@@ -120,24 +96,9 @@ export class MatchApi extends runtime.BaseAPI {
 
     /**
      */
-    private matchControllerFakeValidation() {
-    }
-
-    /**
-     */
-    private async matchControllerGetFakeRequestRaw(requestParameters: MatchControllerGetFakeRequestRequest): Promise<runtime.ApiResponse<void>> {
-        this.matchControllerGetFakeRequestValidation(requestParameters);
-        const context = this.matchControllerGetFakeRequestContext(requestParameters);
-        const response = await this.request(context);
-
-        return new runtime.VoidApiResponse(response);
-    }
-
-    /**
-     */
-    private matchControllerGetFakeRequestValidation(requestParameters: MatchControllerGetFakeRequestRequest) {
+    private matchControllerFakeValidation(requestParameters: MatchControllerFakeRequest) {
         if (requestParameters.id === null || requestParameters.id === undefined) {
-            throw new runtime.RequiredError('id','Required parameter requestParameters.id was null or undefined when calling matchControllerGetFakeRequest.');
+            throw new runtime.RequiredError('id','Required parameter requestParameters.id was null or undefined when calling matchControllerFake.');
         }
     }
 

@@ -180,9 +180,10 @@ export class PlayerMapper {
 
       isComplete: ach.isComplete,
       progress: ach.progress,
-      maxProgress: ach.maxProgress,
+      percentile: ach.percentile,
+      checkpoints: ach.checkpoints,
 
-      match: ach.match ? await this.matchMapper.mapMatch(ach.match) : undefined,
+      matchId: ach.matchId,
     };
   };
 

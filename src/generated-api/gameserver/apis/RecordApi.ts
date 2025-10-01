@@ -13,25 +13,40 @@
  */
 
 
-import * as runtime from '../runtime';
+import * as runtime from "../runtime";
 
 import {
-    GameserverPlayerDailyRecord,
-    GameserverPlayerDailyRecordFromJSON,
-    GameserverPlayerDailyRecordToJSON,
-    GameserverPlayerRecordsResponse,
-    GameserverPlayerRecordsResponseFromJSON,
-    GameserverPlayerRecordsResponseToJSON,
-} from '../models';
+  GameserverPlayerDailyRecord,
+  GameserverPlayerDailyRecordFromJSON,
+  GameserverPlayerRecordsResponse,
+  GameserverPlayerRecordsResponseFromJSON,
+} from "../models";
 
 export interface RecordControllerPlayerRecordRequest {
-    steamId: string;
+  steamId: string;
 }
 
 /**
  *
  */
 export class RecordApi extends runtime.BaseAPI {
+
+    /**
+     */
+    private async recordControllerPlayerDailyRaw(): Promise<runtime.ApiResponse<Array<GameserverPlayerDailyRecord>>> {
+        this.recordControllerPlayerDailyValidation();
+        const context = this.recordControllerPlayerDailyContext();
+        const response = await this.request(context);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(GameserverPlayerDailyRecordFromJSON));
+    }
+
+
+
+    /**
+     */
+    private recordControllerPlayerDailyValidation() {
+    }
 
     /**
      */
@@ -53,21 +68,6 @@ export class RecordApi extends runtime.BaseAPI {
     recordControllerPlayerDaily = async (): Promise<Array<GameserverPlayerDailyRecord>> => {
         const response = await this.recordControllerPlayerDailyRaw();
         return await response.value();
-    }
-
-    /**
-     */
-    private async recordControllerPlayerDailyRaw(): Promise<runtime.ApiResponse<Array<GameserverPlayerDailyRecord>>> {
-        this.recordControllerPlayerDailyValidation();
-        const context = this.recordControllerPlayerDailyContext();
-        const response = await this.request(context);
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(GameserverPlayerDailyRecordFromJSON));
-    }
-
-    /**
-     */
-    private recordControllerPlayerDailyValidation() {
     }
 
     /**

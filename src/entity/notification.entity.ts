@@ -71,6 +71,9 @@ export class NotificationEntity {
   })
   notificationType: NotificationType;
 
+  @Column({ name: "params", nullable: false, type: "jsonb", default: "{}" })
+  params: Record<string, unknown>;
+
   @VirtualColumn2("expiresAt", (t) => t)
   expiresAt: Date;
 
@@ -80,11 +83,13 @@ export class NotificationEntity {
     entityType: NotificationEntityType,
     notificationType: NotificationType,
     ttl: string = "1day",
+    params: Record<string, unknown> = {},
   ) {
     this.steamId = steamId;
     this.entityId = entityId;
     this.entityType = entityType;
     this.notificationType = notificationType;
     this.ttl = ttl;
+    this.params = params;
   }
 }

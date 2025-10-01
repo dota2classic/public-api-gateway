@@ -208,8 +208,16 @@ export class NotificationService {
     entityType: NotificationEntityType,
     type: NotificationType,
     ttl: string = "1day",
+    params: Record<string, unknown> = {},
   ) {
-    let ne = new NotificationEntity(steamId, entityId, entityType, type, ttl);
+    let ne = new NotificationEntity(
+      steamId,
+      entityId,
+      entityType,
+      type,
+      ttl,
+      params,
+    );
     ne = await this.notificationEntityRepository.save(ne);
     ne = await this.getFullNotification(ne.id);
     this.logger.log("Emitting NotificationCreatedEvent to redis");

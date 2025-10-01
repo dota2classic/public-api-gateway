@@ -43,6 +43,7 @@ export class NotificationMapper {
       notificationType: notification.notificationType,
       title,
       content,
+      params: notification.params,
       feedback: await this.mapPlayerFeedback(notification),
       achievement: await this.mapAchievement(notification),
       thread: await this.mapThread(notification),

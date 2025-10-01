@@ -35,7 +35,6 @@ export class SteamController {
 
   public TOKEN_COOKIE_OPTIONS: () => CookieOptions = () => {
     return {
-      maxAge: 1000 * 60 * 60 * 24 * 30,
       path: "/",
       httpOnly: false,
       expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30),

@@ -13,14 +13,7 @@
  */
 
 import { exists } from '../runtime';
-import {
-  GameserverAchievementKey,
-  GameserverAchievementKeyFromJSON,
-  GameserverAchievementKeyToJSON,
-  GameserverMatchDto,
-  GameserverMatchDtoFromJSON,
-  GameserverMatchDtoToJSON,
-} from './';
+import { GameserverAchievementKey, GameserverAchievementKeyFromJSON, GameserverAchievementKeyToJSON } from './';
 
 /**
  *
@@ -45,13 +38,19 @@ export class GameserverAchievementDto {
      * @type {number}
      * @memberof GameserverAchievementDto
      */
-    maxProgress: number;
+    progress: number;
     /**
      *
      * @type {number}
      * @memberof GameserverAchievementDto
      */
-    progress: number;
+    percentile: number;
+    /**
+     *
+     * @type {Array<number>}
+     * @memberof GameserverAchievementDto
+     */
+    checkpoints: Array<number>;
     /**
      *
      * @type {boolean}
@@ -60,10 +59,10 @@ export class GameserverAchievementDto {
     isComplete: boolean;
     /**
      *
-     * @type {GameserverMatchDto}
+     * @type {number}
      * @memberof GameserverAchievementDto
      */
-    match?: GameserverMatchDto;
+    matchId?: number;
 }
 
 export function GameserverAchievementDtoFromJSON(json: any): GameserverAchievementDto {
@@ -78,10 +77,11 @@ export function GameserverAchievementDtoFromJSONTyped(json: any, ignoreDiscrimin
 
         'key': GameserverAchievementKeyFromJSON(json['key']),
         'steamId': json['steamId'],
-        'maxProgress': json['maxProgress'],
         'progress': json['progress'],
+        'percentile': json['percentile'],
+        'checkpoints': json['checkpoints'],
         'isComplete': json['isComplete'],
-        'match': !exists(json, 'match') ? undefined : GameserverMatchDtoFromJSON(json['match']),
+        'matchId': !exists(json, 'matchId') ? undefined : json['matchId'],
     };
 }
 
@@ -96,10 +96,11 @@ export function GameserverAchievementDtoToJSON(value?: GameserverAchievementDto 
 
         'key': GameserverAchievementKeyToJSON(value.key),
         'steamId': value.steamId,
-        'maxProgress': value.maxProgress,
         'progress': value.progress,
+        'percentile': value.percentile,
+        'checkpoints': value.checkpoints,
         'isComplete': value.isComplete,
-        'match': GameserverMatchDtoToJSON(value.match),
+        'matchId': value.matchId,
     };
 }
 
