@@ -136,6 +136,11 @@ export class PlayerController {
     };
   }
 
+  @Get("/:id/user")
+  async user(@Param("id") steam_id: string): Promise<UserDTO> {
+    return this.userProfile.userDto(steam_id);
+  }
+
   @Get("/:id/achievements")
   async achievements(@Param("id") steam_id: string): Promise<AchievementDto[]> {
     const rawData = await this.ms.playerControllerPlayerAchievements(steam_id);
