@@ -156,6 +156,7 @@ import { ItemDropService } from "./service/item-drop.service";
 import { PlayerFinishedMatchHandler } from "./rest/notification/event-handler/player-finished-match.handler";
 import { MessageCreatedHandler } from "./cache/event-handler/message-created.handler";
 import { MatchHighlightsHandler } from "./service/match-highlights.handler";
+import { PleaseGoQueueHandler } from "./rest/notification/event-handler/please-go-queue.handler";
 
 @Module({
   imports: [
@@ -495,6 +496,7 @@ import { MatchHighlightsHandler } from "./service/match-highlights.handler";
     TelegramNotificationService,
     FeedbackAssistantService,
     MessageCreatedHandler,
+    PleaseGoQueueHandler,
 
     //
     PaymentService,

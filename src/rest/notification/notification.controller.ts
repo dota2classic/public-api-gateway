@@ -22,6 +22,8 @@ import {
 import { NotificationService } from "./notification.service";
 import { ReqLoggingInterceptor } from "../../middleware/req-logging.interceptor";
 import { NotificationMapper } from "./notification.mapper";
+import { PleaseGoQueueEvent } from "./event/please-go-queue.event";
+import { AmqpConnection } from "@golevelup/nestjs-rabbitmq";
 
 @UseInterceptors(ReqLoggingInterceptor)
 @Controller("notification")
@@ -30,6 +32,7 @@ export class NotificationController {
   constructor(
     private readonly notificationService: NotificationService,
     private readonly mapper: NotificationMapper,
+    private readonly amqpConnection: AmqpConnection,
   ) {}
 
   @Delete("/subscribe")
@@ -53,19 +56,16 @@ export class NotificationController {
   @WithUser()
   @Post("suggest_queue")
   async notifyAboutQueue(@Body() dto: TagPlayerForQueue) {
-    const [payload, subs] = await this.notificationService.createHerePayload(
-      dto.mode,
+    await this.amqpConnection.publish(
+      "app.events",
+      PleaseGoQueueEvent.name,
+      new PleaseGoQueueEvent(dto.mode),
     );
-    const { send, successful } = await this.notificationService.notify(
-      payload,
-      subs,
-    );
-    const viaSocket = await this.notificationService.notifyOnliners(dto.mode);
 
     return {
-      send,
-      successful,
-      viaSocket,
+      send: 0,
+      successful: 0,
+      viaSocket: 0,
     };
   }
 

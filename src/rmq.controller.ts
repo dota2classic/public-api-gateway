@@ -25,6 +25,7 @@ import { PlayerFinishedMatchHandler } from "./rest/notification/event-handler/pl
 import { MessageCreatedEvent } from "./cache/message-created.event";
 import { MatchHighlightsEvent } from "./gateway/events/match-highlights.event";
 import { AchievementCompleteEvent } from "./gateway/events/gs/achievement-complete.event";
+import { PleaseGoQueueEvent } from "./rest/notification/event/please-go-queue.event";
 
 @Controller()
 export class RmqController {
@@ -140,6 +141,15 @@ export class RmqController {
   })
   private async handleAchievementComplete(msg: AchievementCompleteEvent) {
     this.event(AchievementCompleteEvent, msg);
+  }
+
+  @RabbitSubscribe({
+    exchange: "app.events",
+    routingKey: PleaseGoQueueEvent.name,
+    queue: `api-queue.${PleaseGoQueueEvent.name}`,
+  })
+  private async handlePleaseGoQueueEvent(msg: PleaseGoQueueEvent) {
+    this.event(PleaseGoQueueEvent, msg);
   }
 
   private event<T>(constructor: Constructor<T>, data: any) {
