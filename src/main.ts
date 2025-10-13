@@ -20,6 +20,8 @@ async function bootstrap() {
   const parsedConfig = configuration();
   const config = new ConfigService(parsedConfig);
 
+  console.log(parsedConfig);
+
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
     new FastifyAdapter(
