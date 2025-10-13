@@ -66,14 +66,18 @@ export default (): ExpectedConfig => {
       password: process.env.POSTGRES_PASSWORD,
     },
     api: {
-      liveMatchDelay: parseInt(process.env.LIVE_MATCH_DELAY) || 5000,
       frontUrl: process.env.FRONTEND_URL,
       backUrl: process.env.BACKEND_URL,
-      gameserverApiUrl: process.env.GAMESERVER_API,
-      forumApiUrl: process.env.FORUM_API,
+
+      liveMatchDelay: parseInt(process.env.LIVE_MATCH_DELAY) || 5000,
       s3root: process.env.S3ROOT,
+      replayUrl: process.env.REPLAY_URL,
       jwtSecret: process.env.JWT_SECRET,
       prometheusUrl: process.env.PROMETHEUS_URL,
+
+      matchmakerApiUrl: process.env.MATCHMAKER_API,
+      gameserverApiUrl: process.env.GAMESERVER_API,
+      forumApiUrl: process.env.FORUM_API,
     },
     telemetry: {
       jaeger: {
@@ -84,17 +88,14 @@ export default (): ExpectedConfig => {
         password: process.env.PROMETHEUS_PASSWORD,
       },
     },
-    fluentbit: {
-      host: process.env.FLUENTBIT_HOST,
-      application: process.env.APP_NAME,
-      port: parseInt(process.env.FLUENTBIT_PORT) || 24224,
-    },
     twitch: {
       secret: process.env.TWITCH_SECRET,
       clientId: process.env.TWITCH_CLIENT_ID,
     },
     telegram: {
       token: process.env.TELEGRAM_TOKEN,
+      notifyChatId: process.env.TELEGRAM_TOKEN_NOTIFY_CHAT_ID
+      notifyThreadId: process.env.TELEGRAM_TOKEN_NOTIFY_THREAD_ID
     },
     s3: {
       accessKeyId: process.env.S3_ACCESS_KEY_ID || "",
@@ -103,12 +104,19 @@ export default (): ExpectedConfig => {
       bucket: process.env.S3_BUCKET || "",
       uploadPrefix: process.env.S3_UPLOAD_PREFIX || "",
     },
+    gpt: {
+      token: process.env.GPT_TOKEN
+    },
+    fluentbit: {
+      application: process.env.APP_NAME,
+      host: process.env.FLUENTBIT_HOST,
+      port: parseInt(process.env.FLUENTBIT_PORT) || 24224,
+    },
     rabbitmq: {
-      host: "localhost",
-      port: "5672",
-      user: "guest",
-      password: "guest",
-      payment_queue: "payment_events",
+      host: process.env.RABBITMQ_HOST,
+      port: process.env.RABBITMQ_PORT,
+      user: process.env.RABBITMQ_USER,
+      password: process.env.RABBITMQ_PASSWORD,
     },
   } as ExpectedConfig;
 };
