@@ -16,4 +16,4 @@ COPY --from=build /usr/src/app/package.json .
 COPY --from=build /usr/src/app/yarn.lock .
 
 #CMD ["sh", "-c", "yarn start:prod"]
-CMD ["node", "dist/main"]
+CMD ["node", "--trace-uncaught", "dist/main"]
