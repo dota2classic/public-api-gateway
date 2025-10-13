@@ -22,7 +22,7 @@ export class StatsService implements OnApplicationBootstrap {
 
   @Cron(CronExpression.EVERY_5_MINUTES)
   private async refreshQueueStats() {
-    this._stats = await this.queueTimesChart();
+    // this._stats = await this.queueTimesChart();
     // console.log(JSON.stringify(this._stats))
   }
 
