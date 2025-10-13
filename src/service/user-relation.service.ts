@@ -12,10 +12,7 @@ import { measure } from "../utils/decorator/measure";
 @Injectable()
 export class UserRelationService implements OnApplicationBootstrap {
   private logger = new Logger(UserRelationService.name);
-  private relationMap = new WeakMap<
-    string,
-    WeakMap<string, UserRelationStatus>
-  >();
+  private relationMap = new Map<string, Map<string, UserRelationStatus>>();
   constructor(
     @InjectRepository(UserRelationEntity)
     private readonly userRelationEntityRepository: Repository<UserRelationEntity>,
@@ -85,7 +82,7 @@ export class UserRelationService implements OnApplicationBootstrap {
     this.getOrCreate(steamId).set(relatedSteamId, relation);
   }
 
-  private getOrCreate(steamId: string): WeakMap<string, UserRelationStatus> {
+  private getOrCreate(steamId: string): Map<string, UserRelationStatus> {
     let m = this.relationMap.get(steamId);
     if (!m) {
       m = new Map();
