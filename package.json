@@ -29,11 +29,11 @@
     "apigen:matchmaker": "openapi-generator-cli  generate --model-name-prefix Matchmaker --import-mappings MatchmakingMode=1 --skip-validate-spec -i http://localhost:7777/api-json -g typescript-fetch -t ./.openapi-generator/typescript-fetch-swr -o ./generated --additional-properties useSingleRequestParameter=false && rm -rf src/generated-api/matchmaker && cp -r ./generated src/generated-api/matchmaker && rm -rf ./generated && node scripts/after-codegen.js matchmaker",
     "apigen:tradebot": "openapi-generator-cli  generate --model-name-prefix TradeBot --import-mappings MatchmakingMode=1 --skip-validate-spec -i http://localhost:6100/api-json -g typescript-fetch -t ./.openapi-generator/typescript-fetch-swr -o ./generated --additional-properties useSingleRequestParameter=false && rm -rf src/generated-api/tradebot && cp -r ./generated src/generated-api/tradebot && rm -rf ./generated && node scripts/after-codegen.js tradebot",
     "apigen:tournament": "openapi-generator-cli generate --skip-validate-spec -i http://localhost:6100/api-json -g typescript-axios -o ./generated --config tournament-openapi-generate.json && rm -rf src/generated-api/tournament && cp -r ./generated src/generated-api/tournament && rm -rf ./generated",
-    "migration:generate": "npx ts-node -P ./tsconfig.json -r tsconfig-paths/register ./node_modules/typeorm/cli.js migration:generate -d ./src/config/typeorm.config.ts",
-    "migration:create": "npx ts-node -P ./tsconfig.json -r tsconfig-paths/register ./node_modules/typeorm/cli.js migration:create",
-    "migration:run": "npx ts-node -P ./tsconfig.json -r tsconfig-paths/register ./node_modules/typeorm/cli.js migration:run -d ./src/config/typeorm.config.ts",
-    "migration:run-fake": "npx ts-node -P ./tsconfig.json -r tsconfig-paths/register ./node_modules/typeorm/cli.js migration:run --fake -d ./src/config/typeorm.config.ts",
-    "migration:revert": "npx ts-node -P ./tsconfig.json -r tsconfig-paths/register ./node_modules/typeorm/cli.js migration:revert -d ./src/config/typeorm.config.ts"
+    "migration:generate": "npx ts-node -r dotenv/config -P ./tsconfig.json -r tsconfig-paths/register ./node_modules/typeorm/cli.js migration:generate -d ./src/config/typeorm.config.ts",
+    "migration:create": "npx ts-node -r dotenv/config  -P ./tsconfig.json -r tsconfig-paths/register ./node_modules/typeorm/cli.js migration:create",
+    "migration:run": "npx ts-node -r dotenv/config  -P ./tsconfig.json -r tsconfig-paths/register ./node_modules/typeorm/cli.js migration:run -d ./src/config/typeorm.config.ts",
+    "migration:run-fake": "npx ts-node -r dotenv/config  -P ./tsconfig.json -r tsconfig-paths/register ./node_modules/typeorm/cli.js migration:run --fake -d ./src/config/typeorm.config.ts",
+    "migration:revert": "npx ts-node -r dotenv/config  -P ./tsconfig.json -r tsconfig-paths/register ./node_modules/typeorm/cli.js migration:revert -d ./src/config/typeorm.config.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.722.0",
