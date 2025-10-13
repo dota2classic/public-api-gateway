@@ -5,7 +5,6 @@ import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 import * as cookieParser from "cookie-parser";
 import { Transport } from "@nestjs/microservices";
 import { ValidationPipe } from "@nestjs/common";
-import { WinstonWrapper } from "@dota2classic/nest_logger";
 import configuration from "./config/configuration";
 import { ConfigService } from "@nestjs/config";
 import { EntityNotFoundErrorFilter } from "./middleware/typeorm-error-filter";
@@ -30,13 +29,13 @@ async function bootstrap() {
       }),
     ),
     {
-      logger: new WinstonWrapper(
-        config.get("fluentbit.host"),
-        config.get<number>("fluentbit.port"),
-        config.get<string>("fluentbit.application"),
-        config.get<boolean>("fluentbit.disabled"),
-        config.get<boolean>("fluentbit.noStdout"),
-      ),
+      // logger: new WinstonWrapper(
+      //   config.get("fluentbit.host"),
+      //   config.get<number>("fluentbit.port"),
+      //   config.get<string>("fluentbit.application"),
+      //   config.get<boolean>("fluentbit.disabled"),
+      //   config.get<boolean>("fluentbit.noStdout"),
+      // ),
     },
   );
   app.setGlobalPrefix("v1");
