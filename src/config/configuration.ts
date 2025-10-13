@@ -94,8 +94,8 @@ export default (): ExpectedConfig => {
     },
     telegram: {
       token: process.env.TELEGRAM_TOKEN,
-      notifyChatId: process.env.TELEGRAM_TOKEN_NOTIFY_CHAT_ID,
-      notifyThreadId: process.env.TELEGRAM_TOKEN_NOTIFY_THREAD_ID,
+      notifyChatId: process.env.TELEGRAM_NOTIFY_CHAT_ID,
+      notifyThreadId: process.env.TELEGRAM_NOTIFY_THREAD_ID,
     },
     s3: {
       accessKeyId: process.env.S3_ACCESS_KEY_ID || "",
