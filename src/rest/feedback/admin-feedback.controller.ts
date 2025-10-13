@@ -14,7 +14,11 @@ import { FeedbackEntity } from "../../entity/feedback.entity";
 import { FeedbackOptionEntity } from "../../entity/feedback-option.entity";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
-import { ModeratorGuard, WithUser } from "../../utils/decorator/with-user";
+import {
+  AdminGuard,
+  ModeratorGuard,
+  WithUser,
+} from "../../utils/decorator/with-user";
 import {
   CreateFeedbackDto,
   CreateFeedbackOptionDto,
@@ -66,7 +70,7 @@ export class AdminFeedbackController {
     return makePage(data, count, page, perPage, this.mapper.mapPlayerFeedback);
   }
 
-  @ModeratorGuard()
+  @AdminGuard()
   @WithUser()
   @Post()
   public async createFeedback(
@@ -77,7 +81,7 @@ export class AdminFeedbackController {
       .then(this.mapper.mapFeedbackTemplate);
   }
 
-  @ModeratorGuard()
+  @AdminGuard()
   @WithUser()
   @Patch(":feedbackId")
   public async updateFeedback(
@@ -85,11 +89,11 @@ export class AdminFeedbackController {
     @Body() b: UpdateFeedbackDto,
   ): Promise<FeedbackTemplateDto> {
     return this.feedbackService
-      .updateFeedback(feedbackId, b.title, b.tag)
+      .updateFeedback(feedbackId, b.title, b.tag, b.createTicket)
       .then(this.mapper.mapFeedbackTemplate);
   }
 
-  @ModeratorGuard()
+  @AdminGuard()
   @WithUser()
   @Get(":feedbackId")
   public async getFeedbackTemplate(
@@ -100,7 +104,7 @@ export class AdminFeedbackController {
       .then(this.mapper.mapFeedbackTemplate);
   }
 
-  @ModeratorGuard()
+  @AdminGuard()
   @WithUser()
   @Delete(":feedbackId")
   public async deleteFeedback(
@@ -109,7 +113,7 @@ export class AdminFeedbackController {
     return this.feedbackService.deleteFeedback(feedbackId);
   }
 
-  @ModeratorGuard()
+  @AdminGuard()
   @WithUser()
   @Post(":feedbackId/option")
   public async createOption(
@@ -121,7 +125,7 @@ export class AdminFeedbackController {
       .then(this.mapper.mapFeedbackTemplate);
   }
 
-  @ModeratorGuard()
+  @AdminGuard()
   @WithUser()
   @Patch(":feedbackId/option/:id")
   public async editOption(
@@ -134,7 +138,7 @@ export class AdminFeedbackController {
       .then(this.mapper.mapFeedbackTemplate);
   }
 
-  @ModeratorGuard()
+  @AdminGuard()
   @WithUser()
   @Delete(":feedbackId/option/:id")
   public async deleteOption(

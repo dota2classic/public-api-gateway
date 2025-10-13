@@ -7,11 +7,11 @@ import {
   NestInterceptor,
 } from "@nestjs/common";
 import { Observable } from "rxjs";
-import { Request, Response } from "express";
 import { InjectMetric } from "@willsoto/nestjs-prometheus";
 import { Histogram } from "prom-client";
 import { PATH_METADATA, SSE_METADATA } from "@nestjs/common/constants";
 import * as path from "path";
+import { FastifyReply, FastifyRequest } from "fastify";
 
 @Injectable()
 export class ReqLoggingInterceptor implements NestInterceptor {
@@ -24,8 +24,10 @@ export class ReqLoggingInterceptor implements NestInterceptor {
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     // Extract request and response objects
-    const req: Request = context.switchToHttp().getRequest();
-    const res: Response = context.switchToHttp().getResponse();
+    const req: FastifyRequest = context.switchToHttp().getRequest();
+    const res: FastifyReply = context.switchToHttp().getResponse();
+
+    // req: FastifyRequest['raw'], res: FastifyReply['raw']
 
     const handler = context.getHandler();
     const controller = Reflect.getMetadata(PATH_METADATA, context.getClass());
@@ -39,15 +41,21 @@ export class ReqLoggingInterceptor implements NestInterceptor {
 
     let d0 = performance.now();
 
-    res.on("finish", () => {
+    res.raw.on("finish", () => {
       const durationSeconds = (performance.now() - d0) / 1000;
+
+      this.logger.log({
+        method: req.method,
+        path: requestPath,
+        duration: durationSeconds,
+      });
 
       this.requestHistogram
         .labels(
           req.method,
           requestPath,
           isSSE ? "sse" : "request",
-          req.res.statusCode.toString(),
+          res.statusCode.toString(),
         )
         .observe(durationSeconds);
     });

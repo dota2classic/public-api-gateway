@@ -9,7 +9,7 @@ import {
   Query,
 } from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
-import { ModeratorGuard, WithUser } from "../../utils/decorator/with-user";
+import { AdminGuard, WithUser } from "../../utils/decorator/with-user";
 import {
   BlogPageDto,
   BlogpostDto,
@@ -39,7 +39,7 @@ export class BlogpostController {
     private readonly forumApi: ForumApi,
   ) {}
 
-  @ModeratorGuard()
+  @AdminGuard()
   @WithUser()
   @Patch()
   public async updatePostDraft(
@@ -69,7 +69,7 @@ export class BlogpostController {
       .then(this.mapper.mapPost);
   }
 
-  @ModeratorGuard()
+  @AdminGuard()
   @WithUser()
   @Post("/:id/publish")
   public async publishDraft(
@@ -103,7 +103,7 @@ export class BlogpostController {
       .then(this.mapper.mapPost);
   }
 
-  @ModeratorGuard()
+  @AdminGuard()
   @WithUser()
   @Get("/draft/:id")
   public async getBlogpostDraft(

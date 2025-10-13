@@ -1,34 +1,38 @@
 import {
   Controller,
   Get,
+  Param,
+  ParseIntPipe,
   Post,
   Query,
-  UploadedFile,
   UseInterceptors,
 } from "@nestjs/common";
 import { ReqLoggingInterceptor } from "../../middleware/req-logging.interceptor";
 import { ApiBody, ApiConsumes, ApiQuery, ApiTags } from "@nestjs/swagger";
-import { ModeratorGuard, WithUser } from "../../utils/decorator/with-user";
-import { FileInterceptor } from "@nestjs/platform-express";
+import { AdminGuard, WithUser } from "../../utils/decorator/with-user";
+import {
+  FileInterceptor,
+  MemoryStorageFile,
+  UploadedFile,
+} from "@blazity/nest-file-fastify";
 import { InjectS3, S3 } from "nestjs-s3";
 import {
   ListObjectsV2CommandInput,
   PutObjectCommandInput,
 } from "@aws-sdk/client-s3";
 import { ConfigService } from "@nestjs/config";
-import { UploadedImageDto, UploadedImagePageDto } from "./storage.dto";
+import {
+  LogLineDto,
+  UploadedImageDto,
+  UploadedImagePageDto,
+} from "./storage.dto";
 import { calculateHashForBuffer } from "../../utils/hashbuffer";
 import { StorageService } from "./storage.service";
 import { StorageMapper } from "./storage.mapper";
-
-interface IFile {
-  fieldname: string;
-  originalname: string;
-  encoding: string;
-  mimetype: string;
-  buffer: Buffer;
-  size: number;
-}
+import { UserProfileService } from "../../service/user-profile.service";
+import { parseLogFile } from "../../utils/parseLogFile";
+import { GlobalHttpCacheInterceptor } from "../../utils/cache-global";
+import { CacheTTL } from "@nestjs/cache-manager";
 
 @UseInterceptors(ReqLoggingInterceptor)
 @Controller("storage")
@@ -39,6 +43,7 @@ export class StorageController {
     private readonly config: ConfigService,
     private readonly mapper: StorageMapper,
     private readonly storageService: StorageService,
+    private readonly user: UserProfileService,
   ) {}
 
   @ApiBody({
@@ -53,13 +58,13 @@ export class StorageController {
     },
   })
   @ApiConsumes("multipart/form-data")
-  @ModeratorGuard()
+  @AdminGuard()
   @WithUser()
   @UseInterceptors(FileInterceptor("file"))
   @Post("upload")
   public async uploadImage(
     // @Query("width", NullableIntPipe) width: number,
-    @UploadedFile() file: IFile,
+    @UploadedFile() file: MemoryStorageFile,
   ): Promise<UploadedImageDto> {
     const hash = await calculateHashForBuffer(file.buffer);
 
@@ -74,9 +79,9 @@ export class StorageController {
       ContentType: file.mimetype,
       ACL: "public-read",
 
-      Metadata: {
-        originalName: file.originalname,
-      },
+      // Metadata: {
+      //   originalName: file.fieldname,
+      // },
     };
 
     await this.s3.putObject(putObjectCommandInput);
@@ -103,5 +108,26 @@ export class StorageController {
       items: response.Contents.map((it) => it.Key).map(this.mapper.mapS3Item),
       ctoken: response.ContinuationToken,
     };
+  }
+
+  @UseInterceptors(GlobalHttpCacheInterceptor)
+  @CacheTTL(60)
+  @Get("/match/:id/log")
+  public async getLogMessages(
+    @Param("id", ParseIntPipe) id: number,
+  ): Promise<LogLineDto[]> {
+    const object = await this.s3.getObject({
+      Bucket: "logs",
+      Key: `${id}.log`,
+    });
+    const txt = await object.Body.transformToString();
+    const log = parseLogFile(txt);
+
+    return log.map((ll) => ({
+      author: ll.steamId,
+      say: ll.message,
+      allChat: ll.allChat,
+      team: ll.team,
+    }));
   }
 }

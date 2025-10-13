@@ -39,12 +39,20 @@ export class PunishmentLogDto {
   reported: UserDTO;
   executor: UserDTO;
   duration: number;
+  reportId?: string;
   rule: RuleDto;
   punishment: RulePunishmentDto;
 }
 
 export class PunishmentLogPageDto extends Page<PunishmentLogDto> {
   data: PunishmentLogDto[];
+  page: number;
+  perPage: number;
+  pages: number;
+}
+
+export class ReportPageDto extends Page<ReportDto> {
+  data: ReportDto[];
   page: number;
   perPage: number;
   pages: number;

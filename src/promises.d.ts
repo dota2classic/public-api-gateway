@@ -1,4 +1,5 @@
-declare interface PromiseConstructor {
+
+declare class PromiseConstructor {
   combine<A, B>(promises: [Promise<A>, Promise<B>]): Promise<[A, B]>;
   combine<A, B, C>(
     promises: [Promise<A>, Promise<B>, Promise<C>],

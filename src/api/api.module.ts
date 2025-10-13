@@ -14,6 +14,31 @@ import {
   ForumApi,
 } from "../generated-api/forum";
 import { PrometheusDriver } from "prometheus-query";
+import {
+  Configuration as MConfiguration,
+  MatchmakerApi,
+} from "../generated-api/matchmaker";
+import {
+  Configuration as TConfiguration,
+  TradeApi,
+} from "../generated-api/tradebot";
+
+import * as http from "http";
+import * as https from "https";
+// Create a keep-alive agent for HTTP
+const httpAgent = new http.Agent({ keepAlive: true });
+const httpsAgent = new https.Agent({ keepAlive: true });
+const fetchProvider: typeof fetch = (
+  input: RequestInfo | URL,
+  init?: RequestInit,
+) => {
+  return fetch(input, {
+    ...init,
+    keepalive: true,
+    agent: (parsedURL) =>
+      parsedURL.protocol === "https:" ? httpsAgent : httpAgent,
+  } as RequestInit);
+};
 
 @Global()
 @Module({
@@ -32,7 +57,10 @@ import { PrometheusDriver } from "prometheus-query";
       provide: MatchApi,
       useFactory: (config: ConfigService) => {
         return new MatchApi(
-          new GSConfiguration({ basePath: config.get("api.gameserverApiUrl") }),
+          new GSConfiguration({
+            basePath: config.get("api.gameserverApiUrl"),
+            fetchApi: fetchProvider,
+          }),
         );
       },
       inject: [ConfigService],
@@ -41,7 +69,10 @@ import { PrometheusDriver } from "prometheus-query";
       provide: MetaApi,
       useFactory: (config: ConfigService) => {
         return new MetaApi(
-          new GSConfiguration({ basePath: config.get("api.gameserverApiUrl") }),
+          new GSConfiguration({
+            basePath: config.get("api.gameserverApiUrl"),
+            fetchApi: fetchProvider,
+          }),
         );
       },
       inject: [ConfigService],
@@ -50,7 +81,10 @@ import { PrometheusDriver } from "prometheus-query";
       provide: CrimeApi,
       useFactory: (config: ConfigService) => {
         return new CrimeApi(
-          new GSConfiguration({ basePath: config.get("api.gameserverApiUrl") }),
+          new GSConfiguration({
+            basePath: config.get("api.gameserverApiUrl"),
+            fetchApi: fetchProvider,
+          }),
         );
       },
       inject: [ConfigService],
@@ -59,7 +93,10 @@ import { PrometheusDriver } from "prometheus-query";
       provide: PlayerApi,
       useFactory: (config: ConfigService) => {
         return new PlayerApi(
-          new GSConfiguration({ basePath: config.get("api.gameserverApiUrl") }),
+          new GSConfiguration({
+            basePath: config.get("api.gameserverApiUrl"),
+            fetchApi: fetchProvider,
+          }),
         );
       },
       inject: [ConfigService],
@@ -68,7 +105,10 @@ import { PrometheusDriver } from "prometheus-query";
       provide: InfoApi,
       useFactory: (config: ConfigService) => {
         return new InfoApi(
-          new GSConfiguration({ basePath: config.get("api.gameserverApiUrl") }),
+          new GSConfiguration({
+            basePath: config.get("api.gameserverApiUrl"),
+            fetchApi: fetchProvider,
+          }),
         );
       },
       inject: [ConfigService],
@@ -77,7 +117,10 @@ import { PrometheusDriver } from "prometheus-query";
       provide: RecordApi,
       useFactory: (config: ConfigService) => {
         return new RecordApi(
-          new GSConfiguration({ basePath: config.get("api.gameserverApiUrl") }),
+          new GSConfiguration({
+            basePath: config.get("api.gameserverApiUrl"),
+            fetchApi: fetchProvider,
+          }),
         );
       },
       inject: [ConfigService],
@@ -86,7 +129,34 @@ import { PrometheusDriver } from "prometheus-query";
       provide: ForumApi,
       useFactory: (config: ConfigService) => {
         return new ForumApi(
-          new FConfiguratin({ basePath: config.get("api.forumApiUrl") }),
+          new FConfiguratin({
+            basePath: config.get("api.forumApiUrl"),
+            fetchApi: fetchProvider,
+          }),
+        );
+      },
+      inject: [ConfigService],
+    },
+    {
+      provide: MatchmakerApi,
+      useFactory: (config: ConfigService) => {
+        return new MatchmakerApi(
+          new MConfiguration({
+            basePath: config.get("api.matchmakerApiUrl"),
+            fetchApi: fetchProvider,
+          }),
+        );
+      },
+      inject: [ConfigService],
+    },
+    {
+      provide: TradeApi,
+      useFactory: (config: ConfigService) => {
+        return new TradeApi(
+          new TConfiguration({
+            basePath: config.get("api.tradeApiUrl"),
+            fetchApi: fetchProvider,
+          }),
         );
       },
       inject: [ConfigService],
@@ -100,6 +170,8 @@ import { PrometheusDriver } from "prometheus-query";
     InfoApi,
     RecordApi,
     ForumApi,
+    MatchmakerApi,
+    TradeApi,
     PrometheusDriver,
   ],
 })

@@ -5,13 +5,12 @@ import { ConfigService } from "@nestjs/config";
 
 interface LiveMatchEntry {
   source: Subject<LiveMatchDto>;
-  // delayed: Observable<LiveMatchDto>;
 }
 @Injectable()
 export class LiveMatchService {
   // MINUTE DELAY
   // matchID key => events
-  private cache = new Map<number, LiveMatchEntry>();
+  private cache = new WeakMap<number, LiveMatchEntry>();
   private finishedMatchesCache = new Map<number, boolean>();
 
   private readonly entityCache = new Map<number, LiveMatchDto>();

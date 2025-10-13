@@ -20,12 +20,6 @@
 export class GameserverAbandonSessionDto {
     /**
      *
-     * @type {number}
-     * @memberof GameserverAbandonSessionDto
-     */
-    matchId: number;
-    /**
-     *
      * @type {string}
      * @memberof GameserverAbandonSessionDto
      */
@@ -42,7 +36,6 @@ export function GameserverAbandonSessionDtoFromJSONTyped(json: any, ignoreDiscri
     }
     return {
 
-        'matchId': json['matchId'],
         'steamId': json['steamId'],
     };
 }
@@ -56,7 +49,6 @@ export function GameserverAbandonSessionDtoToJSON(value?: GameserverAbandonSessi
     }
     return {
 
-        'matchId': value.matchId,
         'steamId': value.steamId,
     };
 }

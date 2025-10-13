@@ -1,4 +1,4 @@
-import { Injectable, Logger } from "@nestjs/common";
+import { Inject, Injectable, Logger } from "@nestjs/common";
 import { SubscriptionDto } from "./notification.dto";
 import { InjectRepository } from "@nestjs/typeorm";
 import { WebpushSubscriptionEntity } from "../../entity/webpush-subscription.entity";
@@ -23,6 +23,7 @@ import { Cron, CronExpression } from "@nestjs/schedule";
 import { NotificationCreatedEvent } from "./event/notification-created.event";
 import { NotificationMapper } from "./notification.mapper";
 import { InfoApi } from "../../generated-api/gameserver";
+import { ClientProxy } from "@nestjs/microservices";
 
 @Injectable()
 export class NotificationService {
@@ -37,6 +38,7 @@ export class NotificationService {
     private readonly notificationEntityRepository: Repository<NotificationEntity>,
     private readonly ebus: EventBus,
     private readonly mapper: NotificationMapper,
+    @Inject("QueryCore") private readonly redisEventQueue: ClientProxy,
 
     private readonly ms: InfoApi,
   ) {
@@ -70,6 +72,7 @@ export class NotificationService {
   }
 
   public async notify(payload: any, subs: WebpushSubscriptionEntity[]) {
+    return { send: 0, successful: 0 };
     const pushPayload = JSON.stringify(payload);
     const prom = subs.map((subscription) => {
       return webpush
@@ -205,11 +208,21 @@ export class NotificationService {
     entityType: NotificationEntityType,
     type: NotificationType,
     ttl: string = "1day",
+    params: Record<string, unknown> = {},
   ) {
-    let ne = new NotificationEntity(steamId, entityId, entityType, type, ttl);
+    let ne = new NotificationEntity(
+      steamId,
+      entityId,
+      entityType,
+      type,
+      ttl,
+      params,
+    );
     ne = await this.notificationEntityRepository.save(ne);
     ne = await this.getFullNotification(ne.id);
-    this.ebus.publish(
+    this.logger.log("Emitting NotificationCreatedEvent to redis");
+    await this.redisEventQueue.emit(
+      NotificationCreatedEvent.name,
       new NotificationCreatedEvent(await this.mapper.mapNotification(ne)),
     );
   }

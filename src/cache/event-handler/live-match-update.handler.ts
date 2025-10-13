@@ -24,6 +24,8 @@ export class LiveMatchUpdateHandler
       duration: event.duration,
       gameState: event.game_state,
       server: event.server,
+      towers: event.towers,
+      barracks: event.barracks,
       timestamp: event.timestamp,
       heroes: await Promise.all(event.heroes.map(this.mapSlotInfo)),
     });

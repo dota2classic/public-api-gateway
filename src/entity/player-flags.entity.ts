@@ -12,4 +12,18 @@ export class PlayerFlagsEntity {
     type: "boolean",
   })
   ignoreSmurf: boolean;
+
+  @Column({
+    name: "disable_reports",
+    type: "boolean",
+    default: false,
+  })
+  disableReports: boolean;
+
+  @Column({
+    name: "disable_streams",
+    type: "boolean",
+    default: false,
+  })
+  disableStreams: boolean;
 }

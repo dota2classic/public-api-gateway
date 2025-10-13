@@ -12,6 +12,7 @@
  * Do not edit the class manually.
  */
 
+import { exists } from '../runtime';
 import { GameserverMmrChangeDto, GameserverMmrChangeDtoFromJSON, GameserverMmrChangeDtoToJSON } from './';
 
 /**
@@ -164,6 +165,12 @@ export class GameserverPlayerInMatchDto {
      * @memberof GameserverPlayerInMatchDto
      */
     abandoned: boolean;
+    /**
+     *
+     * @type {Array<number>}
+     * @memberof GameserverPlayerInMatchDto
+     */
+    bear?: Array<number>;
 }
 
 export function GameserverPlayerInMatchDtoFromJSON(json: any): GameserverPlayerInMatchDto {
@@ -200,6 +207,7 @@ export function GameserverPlayerInMatchDtoFromJSONTyped(json: any, ignoreDiscrim
         'item4': json['item4'],
         'item5': json['item5'],
         'abandoned': json['abandoned'],
+        'bear': !exists(json, 'bear') ? undefined : json['bear'],
     };
 }
 
@@ -236,6 +244,7 @@ export function GameserverPlayerInMatchDtoToJSON(value?: GameserverPlayerInMatch
         'item4': value.item4,
         'item5': value.item5,
         'abandoned': value.abandoned,
+        'bear': value.bear,
     };
 }
 

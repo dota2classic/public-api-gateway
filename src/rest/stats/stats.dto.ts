@@ -3,6 +3,7 @@ import { ApiProperty } from "@nestjs/swagger";
 import { Dota_GameMode } from "../../gateway/shared-types/dota-game-mode";
 import { Dota_Map } from "../../gateway/shared-types/dota-map";
 import { UserDTO } from "../shared.dto";
+import { DotaPatch } from "../../gateway/constants/patch";
 
 export class CurrentOnlineDto {
   inGame: number;
@@ -26,6 +27,9 @@ export class MatchmakingInfo {
 
   @ApiProperty({ enum: Dota_Map, enumName: "Dota_Map" })
   dota_map: Dota_Map;
+
+  @ApiProperty({ enum: DotaPatch, enumName: "DotaPatch" })
+  patch: DotaPatch;
 
   // queueDuration?: number;
   queueDurations: QueueDurationDto[];

@@ -19,14 +19,12 @@ import { UserUpdatedEvent } from "./gateway/events/user/user-updated.event";
 import { MatchCancelledEvent } from "./gateway/events/match-cancelled.event";
 import { RoomReadyEvent } from "./gateway/events/room-ready.event";
 import { MessageUpdatedEvent } from "./gateway/events/message-updated.event";
-import { PlayerNotLoadedEvent } from "./gateway/events/bans/player-not-loaded.event";
-import { AchievementCompleteEvent } from "./gateway/events/gs/achievement-complete.event";
 import { PlayerAbandonedEvent } from "./gateway/events/bans/player-abandoned.event";
-import { PlayerSmurfDetectedEvent } from "./gateway/events/bans/player-smurf-detected.event";
-import { MatchRecordedEvent } from "./gateway/events/gs/match-recorded.event";
 import { BanSystemEvent } from "./gateway/events/gs/ban-system.event";
+import { LobbyReadyEvent } from "./gateway/events/lobby-ready.event";
 import { PlayerReportBanCreatedEvent } from "./gateway/events/bans/player-report-ban-created.event";
-import { PlayerFeedbackCreatedEvent } from "./gateway/events/player-feedback-created.event";
+import { NotificationCreatedEvent } from "./rest/notification/event/notification-created.event";
+import { LobbyUpdatedEvent } from "./rest/lobby/event/lobby-updated.event";
 
 @Controller()
 export class EventController {
@@ -63,11 +61,6 @@ export class EventController {
     this.event(GameResultsEvent, data);
   }
 
-  @EventPattern(PlayerSmurfDetectedEvent.name)
-  async PlayerSmurfDetectedEvent(data: PlayerSmurfDetectedEvent) {
-    this.event(PlayerSmurfDetectedEvent, data);
-  }
-
   @EventPattern("QueueUpdatedEvent")
   async QueueUpdatedEvent(data: QueueUpdatedEvent) {
     this.event(QueueUpdatedEvent, data);
@@ -97,11 +90,6 @@ export class EventController {
   @EventPattern(MatchStartedEvent.name)
   async MatchStartedEvent(data: MatchStartedEvent) {
     this.event(MatchStartedEvent, data);
-  }
-
-  @EventPattern(MatchRecordedEvent.name)
-  async MatchRecordedEvent(data: MatchRecordedEvent) {
-    this.event(MatchRecordedEvent, data);
   }
 
   @EventPattern(MatchFinishedEvent.name)
@@ -149,23 +137,23 @@ export class EventController {
     this.event(MessageUpdatedEvent, data);
   }
 
-  @EventPattern(PlayerNotLoadedEvent.name)
-  async PlayerNotLoadedEvent(data: PlayerNotLoadedEvent) {
-    this.event(PlayerNotLoadedEvent, data);
-  }
-
-  @EventPattern(AchievementCompleteEvent.name)
-  async AchievementCompleteEvent(data: AchievementCompleteEvent) {
-    this.event(AchievementCompleteEvent, data);
-  }
-
   @EventPattern(PlayerAbandonedEvent.name)
   async PlayerAbandonedEvent(data: PlayerAbandonedEvent) {
     this.event(PlayerAbandonedEvent, data);
   }
 
-  @EventPattern(PlayerFeedbackCreatedEvent.name)
-  async PlayerFeedbackCreatedEvent(data: PlayerFeedbackCreatedEvent) {
-    this.event(PlayerFeedbackCreatedEvent, data);
+  @EventPattern(NotificationCreatedEvent.name)
+  async NotificationCreatedEvent(data: NotificationCreatedEvent) {
+    this.event(NotificationCreatedEvent, data);
+  }
+
+  @EventPattern(LobbyUpdatedEvent.name)
+  async LobbyUpdatedEvent(data: LobbyUpdatedEvent) {
+    this.event(LobbyUpdatedEvent, data);
+  }
+
+  @EventPattern(LobbyReadyEvent.name)
+  async LobbyReadyEvent(data: LobbyReadyEvent) {
+    this.event(LobbyReadyEvent, data);
   }
 }

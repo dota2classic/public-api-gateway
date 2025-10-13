@@ -50,6 +50,7 @@ export class ReportMapper {
       createdAt: log.createdAt.toISOString(),
       reported,
       executor,
+      reportId: log.reportId,
       duration: log.banDurationSeconds,
       rule: this.rule.mapRule(log.rule),
       punishment: this.rule.mapPunishment(log.punishment),

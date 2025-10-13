@@ -19,6 +19,9 @@ import {
   GameserverDotaMap,
   GameserverDotaMapFromJSON,
   GameserverDotaMapToJSON,
+  GameserverDotaPatch,
+  GameserverDotaPatchFromJSON,
+  GameserverDotaPatchToJSON,
   GameserverMatchmakingMode,
   GameserverMatchmakingModeFromJSON,
   GameserverMatchmakingModeToJSON,
@@ -48,6 +51,12 @@ export class GameserverMatchmakingModeInfoDto {
      * @memberof GameserverMatchmakingModeInfoDto
      */
     dota_map: GameserverDotaMap;
+    /**
+     *
+     * @type {GameserverDotaPatch}
+     * @memberof GameserverMatchmakingModeInfoDto
+     */
+    patch: GameserverDotaPatch;
     /**
      *
      * @type {boolean}
@@ -81,6 +90,7 @@ export function GameserverMatchmakingModeInfoDtoFromJSONTyped(json: any, ignoreD
         'lobby_type': GameserverMatchmakingModeFromJSON(json['lobby_type']),
         'game_mode': GameserverDotaGameModeFromJSON(json['game_mode']),
         'dota_map': GameserverDotaMapFromJSON(json['dota_map']),
+        'patch': GameserverDotaPatchFromJSON(json['patch']),
         'enabled': json['enabled'],
         'fillBots': json['fillBots'],
         'enableCheats': json['enableCheats'],
@@ -99,6 +109,7 @@ export function GameserverMatchmakingModeInfoDtoToJSON(value?: GameserverMatchma
         'lobby_type': GameserverMatchmakingModeToJSON(value.lobby_type),
         'game_mode': GameserverDotaGameModeToJSON(value.game_mode),
         'dota_map': GameserverDotaMapToJSON(value.dota_map),
+        'patch': GameserverDotaPatchToJSON(value.patch),
         'enabled': value.enabled,
         'fillBots': value.fillBots,
         'enableCheats': value.enableCheats,

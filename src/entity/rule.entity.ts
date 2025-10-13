@@ -11,6 +11,11 @@ import { RulePunishmentEntity } from "./rule-punishment.entity";
 import { UserReportEntity } from "./user-report.entity";
 import { PunishmentLogEntity } from "./punishment-log.entity";
 
+export enum RuleType {
+  GAMEPLAY = "GAMEPLAY",
+  COMMUNICATION = "COMMUNICATION",
+}
+
 @Entity("rule_entity")
 export class RuleEntity {
   @PrimaryGeneratedColumn()
@@ -36,6 +41,15 @@ export class RuleEntity {
     default: false,
   })
   automatic: boolean;
+
+  @Column({
+    name: "rule_type",
+    enum: RuleType,
+    enumName: "rule_type",
+    type: "enum",
+    default: RuleType.GAMEPLAY,
+  })
+  ruleType: RuleType;
 
   @ManyToOne((type) => RuleEntity, (category) => category.children, {
     eager: false,

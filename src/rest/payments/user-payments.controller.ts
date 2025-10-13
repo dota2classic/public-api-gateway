@@ -1,16 +1,12 @@
 import { Body, Controller, Get, Post } from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
 import { PaymentService } from "./payment.service";
-import { WithUser } from "../../utils/decorator/with-user";
+import { AdminGuard, WithUser } from "../../utils/decorator/with-user";
 import {
   CurrentUser,
   CurrentUserDto,
 } from "../../utils/decorator/current-user";
-import {
-  CreatePaymentDto,
-  StartPaymentDto,
-  SubscriptionProductDto,
-} from "./payments.dto";
+import { SimulatePaymentDto, SubscriptionProductDto } from "./payments.dto";
 import { SubscriptionProductEntity } from "../../entity/subscription-product.entity";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
@@ -24,25 +20,39 @@ export class UserPaymentsController {
     private readonly subscriptionProductEntityRepository: Repository<SubscriptionProductEntity>,
   ) {}
 
+  @AdminGuard()
   @WithUser()
-  @Post()
-  public async createPayment(
+  @Post("record_payment")
+  public async simulatePayment(
     @CurrentUser() user: CurrentUserDto,
-    @Body() dto: CreatePaymentDto,
-  ): Promise<StartPaymentDto> {
-    const p = await this.paymentService.createPayment(
-      user.steam_id,
-      dto.email,
+    @Body() dto: SimulatePaymentDto,
+  ) {
+    const payment = await this.paymentService.createPayment(
+      dto.steamId,
       dto.productId,
     );
-    if (!p) {
-      throw "Something went wrong";
-    }
-
-    return {
-      confirmationUrl: p.external.confirmation.confirmation_url,
-    };
+    await this.paymentService.handleSuccessfulPayment(
+      payment.id,
+      dto.paymentId,
+    );
   }
+
+  // @WithUser()
+  // @Post()
+  // public async createPayment(
+  //   @CurrentUser() user: CurrentUserDto,
+  //   @Body() dto: CreatePaymentDto,
+  // ): Promise<string> {
+  //   const p = await this.paymentService.createPayment(
+  //     user.steam_id,
+  //     dto.productId,
+  //   );
+  //   if (!p) {
+  //     throw "Something went wrong";
+  //   }
+  //
+  //   return p.paymentUrl;
+  // }
 
   @Get("/products")
   public async getProducts(): Promise<SubscriptionProductDto[]> {

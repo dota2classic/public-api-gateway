@@ -31,6 +31,7 @@ export class MatchMapper {
     change: it.change,
     is_hidden_mmr: it.is_hidden,
     calibration: it.calibration,
+    streak: it.streak,
   });
 
   public mapPlayerInMatch = async (
@@ -42,6 +43,7 @@ export class MatchMapper {
       partyIndex: dto.partyIndex,
       user: await this.user.userDto(it.steam_id),
       mmr: it.mmr && this.mapMmr(it.mmr),
+      bear: dto.bear,
     };
   };
 
@@ -49,8 +51,10 @@ export class MatchMapper {
     it: GameserverMatchDto,
     mapForSteamId?: string,
   ): Promise<MatchDto> => {
-    const timeDiff = new Date().getTime() - new Date(it.timestamp).getTime();
-
+    const [radiant, dire] = await Promise.combine([
+      Promise.all(it.radiant.map(this.mapPlayerInMatch)),
+      Promise.all(it.dire.map(this.mapPlayerInMatch)),
+    ]);
     return {
       id: it.id,
       mode: it.mode,
@@ -58,8 +62,12 @@ export class MatchMapper {
       winner: it.winner,
       duration: it.duration,
       timestamp: it.timestamp,
-      radiant: await Promise.all(it.radiant.map(this.mapPlayerInMatch)),
-      dire: await Promise.all(it.dire.map(this.mapPlayerInMatch)),
+      radiant,
+      dire,
+
+      towers: it.towerStatus,
+      barracks: it.barrackStatus,
+
       replayUrl:
         it.id > 16500 && it.mode !== MatchmakingMode.BOTS
           ? `${this.configService.get("api.replayUrl")}${it.id}.dem`

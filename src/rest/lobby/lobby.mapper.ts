@@ -11,7 +11,7 @@ export class LobbyMapper {
   public mapLobbySlot = async (
     slot: LobbySlotEntity,
   ): Promise<LobbySlotDto> => ({
-    user: await this.user.userDto(slot.steamId),
+    user: slot.steamId && (await this.user.userDto(slot.steamId)),
     team: slot.team,
     index: slot.indexInTeam,
   });
@@ -31,6 +31,8 @@ export class LobbyMapper {
       password: mapFor === lobby.ownerSteamId ? lobby.password : "****",
       enableCheats: lobby.enableCheats,
       fillBots: lobby.fillBots,
+      patch: lobby.patch,
+      region: lobby.region,
     };
   };
 }

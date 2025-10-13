@@ -51,6 +51,8 @@ export class NotificationDto {
   title: string;
   content: string;
 
+  params: Record<string, unknown>;
+
   feedback?: PlayerFeedbackDto;
   achievement?: NotificationAchievementDto;
   thread?: NotificationThreadDto;

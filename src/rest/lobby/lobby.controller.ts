@@ -20,6 +20,7 @@ import {
   ChangeTeamInLobbyDto,
   JoinLobbyDto,
   KickPlayerDto,
+  LobbyAction,
   LobbyDto,
   LobbyUpdateDto,
   UpdateLobbyDto,
@@ -30,8 +31,6 @@ import { filter, Observable } from "rxjs";
 import { asyncMap } from "rxjs-async-map";
 import { EventBus } from "@nestjs/cqrs";
 import { LobbyUpdatedEvent } from "./event/lobby-updated.event";
-import { LobbyClosedEvent } from "./event/lobby-closed.event";
-import { LobbyEvent } from "./event/lobby.event";
 
 @UseInterceptors(ReqLoggingInterceptor)
 @ApiTags("lobby")
@@ -143,6 +142,8 @@ export class LobbyController {
         dto.name,
         dto.enableCheats,
         dto.fillBots,
+        dto.patch,
+        dto.region,
       )
       .then((item) => this.lobbyMapper.mapLobby(item, user.steam_id));
   }
@@ -169,23 +170,20 @@ export class LobbyController {
     @CurrentUser() user: CurrentUserDto,
   ): Observable<LobbyUpdateDto> {
     return this.ebus.pipe(
-      filter(
-        (it) =>
-          it instanceof LobbyUpdatedEvent || it instanceof LobbyClosedEvent,
-      ),
-      filter((it: LobbyEvent) => it.lobbyId === id),
-      asyncMap(async (mce: LobbyUpdatedEvent | LobbyClosedEvent) => {
+      filter((it) => it instanceof LobbyUpdatedEvent && it.lobbyId === id),
+      asyncMap(async (mce: LobbyUpdatedEvent) => {
+        let dto: LobbyDto;
         if ("lobbyEntity" in mce) {
-          const dto = await this.lobbyMapper.mapLobby(
-            mce.lobbyEntity,
-            user.steam_id,
-          );
-          return {
-            data: { data: dto, lobbyId: dto.id },
-          } satisfies LobbyUpdateDto;
-        } else {
-          return { data: { lobbyId: mce.lobbyId } } satisfies LobbyUpdateDto;
+          dto = await this.lobbyMapper.mapLobby(mce.lobbyEntity, user.steam_id);
         }
+        return {
+          data: {
+            lobbyId: mce.lobbyId,
+            action: mce.action,
+            data: dto,
+            kickedSteamIds: mce.kickedIds,
+          },
+        } satisfies LobbyUpdateDto;
       }, 1),
     );
   }
@@ -196,6 +194,6 @@ export class LobbyController {
     @Param("id") id: string,
     @CurrentUser() user: CurrentUserDto,
   ) {
-    await this.lobbyService.closeLobby(id, user);
+    await this.lobbyService.closeLobby(id, user, LobbyAction.Close);
   }
 }

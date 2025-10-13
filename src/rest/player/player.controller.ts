@@ -43,14 +43,12 @@ import { WithPagination } from "../../utils/decorator/pagination";
 import { NullableIntPipe } from "../../utils/pipes";
 import { PartyService } from "../party.service";
 import { ReqLoggingInterceptor } from "../../middleware/req-logging.interceptor";
-import { SocketDelivery } from "../../socket/socket-delivery";
 import { UserProfileService } from "../../service/user-profile.service";
-import { FindByNameQuery } from "../../gateway/queries/FindByName/find-by-name.query";
-import { FindByNameQueryResult } from "../../gateway/queries/FindByName/find-by-name-query.result";
-import { GetReportsAvailableQuery } from "../../gateway/queries/GetReportsAvailable/get-reports-available.query";
-import { GetReportsAvailableQueryResult } from "../../gateway/queries/GetReportsAvailable/get-reports-available-query.result";
 import { UserRelationService } from "../../service/user-relation.service";
 import { UserRelationStatus } from "../../gateway/shared-types/user-relation";
+import { DataSource } from "typeorm";
+import { GlobalHttpCacheInterceptor } from "../../utils/cache-global";
+import { SocketGateway } from "../../socket/socket.gateway";
 
 @UseInterceptors(ReqLoggingInterceptor)
 @Controller("player")
@@ -62,25 +60,23 @@ export class PlayerController {
     @Inject("QueryCore") private readonly redisEventQueue: ClientProxy,
     private readonly partyService: PartyService,
     private readonly ms: PlayerApi,
-    private readonly socketDelivery: SocketDelivery,
+    private readonly socketGateway: SocketGateway,
     private readonly userProfile: UserProfileService,
     private readonly relation: UserRelationService,
+    private readonly ds: DataSource,
   ) {}
 
+  // @UseInterceptors(UserHttpCacheInterceptor)
   @Get("/me")
   @WithUser()
-  @CacheTTL(60)
+  // @CacheTTL(5)
   async me(@CurrentUser() user: CurrentUserDto): Promise<MeDto> {
-    const rawData = await this.ms.playerControllerPlayerSummary(user.steam_id);
-
-    const res = await this.ms.playerControllerBanInfo(user.steam_id);
-
-    const u = await this.qbus.execute<
-      GetReportsAvailableQuery,
-      GetReportsAvailableQueryResult
-    >(new GetReportsAvailableQuery(new PlayerId(user.steam_id)));
-
-    return this.mapper.mapMe(rawData, res, undefined, u);
+    const [summary, banStatus, reportsAvailable] = await Promise.combine([
+      this.ms.playerControllerPlayerSummary(user.steam_id),
+      this.ms.playerControllerBanInfo(user.steam_id),
+      this.ms.playerControllerReportsAvailable(user.steam_id),
+    ]);
+    return this.mapper.mapMe(summary, banStatus, reportsAvailable);
   }
 
   @Get("/connections")
@@ -91,8 +87,8 @@ export class PlayerController {
     return {};
   }
 
-  @UseInterceptors(UserHttpCacheInterceptor)
-  @CacheTTL(60 * 5)
+  @UseInterceptors(GlobalHttpCacheInterceptor)
+  @CacheTTL(60 * 2)
   @Get("/leaderboard")
   @WithPagination()
   @ApiQuery({
@@ -140,6 +136,11 @@ export class PlayerController {
     };
   }
 
+  @Get("/:id/user")
+  async user(@Param("id") steam_id: string): Promise<UserDTO> {
+    return this.userProfile.userDto(steam_id);
+  }
+
   @Get("/:id/achievements")
   async achievements(@Param("id") steam_id: string): Promise<AchievementDto[]> {
     const rawData = await this.ms.playerControllerPlayerAchievements(steam_id);
@@ -147,6 +148,7 @@ export class PlayerController {
     return Promise.all(rawData.map(this.mapper.mapAchievement));
   }
 
+  @CacheTTL(5)
   @Get("/:id/summary")
   async playerSummary(@Param("id") steamId: string): Promise<PlayerSummaryDto> {
     this.redisEventQueue.emit(
@@ -203,6 +205,14 @@ export class PlayerController {
     }
   }
 
+  @WithUser()
+  @Post("/abandon_game")
+  public async abandonGame(@CurrentUser() user: CurrentUserDto) {
+    await this.ms.playerControllerAbandonSession({
+      steamId: user.steam_id,
+    });
+  }
+
   @OldGuard()
   @WithUser()
   @Post("/dodge_list")
@@ -239,13 +249,30 @@ export class PlayerController {
     @Query("count", NullableIntPipe) count: number = 30,
     @CurrentUser() user: D2CUser,
   ): Promise<UserDTO[]> {
-    const online = this.socketDelivery.getOnline();
+    const online = await this.socketGateway.getOnlineSteamIds();
 
-    const result = await this.qbus.execute<
-      FindByNameQuery,
-      FindByNameQueryResult
-    >(new FindByNameQuery(name, 50, online));
-    return Promise.all(result.steamIds.map(this.userProfile.userDto));
+    const parametrizedLike = `%${name.replace(/%/g, "")}%`;
+
+    const onlineArray = online.map((t) => `'${t}'`).join(",");
+
+    const a = await this.ds.query<{ steam_id: string }[]>(
+      `
+SELECT
+    ue.steam_id,
+    CASE 
+        WHEN ARRAY[${onlineArray}]::text[] @> ARRAY[ue.steam_id::text] 
+        THEN 10000 
+        ELSE 1 
+    END AS score
+FROM user_entity ue
+WHERE ue.name ILIKE $1
+ORDER BY score DESC
+LIMIT $2;
+    `,
+      [parametrizedLike, count],
+    );
+
+    return Promise.all(a.map((t) => this.userProfile.userDto(t.steam_id)));
   }
 
   @OldGuard()

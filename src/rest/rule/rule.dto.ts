@@ -1,10 +1,16 @@
 import { IsInt, IsPositive } from "class-validator";
+import { RuleType } from "../../entity/rule.entity";
+import { ApiProperty } from "@nestjs/swagger";
 
 export class RuleDto {
   id: string;
   index: number;
   title: string;
   automatic: boolean;
+
+  @ApiProperty({ enum: RuleType, enumName: "RuleType" })
+  ruleType: RuleType;
+
   description: string;
   parentId?: number;
   children: RuleDto[];
@@ -36,6 +42,8 @@ export class UpdateRuleDto {
   title?: string;
   description?: string;
   punishmentId?: number | null;
+  @ApiProperty({ enum: RuleType, enumName: "RuleType" })
+  ruleType?: RuleType;
   index?: number;
   automatic?: boolean;
 }
@@ -57,6 +65,8 @@ export class PrettyRuleDto {
   id: number;
   fullIndex: string;
   title: string;
+  @ApiProperty({ enum: RuleType, enumName: "RuleType" })
+  ruleType: RuleType;
   description: string;
   punishment?: RulePunishmentDto;
 }

@@ -14,14 +14,12 @@ import {
   RmqOptions,
   Transport,
 } from "@nestjs/microservices";
-import { GetAllQuery } from "./gateway/queries/GetAll/get-all.query";
 import { GetUserInfoQuery } from "./gateway/queries/GetUserInfo/get-user-info.query";
 import { CqrsModule } from "@nestjs/cqrs";
 import { MatchMapper } from "./rest/match/match.mapper";
 import { PlayerController } from "./rest/player/player.controller";
 import { PlayerMapper } from "./rest/player/player.mapper";
 import { JwtStrategy } from "./rest/strategy/jwt.strategy";
-import { GetPartyQuery } from "./gateway/queries/GetParty/get-party.query";
 import { ServerController } from "./rest/admin/server.controller";
 import { AdminMapper } from "./rest/admin/admin.mapper";
 import { EventController } from "./event.controller";
@@ -65,7 +63,6 @@ import { MatchFinishedHandler } from "./cache/event-handler/match-finished.handl
 import { NotificationController } from "./rest/notification/notification.controller";
 import { ReadyCheckStartedHandler } from "./cache/event-handler/ready-check-started.handler";
 import { NotificationService } from "./rest/notification/notification.service";
-import { GetSessionByUserQuery } from "./gateway/queries/GetSessionByUser/get-session-by-user.query";
 import { SocketGateway } from "./socket/socket.gateway";
 import { PartyService } from "./rest/party.service";
 import { ReadyStateUpdatedHandler } from "./socket/event-handler/ready-state-updated.handler";
@@ -78,7 +75,6 @@ import { MatchStartedHandler } from "./socket/event-handler/match-started.handle
 import { MatchCancelledHandler } from "./socket/event-handler/match-cancelled.handler";
 import { SocketDelivery } from "./socket/socket-delivery";
 import { SocketMessageService } from "./socket/socket-message.service";
-import { GetUserRoomQuery } from "./gateway/queries/GetUserRoom/get-user-room.query";
 import { GetPartyInvitationsQuery } from "./gateway/queries/GetPartyInvitations/get-party-invitations.query";
 import { RoomNotReadyHandler } from "./socket/event-handler/room-not-ready.handler";
 import { MatchFinishedHandler as SocketMatchFinishedHandler } from "./socket/event-handler/match-finished.handler";
@@ -104,10 +100,9 @@ import { PlayerNotLoadedHandler } from "./rest/feedback/event-handler/player-not
 import { PlayerAbandonedHandler } from "./rest/feedback/event-handler/player-abandoned.handler";
 import { AchievementCompleteHandler } from "./rest/notification/event-handler/achievement-complete.handler";
 import { AdminFeedbackController } from "./rest/feedback/admin-feedback.controller";
-import { PlayerFeedbackThreadCreatedHandler } from "./rest/notification/event-handler/player-feedback-thread-created.handler";
 import * as TelegramBot from "node-telegram-bot-api";
 import { TelegramNotificationService } from "./rest/notification/telegram-notification.service";
-import { NewTicketMessageCreatedHandler } from "./rest/notification/event-handler/new-ticket-message-created.handler";
+import { TicketMessageHandler } from "./rest/notification/event-handler/ticket-message-handler.service";
 import { MetricsService } from "./metrics.service";
 import { StorageController } from "./rest/storage/storage.controller";
 import { BlogpostController } from "./rest/blogpost/blogpost.controller";
@@ -122,7 +117,6 @@ import {
   UserProfileModule as UPM,
   UserProfileModule as UMP,
 } from "@dota2classic/caches";
-import { FindByNameQuery } from "./gateway/queries/FindByName/find-by-name.query";
 import { getTypeormConfig } from "./config/typeorm.config";
 import { PlayerReportBanCreatedHandler } from "./rest/notification/event-handler/player-report-ban-created.handler";
 import { TwitchController } from "./rest/twitch.controller";
@@ -149,6 +143,20 @@ import { RuleService } from "./rest/rule/rule.service";
 import { ReportController } from "./rest/report/report.controller";
 import { ReportService } from "./rest/report/report.service";
 import { ReportMapper } from "./rest/report/report.mapper";
+import { PayanywayPaymentAdapter } from "./rest/payments/payanyway-payment-adapter";
+import { CreateFeedbackNotificationHandler } from "./rest/notification/command-handler/CreateFeebackNotification/create-feedback-notification.handler";
+import { RmqController } from "./rmq.controller";
+import Redis from "ioredis";
+import { LobbyUpdatedHandler } from "./rest/lobby/event-handler/lobby-updated.handler";
+import { LobbyReadyHandler } from "./socket/event-handler/lobby-ready.handler";
+import { RabbitMQConfig, RabbitMQModule } from "@golevelup/nestjs-rabbitmq";
+import { ItemDropController } from "./rest/itemdrop/item-drop.controller";
+import { ItemDropMapper } from "./rest/itemdrop/item-drop.mapper";
+import { ItemDropService } from "./service/item-drop.service";
+import { PlayerFinishedMatchHandler } from "./rest/notification/event-handler/player-finished-match.handler";
+import { MessageCreatedHandler } from "./cache/event-handler/message-created.handler";
+import { MatchHighlightsHandler } from "./service/match-highlights.handler";
+import { PleaseGoQueueHandler } from "./rest/notification/event-handler/please-go-queue.handler";
 
 @Module({
   imports: [
@@ -179,6 +187,12 @@ import { ReportMapper } from "./rest/report/report.mapper";
           migrations: ["dist/database/migrations/*.*"],
           migrationsRun: true,
           logging: ["error"],
+          extra: {
+            max: 20, // max number of connections
+            min: 4, // minimum number of idle connections
+            idleTimeoutMillis: 30000, // close idle clients after 30 seconds
+            connectionTimeoutMillis: 5000, // return error after 5s if connection cannot be established
+          },
         };
       },
       imports: [],
@@ -223,7 +237,7 @@ import { ReportMapper } from "./rest/report/report.mapper";
     CacheModule.registerAsync({
       useFactory(config: ConfigService): CacheModuleOptions {
         return {
-          ttl: 60,
+          ttl: 10,
           store: redisStore,
           port: 6379,
           url: `redis://${config.get("redis.host")}:6379`,
@@ -234,9 +248,25 @@ import { ReportMapper } from "./rest/report/report.mapper";
       inject: [ConfigService],
       imports: [],
     }),
+    RabbitMQModule.forRootAsync({
+      useFactory(config: ConfigService): RabbitMQConfig {
+        return {
+          exchanges: [
+            {
+              name: "app.events",
+              type: "topic",
+            },
+          ],
+          enableControllerDiscovery: true,
+          uri: `amqp://${config.get("rabbitmq.user")}:${config.get("rabbitmq.password")}@${config.get("rabbitmq.host")}:${config.get("rabbitmq.port")}`,
+        };
+      },
+      imports: [],
+      inject: [ConfigService],
+    }),
     ClientsModule.registerAsync([
       {
-        name: "RMQ",
+        name: "PaymentQueue",
         useFactory(config: ConfigService): RmqOptions {
           return {
             transport: Transport.RMQ,
@@ -287,10 +317,12 @@ import { ReportMapper } from "./rest/report/report.mapper";
     PlayerController,
     ServerController,
     EventController,
+    RmqController,
     AdminUserController,
     LobbyController,
 
     RecordController,
+    ItemDropController,
 
     MetaController,
     StatsController,
@@ -298,7 +330,6 @@ import { ReportMapper } from "./rest/report/report.mapper";
     TwitchController,
     DiscordController,
     ForumController,
-    PrometheusGuardedController,
     AuthController,
     NotificationController,
     FeedbackController,
@@ -321,7 +352,16 @@ import { ReportMapper } from "./rest/report/report.mapper";
     GameServerAdapter,
     UserAdapter,
     StorageMapper,
-
+    {
+      provide: "REDIS",
+      useFactory: async (config: ConfigService) => {
+        const redis = new Redis(6379, config.get("redis.host"), {
+          password: config.get("redis.password"),
+        });
+        return redis;
+      },
+      inject: [ConfigService],
+    },
     {
       provide: "full-profile",
       async useFactory(config: ConfigService) {
@@ -366,18 +406,13 @@ import { ReportMapper } from "./rest/report/report.mapper";
       inject: [ConfigService],
     },
     outerQueryNew(GetQueueStateQuery, "QueryCore"),
-    outerQueryNew(GetAllQuery, "QueryCore"),
     outerQueryNew(GetUserInfoQuery, "QueryCore"),
-    outerQueryNew(GetPartyQuery, "QueryCore"),
     outerQueryNew(GetAllConnectionsQuery, "QueryCore"),
     outerQueryNew(GetConnectionsQuery, "QueryCore"),
     outerQueryNew(GetReportsAvailableQuery, "QueryCore"),
     outerQueryNew(GetRoleSubscriptionsQuery, "QueryCore"),
     outerQueryNew(GetPlayerInfoQuery, "QueryCore"),
-    outerQueryNew(GetSessionByUserQuery, "QueryCore"),
-    outerQueryNew(GetUserRoomQuery, "QueryCore"),
     outerQueryNew(GetPartyInvitationsQuery, "QueryCore"),
-    outerQueryNew(FindByNameQuery, "QueryCore"),
 
     SteamStrategy,
     JwtStrategy,
@@ -411,6 +446,7 @@ import { ReportMapper } from "./rest/report/report.mapper";
     CustomizationMapper,
     RuleMapper,
     ReportMapper,
+    ItemDropMapper,
 
     LiveMatchUpdateHandler,
     ReadyCheckStartedHandler,
@@ -419,11 +455,14 @@ import { ReportMapper } from "./rest/report/report.mapper";
     GameResultsHandler,
     MatchFinishedHandler,
     FeedbackCreatedHandler,
+    PlayerFinishedMatchHandler,
     AchievementCompleteHandler,
     PlayerAbandonedHandler,
+    MatchHighlightsHandler,
 
     // API
     PartyService,
+    ItemDropService,
 
     // Socket
     SocketGateway,
@@ -438,9 +477,11 @@ import { ReportMapper } from "./rest/report/report.mapper";
     MatchCancelledHandler,
     SocketFullDisconnectHandler,
     LeaveLobbySocketDisconnectHandler,
+    LobbyUpdatedHandler,
     GameResultsHandler,
     RoomNotReadyHandler,
     RoomReadyHandler,
+    LobbyReadyHandler,
     PartyInvalidatedHandler,
     SocketDelivery,
     SocketMessageService,
@@ -449,14 +490,17 @@ import { ReportMapper } from "./rest/report/report.mapper";
 
     // Feedback
     PlayerNotLoadedHandler,
-    PlayerFeedbackThreadCreatedHandler,
-    NewTicketMessageCreatedHandler,
+    CreateFeedbackNotificationHandler,
+    TicketMessageHandler,
     PlayerReportBanCreatedHandler,
     TelegramNotificationService,
     FeedbackAssistantService,
+    MessageCreatedHandler,
+    PleaseGoQueueHandler,
 
     //
     PaymentService,
+    PayanywayPaymentAdapter,
 
     // Telegram
     {

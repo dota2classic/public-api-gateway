@@ -42,7 +42,10 @@ export function outerQueryNew<T, B>(
             .pipe(timeout(5000))
             .toPromise();
         } catch (e) {
-          this.logger.error(e);
+          this.logger.error(
+            `Error waiting for query ${type.name} to finish`,
+            e,
+          );
         } finally {
           const newTime = performance.now();
 

@@ -29,6 +29,10 @@ export class AchievementCompleteHandler
       NotificationEntityType.ACHIEVEMENT,
       NotificationType.ACHIEVEMENT_COMPLETE,
       "1m",
+      {
+        checkpoints: event.checkpoints,
+        progress: event.progress,
+      },
     );
   }
 }

@@ -1,10 +1,10 @@
 import { HttpException, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { UserReportEntity } from "../../entity/user-report.entity";
-import { DataSource, Repository } from "typeorm";
+import { DataSource, EntityManager, Repository } from "typeorm";
 import { ForumApi } from "../../generated-api/forum";
 import { ThreadType } from "../../gateway/shared-types/thread-type";
-import { RuleEntity } from "../../entity/rule.entity";
+import { RuleEntity, RuleType } from "../../entity/rule.entity";
 import {
   NotificationEntityType,
   NotificationType,
@@ -15,6 +15,8 @@ import { RulePunishmentEntity } from "../../entity/rule-punishment.entity";
 import { PunishmentLogEntity } from "../../entity/punishment-log.entity";
 import { PlayerBanEntity } from "../../entity/player-ban.entity";
 import { BanReason } from "../../gateway/shared-types/ban";
+import { ConfigService } from "@nestjs/config";
+import { PlayerFlagsEntity } from "../../entity/player-flags.entity";
 
 @Injectable()
 export class ReportService {
@@ -30,6 +32,9 @@ export class ReportService {
     @InjectRepository(PlayerBanEntity)
     private readonly playerBanEntityRepository: Repository<PlayerBanEntity>,
     private readonly ds: DataSource,
+    private readonly config: ConfigService,
+    @InjectRepository(PlayerFlagsEntity)
+    private readonly playerFlagsEntityRepository: Repository<PlayerFlagsEntity>,
   ) {}
 
   public async createLogFromReport(
@@ -55,6 +60,10 @@ export class ReportService {
     punishmentId: number,
     reportId?: string,
   ) {
+    const rule = await this.ruleEntityRepository.findOne({
+      where: { id: ruleId },
+    });
+
     return this.ds.transaction(async (tx) => {
       const log = await tx.save(
         new PunishmentLogEntity(
@@ -67,35 +76,63 @@ export class ReportService {
         ),
       );
 
-      let ban: PlayerBanEntity = await tx.findOne<PlayerBanEntity>(
-        PlayerBanEntity,
-        {
-          where: {
-            steamId: punishedSteamId,
-          },
-        },
-      );
-      if (!ban) {
-        ban = await tx.save(
-          new PlayerBanEntity(
-            punishedSteamId,
-            new Date(0),
-            BanReason.RULE_VIOLATION,
-          ),
-        );
+      if (rule.ruleType === RuleType.GAMEPLAY) {
+        await this.updateGameplayBan(tx, punishedSteamId, durationSeconds);
+      } else if (rule.ruleType === RuleType.COMMUNICATION) {
+        await this.updateCommunicationBan(punishedSteamId, durationSeconds);
       }
 
-      await tx.update<PlayerBanEntity>(
-        PlayerBanEntity,
-        { steamId: punishedSteamId },
-        {
-          reason: BanReason.RULE_VIOLATION,
-          endTime: () =>
-            `greatest(endTime, now()) + interval'${durationSeconds} seconds'`,
-        },
-      );
-
       return log;
+    });
+  }
+
+  private async updateGameplayBan(
+    tx: EntityManager,
+    punishedSteamId: string,
+    durationSeconds: number,
+  ) {
+    let ban: PlayerBanEntity = await tx.findOne<PlayerBanEntity>(
+      PlayerBanEntity,
+      {
+        where: {
+          steamId: punishedSteamId,
+        },
+      },
+    );
+    if (!ban) {
+      ban = await tx.save(
+        new PlayerBanEntity(
+          punishedSteamId,
+          new Date(0),
+          BanReason.RULE_VIOLATION,
+        ),
+      );
+    }
+
+    await tx.update<PlayerBanEntity>(
+      PlayerBanEntity,
+      { steamId: punishedSteamId },
+      {
+        reason: BanReason.RULE_VIOLATION,
+        endTime: () =>
+          `greatest(endTime, now()) + interval'${durationSeconds} seconds'`,
+      },
+    );
+  }
+
+  private async updateCommunicationBan(
+    punishedSteamId: string,
+    durationSeconds: number,
+  ) {
+    const user = await this.forumApi.forumControllerGetUser(punishedSteamId);
+    let muteStart = new Date();
+    if (new Date(user.muteUntil).getTime() > muteStart.getTime()) {
+      muteStart = new Date(user.muteUntil);
+    }
+    await this.forumApi.forumControllerUpdateUser(punishedSteamId, {
+      muteUntil: new Date(
+        muteStart.getTime() + durationSeconds * 1000,
+      ).toISOString(),
     });
   }
 
@@ -106,6 +143,7 @@ export class ReportService {
     comment: string,
     messageId: string,
   ) {
+    await this.checkHasPermission(reporter.steam_id);
     const alreadyReported = await this.userReportEntityRepository.exists({
       where: {
         reportedSteamId: reported,
@@ -136,16 +174,8 @@ export class ReportService {
     comment: string,
     matchId: number,
   ) {
-    const alreadyReported = await this.userReportEntityRepository.exists({
-      where: {
-        reportedSteamId: reported,
-        ruleId: ruleId,
-        matchId: matchId,
-      },
-    });
-    if (alreadyReported) {
-      throw new HttpException({ message: "Такая жалоба уже заведена" }, 400);
-    }
+    await this.checkHasPermission(reporter.steam_id);
+    await this.checkAlreadyReported(reported, ruleId, matchId);
 
     const report = await this.userReportEntityRepository.save(
       new UserReportEntity(
@@ -177,7 +207,7 @@ export class ReportService {
 
     const msg = await this.forumApi.forumControllerPostMessage(thread.id, {
       author: reporter,
-      content: `Пользователь https://dotaclassic.ru/players/${report.reportedSteamId} нарушил правило https://dev.dotaclassic.ru/static/rules/new#${rule.id}
+      content: `Пользователь https://dotaclassic.ru/players/${report.reportedSteamId} нарушил правило ${this.config.get("api.frontUrl")}/static/rules#${rule.id}
 [${rule.title}]
 ${report.matchId ? `В матче https://dotaclassic.ru/matches/${report.matchId}` : "На форуме"}
 ${report.comment ? `Комментарий: \n${report.comment}` : ""}
@@ -191,5 +221,35 @@ ${report.comment ? `Комментарий: \n${report.comment}` : ""}
       NotificationType.REPORT_CREATED,
       "10m",
     );
+  }
+
+  private async checkAlreadyReported(
+    steamId: string,
+    ruleId: number,
+    matchId: number,
+  ) {
+    const alreadyReported = await this.userReportEntityRepository.exists({
+      where: {
+        reportedSteamId: steamId,
+        ruleId: ruleId,
+        matchId: matchId,
+      },
+    });
+    if (alreadyReported) {
+      throw new HttpException({ message: "Такая жалоба уже заведена" }, 400);
+    }
+  }
+
+  private async checkHasPermission(steamId: string) {
+    if (
+      await this.playerFlagsEntityRepository.exists({
+        where: { steamId, disableReports: true },
+      })
+    ) {
+      throw new HttpException(
+        { message: "Тебе запрещено создавать жалобы" },
+        403,
+      );
+    }
   }
 }

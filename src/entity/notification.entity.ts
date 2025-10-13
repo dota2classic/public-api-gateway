@@ -2,6 +2,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  Index,
   PrimaryColumn,
   PrimaryGeneratedColumn,
 } from "typeorm";
@@ -25,6 +26,8 @@ export enum NotificationType {
   PLAYER_FEEDBACK = "PLAYER_FEEDBACK",
   REPORT_CREATED = "REPORT_CREATED",
   SUBSCRIPTION_PURCHASED = "SUBSCRIPTION_PURCHASED",
+  ITEM_DROPPED = "ITEM_DROPPED",
+  TRADE_OFFER_EXPIRED = "TRADE_OFFER_EXPIRED",
 }
 
 @Entity()
@@ -45,6 +48,7 @@ export class NotificationEntity {
   @Column({ name: "ttl", type: "interval", default: "1day" })
   ttl: string;
 
+  @Index("idx_notification_entity_acknowledged")
   @Column({ name: "acknowledged", default: false })
   acknowledged: boolean;
 
@@ -67,6 +71,9 @@ export class NotificationEntity {
   })
   notificationType: NotificationType;
 
+  @Column({ name: "params", nullable: false, type: "jsonb", default: "{}" })
+  params: Record<string, unknown>;
+
   @VirtualColumn2("expiresAt", (t) => t)
   expiresAt: Date;
 
@@ -76,11 +83,13 @@ export class NotificationEntity {
     entityType: NotificationEntityType,
     notificationType: NotificationType,
     ttl: string = "1day",
+    params: Record<string, unknown> = {},
   ) {
     this.steamId = steamId;
     this.entityId = entityId;
     this.entityType = entityType;
     this.notificationType = notificationType;
     this.ttl = ttl;
+    this.params = params;
   }
 }

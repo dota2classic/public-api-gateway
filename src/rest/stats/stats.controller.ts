@@ -1,8 +1,9 @@
-import { Controller, Get, UseInterceptors } from "@nestjs/common";
+import { Controller, Get, Param, Post, UseInterceptors } from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
 import {
   GameserverGameSessionDto,
   InfoApi,
+  MatchApi,
 } from "../../generated-api/gameserver";
 import {
   CurrentOnlineDto,
@@ -23,6 +24,10 @@ import { StatsService } from "./stats.service";
 import { MaintenanceEntity } from "../../entity/maintenance.entity";
 import { Repository } from "typeorm";
 import { InjectRepository } from "@nestjs/typeorm";
+import { DemoHighlightsEntity } from "../../entity/demo-highlights.entity";
+import { AmqpConnection } from "@golevelup/nestjs-rabbitmq";
+import { MatchArtifactUploadedEvent } from "../../gateway/events/match-artifact-uploaded.event";
+import { MatchArtifactType } from "../../gateway/shared-types/match-artifact-type";
 
 @UseInterceptors(ReqLoggingInterceptor)
 @Controller("stats")
@@ -30,12 +35,39 @@ import { InjectRepository } from "@nestjs/typeorm";
 export class StatsController {
   constructor(
     private readonly ms: InfoApi,
+    private readonly match: MatchApi,
     private readonly twitch: TwitchService,
     private readonly mapper: StatsMapper,
     private readonly statsService: StatsService,
     @InjectRepository(MaintenanceEntity)
     private readonly maintenanceEntityRepository: Repository<MaintenanceEntity>,
+    @InjectRepository(DemoHighlightsEntity)
+    private readonly demoHighlightsEntityRepository: Repository<DemoHighlightsEntity>,
+    private readonly amqpConnection: AmqpConnection,
   ) {}
+
+  @Post("/highlights/:id")
+  public async requestHighlights(@Param("id") id: number) {
+    const res = await this.match.matchControllerGetMatch(id);
+    await this.amqpConnection.publish(
+      "app.events",
+      MatchArtifactUploadedEvent.name,
+      new MatchArtifactUploadedEvent(
+        id,
+        res.mode,
+        MatchArtifactType.REPLAY,
+        "replays",
+        `${id}.dem.zip`,
+      ),
+    );
+  }
+
+  @Get("/highlights/:id")
+  public async getHighlights(@Param("id") id: number) {
+    return this.demoHighlightsEntityRepository.findOneBy({
+      matchId: id,
+    });
+  }
 
   @UseInterceptors(GlobalHttpCacheInterceptor)
   @CacheTTL(5)
@@ -54,7 +86,7 @@ export class StatsController {
   }
 
   @UseInterceptors(GlobalHttpCacheInterceptor)
-  @CacheTTL(300)
+  @CacheTTL(30)
   @Get("/matchmaking")
   async getMatchmakingInfo(): Promise<MatchmakingInfo[]> {
     const [modes, queueTimes] = await Promise.combine([
@@ -88,7 +120,7 @@ export class StatsController {
   }
 
   @UseInterceptors(GlobalHttpCacheInterceptor)
-  @CacheTTL(60_000)
+  @CacheTTL(60 * 60) // 1 hr
   @Get("/seasons")
   async getGameSeasons(): Promise<GameSeasonDto[]> {
     return this.ms.infoControllerGetSeasons();
@@ -96,7 +128,7 @@ export class StatsController {
 
   @UseInterceptors(GlobalHttpCacheInterceptor)
   @Get("/online")
-  @CacheTTL(1000)
+  @CacheTTL(10) // 10 seconds
   async online(): Promise<CurrentOnlineDto> {
     const [online, sessions, servers] = await Promise.all<any>([
       this.ms.infoControllerGetCurrentOnline(),

@@ -12,6 +12,7 @@ export class MmrChangeDto {
   change: number;
   is_hidden_mmr: boolean;
   calibration: boolean;
+  streak: number;
 }
 
 export class PlayerInMatchDto {
@@ -43,6 +44,8 @@ export class PlayerInMatchDto {
   abandoned: boolean;
 
   mmr?: MmrChangeDto;
+
+  bear?: number[];
 }
 
 export class MatchDto {
@@ -64,6 +67,9 @@ export class MatchDto {
 
   timestamp: string;
   replayUrl?: string;
+
+  towers: number[];
+  barracks: number[];
 }
 
 export class MatchReportInfoDto {
@@ -128,6 +134,8 @@ export class LiveMatchDto {
   duration: number;
   server: string;
   timestamp: number;
+  towers: number[];
+  barracks: number[];
   heroes: MatchSlotInfo[];
 }
 
