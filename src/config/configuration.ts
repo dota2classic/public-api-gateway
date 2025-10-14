@@ -36,6 +36,7 @@ export interface ExpectedConfig {
       password: string;
     };
   };
+
   fluentbit: {
     host: string;
     port: number;
@@ -69,6 +70,7 @@ export default (): ExpectedConfig => {
       frontUrl: process.env.FRONTEND_URL,
       backUrl: process.env.BACKEND_URL,
 
+
       liveMatchDelay: parseInt(process.env.LIVE_MATCH_DELAY) || 5000,
       s3root: process.env.S3ROOT,
       replayUrl: process.env.REPLAY_URL,
@@ -78,6 +80,7 @@ export default (): ExpectedConfig => {
       matchmakerApiUrl: process.env.MATCHMAKER_API,
       gameserverApiUrl: process.env.GAMESERVER_API,
       forumApiUrl: process.env.FORUM_API,
+      tradeApiUrl: process.env.TRADE_API,
     },
     telemetry: {
       jaeger: {
