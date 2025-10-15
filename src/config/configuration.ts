@@ -69,6 +69,7 @@ export default (): ExpectedConfig => {
     api: {
       frontUrl: process.env.FRONTEND_URL,
       backUrl: process.env.BACKEND_URL,
+      baseDomain: process.env.BASE_DOMAIN,
 
 
       liveMatchDelay: parseInt(process.env.LIVE_MATCH_DELAY) || 5000,
