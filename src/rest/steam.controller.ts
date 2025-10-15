@@ -102,7 +102,7 @@ export class SteamController {
         domain: `.${this.config.get("api.baseDomain")}`,
         maxAge: 60 * 60 * 24 * 7, // optional expiry
       })
-      .redirect("/api/v1/auth/steam", 302);
+      .redirect("/v1/auth/steam", 302);
   }
 
   @Get()
