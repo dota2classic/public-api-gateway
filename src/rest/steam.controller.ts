@@ -165,6 +165,7 @@ export class SteamController {
       ? req.cookies["d2c:auth_redirect"]
       : `${this.config.get("api.frontUrl")}/players/${steam32id}`;
 
+    this.logger.log("Setting cookie ", this.TOKEN_COOKIE_OPTIONS, TOKEN_KEY);
     res
       .setCookie(TOKEN_KEY, token, this.TOKEN_COOKIE_OPTIONS()) // 30 days expires
       .redirect(redirectPath, 302);
