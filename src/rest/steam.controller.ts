@@ -38,7 +38,7 @@ export class SteamController {
       path: "/",
       httpOnly: false,
       expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30),
-      // secure: true,
+      secure: this.config.get("api.production"),
       domain: `.${this.config.get("api.baseDomain")}`,
     };
   };

@@ -70,7 +70,7 @@ export default (): ExpectedConfig => {
       frontUrl: process.env.FRONTEND_URL,
       backUrl: process.env.BACKEND_URL,
       baseDomain: process.env.BASE_DOMAIN,
-
+      production: process.env.NODE_ENV === "production",
 
       liveMatchDelay: parseInt(process.env.LIVE_MATCH_DELAY) || 5000,
       s3root: process.env.S3ROOT,
