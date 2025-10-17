@@ -10,7 +10,7 @@ import { Cron, CronExpression } from "@nestjs/schedule";
 export class StatsService implements OnApplicationBootstrap {
   constructor(private readonly prom: PrometheusDriver) {}
 
-  private _stats: [number, QueueTimeDto[]][];
+  private _stats: [number, QueueTimeDto[]][] = [];
 
   get stats(): [number, QueueTimeDto[]][] {
     return this._stats;
@@ -22,6 +22,7 @@ export class StatsService implements OnApplicationBootstrap {
 
   @Cron(CronExpression.EVERY_5_MINUTES)
   private async refreshQueueStats() {
+    this._stats = [];
     // this._stats = await this.queueTimesChart();
     // console.log(JSON.stringify(this._stats))
   }
