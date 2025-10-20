@@ -31,13 +31,13 @@ async function bootstrap() {
       }),
     ),
     {
-      // logger: new WinstonWrapper(
-      //   config.get("fluentbit.host"),
-      //   config.get<number>("fluentbit.port"),
-      //   config.get<string>("fluentbit.application"),
-      //   config.get<boolean>("fluentbit.disabled"),
-      //   config.get<boolean>("fluentbit.noStdout"),
-      // ),
+      logger: new WinstonWrapper(
+        config.get("fluentbit.host"),
+        config.get<number>("fluentbit.port"),
+        config.get<string>("fluentbit.application"),
+        config.get<boolean>("fluentbit.disabled"),
+        config.get<boolean>("fluentbit.noStdout"),
+      ),
     },
   );
   app.setGlobalPrefix("v1");
