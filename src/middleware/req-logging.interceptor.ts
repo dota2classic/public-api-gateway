@@ -44,11 +44,11 @@ export class ReqLoggingInterceptor implements NestInterceptor {
     res.raw.on("finish", () => {
       const durationSeconds = (performance.now() - d0) / 1000;
 
-      this.logger.log({
-        method: req.method,
-        path: requestPath,
-        duration: durationSeconds,
-      });
+      // this.logger.log({
+      //   method: req.method,
+      //   path: requestPath,
+      //   duration: durationSeconds,
+      // });
 
       this.requestHistogram
         .labels(
