@@ -15,6 +15,7 @@ import {
 import fastifyCookie from "@fastify/cookie";
 import fastify from "fastify";
 import fastyfyMultipart from "@fastify/multipart";
+import { WinstonWrapper } from "@dota2classic/nest_logger";
 
 async function bootstrap() {
   const parsedConfig = configuration();
