@@ -38,7 +38,7 @@ export class SteamController {
       path: "/",
       httpOnly: false,
       expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30),
-      secure: true,
+      secure: this.config.get("api.production"),
       domain: `.${this.config.get("api.baseDomain")}`,
     };
   };
@@ -102,7 +102,7 @@ export class SteamController {
         domain: `.${this.config.get("api.baseDomain")}`,
         maxAge: 60 * 60 * 24 * 7, // optional expiry
       })
-      .redirect("/api/v1/auth/steam", 302);
+      .redirect("/v1/auth/steam", 302);
   }
 
   @Get()
@@ -163,8 +163,9 @@ export class SteamController {
 
     const redirectPath = isHrefRedirect
       ? req.cookies["d2c:auth_redirect"]
-      : `${this.config.get("api.frontUrl")}/players/${steam32id}}`;
+      : `${this.config.get("api.frontUrl")}/players/${steam32id}`;
 
+    this.logger.log("Setting cookie ", this.TOKEN_COOKIE_OPTIONS, TOKEN_KEY);
     res
       .setCookie(TOKEN_KEY, token, this.TOKEN_COOKIE_OPTIONS()) // 30 days expires
       .redirect(redirectPath, 302);

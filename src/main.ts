@@ -5,7 +5,6 @@ import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 import * as cookieParser from "cookie-parser";
 import { Transport } from "@nestjs/microservices";
 import { ValidationPipe } from "@nestjs/common";
-import { WinstonWrapper } from "@dota2classic/nest_logger";
 import configuration from "./config/configuration";
 import { ConfigService } from "@nestjs/config";
 import { EntityNotFoundErrorFilter } from "./middleware/typeorm-error-filter";
@@ -16,10 +15,13 @@ import {
 import fastifyCookie from "@fastify/cookie";
 import fastify from "fastify";
 import fastyfyMultipart from "@fastify/multipart";
+import { WinstonWrapper } from "@dota2classic/nest_logger";
 
 async function bootstrap() {
   const parsedConfig = configuration();
   const config = new ConfigService(parsedConfig);
+
+  console.log(parsedConfig);
 
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,

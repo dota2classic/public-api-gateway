@@ -10,7 +10,7 @@ interface LiveMatchEntry {
 export class LiveMatchService {
   // MINUTE DELAY
   // matchID key => events
-  private cache = new WeakMap<number, LiveMatchEntry>();
+  private cache = new Map<number, LiveMatchEntry>();
   private finishedMatchesCache = new Map<number, boolean>();
 
   private readonly entityCache = new Map<number, LiveMatchDto>();
