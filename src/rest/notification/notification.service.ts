@@ -24,6 +24,7 @@ import { NotificationCreatedEvent } from "./event/notification-created.event";
 import { NotificationMapper } from "./notification.mapper";
 import { InfoApi } from "../../generated-api/gameserver";
 import { ClientProxy } from "@nestjs/microservices";
+import Redlock from "redlock";
 
 @Injectable()
 export class NotificationService {
@@ -39,7 +40,7 @@ export class NotificationService {
     private readonly ebus: EventBus,
     private readonly mapper: NotificationMapper,
     @Inject("QueryCore") private readonly redisEventQueue: ClientProxy,
-
+    private readonly redlock: Redlock,
     private readonly ms: InfoApi,
   ) {
     webpush.setVapidDetails(
@@ -166,14 +167,25 @@ export class NotificationService {
 
   @Cron(CronExpression.EVERY_10_SECONDS)
   public async expireNotifications() {
-    const ur = await this.notificationEntityRepository
-      .createQueryBuilder("n")
-      .update<NotificationEntity>(NotificationEntity)
-      .set({ acknowledged: true })
-      .where("created_at + ttl <= now()")
-      .andWhere("acknowledged = false")
-      .execute();
-    this.logger.log(`Expired ${ur.affected} notifications`);
+    await this.redlock.using(
+      ["api-gateway-notification-expire"],
+      5000,
+      async (signal) => {
+        const ur = await this.notificationEntityRepository
+          .createQueryBuilder("n")
+          .update<NotificationEntity>(NotificationEntity)
+          .set({ acknowledged: true })
+          .where("created_at + ttl <= now()")
+          .andWhere("acknowledged = false")
+          .execute();
+
+        if (signal.aborted) {
+          throw signal.error;
+        }
+
+        this.logger.log(`Expired ${ur.affected} notifications`);
+      },
+    );
   }
 
   public async getNotifications(steamId: string, cnt: number = 20) {

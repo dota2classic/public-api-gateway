@@ -157,6 +157,8 @@ import { PlayerFinishedMatchHandler } from "./rest/notification/event-handler/pl
 import { MessageCreatedHandler } from "./cache/event-handler/message-created.handler";
 import { MatchHighlightsHandler } from "./service/match-highlights.handler";
 import { PleaseGoQueueHandler } from "./rest/notification/event-handler/please-go-queue.handler";
+import { RedlockModule } from "@dota2classic/redlock";
+import { RedlockModuleOptions } from "@dota2classic/redlock/dist/redlock.module-definition";
 
 @Module({
   imports: [
@@ -247,6 +249,22 @@ import { PleaseGoQueueHandler } from "./rest/notification/event-handler/please-g
       },
       inject: [ConfigService],
       imports: [],
+    }),
+    RedlockModule.registerAsync({
+      imports: [],
+      inject: [ConfigService],
+      useFactory(config: ConfigService): RedlockModuleOptions {
+        return {
+          host: config.get("redis.host"),
+          password: config.get("redis.password"),
+          port: parseInt(config.get("redis.port")) || 6379,
+          options: {
+            driftFactor: 0.01,
+            retryCount: 10,
+            automaticExtensionThreshold: 500,
+          },
+        };
+      },
     }),
     RabbitMQModule.forRootAsync({
       useFactory(config: ConfigService): RabbitMQConfig {

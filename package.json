@@ -41,6 +41,8 @@
     "@dota2classic/caches": "^0.0.19",
     "@dota2classic/nest_logger": "^0.0.13",
     "@dota2classic/passport_steam": "^1.1.6",
+    "@dota2classic/redlock": "^0.0.17",
+    "redlock": "^5.0.0-beta.2",
     "@fastify/cookie": "^7.4.0",
     "@fastify/multipart": "^8.3.1",
     "@fastify/static": "^6.9.0",
