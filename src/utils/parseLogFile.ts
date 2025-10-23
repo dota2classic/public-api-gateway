@@ -2,8 +2,6 @@
 
 import { DotaTeam } from "../gateway/shared-types/dota-team";
 
-const r = /<\[U:1:(\d+)]><#DOTA_(.+)>" (say_team|say) "(.+)"/g;
-
 export interface LogMessage {
   steamId: string;
   message: string;
@@ -12,6 +10,8 @@ export interface LogMessage {
 }
 export function parseLogLine(line: string): LogMessage | undefined {
   try {
+    const r = /<\[U:1:(\d+)]><#DOTA_(.+)>" (say_team|say) "(.+)"/g;
+
     const arr = r.exec(line);
     return {
       steamId: arr[1],
@@ -20,7 +20,6 @@ export function parseLogLine(line: string): LogMessage | undefined {
       allChat: arr[3] === "say",
     };
   } catch (e) {
-    // console.log(e);
     return undefined;
   }
 }
