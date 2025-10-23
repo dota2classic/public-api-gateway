@@ -93,6 +93,8 @@ async function bootstrap() {
 
   await app.startAllMicroservices();
   console.log("T?");
+
+  console.log("Mailiitous code");
 }
 
 bootstrap();
