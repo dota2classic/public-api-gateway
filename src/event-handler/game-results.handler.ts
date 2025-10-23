@@ -160,26 +160,30 @@ export class SRCDSPerformanceHandler
   }
 
   async handle(event: GameResultsEvent) {
-    this.logger.log("Match finished: calculating performance metrics");
-    const end = new Date(event.timestamp);
-    const start = new Date(end.getTime() - event.duration * 1000 + 1000 * 60);
+    try {
+      this.logger.log("Match finished: calculating performance metrics");
+      const end = new Date(event.timestamp);
+      const start = new Date(end.getTime() - event.duration * 1000 + 1000 * 60);
 
-    const host = event.server.split(":")[0];
-    const labels: string[] = [
-      event.matchId.toString(),
-      host,
-      event.server,
-      event.type.toString(),
-      event.region.toString(),
-    ];
+      const host = event.server.split(":")[0];
+      const labels: string[] = [
+        event.matchId.toString(),
+        host,
+        event.server,
+        event.type.toString(),
+        event.region.toString(),
+      ];
 
-    await Promise.all([
-      this.fpsMetrics(event, start, end, labels),
-      this.pingMetrics(event, start, end, labels),
-      this.lossMetrics(event, start, end, labels),
-    ]);
+      await Promise.all([
+        this.fpsMetrics(event, start, end, labels),
+        this.pingMetrics(event, start, end, labels),
+        this.lossMetrics(event, start, end, labels),
+      ]);
 
-    this.logger.log("Metrics for gameserver successfully calculated");
+      this.logger.log("Metrics for gameserver successfully calculated");
+    } catch (e) {
+      this.logger.error("There was issue calculating metrics!", e);
+    }
   }
 
   // Calculate ping metrics

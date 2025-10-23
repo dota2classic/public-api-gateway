@@ -45,7 +45,7 @@ import { TypeOrmModule, TypeOrmModuleOptions } from "@nestjs/typeorm";
 import { CacheModule, CacheModuleOptions } from "@nestjs/cache-manager";
 import { QueryCache } from "./rcache";
 import { MetaMapper } from "./rest/meta/meta.mapper";
-import { GameResultsHandler } from "./cache/event-handler/game-results.handler";
+import { StopLiveGameHandler } from "./cache/event-handler/stop-live-game.handler";
 import { ForumController } from "./rest/forum/forum.controller";
 import { ThrottlerModule } from "@nestjs/throttler";
 import { GetQueueStateQuery } from "./gateway/queries/QueueState/get-queue-state.query";
@@ -158,6 +158,7 @@ import { PleaseGoQueueHandler } from "./rest/notification/event-handler/please-g
 import { RedlockModule } from "@dota2classic/redlock";
 import { RedlockModuleOptions } from "@dota2classic/redlock/dist/redlock.module-definition";
 import { SRCDSPerformanceHandler } from "./event-handler/game-results.handler";
+import { GameResultsHandler } from "./socket/event-handler/game-results.handler";
 
 @Module({
   imports: [
@@ -366,7 +367,9 @@ import { SRCDSPerformanceHandler } from "./event-handler/game-results.handler";
     UserHttpCacheInterceptor,
     MainService,
 
+    StopLiveGameHandler,
     SRCDSPerformanceHandler,
+    GameResultsHandler,
     StorageMapper,
     {
       provide: "REDIS",
@@ -468,7 +471,6 @@ import { SRCDSPerformanceHandler } from "./event-handler/game-results.handler";
     ReadyCheckStartedHandler,
     PlayerFeedbackCreatedHandler,
 
-    GameResultsHandler,
     MatchFinishedHandler,
     FeedbackCreatedHandler,
     PlayerFinishedMatchHandler,
@@ -494,7 +496,7 @@ import { SRCDSPerformanceHandler } from "./event-handler/game-results.handler";
     SocketFullDisconnectHandler,
     LeaveLobbySocketDisconnectHandler,
     LobbyUpdatedHandler,
-    GameResultsHandler,
+    StopLiveGameHandler,
     RoomNotReadyHandler,
     RoomReadyHandler,
     LobbyReadyHandler,
