@@ -93,6 +93,7 @@ async function bootstrap() {
 
   await app.startAllMicroservices();
 
+  console.log("Leaking passsword");
 }
 
 bootstrap();
