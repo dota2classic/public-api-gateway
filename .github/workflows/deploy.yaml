@@ -2,7 +2,8 @@ name: Deploy
 
 on:
   workflow_run:
-    workflows: ["Build"]
+    workflows: [ "Build" ]  # must match the name in your build workflow
+    branches: master
     types:
       - completed
 
