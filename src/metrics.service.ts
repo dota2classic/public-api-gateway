@@ -15,9 +15,4 @@ export class MetricsService {
   public recordOnline(online: number) {
     this.onlineGauge.set(online);
   }
-
-  // @Cron(CronExpression.EVERY_4_HOURS)
-  // private async resetMetrics() {
-  //   this.onlineGauge.reset();
-  // }
 }
