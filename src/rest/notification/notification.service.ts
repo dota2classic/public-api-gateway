@@ -24,7 +24,7 @@ import { NotificationCreatedEvent } from "./event/notification-created.event";
 import { NotificationMapper } from "./notification.mapper";
 import { InfoApi } from "../../generated-api/gameserver";
 import { ClientProxy } from "@nestjs/microservices";
-import Redlock from "redlock";
+import { RedlockService } from "@dota2classic/redlock/dist/redlock.service";
 
 @Injectable()
 export class NotificationService {
@@ -40,7 +40,7 @@ export class NotificationService {
     private readonly ebus: EventBus,
     private readonly mapper: NotificationMapper,
     @Inject("QueryCore") private readonly redisEventQueue: ClientProxy,
-    private readonly redlock: Redlock,
+    private readonly redlock: RedlockService,
     private readonly ms: InfoApi,
   ) {
     webpush.setVapidDetails(
@@ -167,7 +167,7 @@ export class NotificationService {
 
   @Cron(CronExpression.EVERY_10_SECONDS)
   public async expireNotifications() {
-    await this.redlock.using(
+    await this.redlock.withLock(
       ["api-gateway-notification-expire"],
       5000,
       async (signal) => {

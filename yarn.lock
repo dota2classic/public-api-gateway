@@ -1016,10 +1016,10 @@
     passport-strategy "^1.0.0"
     steamid "^2.0.0"
 
-"@dota2classic/redlock@^0.0.17":
-  version "0.0.17"
-  resolved "https://registry.yarnpkg.com/@dota2classic/redlock/-/redlock-0.0.17.tgz#acd11391470b1f25e3bcf669401941e92ef406c6"
-  integrity sha512-5NmsbCSCIa+hyz+rux+D4qIs7w4QNwse+RdTfVBkcR+NEIdmhJPrCykFf2/1sfyEXb/qRbSWkZtlwMEBSru3rg==
+"@dota2classic/redlock@^0.0.18":
+  version "0.0.18"
+  resolved "https://registry.yarnpkg.com/@dota2classic/redlock/-/redlock-0.0.18.tgz#f450076ee41f08bf1b8d4cfea9aa0cfefd297f06"
+  integrity sha512-P0zsuyyOfzsD4quIiH4ZBihRirxMxPvy1WRQ5QUNg6t9aupit7/elOWeARvIiN66cXZBjAJlL/JqGU37lF3PKA==
   dependencies:
     ioredis "^5.6.1"
     reflect-metadata "^0.2.0"

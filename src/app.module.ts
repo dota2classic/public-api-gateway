@@ -260,7 +260,7 @@ import { RedlockModuleOptions } from "@dota2classic/redlock/dist/redlock.module-
           port: parseInt(config.get("redis.port")) || 6379,
           options: {
             driftFactor: 0.01,
-            retryCount: 10,
+            retryCount: 0,
             automaticExtensionThreshold: 500,
           },
         };
