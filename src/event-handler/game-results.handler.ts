@@ -5,6 +5,7 @@ import ss from "simple-statistics";
 import { PrometheusDriver } from "prometheus-query";
 import { Gauge } from "prom-client";
 import { MatchmakingMode } from "../gateway/shared-types/matchmaking-mode";
+import { Logger } from "@nestjs/common";
 
 @EventsHandler(GameResultsEvent)
 export class SRCDSPerformanceHandler
