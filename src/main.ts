@@ -92,7 +92,6 @@ async function bootstrap() {
   await app.listen(6001, "0.0.0.0");
 
   await app.startAllMicroservices();
-
 }
 
 bootstrap();

@@ -126,8 +126,6 @@ import { StatsMapper } from "./rest/stats/stats.mapper";
 import { StatsService } from "./rest/stats/stats.service";
 import { CustomizationController } from "./rest/customization/customization.controller";
 import { CustomizationMapper } from "./rest/customization/customization.mapper";
-import { GameServerAdapter } from "./user-profile/adapter/gameserver.adapter";
-import { UserAdapter } from "./user-profile/adapter/user.adapter";
 import Keyv from "keyv";
 import KeyvRedis from "@keyv/redis";
 import { UserProfileService } from "./service/user-profile.service";
@@ -159,6 +157,7 @@ import { MatchHighlightsHandler } from "./service/match-highlights.handler";
 import { PleaseGoQueueHandler } from "./rest/notification/event-handler/please-go-queue.handler";
 import { RedlockModule } from "@dota2classic/redlock";
 import { RedlockModuleOptions } from "@dota2classic/redlock/dist/redlock.module-definition";
+import { SRCDSPerformanceHandler } from "./event-handler/game-results.handler";
 
 @Module({
   imports: [
@@ -367,8 +366,7 @@ import { RedlockModuleOptions } from "@dota2classic/redlock/dist/redlock.module-
     UserHttpCacheInterceptor,
     MainService,
 
-    GameServerAdapter,
-    UserAdapter,
+    SRCDSPerformanceHandler,
     StorageMapper,
     {
       provide: "REDIS",
