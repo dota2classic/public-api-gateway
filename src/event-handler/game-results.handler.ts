@@ -6,6 +6,7 @@ import { PrometheusDriver } from "prometheus-query";
 import { Gauge } from "prom-client";
 import { MatchmakingMode } from "../gateway/shared-types/matchmaking-mode";
 import { Logger } from "@nestjs/common";
+import { Retry } from "../utils/retry";
 
 @EventsHandler(GameResultsEvent)
 export class SRCDSPerformanceHandler
@@ -162,7 +163,7 @@ export class SRCDSPerformanceHandler
   async handle(event: GameResultsEvent) {
     try {
       this.logger.log("Match finished: calculating performance metrics");
-      const end = new Date(event.timestamp);
+      const end = new Date(event.timestamp - 1000 * 60); // 1 minute end subtract
       const start = new Date(end.getTime() - event.duration * 1000 + 1000 * 60);
 
       const host = event.server.split(":")[0];
@@ -188,6 +189,7 @@ export class SRCDSPerformanceHandler
   }
 
   // Calculate ping metrics
+  @Retry(3)
   private async pingMetrics(
     event: GameResultsEvent,
     start: Date,
@@ -213,6 +215,7 @@ export class SRCDSPerformanceHandler
   }
 
   // Calculate ping metrics
+  @Retry(3)
   private async lossMetrics(
     event: GameResultsEvent,
     start: Date,
@@ -238,6 +241,7 @@ export class SRCDSPerformanceHandler
   }
 
   // Calculates FPS related metrics
+  @Retry(3)
   private async fpsMetrics(
     event: GameResultsEvent,
     start: Date,
