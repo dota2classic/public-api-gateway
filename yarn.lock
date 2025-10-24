@@ -1000,10 +1000,10 @@
     ioredis "^5.6.1"
     memoizee "^0.4.17"
 
-"@dota2classic/nest_logger@^0.0.14":
-  version "0.0.14"
-  resolved "https://registry.yarnpkg.com/@dota2classic/nest_logger/-/nest_logger-0.0.14.tgz#d9e9a28d96753da581c1b9ef75db7271008f8a0c"
-  integrity sha512-yCyT3sil99Ep9lTWTs16+g2b6zjMKJTgKTrgmetsHb3vVzHT2EKzWImTbWQVodtAtOjqUlpZ9ucRvW+FepgeFg==
+"@dota2classic/nest_logger@^0.0.15":
+  version "0.0.15"
+  resolved "https://registry.yarnpkg.com/@dota2classic/nest_logger/-/nest_logger-0.0.15.tgz#b6b135a893b4da002da40004e61f9df4e587ccb4"
+  integrity sha512-vTORcircf63R01KA4vK4K9V9tEUBfGGz4eq2Vp4Cvvt01uf3bIcEJi2LiYEHCKNEQ4J93D/5nkLvjRCALpFnwQ==
   dependencies:
     fluent-logger "^3.4.1"
     winston "^3.17.0"
