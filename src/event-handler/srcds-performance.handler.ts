@@ -180,14 +180,11 @@ export class SRCDSPerformanceHandler
         event.region.toString(),
       ];
 
-      await this.fpsMetrics(event, start, end, labels);
-      await this.pingMetrics(event, start, end, labels);
-      await this.lossMetrics(event, start, end, labels);
-      // await Promise.all([
-      //   this.fpsMetrics(event, start, end, labels),
-      //   this.pingMetrics(event, start, end, labels),
-      //   this.lossMetrics(event, start, end, labels),
-      // ]);
+      await Promise.all([
+        this.fpsMetrics(event, start, end, labels),
+        this.pingMetrics(event, start, end, labels),
+        this.lossMetrics(event, start, end, labels),
+      ]);
 
       this.logger.log("Metrics for gameserver successfully calculated");
     } catch (e) {

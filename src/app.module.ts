@@ -374,10 +374,9 @@ import { SRCDSPerformanceHandler } from "./event-handler/srcds-performance.handl
     {
       provide: "REDIS",
       useFactory: async (config: ConfigService) => {
-        const redis = new Redis(6379, config.get("redis.host"), {
+        return new Redis(6379, config.get("redis.host"), {
           password: config.get("redis.password"),
         });
-        return redis;
       },
       inject: [ConfigService],
     },

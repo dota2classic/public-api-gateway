@@ -92,25 +92,6 @@ async function bootstrap() {
   await app.listen(6001, "0.0.0.0");
 
   await app.startAllMicroservices();
-
-  // app
-  //   .get(EventBus)
-  //   .publish(
-  //     new GameResultsEvent(
-  //       55651,
-  //       DotaTeam.RADIANT,
-  //       1834,
-  //       1,
-  //       MatchmakingMode.TURBO,
-  //       new Date("2025-10-24T12:33:19.000Z").getTime(),
-  //       "62.122.215.103:22218",
-  //       DotaPatch.DOTA_684_TURBO,
-  //       Region.RU_MOSCOW,
-  //       [],
-  //       [],
-  //       []
-  //     ),
-  //   );
 }
 
 bootstrap();
