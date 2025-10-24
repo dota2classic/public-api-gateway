@@ -175,11 +175,14 @@ export class SRCDSPerformanceHandler
         event.region.toString(),
       ];
 
-      await Promise.all([
-        this.fpsMetrics(event, start, end, labels),
-        this.pingMetrics(event, start, end, labels),
-        this.lossMetrics(event, start, end, labels),
-      ]);
+      await this.fpsMetrics(event, start, end, labels);
+      await this.pingMetrics(event, start, end, labels);
+      await this.lossMetrics(event, start, end, labels);
+      // await Promise.all([
+      //   this.fpsMetrics(event, start, end, labels),
+      //   this.pingMetrics(event, start, end, labels),
+      //   this.lossMetrics(event, start, end, labels),
+      // ]);
 
       this.logger.log("Metrics for gameserver successfully calculated");
     } catch (e) {
@@ -259,6 +262,8 @@ export class SRCDSPerformanceHandler
     const query = `avg_over_time ( srcds_metrics_fps{match_id="${event.matchId}"}[15s] )`;
 
     const result = await this.prom.rangeQuery(query, start, end, step);
+
+    console.log(result);
 
     const fps = result.result[0].values.map((value) => value.value);
 
