@@ -163,6 +163,10 @@ export class SRCDSPerformanceHandler
   async handle(event: GameResultsEvent) {
     try {
       this.logger.log("Match finished: calculating performance metrics");
+
+      this.logger.log(
+        `Match finished at: ${event.timestamp - 1000 * 60}. DAte=${new Date(event.timestamp - 1000 * 60)}. now=${new Date()}`,
+      );
       const end = new Date(event.timestamp - 1000 * 60); // 1 minute end subtract
       const start = new Date(end.getTime() - event.duration * 1000 + 1000 * 60);
 
@@ -263,6 +267,7 @@ export class SRCDSPerformanceHandler
 
     const result = await this.prom.rangeQuery(query, start, end, step);
 
+    console.log("Querying result!");
     console.log(result);
 
     const fps = result.result[0].values.map((value) => value.value);
