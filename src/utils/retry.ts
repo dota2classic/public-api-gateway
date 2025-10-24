@@ -1,12 +1,16 @@
+import { Logger } from "@nestjs/common";
+
+const logger = new Logger("Retry");
+
 export function Retry(
   retries: number = 5,
   delay: number = 1000,
-  factor: number = 2
+  factor: number = 2,
 ) {
   return function (
     target: any,
     propertyKey: string,
-    descriptor: PropertyDescriptor
+    descriptor: PropertyDescriptor,
   ) {
     const originalMethod = descriptor.value;
 
@@ -20,8 +24,8 @@ export function Retry(
         } catch (err) {
           attempt++;
           if (attempt > retries) throw err;
-          console.log(`Retrying ${propertyKey}, attempt ${attempt}...`);
-          await new Promise(res => setTimeout(res, currentDelay));
+          Logger.warn(`Retrying ${propertyKey}, attempt ${attempt}...`);
+          await new Promise((res) => setTimeout(res, currentDelay));
           currentDelay *= factor;
         }
       }

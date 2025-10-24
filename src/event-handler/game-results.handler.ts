@@ -1,7 +1,7 @@
 import { EventsHandler, IEventHandler } from "@nestjs/cqrs";
 import { GameResultsEvent } from "../gateway/events/gs/game-results.event";
 import { MetricsService } from "../metrics.service";
-import ss from "simple-statistics";
+import * as ss from "simple-statistics";
 import { PrometheusDriver } from "prometheus-query";
 import { Gauge } from "prom-client";
 import { MatchmakingMode } from "../gateway/shared-types/matchmaking-mode";
@@ -183,7 +183,6 @@ export class SRCDSPerformanceHandler
 
       this.logger.log("Metrics for gameserver successfully calculated");
     } catch (e) {
-      console.error(e);
       this.logger.error("There was issue calculating metrics!", e);
     }
   }
@@ -202,6 +201,7 @@ export class SRCDSPerformanceHandler
 
     const result = await this.prom.rangeQuery(query, start, end, step);
 
+    this.logger.log(result);
     const data = result.result[0].values.map((value) => value.value);
     const aggregates = this.calcAggregates(data, false);
 
