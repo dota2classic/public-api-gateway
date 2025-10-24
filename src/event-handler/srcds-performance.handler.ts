@@ -165,9 +165,9 @@ export class SRCDSPerformanceHandler
       this.logger.log("Match finished: calculating performance metrics");
 
       this.logger.log(
-        `Match finished at: ${event.timestamp - 1000 * 60}. DAte=${new Date(event.timestamp - 1000 * 60)}. now=${new Date()}`,
+        `Match finished at: ${event.timestamp * 1000 - 1000 * 60}. DAte=${new Date(event.timestamp - 1000 * 60)}. now=${new Date()}`,
       );
-      const end = new Date(event.timestamp - 1000 * 60); // 1 minute end subtract
+      const end = new Date(event.timestamp * 1000); // 1 minute end subtract
       const start = new Date(end.getTime() - event.duration * 1000 + 1000 * 60);
 
       const host = event.server.split(":")[0];
