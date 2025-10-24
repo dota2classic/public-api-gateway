@@ -182,6 +182,7 @@ export class SRCDSPerformanceHandler
 
       this.logger.log("Metrics for gameserver successfully calculated");
     } catch (e) {
+      console.error(e);
       this.logger.error("There was issue calculating metrics!", e);
     }
   }
