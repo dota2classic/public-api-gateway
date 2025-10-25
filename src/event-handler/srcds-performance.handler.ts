@@ -202,7 +202,7 @@ export class SRCDSPerformanceHandler
   ) {
     const step = 15; // 1 point every 6 hours
 
-    const query = `avg_over_time ( srcds_metrics_fps{match_id="${event.matchId}"}[15s] )`;
+    const query = `avg_over_time ( srcds_metrics_ping{match_id="${event.matchId}"}[15s] )`;
 
     const result = await this.prom.rangeQuery(query, start, end, step);
 
