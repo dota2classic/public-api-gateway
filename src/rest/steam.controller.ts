@@ -40,6 +40,7 @@ export class SteamController {
       expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30),
       secure: this.config.get("api.production"),
       domain: `.${this.config.get("api.baseDomain")}`,
+      sameSite: "none",
     };
   };
   constructor(
