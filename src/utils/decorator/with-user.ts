@@ -10,6 +10,7 @@ import { Role } from "../../gateway/shared-types/roles";
 import { Observable } from "rxjs";
 import { CurrentUserDto } from "./current-user";
 import { JwtService } from "@nestjs/jwt";
+import { TOKEN_KEY } from "../env";
 
 @Injectable()
 export class CookieUserGuard implements CanActivate {
@@ -18,7 +19,7 @@ export class CookieUserGuard implements CanActivate {
   async canActivate(ctx: ExecutionContext): Promise<boolean> {
     const request = ctx.switchToHttp().getRequest();
 
-    const token = request.cookies["dota2classic_auth_token"];
+    const token = request.cookies[TOKEN_KEY];
     let some: any = this.jwtService.decode(token);
 
     // This is fix for deprecated user ids([U:1:xxxx] format)
