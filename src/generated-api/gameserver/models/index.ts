@@ -1,5 +1,6 @@
 export * from './GameserverAbandonSessionDto';
 export * from './GameserverAchievementDto';
+export * from './GameserverAggregatedStatsDto';
 export * from './GameserverBanStatusDto';
 export * from './GameserverCrimeLogDto';
 export * from './GameserverCrimeLogPageDto';

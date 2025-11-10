@@ -6,6 +6,7 @@ import {
   MatchApi,
 } from "../../generated-api/gameserver";
 import {
+  AggregatedStatsDto,
   CurrentOnlineDto,
   GameSeasonDto,
   MaintenanceDto,
@@ -164,5 +165,12 @@ export class StatsController {
     const servers = await this.ms.infoControllerGameServers();
     const hosts = new Set(servers.map((server) => server.url.split(":")[0]));
     return Array.from(hosts.values());
+  }
+
+  @UseInterceptors(GlobalHttpCacheInterceptor)
+  @CacheTTL(15)
+  @Get("/agg_stats")
+  public async getAggStats(): Promise<AggregatedStatsDto> {
+    return this.ms.infoControllerGetAggregatedStats();
   }
 }

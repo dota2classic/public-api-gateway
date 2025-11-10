@@ -64,6 +64,26 @@ export class MatchApi extends runtime.BaseAPI {
 
     /**
      */
+    private async matchControllerFakeRaw(requestParameters: MatchControllerFakeRequest): Promise<runtime.ApiResponse<number>> {
+        this.matchControllerFakeValidation(requestParameters);
+        const context = this.matchControllerFakeContext(requestParameters);
+        const response = await this.request(context);
+
+        return new runtime.TextApiResponse(response) as any;
+    }
+
+
+
+    /**
+     */
+    private matchControllerFakeValidation(requestParameters: MatchControllerFakeRequest) {
+        if (requestParameters.id === null || requestParameters.id === undefined) {
+            throw new runtime.RequiredError('id','Required parameter requestParameters.id was null or undefined when calling matchControllerFake.');
+        }
+    }
+
+    /**
+     */
     matchControllerFakeContext(requestParameters: MatchControllerFakeRequest): runtime.RequestOpts {
         const queryParameters: any = {};
 
@@ -82,24 +102,6 @@ export class MatchApi extends runtime.BaseAPI {
     matchControllerFake = async (id: number): Promise<number> => {
         const response = await this.matchControllerFakeRaw({ id: id });
         return await response.value();
-    }
-
-    /**
-     */
-    private async matchControllerFakeRaw(requestParameters: MatchControllerFakeRequest): Promise<runtime.ApiResponse<number>> {
-        this.matchControllerFakeValidation(requestParameters);
-        const context = this.matchControllerFakeContext(requestParameters);
-        const response = await this.request(context);
-
-        return new runtime.TextApiResponse(response) as any;
-    }
-
-    /**
-     */
-    private matchControllerFakeValidation(requestParameters: MatchControllerFakeRequest) {
-        if (requestParameters.id === null || requestParameters.id === undefined) {
-            throw new runtime.RequiredError('id','Required parameter requestParameters.id was null or undefined when calling matchControllerFake.');
-        }
     }
 
     /**

@@ -69,3 +69,9 @@ export class TwitchStreamDto {
 export class MaintenanceDto {
   active: boolean;
 }
+
+export class AggregatedStatsDto {
+  playersYesterday: number;
+  playersWeekly: number;
+  humanGamesWeekly: number;
+}

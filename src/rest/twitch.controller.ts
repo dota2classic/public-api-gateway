@@ -8,7 +8,7 @@ import {
   UseGuards,
 } from "@nestjs/common";
 import { ApiExcludeEndpoint, ApiTags } from "@nestjs/swagger";
-import { Request, Response } from "express";
+import { Request } from "express";
 import { CookiesUserId } from "../utils/decorator/current-user";
 import { ConfigService } from "@nestjs/config";
 import { EventBus } from "@nestjs/cqrs";
@@ -18,6 +18,7 @@ import { ClientProxy } from "@nestjs/microservices";
 import { AttachUserConnectionCommand } from "../gateway/commands/attach-user-connection.command";
 import { PlayerId } from "../gateway/shared-types/player-id";
 import { UserConnection } from "../gateway/shared-types/user-connection";
+import { FastifyReply } from "fastify";
 
 @Controller("auth/twitch")
 @ApiTags("auth")
@@ -40,7 +41,7 @@ export class TwitchController {
   @UseGuards(TwitchAuthGuard, CookieUserGuard)
   async twitchAuthRequest(
     @Req() req: Request & { user?: any },
-    @Res() res: Response,
+    @Res() res: FastifyReply,
     @CookiesUserId() steam_id: string,
   ) {
     if (!req.user) {
