@@ -68,7 +68,7 @@ export class ServerController {
   async stopServer(@Body() url: StopServerDto) {
     this.rq.emit(
       KillServerRequestedEvent.name,
-      new KillServerRequestedEvent(url.url),
+      new KillServerRequestedEvent(url.matchId),
     );
   }
 

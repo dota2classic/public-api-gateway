@@ -97,7 +97,7 @@ export class BanHammerDto {
 }
 
 export class StopServerDto {
-  public readonly url: string;
+  public readonly matchId: number;
 }
 
 export class QueueEntryDTO {
