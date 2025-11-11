@@ -168,7 +168,7 @@ export class StatsController {
   }
 
   @UseInterceptors(GlobalHttpCacheInterceptor)
-  @CacheTTL(60 * 6)
+  @CacheTTL(60 * 5)
   @Get("/agg_stats")
   public async getAggStats(): Promise<AggregatedStatsDto> {
     return this.ms.infoControllerGetAggregatedStats();
