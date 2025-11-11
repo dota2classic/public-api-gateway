@@ -100,6 +100,15 @@ export class StopServerDto {
   public readonly matchId: number;
 }
 
+export class RunRconDto {
+  public readonly serverUrl: string;
+  public readonly command: string;
+}
+
+export class RunRconResponseDto {
+  public readonly response: string;
+}
+
 export class QueueEntryDTO {
   partyId: string;
   @ApiProperty({

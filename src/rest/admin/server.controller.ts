@@ -4,6 +4,8 @@ import {
   GameServerDto,
   GameSessionDto,
   QueueEntryDTO,
+  RunRconDto,
+  RunRconResponseDto,
   StopServerDto,
 } from "./dto/admin.dto";
 import { ClientProxy } from "@nestjs/microservices";
@@ -22,6 +24,8 @@ import {
   WithUser,
 } from "../../utils/decorator/with-user";
 import { UserProfileService } from "../../service/user-profile.service";
+import { RunRconCommand } from "../../gateway/commands/RunRcon/run-rcon.command";
+import { RunRconResponse } from "../../gateway/commands/RunRcon/run-rcon.response";
 
 @Controller("servers")
 @ApiTags("admin")
@@ -70,6 +74,19 @@ export class ServerController {
       KillServerRequestedEvent.name,
       new KillServerRequestedEvent(url.matchId),
     );
+  }
+
+  @AdminGuard()
+  @WithUser()
+  @Post(`/run_rcon`)
+  async runRcon(@Body() url: RunRconDto): Promise<RunRconResponseDto> {
+    return await this.rq
+      .send<
+        RunRconResponse,
+        RunRconCommand
+      >(RunRconCommand.name, new RunRconCommand(url.command, url.serverUrl))
+      .pipe(timeout(5000))
+      .toPromise();
   }
 
   @ModeratorGuard()
