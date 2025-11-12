@@ -26,6 +26,10 @@ import {
 import { UserProfileService } from "../../service/user-profile.service";
 import { RunRconCommand } from "../../gateway/commands/RunRcon/run-rcon.command";
 import { RunRconResponse } from "../../gateway/commands/RunRcon/run-rcon.response";
+import {
+  PacketId,
+  ReadPacket,
+} from "@nestjs/microservices/interfaces/packet.interface";
 
 @Controller("servers")
 @ApiTags("admin")
@@ -80,13 +84,16 @@ export class ServerController {
   @WithUser()
   @Post(`/run_rcon`)
   async runRcon(@Body() url: RunRconDto): Promise<RunRconResponseDto> {
-    return await this.rq
+    const res = await this.rq
       .send<
-        RunRconResponse,
+        ReadPacket<RunRconResponse> & PacketId,
         RunRconCommand
       >(RunRconCommand.name, new RunRconCommand(url.command, url.serverUrl))
       .pipe(timeout(5000))
       .toPromise();
+    return {
+      response: res.data.response,
+    };
   }
 
   @ModeratorGuard()
