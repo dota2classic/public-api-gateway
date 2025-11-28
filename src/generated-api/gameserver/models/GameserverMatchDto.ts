@@ -12,6 +12,7 @@
  * Do not edit the class manually.
  */
 
+import { exists } from '../runtime';
 import {
   GameserverDotaGameMode,
   GameserverDotaGameModeFromJSON,
@@ -48,6 +49,12 @@ export class GameserverMatchDto {
      * @memberof GameserverMatchDto
      */
     id: number;
+    /**
+     *
+     * @type {string}
+     * @memberof GameserverMatchDto
+     */
+    replayPath?: string;
     /**
      *
      * @type {Array<GameserverPlayerInMatchDto>}
@@ -105,6 +112,7 @@ export function GameserverMatchDtoFromJSONTyped(json: any, ignoreDiscriminator: 
         'mode': GameserverMatchmakingModeFromJSON(json['mode']),
         'game_mode': GameserverDotaGameModeFromJSON(json['game_mode']),
         'id': json['id'],
+        'replayPath': !exists(json, 'replayPath') ? undefined : json['replayPath'],
         'radiant': ((json['radiant'] as Array<any>).map(GameserverPlayerInMatchDtoFromJSON)),
         'dire': ((json['dire'] as Array<any>).map(GameserverPlayerInMatchDtoFromJSON)),
         'winner': json['winner'],
@@ -127,6 +135,7 @@ export function GameserverMatchDtoToJSON(value?: GameserverMatchDto | null): any
         'mode': GameserverMatchmakingModeToJSON(value.mode),
         'game_mode': GameserverDotaGameModeToJSON(value.game_mode),
         'id': value.id,
+        'replayPath': value.replayPath,
         'radiant': ((value.radiant as Array<any>).map(GameserverPlayerInMatchDtoToJSON)),
         'dire': ((value.dire as Array<any>).map(GameserverPlayerInMatchDtoToJSON)),
         'winner': value.winner,

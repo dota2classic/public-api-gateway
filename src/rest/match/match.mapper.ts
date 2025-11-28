@@ -55,6 +55,12 @@ export class MatchMapper {
       Promise.all(it.radiant.map(this.mapPlayerInMatch)),
       Promise.all(it.dire.map(this.mapPlayerInMatch)),
     ]);
+    let replayUrl: string | undefined = undefined;
+    if (it.replayPath) {
+      replayUrl = `${this.configService.get("api.replayUrl")}${it.replayPath.replace("replays/", "")}`;
+    } else if (it.id > 16500 && it.mode != MatchmakingMode.BOTS) {
+      replayUrl = `${this.configService.get("api.replayUrl")}${it.id}.dem`;
+    }
     return {
       id: it.id,
       mode: it.mode,
@@ -68,10 +74,7 @@ export class MatchMapper {
       towers: it.towerStatus,
       barracks: it.barrackStatus,
 
-      replayUrl:
-        it.id > 16500 && it.mode !== MatchmakingMode.BOTS
-          ? `${this.configService.get("api.replayUrl")}${it.id}.dem`
-          : undefined,
+      replayUrl,
     };
   };
 

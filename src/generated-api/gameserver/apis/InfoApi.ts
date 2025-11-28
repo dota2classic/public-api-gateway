@@ -120,50 +120,6 @@ export class InfoApi extends runtime.BaseAPI {
 
     /**
      */
-    infoControllerGamemodesContext(): runtime.RequestOpts {
-        const queryParameters: any = {};
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-        return {
-            path: `/info/gamemode`,
-            method: 'GET',
-            headers: headerParameters,
-            query: queryParameters,
-        };
-    }
-
-    /**
-     */
-    infoControllerGamemodes = async (): Promise<Array<GameserverMatchmakingModeInfoDto>> => {
-        const response = await this.infoControllerGamemodesRaw();
-        return await response.value();
-    }
-
-    /**
-     */
-    infoControllerGetAggregatedStatsContext(): runtime.RequestOpts {
-        const queryParameters: any = {};
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-        return {
-            path: `/info/aggregated_stats`,
-            method: 'GET',
-            headers: headerParameters,
-            query: queryParameters,
-        };
-    }
-
-    /**
-     */
-    infoControllerGetAggregatedStats = async (): Promise<GameserverAggregatedStatsDto> => {
-        const response = await this.infoControllerGetAggregatedStatsRaw();
-        return await response.value();
-    }
-
-    /**
-     */
     infoControllerGetSeasonsContext(): runtime.RequestOpts {
         const queryParameters: any = {};
 
@@ -181,6 +137,28 @@ export class InfoApi extends runtime.BaseAPI {
      */
     infoControllerGetSeasons = async (): Promise<Array<GameserverGameSeasonDto>> => {
         const response = await this.infoControllerGetSeasonsRaw();
+        return await response.value();
+    }
+
+    /**
+     */
+    infoControllerGamemodesContext(): runtime.RequestOpts {
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        return {
+            path: `/info/gamemode`,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        };
+    }
+
+    /**
+     */
+    infoControllerGamemodes = async (): Promise<Array<GameserverMatchmakingModeInfoDto>> => {
+        const response = await this.infoControllerGamemodesRaw();
         return await response.value();
     }
 
@@ -206,6 +184,28 @@ export class InfoApi extends runtime.BaseAPI {
      */
     infoControllerUpdateGamemode = async (mode: number, gameserverUpdateGamemodeDto: GameserverUpdateGamemodeDto): Promise<void> => {
         await this.infoControllerUpdateGamemodeRaw({ mode: mode, gameserverUpdateGamemodeDto: gameserverUpdateGamemodeDto });
+    }
+
+    /**
+     */
+    infoControllerGetAggregatedStatsContext(): runtime.RequestOpts {
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        return {
+            path: `/info/aggregated_stats`,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        };
+    }
+
+    /**
+     */
+    infoControllerGetAggregatedStats = async (): Promise<GameserverAggregatedStatsDto> => {
+        const response = await this.infoControllerGetAggregatedStatsRaw();
+        return await response.value();
     }
 
     /**
