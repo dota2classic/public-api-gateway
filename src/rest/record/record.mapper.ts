@@ -1,11 +1,17 @@
 import { Injectable } from "@nestjs/common";
-import { PlayerDailyRecord, PlayerRecordDto } from "./record.dto";
+import {
+  PlayerDailyRecord,
+  PlayerRecordDto,
+  PlayerYearSummaryDto,
+} from "./record.dto";
 import {
   GameserverPlayerDailyRecord,
   GameserverPlayerRecordDto,
+  GameserverPlayerYearSummaryDto,
 } from "../../generated-api/gameserver";
 import { MatchMapper } from "../match/match.mapper";
 import { UserProfileService } from "../../service/user-profile.service";
+import { MatchmakingMode } from "../../gateway/shared-types/matchmaking-mode";
 
 @Injectable()
 export class RecordMapper {
@@ -35,4 +41,29 @@ export class RecordMapper {
       wins: it.wins,
     };
   };
+
+  mapYearResult = (
+    source: GameserverPlayerYearSummaryDto,
+  ): PlayerYearSummaryDto => ({
+    steamId: source.steam_id,
+
+    lastHits: source.last_hits,
+    denies: source.denies,
+    gold: source.gold,
+    supportGold: source.support_gold,
+
+    kills: source.kills,
+    deaths: source.deaths,
+    assists: source.assists,
+    misses: source.misses,
+
+    kda: source.kda,
+    playedGames: source.played_games,
+
+    mostPlayedMode: source.most_played_mode as MatchmakingMode,
+    mostPlayedModeCount: source.most_played_mode_count,
+
+    mostPurchasedItem: source.most_purchased_item,
+    mostPurchasedItemCount: source.most_purchased_item_count,
+  });
 }

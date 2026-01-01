@@ -7,7 +7,11 @@ import {
 } from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
 import { RecordApi } from "../../generated-api/gameserver";
-import { PlayerDailyRecord, PlayerRecordsResponse } from "./record.dto";
+import {
+  PlayerDailyRecord,
+  PlayerRecordsResponse,
+  PlayerYearSummaryDto,
+} from "./record.dto";
 import { RecordMapper } from "./record.mapper";
 import { CacheTTL } from "@nestjs/cache-manager";
 import { GlobalHttpCacheInterceptor } from "../../utils/cache-global";
@@ -40,6 +44,15 @@ export class RecordController {
       season,
       day,
     };
+  }
+
+  @CacheTTL(60 * 30)
+  @Get("year/:steam_id")
+  public async playerYearSummary(
+    @Param("steam_id") steamId: string,
+  ): Promise<PlayerYearSummaryDto> {
+    const result = await this.api.recordControllerYearResults(steamId);
+    return this.mapper.mapYearResult(result);
   }
 
   @CacheTTL(60 * 30)

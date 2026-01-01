@@ -32,6 +32,7 @@ export * from './GameserverPlayerRecordsResponse';
 export * from './GameserverPlayerSummaryDto';
 export * from './GameserverPlayerTeammateDto';
 export * from './GameserverPlayerTeammatePage';
+export * from './GameserverPlayerYearSummaryDto';
 export * from './GameserverRecalibrationDto';
 export * from './GameserverRecordType';
 export * from './GameserverReportPlayerDto';
