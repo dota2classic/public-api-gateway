@@ -51,12 +51,13 @@ export class RecordController {
     };
   }
 
-  @CacheTTL(60 * 30)
+  // @CacheTTL(60 * 30)
   @WithUser()
   @Get("year/:steam_id")
   public async playerYearSummary(
     @CurrentUser() user: CurrentUserDto,
   ): Promise<PlayerYearSummaryDto> {
+    this.logger.log(`Getting yearly summary for ${user.steam_id}`);
     const result = await this.api.recordControllerYearResults(user.steam_id);
     return this.mapper.mapYearResult(result);
   }
