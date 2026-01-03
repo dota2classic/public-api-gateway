@@ -15,11 +15,6 @@ import {
 import { RecordMapper } from "./record.mapper";
 import { CacheTTL } from "@nestjs/cache-manager";
 import { GlobalHttpCacheInterceptor } from "../../utils/cache-global";
-import { WithUser } from "../../utils/decorator/with-user";
-import {
-  CurrentUser,
-  CurrentUserDto,
-} from "../../utils/decorator/current-user";
 
 @Controller("record")
 @ApiTags("record")
@@ -52,13 +47,12 @@ export class RecordController {
   }
 
   // @CacheTTL(60 * 30)
-  @WithUser()
   @Get("year/:steam_id")
   public async playerYearSummary(
-    @CurrentUser() user: CurrentUserDto,
+    @Param("steam_id") steamId: string,
   ): Promise<PlayerYearSummaryDto> {
-    this.logger.log(`Getting yearly summary for ${user.steam_id}`);
-    const result = await this.api.recordControllerYearResults(user.steam_id);
+    this.logger.log(`Getting yearly summary for ${steamId}`);
+    const result = await this.api.recordControllerYearResults(steamId);
     return this.mapper.mapYearResult(result);
   }
 
