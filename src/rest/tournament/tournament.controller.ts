@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post } from "@nestjs/common";
+import { Body, Controller, Get, Param, Patch, Post } from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
 
 import {
@@ -11,7 +11,7 @@ import {
   CurrentUserDto,
 } from "../../utils/decorator/current-user";
 import { PartyService } from "../party.service";
-import { CreateTournamentDto } from "./tournament.dto";
+import { CreateTournamentDto, UpdateTournamentDto } from "./tournament.dto";
 import { TournamentMapper } from "./tournament.mapper";
 
 @Controller("tournament")
@@ -79,6 +79,20 @@ export class TournamentController {
       finalBestOf: body.finalBestOf,
       grandFinalBestOf: body.grandFinalBestOf,
     });
+  }
+
+  @AdminGuard()
+  @WithUser()
+  @Patch(":id")
+  async updateTournament(
+    @Param("id") id: number,
+    @Body() dto: UpdateTournamentDto,
+  ) {
+    const tournament = await this.api.tournamentControllerUpdateTournament(
+      id,
+      dto,
+    );
+    return this.mapper.mapTournament(tournament);
   }
 
   @AdminGuard()

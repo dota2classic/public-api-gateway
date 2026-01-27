@@ -22,16 +22,44 @@ export class ConfirmRegistrationDto {
   confirm: boolean;
 }
 
+// export class CreateTournamentDto {
+//   name: string;
+//   teamSize: number;
+//   description: string;
+//   startDate: Date;
+//   imageUrl: string;
+//   strategy: TournamentBracketType;
+//   roundBestOf: number;
+//   finalBestOf: number;
+//   grandFinalBestOf: number;
+// }
+//
+
 export class CreateTournamentDto {
   name: string;
   teamSize: number;
   description: string;
   startDate: Date;
   imageUrl: string;
+
   strategy: TournamentBracketType;
   roundBestOf: number;
   finalBestOf: number;
   grandFinalBestOf: number;
+}
+
+export class UpdateTournamentDto {
+  name?: string;
+  description?: string;
+
+  teamSize?: number;
+  startDate?: Date;
+  imageUrl?: string;
+
+  strategy?: TournamentBracketType;
+  roundBestOf?: number;
+  finalBestOf?: number;
+  grandFinalBestOf?: number;
 }
 
 export class UpdateTournamentStatusDto {

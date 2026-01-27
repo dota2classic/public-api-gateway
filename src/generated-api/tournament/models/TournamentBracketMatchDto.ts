@@ -14,15 +14,15 @@
 
 import { exists } from '../runtime';
 import {
-    TournamentBracketMatchGameDto,
-    TournamentBracketMatchGameDtoFromJSON,
-    TournamentBracketMatchGameDtoToJSON,
-    TournamentMatchStatus,
-    TournamentMatchStatusFromJSON,
-    TournamentMatchStatusToJSON,
-    TournamentParticipantResultDto,
-    TournamentParticipantResultDtoFromJSON,
-    TournamentParticipantResultDtoToJSON,
+  TournamentBracketMatchGameDto,
+  TournamentBracketMatchGameDtoFromJSON,
+  TournamentBracketMatchGameDtoToJSON,
+  TournamentMatchStatus,
+  TournamentMatchStatusFromJSON,
+  TournamentMatchStatusToJSON,
+  TournamentParticipantResultDto,
+  TournamentParticipantResultDtoFromJSON,
+  TournamentParticipantResultDtoToJSON,
 } from './';
 
 /**

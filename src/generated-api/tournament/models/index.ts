@@ -22,10 +22,12 @@ export * from './TournamentSeedDto';
 export * from './TournamentSeedItemDto';
 export * from './TournamentSetGameWinnerDto';
 export * from './TournamentStageDto';
+export * from './TournamentStartGameDto';
 export * from './TournamentSubmitInvitationDto';
 export * from './TournamentTeamDto';
 export * from './TournamentTeamInvitationDto';
 export * from './TournamentTeamMemberDto';
 export * from './TournamentTournamentBracketInfoDto';
 export * from './TournamentTournamentDto';
+export * from './TournamentUpdateTournamentDto';
 export * from "../../mapped-models"
