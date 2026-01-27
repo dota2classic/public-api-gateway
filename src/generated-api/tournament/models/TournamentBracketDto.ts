@@ -12,7 +12,14 @@
  * Do not edit the class manually.
  */
 
-import { TournamentBracketRoundDto, TournamentBracketRoundDtoFromJSON, TournamentBracketRoundDtoToJSON } from './';
+import {
+  TournamentBracketRoundDto,
+  TournamentBracketRoundDtoFromJSON,
+  TournamentBracketRoundDtoToJSON,
+  TournamentBracketType,
+  TournamentBracketTypeFromJSON,
+  TournamentBracketTypeToJSON,
+} from './';
 
 /**
  *
@@ -22,10 +29,10 @@ import { TournamentBracketRoundDto, TournamentBracketRoundDtoFromJSON, Tournamen
 export class TournamentBracketDto {
     /**
      *
-     * @type {string}
+     * @type {TournamentBracketType}
      * @memberof TournamentBracketDto
      */
-    type: TournamentBracketDtoTypeEnum;
+    type: TournamentBracketType;
     /**
      *
      * @type {Array<TournamentBracketRoundDto>}
@@ -50,7 +57,7 @@ export function TournamentBracketDtoFromJSONTyped(json: any, ignoreDiscriminator
     }
     return {
 
-        'type': json['type'],
+        'type': TournamentBracketTypeFromJSON(json['type']),
         'winning': ((json['winning'] as Array<any>).map(TournamentBracketRoundDtoFromJSON)),
         'losing': ((json['losing'] as Array<any>).map(TournamentBracketRoundDtoFromJSON)),
     };
@@ -65,19 +72,10 @@ export function TournamentBracketDtoToJSON(value?: TournamentBracketDto | null):
     }
     return {
 
-        'type': value.type,
+        'type': TournamentBracketTypeToJSON(value.type),
         'winning': ((value.winning as Array<any>).map(TournamentBracketRoundDtoToJSON)),
         'losing': ((value.losing as Array<any>).map(TournamentBracketRoundDtoToJSON)),
     };
-}
-
-/**
-* @export
-* @enum {string}
-*/
-export enum TournamentBracketDtoTypeEnum {
-    SINGLEELIMINATION = 'SINGLE_ELIMINATION',
-    DOUBLEELIMINATION = 'DOUBLE_ELIMINATION'
 }
 
 

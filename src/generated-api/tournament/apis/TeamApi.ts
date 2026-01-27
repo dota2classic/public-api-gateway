@@ -85,6 +85,26 @@ export class TeamApi extends runtime.BaseAPI {
 
     /**
      */
+    private async teamControllerCreateTeamRaw(requestParameters: TeamControllerCreateTeamRequest): Promise<runtime.ApiResponse<TournamentTeamDto>> {
+        this.teamControllerCreateTeamValidation(requestParameters);
+        const context = this.teamControllerCreateTeamContext(requestParameters);
+        const response = await this.request(context);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => TournamentTeamDtoFromJSON(jsonValue));
+    }
+
+
+
+    /**
+     */
+    private teamControllerCreateTeamValidation(requestParameters: TeamControllerCreateTeamRequest) {
+        if (requestParameters.tournamentCreateTeamDto === null || requestParameters.tournamentCreateTeamDto === undefined) {
+            throw new runtime.RequiredError('tournamentCreateTeamDto','Required parameter requestParameters.tournamentCreateTeamDto was null or undefined when calling teamControllerCreateTeam.');
+        }
+    }
+
+    /**
+     */
     teamControllerCreateTeamContext(requestParameters: TeamControllerCreateTeamRequest): runtime.RequestOpts {
         const queryParameters: any = {};
 
@@ -106,6 +126,29 @@ export class TeamApi extends runtime.BaseAPI {
     teamControllerCreateTeam = async (tournamentCreateTeamDto: TournamentCreateTeamDto): Promise<TournamentTeamDto> => {
         const response = await this.teamControllerCreateTeamRaw({ tournamentCreateTeamDto: tournamentCreateTeamDto });
         return await response.value();
+    }
+
+    /**
+     */
+    private async teamControllerEditTeamRaw(requestParameters: TeamControllerEditTeamRequest): Promise<runtime.ApiResponse<TournamentTeamDto>> {
+        this.teamControllerEditTeamValidation(requestParameters);
+        const context = this.teamControllerEditTeamContext(requestParameters);
+        const response = await this.request(context);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => TournamentTeamDtoFromJSON(jsonValue));
+    }
+
+
+
+    /**
+     */
+    private teamControllerEditTeamValidation(requestParameters: TeamControllerEditTeamRequest) {
+        if (requestParameters.id === null || requestParameters.id === undefined) {
+            throw new runtime.RequiredError('id','Required parameter requestParameters.id was null or undefined when calling teamControllerEditTeam.');
+        }
+        if (requestParameters.tournamentEditTeamDto === null || requestParameters.tournamentEditTeamDto === undefined) {
+            throw new runtime.RequiredError('tournamentEditTeamDto','Required parameter requestParameters.tournamentEditTeamDto was null or undefined when calling teamControllerEditTeam.');
+        }
     }
 
     /**
@@ -135,6 +178,26 @@ export class TeamApi extends runtime.BaseAPI {
 
     /**
      */
+    private async teamControllerGetTeamRaw(requestParameters: TeamControllerGetTeamRequest): Promise<runtime.ApiResponse<TournamentTeamDto>> {
+        this.teamControllerGetTeamValidation(requestParameters);
+        const context = this.teamControllerGetTeamContext(requestParameters);
+        const response = await this.request(context);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => TournamentTeamDtoFromJSON(jsonValue));
+    }
+
+
+
+    /**
+     */
+    private teamControllerGetTeamValidation(requestParameters: TeamControllerGetTeamRequest) {
+        if (requestParameters.id === null || requestParameters.id === undefined) {
+            throw new runtime.RequiredError('id','Required parameter requestParameters.id was null or undefined when calling teamControllerGetTeam.');
+        }
+    }
+
+    /**
+     */
     teamControllerGetTeamContext(requestParameters: TeamControllerGetTeamRequest): runtime.RequestOpts {
         const queryParameters: any = {};
 
@@ -153,6 +216,26 @@ export class TeamApi extends runtime.BaseAPI {
     teamControllerGetTeam = async (id: string): Promise<TournamentTeamDto> => {
         const response = await this.teamControllerGetTeamRaw({ id: id });
         return await response.value();
+    }
+
+    /**
+     */
+    private async teamControllerGetTeamInvitesRaw(requestParameters: TeamControllerGetTeamInvitesRequest): Promise<runtime.ApiResponse<Array<TournamentTeamInvitationDto>>> {
+        this.teamControllerGetTeamInvitesValidation(requestParameters);
+        const context = this.teamControllerGetTeamInvitesContext(requestParameters);
+        const response = await this.request(context);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(TournamentTeamInvitationDtoFromJSON));
+    }
+
+
+
+    /**
+     */
+    private teamControllerGetTeamInvitesValidation(requestParameters: TeamControllerGetTeamInvitesRequest) {
+        if (requestParameters.steamId === null || requestParameters.steamId === undefined) {
+            throw new runtime.RequiredError('steamId','Required parameter requestParameters.steamId was null or undefined when calling teamControllerGetTeamInvites.');
+        }
     }
 
     /**
@@ -179,6 +262,26 @@ export class TeamApi extends runtime.BaseAPI {
 
     /**
      */
+    private async teamControllerGetTeamOfRaw(requestParameters: TeamControllerGetTeamOfRequest): Promise<runtime.ApiResponse<TournamentTeamDto>> {
+        this.teamControllerGetTeamOfValidation(requestParameters);
+        const context = this.teamControllerGetTeamOfContext(requestParameters);
+        const response = await this.request(context);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => TournamentTeamDtoFromJSON(jsonValue));
+    }
+
+
+
+    /**
+     */
+    private teamControllerGetTeamOfValidation(requestParameters: TeamControllerGetTeamOfRequest) {
+        if (requestParameters.id === null || requestParameters.id === undefined) {
+            throw new runtime.RequiredError('id','Required parameter requestParameters.id was null or undefined when calling teamControllerGetTeamOf.');
+        }
+    }
+
+    /**
+     */
     teamControllerGetTeamOfContext(requestParameters: TeamControllerGetTeamOfRequest): runtime.RequestOpts {
         const queryParameters: any = {};
 
@@ -201,6 +304,26 @@ export class TeamApi extends runtime.BaseAPI {
 
     /**
      */
+    private async teamControllerGetTournamentsRaw(requestParameters: TeamControllerGetTournamentsRequest): Promise<runtime.ApiResponse<Array<TournamentTournamentDto>>> {
+        this.teamControllerGetTournamentsValidation(requestParameters);
+        const context = this.teamControllerGetTournamentsContext(requestParameters);
+        const response = await this.request(context);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(TournamentTournamentDtoFromJSON));
+    }
+
+
+
+    /**
+     */
+    private teamControllerGetTournamentsValidation(requestParameters: TeamControllerGetTournamentsRequest) {
+        if (requestParameters.id === null || requestParameters.id === undefined) {
+            throw new runtime.RequiredError('id','Required parameter requestParameters.id was null or undefined when calling teamControllerGetTournaments.');
+        }
+    }
+
+    /**
+     */
     teamControllerGetTournamentsContext(requestParameters: TeamControllerGetTournamentsRequest): runtime.RequestOpts {
         const queryParameters: any = {};
 
@@ -219,6 +342,26 @@ export class TeamApi extends runtime.BaseAPI {
     teamControllerGetTournaments = async (id: string): Promise<Array<TournamentTournamentDto>> => {
         const response = await this.teamControllerGetTournamentsRaw({ id: id });
         return await response.value();
+    }
+
+    /**
+     */
+    private async teamControllerInviteToTeamRaw(requestParameters: TeamControllerInviteToTeamRequest): Promise<runtime.ApiResponse<TournamentTeamDto>> {
+        this.teamControllerInviteToTeamValidation(requestParameters);
+        const context = this.teamControllerInviteToTeamContext(requestParameters);
+        const response = await this.request(context);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => TournamentTeamDtoFromJSON(jsonValue));
+    }
+
+
+
+    /**
+     */
+    private teamControllerInviteToTeamValidation(requestParameters: TeamControllerInviteToTeamRequest) {
+        if (requestParameters.tournamentCreateTeamInviteDto === null || requestParameters.tournamentCreateTeamInviteDto === undefined) {
+            throw new runtime.RequiredError('tournamentCreateTeamInviteDto','Required parameter requestParameters.tournamentCreateTeamInviteDto was null or undefined when calling teamControllerInviteToTeam.');
+        }
     }
 
     /**
@@ -248,6 +391,26 @@ export class TeamApi extends runtime.BaseAPI {
 
     /**
      */
+    private async teamControllerKickFromTeamRaw(requestParameters: TeamControllerKickFromTeamRequest): Promise<runtime.ApiResponse<TournamentTeamDto>> {
+        this.teamControllerKickFromTeamValidation(requestParameters);
+        const context = this.teamControllerKickFromTeamContext(requestParameters);
+        const response = await this.request(context);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => TournamentTeamDtoFromJSON(jsonValue));
+    }
+
+
+
+    /**
+     */
+    private teamControllerKickFromTeamValidation(requestParameters: TeamControllerKickFromTeamRequest) {
+        if (requestParameters.tournamentKickFromTeamDto === null || requestParameters.tournamentKickFromTeamDto === undefined) {
+            throw new runtime.RequiredError('tournamentKickFromTeamDto','Required parameter requestParameters.tournamentKickFromTeamDto was null or undefined when calling teamControllerKickFromTeam.');
+        }
+    }
+
+    /**
+     */
     teamControllerKickFromTeamContext(requestParameters: TeamControllerKickFromTeamRequest): runtime.RequestOpts {
         const queryParameters: any = {};
 
@@ -269,6 +432,26 @@ export class TeamApi extends runtime.BaseAPI {
     teamControllerKickFromTeam = async (tournamentKickFromTeamDto: TournamentKickFromTeamDto): Promise<TournamentTeamDto> => {
         const response = await this.teamControllerKickFromTeamRaw({ tournamentKickFromTeamDto: tournamentKickFromTeamDto });
         return await response.value();
+    }
+
+    /**
+     */
+    private async teamControllerLeaveTeamRaw(requestParameters: TeamControllerLeaveTeamRequest): Promise<runtime.ApiResponse<TournamentTeamDto>> {
+        this.teamControllerLeaveTeamValidation(requestParameters);
+        const context = this.teamControllerLeaveTeamContext(requestParameters);
+        const response = await this.request(context);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => TournamentTeamDtoFromJSON(jsonValue));
+    }
+
+
+
+    /**
+     */
+    private teamControllerLeaveTeamValidation(requestParameters: TeamControllerLeaveTeamRequest) {
+        if (requestParameters.tournamentLeaveTeamDto === null || requestParameters.tournamentLeaveTeamDto === undefined) {
+            throw new runtime.RequiredError('tournamentLeaveTeamDto','Required parameter requestParameters.tournamentLeaveTeamDto was null or undefined when calling teamControllerLeaveTeam.');
+        }
     }
 
     /**
@@ -298,6 +481,23 @@ export class TeamApi extends runtime.BaseAPI {
 
     /**
      */
+    private async teamControllerListTeamsRaw(): Promise<runtime.ApiResponse<Array<TournamentTeamDto>>> {
+        this.teamControllerListTeamsValidation();
+        const context = this.teamControllerListTeamsContext();
+        const response = await this.request(context);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(TournamentTeamDtoFromJSON));
+    }
+
+
+
+    /**
+     */
+    private teamControllerListTeamsValidation() {
+    }
+
+    /**
+     */
     teamControllerListTeamsContext(): runtime.RequestOpts {
         const queryParameters: any = {};
 
@@ -316,6 +516,29 @@ export class TeamApi extends runtime.BaseAPI {
     teamControllerListTeams = async (): Promise<Array<TournamentTeamDto>> => {
         const response = await this.teamControllerListTeamsRaw();
         return await response.value();
+    }
+
+    /**
+     */
+    private async teamControllerSubmitInviteRaw(requestParameters: TeamControllerSubmitInviteRequest): Promise<runtime.ApiResponse<void>> {
+        this.teamControllerSubmitInviteValidation(requestParameters);
+        const context = this.teamControllerSubmitInviteContext(requestParameters);
+        const response = await this.request(context);
+
+        return new runtime.VoidApiResponse(response);
+    }
+
+
+
+    /**
+     */
+    private teamControllerSubmitInviteValidation(requestParameters: TeamControllerSubmitInviteRequest) {
+        if (requestParameters.id === null || requestParameters.id === undefined) {
+            throw new runtime.RequiredError('id','Required parameter requestParameters.id was null or undefined when calling teamControllerSubmitInvite.');
+        }
+        if (requestParameters.tournamentSubmitInvitationDto === null || requestParameters.tournamentSubmitInvitationDto === undefined) {
+            throw new runtime.RequiredError('tournamentSubmitInvitationDto','Required parameter requestParameters.tournamentSubmitInvitationDto was null or undefined when calling teamControllerSubmitInvite.');
+        }
     }
 
     /**
@@ -340,207 +563,6 @@ export class TeamApi extends runtime.BaseAPI {
      */
     teamControllerSubmitInvite = async (id: number, tournamentSubmitInvitationDto: TournamentSubmitInvitationDto): Promise<void> => {
         await this.teamControllerSubmitInviteRaw({ id: id, tournamentSubmitInvitationDto: tournamentSubmitInvitationDto });
-    }
-
-    /**
-     */
-    private async teamControllerCreateTeamRaw(requestParameters: TeamControllerCreateTeamRequest): Promise<runtime.ApiResponse<TournamentTeamDto>> {
-        this.teamControllerCreateTeamValidation(requestParameters);
-        const context = this.teamControllerCreateTeamContext(requestParameters);
-        const response = await this.request(context);
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => TournamentTeamDtoFromJSON(jsonValue));
-    }
-
-    /**
-     */
-    private teamControllerCreateTeamValidation(requestParameters: TeamControllerCreateTeamRequest) {
-        if (requestParameters.tournamentCreateTeamDto === null || requestParameters.tournamentCreateTeamDto === undefined) {
-            throw new runtime.RequiredError('tournamentCreateTeamDto','Required parameter requestParameters.tournamentCreateTeamDto was null or undefined when calling teamControllerCreateTeam.');
-        }
-    }
-
-    /**
-     */
-    private async teamControllerEditTeamRaw(requestParameters: TeamControllerEditTeamRequest): Promise<runtime.ApiResponse<TournamentTeamDto>> {
-        this.teamControllerEditTeamValidation(requestParameters);
-        const context = this.teamControllerEditTeamContext(requestParameters);
-        const response = await this.request(context);
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => TournamentTeamDtoFromJSON(jsonValue));
-    }
-
-    /**
-     */
-    private teamControllerEditTeamValidation(requestParameters: TeamControllerEditTeamRequest) {
-        if (requestParameters.id === null || requestParameters.id === undefined) {
-            throw new runtime.RequiredError('id','Required parameter requestParameters.id was null or undefined when calling teamControllerEditTeam.');
-        }
-        if (requestParameters.tournamentEditTeamDto === null || requestParameters.tournamentEditTeamDto === undefined) {
-            throw new runtime.RequiredError('tournamentEditTeamDto','Required parameter requestParameters.tournamentEditTeamDto was null or undefined when calling teamControllerEditTeam.');
-        }
-    }
-
-    /**
-     */
-    private async teamControllerGetTeamRaw(requestParameters: TeamControllerGetTeamRequest): Promise<runtime.ApiResponse<TournamentTeamDto>> {
-        this.teamControllerGetTeamValidation(requestParameters);
-        const context = this.teamControllerGetTeamContext(requestParameters);
-        const response = await this.request(context);
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => TournamentTeamDtoFromJSON(jsonValue));
-    }
-
-    /**
-     */
-    private teamControllerGetTeamValidation(requestParameters: TeamControllerGetTeamRequest) {
-        if (requestParameters.id === null || requestParameters.id === undefined) {
-            throw new runtime.RequiredError('id','Required parameter requestParameters.id was null or undefined when calling teamControllerGetTeam.');
-        }
-    }
-
-    /**
-     */
-    private async teamControllerGetTeamInvitesRaw(requestParameters: TeamControllerGetTeamInvitesRequest): Promise<runtime.ApiResponse<Array<TournamentTeamInvitationDto>>> {
-        this.teamControllerGetTeamInvitesValidation(requestParameters);
-        const context = this.teamControllerGetTeamInvitesContext(requestParameters);
-        const response = await this.request(context);
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(TournamentTeamInvitationDtoFromJSON));
-    }
-
-    /**
-     */
-    private teamControllerGetTeamInvitesValidation(requestParameters: TeamControllerGetTeamInvitesRequest) {
-        if (requestParameters.steamId === null || requestParameters.steamId === undefined) {
-            throw new runtime.RequiredError('steamId','Required parameter requestParameters.steamId was null or undefined when calling teamControllerGetTeamInvites.');
-        }
-    }
-
-    /**
-     */
-    private async teamControllerGetTeamOfRaw(requestParameters: TeamControllerGetTeamOfRequest): Promise<runtime.ApiResponse<TournamentTeamDto>> {
-        this.teamControllerGetTeamOfValidation(requestParameters);
-        const context = this.teamControllerGetTeamOfContext(requestParameters);
-        const response = await this.request(context);
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => TournamentTeamDtoFromJSON(jsonValue));
-    }
-
-    /**
-     */
-    private teamControllerGetTeamOfValidation(requestParameters: TeamControllerGetTeamOfRequest) {
-        if (requestParameters.id === null || requestParameters.id === undefined) {
-            throw new runtime.RequiredError('id','Required parameter requestParameters.id was null or undefined when calling teamControllerGetTeamOf.');
-        }
-    }
-
-    /**
-     */
-    private async teamControllerGetTournamentsRaw(requestParameters: TeamControllerGetTournamentsRequest): Promise<runtime.ApiResponse<Array<TournamentTournamentDto>>> {
-        this.teamControllerGetTournamentsValidation(requestParameters);
-        const context = this.teamControllerGetTournamentsContext(requestParameters);
-        const response = await this.request(context);
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(TournamentTournamentDtoFromJSON));
-    }
-
-    /**
-     */
-    private teamControllerGetTournamentsValidation(requestParameters: TeamControllerGetTournamentsRequest) {
-        if (requestParameters.id === null || requestParameters.id === undefined) {
-            throw new runtime.RequiredError('id','Required parameter requestParameters.id was null or undefined when calling teamControllerGetTournaments.');
-        }
-    }
-
-    /**
-     */
-    private async teamControllerInviteToTeamRaw(requestParameters: TeamControllerInviteToTeamRequest): Promise<runtime.ApiResponse<TournamentTeamDto>> {
-        this.teamControllerInviteToTeamValidation(requestParameters);
-        const context = this.teamControllerInviteToTeamContext(requestParameters);
-        const response = await this.request(context);
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => TournamentTeamDtoFromJSON(jsonValue));
-    }
-
-    /**
-     */
-    private teamControllerInviteToTeamValidation(requestParameters: TeamControllerInviteToTeamRequest) {
-        if (requestParameters.tournamentCreateTeamInviteDto === null || requestParameters.tournamentCreateTeamInviteDto === undefined) {
-            throw new runtime.RequiredError('tournamentCreateTeamInviteDto','Required parameter requestParameters.tournamentCreateTeamInviteDto was null or undefined when calling teamControllerInviteToTeam.');
-        }
-    }
-
-    /**
-     */
-    private async teamControllerKickFromTeamRaw(requestParameters: TeamControllerKickFromTeamRequest): Promise<runtime.ApiResponse<TournamentTeamDto>> {
-        this.teamControllerKickFromTeamValidation(requestParameters);
-        const context = this.teamControllerKickFromTeamContext(requestParameters);
-        const response = await this.request(context);
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => TournamentTeamDtoFromJSON(jsonValue));
-    }
-
-    /**
-     */
-    private teamControllerKickFromTeamValidation(requestParameters: TeamControllerKickFromTeamRequest) {
-        if (requestParameters.tournamentKickFromTeamDto === null || requestParameters.tournamentKickFromTeamDto === undefined) {
-            throw new runtime.RequiredError('tournamentKickFromTeamDto','Required parameter requestParameters.tournamentKickFromTeamDto was null or undefined when calling teamControllerKickFromTeam.');
-        }
-    }
-
-    /**
-     */
-    private async teamControllerLeaveTeamRaw(requestParameters: TeamControllerLeaveTeamRequest): Promise<runtime.ApiResponse<TournamentTeamDto>> {
-        this.teamControllerLeaveTeamValidation(requestParameters);
-        const context = this.teamControllerLeaveTeamContext(requestParameters);
-        const response = await this.request(context);
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => TournamentTeamDtoFromJSON(jsonValue));
-    }
-
-    /**
-     */
-    private teamControllerLeaveTeamValidation(requestParameters: TeamControllerLeaveTeamRequest) {
-        if (requestParameters.tournamentLeaveTeamDto === null || requestParameters.tournamentLeaveTeamDto === undefined) {
-            throw new runtime.RequiredError('tournamentLeaveTeamDto','Required parameter requestParameters.tournamentLeaveTeamDto was null or undefined when calling teamControllerLeaveTeam.');
-        }
-    }
-
-    /**
-     */
-    private async teamControllerListTeamsRaw(): Promise<runtime.ApiResponse<Array<TournamentTeamDto>>> {
-        this.teamControllerListTeamsValidation();
-        const context = this.teamControllerListTeamsContext();
-        const response = await this.request(context);
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(TournamentTeamDtoFromJSON));
-    }
-
-    /**
-     */
-    private teamControllerListTeamsValidation() {
-    }
-
-    /**
-     */
-    private async teamControllerSubmitInviteRaw(requestParameters: TeamControllerSubmitInviteRequest): Promise<runtime.ApiResponse<void>> {
-        this.teamControllerSubmitInviteValidation(requestParameters);
-        const context = this.teamControllerSubmitInviteContext(requestParameters);
-        const response = await this.request(context);
-
-        return new runtime.VoidApiResponse(response);
-    }
-
-    /**
-     */
-    private teamControllerSubmitInviteValidation(requestParameters: TeamControllerSubmitInviteRequest) {
-        if (requestParameters.id === null || requestParameters.id === undefined) {
-            throw new runtime.RequiredError('id','Required parameter requestParameters.id was null or undefined when calling teamControllerSubmitInvite.');
-        }
-        if (requestParameters.tournamentSubmitInvitationDto === null || requestParameters.tournamentSubmitInvitationDto === undefined) {
-            throw new runtime.RequiredError('tournamentSubmitInvitationDto','Required parameter requestParameters.tournamentSubmitInvitationDto was null or undefined when calling teamControllerSubmitInvite.');
-        }
     }
 
 }

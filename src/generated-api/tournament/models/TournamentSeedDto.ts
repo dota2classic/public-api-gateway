@@ -16,6 +16,9 @@ import {
   TournamentMatchGameDto,
   TournamentMatchGameDtoFromJSON,
   TournamentMatchGameDtoToJSON,
+  TournamentMatchStatus,
+  TournamentMatchStatusFromJSON,
+  TournamentMatchStatusToJSON,
   TournamentSeedItemDto,
   TournamentSeedItemDtoFromJSON,
   TournamentSeedItemDtoToJSON,
@@ -29,6 +32,12 @@ import {
 export class TournamentSeedDto {
     /**
      *
+     * @type {TournamentMatchStatus}
+     * @memberof TournamentSeedDto
+     */
+    status: TournamentMatchStatus;
+    /**
+     *
      * @type {Array<TournamentSeedItemDto>}
      * @memberof TournamentSeedDto
      */
@@ -39,12 +48,6 @@ export class TournamentSeedDto {
      * @memberof TournamentSeedDto
      */
     games: Array<TournamentMatchGameDto>;
-    /**
-     *
-     * @type {number}
-     * @memberof TournamentSeedDto
-     */
-    status: TournamentSeedDtoStatusEnum;
     /**
      *
      * @type {number}
@@ -81,9 +84,9 @@ export function TournamentSeedDtoFromJSONTyped(json: any, ignoreDiscriminator: b
     }
     return {
 
+        'status': TournamentMatchStatusFromJSON(json['status']),
         'teams': ((json['teams'] as Array<any>).map(TournamentSeedItemDtoFromJSON)),
         'games': ((json['games'] as Array<any>).map(TournamentMatchGameDtoFromJSON)),
-        'status': json['status'],
         'id': json['id'],
         'scheduledDate': (new Date(json['scheduledDate'])),
         'number': json['number'],
@@ -100,27 +103,14 @@ export function TournamentSeedDtoToJSON(value?: TournamentSeedDto | null): any {
     }
     return {
 
+        'status': TournamentMatchStatusToJSON(value.status),
         'teams': ((value.teams as Array<any>).map(TournamentSeedItemDtoToJSON)),
         'games': ((value.games as Array<any>).map(TournamentMatchGameDtoToJSON)),
-        'status': value.status,
         'id': value.id,
         'scheduledDate': (value.scheduledDate.toISOString()),
         'number': value.number,
         'ch': value.ch,
     };
-}
-
-/**
-* @export
-* @enum {string}
-*/
-export enum TournamentSeedDtoStatusEnum {
-    NUMBER_0 = 0,
-    NUMBER_1 = 1,
-    NUMBER_2 = 2,
-    NUMBER_3 = 3,
-    NUMBER_4 = 4,
-    NUMBER_5 = 5
 }
 
 

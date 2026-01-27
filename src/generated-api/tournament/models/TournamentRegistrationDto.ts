@@ -16,6 +16,9 @@ import {
   TournamentRegistrationPlayerDto,
   TournamentRegistrationPlayerDtoFromJSON,
   TournamentRegistrationPlayerDtoToJSON,
+  TournamentTournamentRegistrationState,
+  TournamentTournamentRegistrationStateFromJSON,
+  TournamentTournamentRegistrationStateToJSON,
 } from './';
 
 /**
@@ -24,6 +27,12 @@ import {
  * @interface TournamentRegistrationDto
  */
 export class TournamentRegistrationDto {
+    /**
+     *
+     * @type {TournamentTournamentRegistrationState}
+     * @memberof TournamentRegistrationDto
+     */
+    state: TournamentTournamentRegistrationState;
     /**
      *
      * @type {number}
@@ -36,12 +45,6 @@ export class TournamentRegistrationDto {
      * @memberof TournamentRegistrationDto
      */
     players: Array<TournamentRegistrationPlayerDto>;
-    /**
-     *
-     * @type {string}
-     * @memberof TournamentRegistrationDto
-     */
-    state: TournamentRegistrationDtoStateEnum;
 }
 
 export function TournamentRegistrationDtoFromJSON(json: any): TournamentRegistrationDto {
@@ -54,9 +57,9 @@ export function TournamentRegistrationDtoFromJSONTyped(json: any, ignoreDiscrimi
     }
     return {
 
+        'state': TournamentTournamentRegistrationStateFromJSON(json['state']),
         'id': json['id'],
         'players': ((json['players'] as Array<any>).map(TournamentRegistrationPlayerDtoFromJSON)),
-        'state': json['state'],
     };
 }
 
@@ -69,22 +72,10 @@ export function TournamentRegistrationDtoToJSON(value?: TournamentRegistrationDt
     }
     return {
 
+        'state': TournamentTournamentRegistrationStateToJSON(value.state),
         'id': value.id,
         'players': ((value.players as Array<any>).map(TournamentRegistrationPlayerDtoToJSON)),
-        'state': value.state,
     };
-}
-
-/**
-* @export
-* @enum {string}
-*/
-export enum TournamentRegistrationDtoStateEnum {
-    CREATED = 'CREATED',
-    PENDINGCONFIRMATION = 'PENDING_CONFIRMATION',
-    CONFIRMED = 'CONFIRMED',
-    DECLINED = 'DECLINED',
-    TIMEDOUT = 'TIMED_OUT'
 }
 
 

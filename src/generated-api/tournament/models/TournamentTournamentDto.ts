@@ -12,7 +12,14 @@
  * Do not edit the class manually.
  */
 
-import { TournamentRegistrationDto, TournamentRegistrationDtoFromJSON, TournamentRegistrationDtoToJSON } from './';
+import {
+  TournamentRegistrationDto,
+  TournamentRegistrationDtoFromJSON,
+  TournamentRegistrationDtoToJSON,
+  TournamentTournamentStatus,
+  TournamentTournamentStatusFromJSON,
+  TournamentTournamentStatusToJSON,
+} from './';
 
 /**
  *
@@ -20,6 +27,12 @@ import { TournamentRegistrationDto, TournamentRegistrationDtoFromJSON, Tournamen
  * @interface TournamentTournamentDto
  */
 export class TournamentTournamentDto {
+    /**
+     *
+     * @type {TournamentTournamentStatus}
+     * @memberof TournamentTournamentDto
+     */
+    status: TournamentTournamentStatus;
     /**
      *
      * @type {number}
@@ -32,12 +45,6 @@ export class TournamentTournamentDto {
      * @memberof TournamentTournamentDto
      */
     name: string;
-    /**
-     *
-     * @type {string}
-     * @memberof TournamentTournamentDto
-     */
-    status: TournamentTournamentDtoStatusEnum;
     /**
      *
      * @type {Date}
@@ -74,9 +81,9 @@ export function TournamentTournamentDtoFromJSONTyped(json: any, ignoreDiscrimina
     }
     return {
 
+        'status': TournamentTournamentStatusFromJSON(json['status']),
         'id': json['id'],
         'name': json['name'],
-        'status': json['status'],
         'startDate': (new Date(json['startDate'])),
         'imageUrl': json['imageUrl'],
         'description': json['description'],
@@ -93,26 +100,14 @@ export function TournamentTournamentDtoToJSON(value?: TournamentTournamentDto | 
     }
     return {
 
+        'status': TournamentTournamentStatusToJSON(value.status),
         'id': value.id,
         'name': value.name,
-        'status': value.status,
         'startDate': (value.startDate.toISOString()),
         'imageUrl': value.imageUrl,
         'description': value.description,
         'registrations': ((value.registrations as Array<any>).map(TournamentRegistrationDtoToJSON)),
     };
-}
-
-/**
-* @export
-* @enum {string}
-*/
-export enum TournamentTournamentDtoStatusEnum {
-    DRAFT = 'DRAFT',
-    REGISTRATION = 'REGISTRATION',
-    READYCHECK = 'READY_CHECK',
-    INPROGRESS = 'IN_PROGRESS',
-    FINISHED = 'FINISHED'
 }
 
 

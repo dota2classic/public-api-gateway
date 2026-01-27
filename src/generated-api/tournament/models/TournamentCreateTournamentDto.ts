@@ -12,12 +12,20 @@
  * Do not edit the class manually.
  */
 
+import { TournamentBracketType, TournamentBracketTypeFromJSON, TournamentBracketTypeToJSON } from './';
+
 /**
  *
  * @export
  * @interface TournamentCreateTournamentDto
  */
 export class TournamentCreateTournamentDto {
+    /**
+     *
+     * @type {TournamentBracketType}
+     * @memberof TournamentCreateTournamentDto
+     */
+    strategy: TournamentBracketType;
     /**
      *
      * @type {string}
@@ -50,12 +58,6 @@ export class TournamentCreateTournamentDto {
     imageUrl: string;
     /**
      *
-     * @type {string}
-     * @memberof TournamentCreateTournamentDto
-     */
-    strategy: TournamentCreateTournamentDtoStrategyEnum;
-    /**
-     *
      * @type {number}
      * @memberof TournamentCreateTournamentDto
      */
@@ -84,12 +86,12 @@ export function TournamentCreateTournamentDtoFromJSONTyped(json: any, ignoreDisc
     }
     return {
 
+        'strategy': TournamentBracketTypeFromJSON(json['strategy']),
         'name': json['name'],
         'teamSize': json['teamSize'],
         'description': json['description'],
         'startDate': (new Date(json['startDate'])),
         'imageUrl': json['imageUrl'],
-        'strategy': json['strategy'],
         'roundBestOf': json['roundBestOf'],
         'finalBestOf': json['finalBestOf'],
         'grandFinalBestOf': json['grandFinalBestOf'],
@@ -105,25 +107,16 @@ export function TournamentCreateTournamentDtoToJSON(value?: TournamentCreateTour
     }
     return {
 
+        'strategy': TournamentBracketTypeToJSON(value.strategy),
         'name': value.name,
         'teamSize': value.teamSize,
         'description': value.description,
         'startDate': (value.startDate.toISOString()),
         'imageUrl': value.imageUrl,
-        'strategy': value.strategy,
         'roundBestOf': value.roundBestOf,
         'finalBestOf': value.finalBestOf,
         'grandFinalBestOf': value.grandFinalBestOf,
     };
-}
-
-/**
-* @export
-* @enum {string}
-*/
-export enum TournamentCreateTournamentDtoStrategyEnum {
-    SINGLEELIMINATION = 'SINGLE_ELIMINATION',
-    DOUBLEELIMINATION = 'DOUBLE_ELIMINATION'
 }
 
 

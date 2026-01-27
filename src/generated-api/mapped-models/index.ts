@@ -9,5 +9,9 @@ export * from "./Role";
 export * from "./PlayerAspect";
 export * from "./MatchAccessLevel";
 export * from "./DotaPatch";
+export * from "./TournamentRegistrationState";
+export * from "./TournamentStatus";
+export * from "./BracketType";
+export * from "./MatchStatus";
 
 

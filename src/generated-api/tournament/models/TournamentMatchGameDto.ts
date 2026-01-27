@@ -13,7 +13,14 @@
  */
 
 import { exists } from '../runtime';
-import { TournamentSeedItemDto, TournamentSeedItemDtoFromJSON, TournamentSeedItemDtoToJSON } from './';
+import {
+  TournamentMatchStatus,
+  TournamentMatchStatusFromJSON,
+  TournamentMatchStatusToJSON,
+  TournamentSeedItemDto,
+  TournamentSeedItemDtoFromJSON,
+  TournamentSeedItemDtoToJSON,
+} from './';
 
 /**
  *
@@ -21,6 +28,12 @@ import { TournamentSeedItemDto, TournamentSeedItemDtoFromJSON, TournamentSeedIte
  * @interface TournamentMatchGameDto
  */
 export class TournamentMatchGameDto {
+    /**
+     *
+     * @type {TournamentMatchStatus}
+     * @memberof TournamentMatchGameDto
+     */
+    status: TournamentMatchStatus;
     /**
      *
      * @type {string}
@@ -59,12 +72,6 @@ export class TournamentMatchGameDto {
     number: number;
     /**
      *
-     * @type {number}
-     * @memberof TournamentMatchGameDto
-     */
-    status: TournamentMatchGameDtoStatusEnum;
-    /**
-     *
      * @type {TournamentSeedItemDto}
      * @memberof TournamentMatchGameDto
      */
@@ -87,13 +94,13 @@ export function TournamentMatchGameDtoFromJSONTyped(json: any, ignoreDiscriminat
     }
     return {
 
+        'status': TournamentMatchStatusFromJSON(json['status']),
         'gameId': json['gameId'],
         'bracketMatchId': json['bracketMatchId'],
         'externalMatchId': !exists(json, 'externalMatchId') ? undefined : json['externalMatchId'],
         'scheduledDate': !exists(json, 'scheduledDate') ? undefined : (new Date(json['scheduledDate'])),
         'teamOffset': json['teamOffset'],
         'number': json['number'],
-        'status': json['status'],
         'opponent1': !exists(json, 'opponent1') ? undefined : TournamentSeedItemDtoFromJSON(json['opponent1']),
         'opponent2': !exists(json, 'opponent2') ? undefined : TournamentSeedItemDtoFromJSON(json['opponent2']),
     };
@@ -108,29 +115,16 @@ export function TournamentMatchGameDtoToJSON(value?: TournamentMatchGameDto | nu
     }
     return {
 
+        'status': TournamentMatchStatusToJSON(value.status),
         'gameId': value.gameId,
         'bracketMatchId': value.bracketMatchId,
         'externalMatchId': value.externalMatchId,
         'scheduledDate': value.scheduledDate === undefined ? undefined : (value.scheduledDate.toISOString()),
         'teamOffset': value.teamOffset,
         'number': value.number,
-        'status': value.status,
         'opponent1': TournamentSeedItemDtoToJSON(value.opponent1),
         'opponent2': TournamentSeedItemDtoToJSON(value.opponent2),
     };
-}
-
-/**
-* @export
-* @enum {string}
-*/
-export enum TournamentMatchGameDtoStatusEnum {
-    NUMBER_0 = 0,
-    NUMBER_1 = 1,
-    NUMBER_2 = 2,
-    NUMBER_3 = 3,
-    NUMBER_4 = 4,
-    NUMBER_5 = 5
 }
 
 

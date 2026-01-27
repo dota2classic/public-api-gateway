@@ -159,6 +159,8 @@ import { RedlockModule } from "@dota2classic/redlock";
 import { RedlockModuleOptions } from "@dota2classic/redlock/dist/redlock.module-definition";
 import { GameResultsHandler } from "./socket/event-handler/game-results.handler";
 import { SRCDSPerformanceHandler } from "./event-handler/srcds-performance.handler";
+import { TournamentController } from "./rest/tournament/tournament.controller";
+import { TournamentMapper } from "./rest/tournament/tournament.mapper";
 
 @Module({
   imports: [
@@ -338,6 +340,7 @@ import { SRCDSPerformanceHandler } from "./event-handler/srcds-performance.handl
     RmqController,
     AdminUserController,
     LobbyController,
+    TournamentController,
 
     RecordController,
     ItemDropController,
@@ -371,6 +374,7 @@ import { SRCDSPerformanceHandler } from "./event-handler/srcds-performance.handl
     SRCDSPerformanceHandler,
     GameResultsHandler,
     StorageMapper,
+    TournamentMapper,
     {
       provide: "REDIS",
       useFactory: async (config: ConfigService) => {

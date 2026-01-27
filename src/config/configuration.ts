@@ -77,6 +77,7 @@ export default (): ExpectedConfig => {
       replayUrl: process.env.REPLAY_URL,
       jwtSecret: process.env.JWT_SECRET,
       prometheusUrl: process.env.PROMETHEUS_URL,
+      tournamentApiUrl: process.env.TOURNAMENT_API,
 
       matchmakerApiUrl: process.env.MATCHMAKER_API,
       gameserverApiUrl: process.env.GAMESERVER_API,

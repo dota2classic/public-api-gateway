@@ -1,0 +1,142 @@
+import { Injectable } from "@nestjs/common";
+import {
+  TournamentBracketMatchDto,
+  TournamentBracketMatchGameDto,
+  TournamentBracketParticipantDto,
+  TournamentParticipantResultDto,
+  TournamentRegistrationDto,
+  TournamentRegistrationPlayerDto,
+  TournamentRoundDto,
+  TournamentStageDto,
+  TournamentTournamentBracketInfoDto,
+  TournamentTournamentDto,
+} from "../../generated-api/tournament";
+import {
+  BracketMatchDto,
+  BracketParticipantDto,
+  MatchGameDto,
+  ParticipantResultDto,
+  RegistrationDto,
+  RegistrationPlayerDto,
+  RoundDto,
+  StageDto,
+  TournamentBracketInfoDto,
+  TournamentDto,
+} from "./tournament.dto";
+import { UserProfileService } from "../../service/user-profile.service";
+
+@Injectable()
+export class TournamentMapper {
+  constructor(private readonly user: UserProfileService) {}
+
+  mapTournament = async (
+    t: TournamentTournamentDto,
+  ): Promise<TournamentDto> => ({
+    id: t.id,
+    name: t.name,
+    status: t.status,
+    startDate: t.startDate,
+    imageUrl: t.imageUrl,
+    description: t.description,
+    registrations: await Promise.all(t.registrations.map(this.mapRegistration)),
+  });
+
+  mapRegistration = async (
+    t: TournamentRegistrationDto,
+  ): Promise<RegistrationDto> => ({
+    id: t.id,
+    players: await Promise.all(t.players.map(this.mapRegistrationPlayer)),
+    state: t.state,
+  });
+
+  mapRegistrationPlayer = async (
+    t: TournamentRegistrationPlayerDto,
+  ): Promise<RegistrationPlayerDto> => ({
+    user: await this.user.userDto(t.steamId),
+    state: t.state,
+  });
+
+  mapStage = (stage: TournamentStageDto): StageDto => ({
+    id: stage.id,
+    tournament_id: stage.tournament_id,
+    name: stage.name,
+    type: stage.type as unknown as string,
+    settings: stage.settings,
+    number: stage.number,
+  });
+
+  mapRound = (round: TournamentRoundDto): RoundDto => ({
+    id: round.id,
+    number: round.number,
+    stage_id: Number(round.stage_id),
+    group_id: round.group_id,
+  });
+
+  mapParticipant = async (
+    part: TournamentBracketParticipantDto,
+  ): Promise<BracketParticipantDto> => ({
+    id: part.id,
+    tournament_id: part.tournament_id,
+    players: await Promise.all(part.players.map(this.user.userDto)),
+  });
+
+  mapBracket = async (
+    t: TournamentTournamentBracketInfoDto,
+  ): Promise<TournamentBracketInfoDto> => {
+    return {
+      stage: t.stage.map(this.mapStage),
+      group: t.group,
+      round: t.round.map(this.mapRound),
+      participant: await Promise.all(t.participant.map(this.mapParticipant)),
+      match: await Promise.all(t.match.map(this.mapMatch)),
+    };
+  };
+
+  mapMatch = async (
+    m: TournamentBracketMatchDto,
+  ): Promise<BracketMatchDto> => ({
+    id: m.id,
+    stage_id: m.stage_id,
+    group_id: m.group_id,
+    round_id: m.round_id,
+    child_count: m.child_count,
+    number: m.number,
+    status: m.status,
+    opponent1: m.opponent1 && (await this.mapOpponent(m.opponent1)),
+    opponent2: m.opponent2 && (await this.mapOpponent(m.opponent2)),
+    startDate: m.startDate,
+    games: await Promise.all(m.games.map(this.mapMatchGame)),
+  });
+
+  mapMatchGame = async (
+    t: TournamentBracketMatchGameDto,
+  ): Promise<MatchGameDto> => ({
+    id: t.id,
+    bracketMatchId: t.bracket_match_id,
+    externalMatchId: t.externalMatchId,
+    scheduledDate: t.scheduledDate,
+    teamOffset: t.teamOffset,
+    number: t.number,
+    status: t.status,
+    finished: t.finished,
+    opponent1: t.opponent1 && (await this.mapOpponent(t.opponent1)),
+    opponent2: t.opponent2 && (await this.mapOpponent(t.opponent2)),
+  });
+
+  mapOpponent = async (
+    t: TournamentParticipantResultDto,
+  ): Promise<ParticipantResultDto> => ({
+    id: t.id || null,
+    // tournament_id: t.tournament_id,
+    score: t.score,
+    position: t.position,
+    result: t.result as unknown as any,
+    participant: t.participant && {
+      tournament_id: t.participant?.tournament_id,
+      id: t.id,
+      players:
+        t.participant?.players &&
+        (await Promise.all(t.participant.players.map(this.user.userDto))),
+    },
+  });
+}

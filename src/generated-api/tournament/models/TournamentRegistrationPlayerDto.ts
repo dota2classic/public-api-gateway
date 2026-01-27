@@ -12,6 +12,12 @@
  * Do not edit the class manually.
  */
 
+import {
+  TournamentTournamentRegistrationState,
+  TournamentTournamentRegistrationStateFromJSON,
+  TournamentTournamentRegistrationStateToJSON,
+} from './';
+
 /**
  *
  * @export
@@ -20,16 +26,16 @@
 export class TournamentRegistrationPlayerDto {
     /**
      *
-     * @type {string}
+     * @type {TournamentTournamentRegistrationState}
      * @memberof TournamentRegistrationPlayerDto
      */
-    steamId: string;
+    state: TournamentTournamentRegistrationState;
     /**
      *
      * @type {string}
      * @memberof TournamentRegistrationPlayerDto
      */
-    state: TournamentRegistrationPlayerDtoStateEnum;
+    steamId: string;
 }
 
 export function TournamentRegistrationPlayerDtoFromJSON(json: any): TournamentRegistrationPlayerDto {
@@ -42,8 +48,8 @@ export function TournamentRegistrationPlayerDtoFromJSONTyped(json: any, ignoreDi
     }
     return {
 
+        'state': TournamentTournamentRegistrationStateFromJSON(json['state']),
         'steamId': json['steamId'],
-        'state': json['state'],
     };
 }
 
@@ -56,21 +62,9 @@ export function TournamentRegistrationPlayerDtoToJSON(value?: TournamentRegistra
     }
     return {
 
+        'state': TournamentTournamentRegistrationStateToJSON(value.state),
         'steamId': value.steamId,
-        'state': value.state,
     };
-}
-
-/**
-* @export
-* @enum {string}
-*/
-export enum TournamentRegistrationPlayerDtoStateEnum {
-    CREATED = 'CREATED',
-    PENDINGCONFIRMATION = 'PENDING_CONFIRMATION',
-    CONFIRMED = 'CONFIRMED',
-    DECLINED = 'DECLINED',
-    TIMEDOUT = 'TIMED_OUT'
 }
 
 

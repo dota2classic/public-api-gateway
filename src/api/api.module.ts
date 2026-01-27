@@ -25,6 +25,10 @@ import {
 
 import * as http from "http";
 import * as https from "https";
+import {
+  Configuration as TrConfiguration,
+  TournamentApi,
+} from "../generated-api/tournament";
 // Create a keep-alive agent for HTTP
 const httpAgent = new http.Agent({ keepAlive: true });
 const httpsAgent = new https.Agent({ keepAlive: true });
@@ -161,6 +165,18 @@ const fetchProvider: typeof fetch = (
       },
       inject: [ConfigService],
     },
+    {
+      provide: TournamentApi,
+      useFactory: (config: ConfigService) => {
+        return new TournamentApi(
+          new TrConfiguration({
+            basePath: config.get("api.tournamentApiUrl"),
+            fetchApi: fetchProvider,
+          }),
+        );
+      },
+      inject: [ConfigService],
+    },
   ],
   exports: [
     MatchApi,
@@ -172,6 +188,7 @@ const fetchProvider: typeof fetch = (
     ForumApi,
     MatchmakerApi,
     TradeApi,
+    TournamentApi,
     PrometheusDriver,
   ],
 })

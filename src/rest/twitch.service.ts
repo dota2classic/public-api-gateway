@@ -65,7 +65,7 @@ export class TwitchService implements OnApplicationBootstrap {
 
   async onApplicationBootstrap() {
     await this.refreshToken();
-    await this.fetchLivestreams();
+    this.fetchLivestreams().catch();
   }
 
   @Cron(CronExpression.EVERY_MINUTE)
