@@ -13,6 +13,12 @@
  */
 
 import {
+  TournamentBestOfStrategy,
+  TournamentBestOfStrategyFromJSON,
+  TournamentBestOfStrategyToJSON,
+  TournamentBracketType,
+  TournamentBracketTypeFromJSON,
+  TournamentBracketTypeToJSON,
   TournamentRegistrationDto,
   TournamentRegistrationDtoFromJSON,
   TournamentRegistrationDtoToJSON,
@@ -35,6 +41,12 @@ export class TournamentTournamentDto {
     status: TournamentTournamentStatus;
     /**
      *
+     * @type {TournamentBracketType}
+     * @memberof TournamentTournamentDto
+     */
+    strategy: TournamentBracketType;
+    /**
+     *
      * @type {number}
      * @memberof TournamentTournamentDto
      */
@@ -47,16 +59,28 @@ export class TournamentTournamentDto {
     name: string;
     /**
      *
-     * @type {Date}
-     * @memberof TournamentTournamentDto
-     */
-    startDate: Date;
-    /**
-     *
      * @type {string}
      * @memberof TournamentTournamentDto
      */
     imageUrl: string;
+    /**
+     *
+     * @type {number}
+     * @memberof TournamentTournamentDto
+     */
+    teamSize: number;
+    /**
+     *
+     * @type {TournamentBestOfStrategy}
+     * @memberof TournamentTournamentDto
+     */
+    bestOfStrategy: TournamentBestOfStrategy;
+    /**
+     *
+     * @type {Date}
+     * @memberof TournamentTournamentDto
+     */
+    startDate: Date;
     /**
      *
      * @type {string}
@@ -82,10 +106,13 @@ export function TournamentTournamentDtoFromJSONTyped(json: any, ignoreDiscrimina
     return {
 
         'status': TournamentTournamentStatusFromJSON(json['status']),
+        'strategy': TournamentBracketTypeFromJSON(json['strategy']),
         'id': json['id'],
         'name': json['name'],
-        'startDate': (new Date(json['startDate'])),
         'imageUrl': json['imageUrl'],
+        'teamSize': json['teamSize'],
+        'bestOfStrategy': TournamentBestOfStrategyFromJSON(json['bestOfStrategy']),
+        'startDate': (new Date(json['startDate'])),
         'description': json['description'],
         'registrations': ((json['registrations'] as Array<any>).map(TournamentRegistrationDtoFromJSON)),
     };
@@ -101,10 +128,13 @@ export function TournamentTournamentDtoToJSON(value?: TournamentTournamentDto | 
     return {
 
         'status': TournamentTournamentStatusToJSON(value.status),
+        'strategy': TournamentBracketTypeToJSON(value.strategy),
         'id': value.id,
         'name': value.name,
-        'startDate': (value.startDate.toISOString()),
         'imageUrl': value.imageUrl,
+        'teamSize': value.teamSize,
+        'bestOfStrategy': TournamentBestOfStrategyToJSON(value.bestOfStrategy),
+        'startDate': (value.startDate.toISOString()),
         'description': value.description,
         'registrations': ((value.registrations as Array<any>).map(TournamentRegistrationDtoToJSON)),
     };

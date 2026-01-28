@@ -34,10 +34,13 @@ export class TournamentMapper {
   ): Promise<TournamentDto> => ({
     id: t.id,
     name: t.name,
+    imageUrl: t.imageUrl,
+    teamSize: t.teamSize,
+    strategy: t.strategy,
     status: t.status,
     startDate: t.startDate,
-    imageUrl: t.imageUrl,
     description: t.description,
+    bestOfConfig: t.bestOfStrategy,
     registrations: await Promise.all(t.registrations.map(this.mapRegistration)),
   });
 

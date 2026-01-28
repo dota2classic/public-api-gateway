@@ -1,3 +1,4 @@
+export * from './TournamentBestOfStrategy';
 export * from './TournamentBracketDto';
 export * from './TournamentBracketMatchDto';
 export * from './TournamentBracketMatchGameDto';

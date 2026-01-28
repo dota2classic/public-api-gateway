@@ -1,17 +1,18 @@
 import { Body, Controller, Get, Param, Patch, Post } from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
 
-import {
-  TournamentApi,
-  TournamentConfirmRegistrationDto,
-} from "../../generated-api/tournament";
+import { TournamentApi } from "../../generated-api/tournament";
 import { AdminGuard, WithUser } from "../../utils/decorator/with-user";
 import {
   CurrentUser,
   CurrentUserDto,
 } from "../../utils/decorator/current-user";
 import { PartyService } from "../party.service";
-import { CreateTournamentDto, UpdateTournamentDto } from "./tournament.dto";
+import {
+  ConfirmRegistrationDto,
+  CreateTournamentDto,
+  UpdateTournamentDto,
+} from "./tournament.dto";
 import { TournamentMapper } from "./tournament.mapper";
 
 @Controller("tournament")
@@ -60,6 +61,19 @@ export class TournamentController {
     });
   }
 
+  @WithUser()
+  @Post("/:id/confirm_registration")
+  public confirmRegistration(
+    @Param("id") id: number,
+    @CurrentUser() user: CurrentUserDto,
+    @Body() body: ConfirmRegistrationDto,
+  ) {
+    return this.api.tournamentControllerConfirmRegistration(id, {
+      steamId: user.steam_id,
+      confirm: body.confirm,
+    });
+  }
+
   /* ============================
    * Admin
    * ============================ */
@@ -68,17 +82,19 @@ export class TournamentController {
   @WithUser()
   @Post("/")
   public createTournament(@Body() body: CreateTournamentDto) {
-    return this.api.tournamentControllerCreateTournament({
-      name: body.name,
-      teamSize: body.teamSize,
-      description: body.description,
-      startDate: body.startDate,
-      imageUrl: body.imageUrl,
-      strategy: body.strategy,
-      roundBestOf: body.roundBestOf,
-      finalBestOf: body.finalBestOf,
-      grandFinalBestOf: body.grandFinalBestOf,
-    });
+    return this.api
+      .tournamentControllerCreateTournament({
+        name: body.name,
+        teamSize: body.teamSize,
+        description: body.description,
+        startDate: body.startDate,
+        imageUrl: body.imageUrl,
+        strategy: body.strategy,
+        roundBestOf: body.roundBestOf,
+        finalBestOf: body.finalBestOf,
+        grandFinalBestOf: body.grandFinalBestOf,
+      })
+      .then(this.mapper.mapTournament);
   }
 
   @AdminGuard()
@@ -93,16 +109,6 @@ export class TournamentController {
       dto,
     );
     return this.mapper.mapTournament(tournament);
-  }
-
-  @AdminGuard()
-  @WithUser()
-  @Post("/:id/confirm_registration")
-  public confirmRegistration(
-    @Param("id") id: number,
-    @Body() body: TournamentConfirmRegistrationDto,
-  ) {
-    return this.api.tournamentControllerConfirmRegistration(id, body);
   }
 
   @AdminGuard()

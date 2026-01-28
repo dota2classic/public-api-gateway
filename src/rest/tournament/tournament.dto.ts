@@ -1,9 +1,10 @@
 import {
+  BracketType,
   MatchStatus,
   TournamentStatus,
 } from "../../gateway/shared-types/tournament";
-import { TournamentBracketType } from "../../generated-api/tournament";
 import { UserDTO } from "../shared.dto";
+import { ApiProperty } from "@nestjs/swagger";
 
 export enum TournamentRegistrationState {
   CREATED = "CREATED",
@@ -18,22 +19,31 @@ export class RegisterAsPartyDto {
 }
 
 export class ConfirmRegistrationDto {
-  steamId: string;
   confirm: boolean;
 }
 
-// export class CreateTournamentDto {
-//   name: string;
-//   teamSize: number;
-//   description: string;
-//   startDate: Date;
-//   imageUrl: string;
-//   strategy: TournamentBracketType;
-//   roundBestOf: number;
-//   finalBestOf: number;
-//   grandFinalBestOf: number;
-// }
-//
+export class BestOfStrategy {
+  round: number;
+  final: number;
+  grandFinal: number;
+}
+
+export class TournamentDto {
+  id: number;
+  name: string;
+  imageUrl: string;
+  teamSize: number;
+
+  @ApiProperty({ enum: TournamentStatus, enumName: "TournamentStatus" })
+  status: TournamentStatus;
+
+  @ApiProperty({ enum: BracketType, enumName: "BracketType" })
+  strategy: BracketType;
+  bestOfConfig: BestOfStrategy;
+  startDate: Date;
+  description: string;
+  registrations: RegistrationDto[];
+}
 
 export class CreateTournamentDto {
   name: string;
@@ -42,7 +52,8 @@ export class CreateTournamentDto {
   startDate: Date;
   imageUrl: string;
 
-  strategy: TournamentBracketType;
+  @ApiProperty({ enum: BracketType, enumName: "BracketType" })
+  strategy: BracketType;
   roundBestOf: number;
   finalBestOf: number;
   grandFinalBestOf: number;
@@ -56,7 +67,8 @@ export class UpdateTournamentDto {
   startDate?: Date;
   imageUrl?: string;
 
-  strategy?: TournamentBracketType;
+  @ApiProperty({ enum: BracketType, enumName: "BracketType" })
+  strategy?: BracketType;
   roundBestOf?: number;
   finalBestOf?: number;
   grandFinalBestOf?: number;
@@ -70,25 +82,15 @@ export class TournamentParticipantDto {
   public readonly players: string[];
   // public readonly team?: TeamDto;
 }
-
 export class RegistrationPlayerDto {
   user: UserDTO;
   state: TournamentRegistrationState;
 }
+
 export class RegistrationDto {
   id: number;
   players: RegistrationPlayerDto[];
   state: TournamentRegistrationState;
-}
-
-export class TournamentDto {
-  id: number;
-  name: string;
-  status: TournamentStatus;
-  startDate: Date;
-  imageUrl: string;
-  description: string;
-  registrations: RegistrationDto[];
 }
 
 export class TournamentStandingDto {

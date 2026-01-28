@@ -1,6 +1,6 @@
-import { MatchStatus } from "../../gateway/shared-types/tournament";
+import { BracketType } from "../../gateway/shared-types/tournament";
 
-export type TournamentBracketType = MatchStatus;
+export type TournamentBracketType = BracketType;
 
 export function TournamentBracketTypeFromJSON(
   json: any,
