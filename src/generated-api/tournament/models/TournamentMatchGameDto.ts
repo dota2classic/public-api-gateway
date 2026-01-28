@@ -54,10 +54,10 @@ export class TournamentMatchGameDto {
     externalMatchId?: number;
     /**
      *
-     * @type {Date}
+     * @type {string}
      * @memberof TournamentMatchGameDto
      */
-    scheduledDate?: Date;
+    scheduledDate?: string;
     /**
      *
      * @type {number}
@@ -98,7 +98,7 @@ export function TournamentMatchGameDtoFromJSONTyped(json: any, ignoreDiscriminat
         'gameId': json['gameId'],
         'bracketMatchId': json['bracketMatchId'],
         'externalMatchId': !exists(json, 'externalMatchId') ? undefined : json['externalMatchId'],
-        'scheduledDate': !exists(json, 'scheduledDate') ? undefined : (new Date(json['scheduledDate'])),
+        'scheduledDate': !exists(json, 'scheduledDate') ? undefined : json['scheduledDate'],
         'teamOffset': json['teamOffset'],
         'number': json['number'],
         'opponent1': !exists(json, 'opponent1') ? undefined : TournamentSeedItemDtoFromJSON(json['opponent1']),
@@ -119,7 +119,7 @@ export function TournamentMatchGameDtoToJSON(value?: TournamentMatchGameDto | nu
         'gameId': value.gameId,
         'bracketMatchId': value.bracketMatchId,
         'externalMatchId': value.externalMatchId,
-        'scheduledDate': value.scheduledDate === undefined ? undefined : (value.scheduledDate.toISOString()),
+        'scheduledDate': value.scheduledDate,
         'teamOffset': value.teamOffset,
         'number': value.number,
         'opponent1': TournamentSeedItemDtoToJSON(value.opponent1),

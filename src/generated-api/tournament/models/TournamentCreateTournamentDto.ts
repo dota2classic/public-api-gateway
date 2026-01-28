@@ -46,10 +46,10 @@ export class TournamentCreateTournamentDto {
     description: string;
     /**
      *
-     * @type {Date}
+     * @type {string}
      * @memberof TournamentCreateTournamentDto
      */
-    startDate: Date;
+    startDate: string;
     /**
      *
      * @type {string}
@@ -90,7 +90,7 @@ export function TournamentCreateTournamentDtoFromJSONTyped(json: any, ignoreDisc
         'name': json['name'],
         'teamSize': json['teamSize'],
         'description': json['description'],
-        'startDate': (new Date(json['startDate'])),
+        'startDate': json['startDate'],
         'imageUrl': json['imageUrl'],
         'roundBestOf': json['roundBestOf'],
         'finalBestOf': json['finalBestOf'],
@@ -111,7 +111,7 @@ export function TournamentCreateTournamentDtoToJSON(value?: TournamentCreateTour
         'name': value.name,
         'teamSize': value.teamSize,
         'description': value.description,
-        'startDate': (value.startDate.toISOString()),
+        'startDate': value.startDate,
         'imageUrl': value.imageUrl,
         'roundBestOf': value.roundBestOf,
         'finalBestOf': value.finalBestOf,

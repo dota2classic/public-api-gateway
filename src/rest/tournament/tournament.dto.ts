@@ -40,7 +40,7 @@ export class TournamentDto {
   @ApiProperty({ enum: BracketType, enumName: "BracketType" })
   strategy: BracketType;
   bestOfConfig: BestOfStrategy;
-  startDate: Date;
+  startDate: string;
   description: string;
   registrations: RegistrationDto[];
 }
@@ -49,7 +49,8 @@ export class CreateTournamentDto {
   name: string;
   teamSize: number;
   description: string;
-  startDate: Date;
+  // Date
+  startDate: string;
   imageUrl: string;
 
   @ApiProperty({ enum: BracketType, enumName: "BracketType" })
@@ -64,7 +65,7 @@ export class UpdateTournamentDto {
   description?: string;
 
   teamSize?: number;
-  startDate?: Date;
+  startDate?: string;
   imageUrl?: string;
 
   @ApiProperty({ enum: BracketType, enumName: "BracketType" })
@@ -214,7 +215,7 @@ export class BracketMatchDto {
   status: MatchStatus;
   opponent1?: ParticipantResultDto;
   opponent2?: ParticipantResultDto;
-  startDate: Date;
+  startDate: string;
   games: MatchGameDto[];
 }
 
@@ -246,7 +247,7 @@ export class MatchGameDto {
   id: string;
   bracketMatchId: number;
   externalMatchId?: number;
-  scheduledDate?: Date;
+  scheduledDate?: string;
   teamOffset: number;
   number: number;
   status: MatchStatus;
@@ -262,5 +263,5 @@ export class BracketMatchGameDto {
   externalMatchId?: number;
   teamOffset: number;
   finished: boolean;
-  scheduledDate: Date;
+  scheduledDate: string;
 }

@@ -56,10 +56,10 @@ export class TournamentSeedDto {
     id: number;
     /**
      *
-     * @type {Date}
+     * @type {string}
      * @memberof TournamentSeedDto
      */
-    scheduledDate: Date;
+    scheduledDate: string;
     /**
      *
      * @type {number}
@@ -88,7 +88,7 @@ export function TournamentSeedDtoFromJSONTyped(json: any, ignoreDiscriminator: b
         'teams': ((json['teams'] as Array<any>).map(TournamentSeedItemDtoFromJSON)),
         'games': ((json['games'] as Array<any>).map(TournamentMatchGameDtoFromJSON)),
         'id': json['id'],
-        'scheduledDate': (new Date(json['scheduledDate'])),
+        'scheduledDate': json['scheduledDate'],
         'number': json['number'],
         'ch': json['ch'],
     };
@@ -107,7 +107,7 @@ export function TournamentSeedDtoToJSON(value?: TournamentSeedDto | null): any {
         'teams': ((value.teams as Array<any>).map(TournamentSeedItemDtoToJSON)),
         'games': ((value.games as Array<any>).map(TournamentMatchGameDtoToJSON)),
         'id': value.id,
-        'scheduledDate': (value.scheduledDate.toISOString()),
+        'scheduledDate': value.scheduledDate,
         'number': value.number,
         'ch': value.ch,
     };

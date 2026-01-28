@@ -107,7 +107,7 @@ export class TournamentMapper {
     status: m.status,
     opponent1: m.opponent1 && (await this.mapOpponent(m.opponent1)),
     opponent2: m.opponent2 && (await this.mapOpponent(m.opponent2)),
-    startDate: m.startDate,
+    startDate: m.startDate.toISOString(),
     games: await Promise.all(m.games.map(this.mapMatchGame)),
   });
 
@@ -117,7 +117,7 @@ export class TournamentMapper {
     id: t.id,
     bracketMatchId: t.bracket_match_id,
     externalMatchId: t.externalMatchId,
-    scheduledDate: t.scheduledDate,
+    scheduledDate: t.scheduledDate.toISOString(),
     teamOffset: t.teamOffset,
     number: t.number,
     status: t.status,
