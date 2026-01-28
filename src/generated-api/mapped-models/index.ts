@@ -13,5 +13,6 @@ export * from "./TournamentRegistrationState";
 export * from "./TournamentStatus";
 export * from "./BracketType";
 export * from "./MatchStatus";
+export * from "./TournamentDota_GameMode";
 
 

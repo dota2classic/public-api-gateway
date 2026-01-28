@@ -42,6 +42,8 @@ export class TournamentMapper {
     description: t.description,
     bestOfConfig: t.bestOfStrategy,
     registrations: await Promise.all(t.registrations.map(this.mapRegistration)),
+    gameMode: t.gameMode,
+    scheduleStrategy: t.scheduleStrategy,
   });
 
   mapRegistration = async (

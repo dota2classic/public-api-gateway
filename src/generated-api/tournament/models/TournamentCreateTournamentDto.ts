@@ -12,7 +12,14 @@
  * Do not edit the class manually.
  */
 
-import { TournamentBracketType, TournamentBracketTypeFromJSON, TournamentBracketTypeToJSON } from './';
+import {
+  TournamentBracketType,
+  TournamentBracketTypeFromJSON,
+  TournamentBracketTypeToJSON,
+  TournamentDotaGameMode,
+  TournamentDotaGameModeFromJSON,
+  TournamentDotaGameModeToJSON,
+} from './';
 
 /**
  *
@@ -26,6 +33,12 @@ export class TournamentCreateTournamentDto {
      * @memberof TournamentCreateTournamentDto
      */
     strategy: TournamentBracketType;
+    /**
+     *
+     * @type {TournamentDotaGameMode}
+     * @memberof TournamentCreateTournamentDto
+     */
+    gameMode: TournamentDotaGameMode;
     /**
      *
      * @type {string}
@@ -61,6 +74,18 @@ export class TournamentCreateTournamentDto {
      * @type {number}
      * @memberof TournamentCreateTournamentDto
      */
+    gameDurationSeconds: number;
+    /**
+     *
+     * @type {number}
+     * @memberof TournamentCreateTournamentDto
+     */
+    gameBreakDurationSeconds: number;
+    /**
+     *
+     * @type {number}
+     * @memberof TournamentCreateTournamentDto
+     */
     roundBestOf: number;
     /**
      *
@@ -87,11 +112,14 @@ export function TournamentCreateTournamentDtoFromJSONTyped(json: any, ignoreDisc
     return {
 
         'strategy': TournamentBracketTypeFromJSON(json['strategy']),
+        'gameMode': TournamentDotaGameModeFromJSON(json['gameMode']),
         'name': json['name'],
         'teamSize': json['teamSize'],
         'description': json['description'],
         'startDate': json['startDate'],
         'imageUrl': json['imageUrl'],
+        'gameDurationSeconds': json['gameDurationSeconds'],
+        'gameBreakDurationSeconds': json['gameBreakDurationSeconds'],
         'roundBestOf': json['roundBestOf'],
         'finalBestOf': json['finalBestOf'],
         'grandFinalBestOf': json['grandFinalBestOf'],
@@ -108,11 +136,14 @@ export function TournamentCreateTournamentDtoToJSON(value?: TournamentCreateTour
     return {
 
         'strategy': TournamentBracketTypeToJSON(value.strategy),
+        'gameMode': TournamentDotaGameModeToJSON(value.gameMode),
         'name': value.name,
         'teamSize': value.teamSize,
         'description': value.description,
         'startDate': value.startDate,
         'imageUrl': value.imageUrl,
+        'gameDurationSeconds': value.gameDurationSeconds,
+        'gameBreakDurationSeconds': value.gameBreakDurationSeconds,
         'roundBestOf': value.roundBestOf,
         'finalBestOf': value.finalBestOf,
         'grandFinalBestOf': value.grandFinalBestOf,

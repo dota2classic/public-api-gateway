@@ -78,8 +78,8 @@ export class TournamentController {
    * Admin
    * ============================ */
 
-  @AdminGuard()
-  @WithUser()
+  // @AdminGuard()
+  // @WithUser()
   @Post("/")
   public createTournament(@Body() body: CreateTournamentDto) {
     return this.api
@@ -93,6 +93,9 @@ export class TournamentController {
         roundBestOf: body.roundBestOf,
         finalBestOf: body.finalBestOf,
         grandFinalBestOf: body.grandFinalBestOf,
+        gameDurationSeconds: body.gameDurationSeconds,
+        gameBreakDurationSeconds: body.gameBreakDurationSeconds,
+        gameMode: body.gameMode,
       })
       .then(this.mapper.mapTournament);
   }

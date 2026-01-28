@@ -5,6 +5,7 @@ import {
 } from "../../gateway/shared-types/tournament";
 import { UserDTO } from "../shared.dto";
 import { ApiProperty } from "@nestjs/swagger";
+import { Dota_GameMode } from "../../gateway/shared-types/dota-game-mode";
 
 export enum TournamentRegistrationState {
   CREATED = "CREATED",
@@ -28,6 +29,11 @@ export class BestOfStrategy {
   grandFinal: number;
 }
 
+export class ScheduleStrategy {
+  gameDurationSeconds: number;
+  gameBreakDurationSeconds: number;
+}
+
 export class TournamentDto {
   id: number;
   name: string;
@@ -43,6 +49,11 @@ export class TournamentDto {
   startDate: string;
   description: string;
   registrations: RegistrationDto[];
+
+  @ApiProperty({ enum: Dota_GameMode, enumName: "Dota_GameMode" })
+  gameMode: Dota_GameMode;
+
+  scheduleStrategy: ScheduleStrategy;
 }
 
 export class CreateTournamentDto {
@@ -58,6 +69,12 @@ export class CreateTournamentDto {
   roundBestOf: number;
   finalBestOf: number;
   grandFinalBestOf: number;
+
+  @ApiProperty({ enum: Dota_GameMode, enumName: "Dota_GameMode" })
+  gameMode: Dota_GameMode;
+
+  gameDurationSeconds: number;
+  gameBreakDurationSeconds: number;
 }
 
 export class UpdateTournamentDto {
@@ -73,6 +90,12 @@ export class UpdateTournamentDto {
   roundBestOf?: number;
   finalBestOf?: number;
   grandFinalBestOf?: number;
+
+  @ApiProperty({ enum: Dota_GameMode, enumName: "Dota_GameMode" })
+  gameMode?: Dota_GameMode;
+
+  gameDurationSeconds?: number;
+  gameBreakDurationSeconds?: number;
 }
 
 export class UpdateTournamentStatusDto {
