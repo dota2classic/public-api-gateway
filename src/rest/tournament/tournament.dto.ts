@@ -48,6 +48,7 @@ export class TournamentDto {
   bestOfConfig: BestOfStrategy;
   startDate: string;
   description: string;
+  prize: string;
   registrations: RegistrationDto[];
 
   @ApiProperty({ enum: Dota_GameMode, enumName: "Dota_GameMode" })
@@ -63,6 +64,7 @@ export class CreateTournamentDto {
   // Date
   startDate: string;
   imageUrl: string;
+  prize: string;
 
   @ApiProperty({ enum: BracketType, enumName: "BracketType" })
   strategy: BracketType;
@@ -84,6 +86,7 @@ export class UpdateTournamentDto {
   teamSize?: number;
   startDate?: string;
   imageUrl?: string;
+  prize?: string;
 
   @ApiProperty({ enum: BracketType, enumName: "BracketType" })
   strategy?: BracketType;

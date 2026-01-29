@@ -98,6 +98,12 @@ export class TournamentTournamentDto {
      * @type {string}
      * @memberof TournamentTournamentDto
      */
+    prize: string;
+    /**
+     *
+     * @type {string}
+     * @memberof TournamentTournamentDto
+     */
     startDate: string;
     /**
      *
@@ -132,6 +138,7 @@ export function TournamentTournamentDtoFromJSONTyped(json: any, ignoreDiscrimina
         'teamSize': json['teamSize'],
         'bestOfStrategy': TournamentBestOfStrategyFromJSON(json['bestOfStrategy']),
         'scheduleStrategy': TournamentScheduleStrategyFromJSON(json['scheduleStrategy']),
+        'prize': json['prize'],
         'startDate': json['startDate'],
         'description': json['description'],
         'registrations': ((json['registrations'] as Array<any>).map(TournamentRegistrationDtoFromJSON)),
@@ -156,6 +163,7 @@ export function TournamentTournamentDtoToJSON(value?: TournamentTournamentDto | 
         'teamSize': value.teamSize,
         'bestOfStrategy': TournamentBestOfStrategyToJSON(value.bestOfStrategy),
         'scheduleStrategy': TournamentScheduleStrategyToJSON(value.scheduleStrategy),
+        'prize': value.prize,
         'startDate': value.startDate,
         'description': value.description,
         'registrations': ((value.registrations as Array<any>).map(TournamentRegistrationDtoToJSON)),

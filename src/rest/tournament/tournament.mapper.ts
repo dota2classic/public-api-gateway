@@ -35,6 +35,7 @@ export class TournamentMapper {
     id: t.id,
     name: t.name,
     imageUrl: t.imageUrl,
+    prize: t.prize,
     teamSize: t.teamSize,
     strategy: t.strategy,
     status: t.status,

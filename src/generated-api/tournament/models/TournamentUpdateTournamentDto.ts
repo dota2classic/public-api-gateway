@@ -69,6 +69,12 @@ export class TournamentUpdateTournamentDto {
      * @type {string}
      * @memberof TournamentUpdateTournamentDto
      */
+    prize?: string;
+    /**
+     *
+     * @type {string}
+     * @memberof TournamentUpdateTournamentDto
+     */
     imageUrl?: string;
     /**
      *
@@ -118,6 +124,7 @@ export function TournamentUpdateTournamentDtoFromJSONTyped(json: any, ignoreDisc
         'description': !exists(json, 'description') ? undefined : json['description'],
         'teamSize': !exists(json, 'teamSize') ? undefined : json['teamSize'],
         'startDate': !exists(json, 'startDate') ? undefined : json['startDate'],
+        'prize': !exists(json, 'prize') ? undefined : json['prize'],
         'imageUrl': !exists(json, 'imageUrl') ? undefined : json['imageUrl'],
         'gameDurationSeconds': !exists(json, 'gameDurationSeconds') ? undefined : json['gameDurationSeconds'],
         'gameBreakDurationSeconds': !exists(json, 'gameBreakDurationSeconds') ? undefined : json['gameBreakDurationSeconds'],
@@ -142,6 +149,7 @@ export function TournamentUpdateTournamentDtoToJSON(value?: TournamentUpdateTour
         'description': value.description,
         'teamSize': value.teamSize,
         'startDate': value.startDate,
+        'prize': value.prize,
         'imageUrl': value.imageUrl,
         'gameDurationSeconds': value.gameDurationSeconds,
         'gameBreakDurationSeconds': value.gameBreakDurationSeconds,

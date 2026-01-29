@@ -89,6 +89,7 @@ export class TournamentController {
         description: body.description,
         startDate: body.startDate,
         imageUrl: body.imageUrl,
+        prize: body.prize,
         strategy: body.strategy,
         roundBestOf: body.roundBestOf,
         finalBestOf: body.finalBestOf,

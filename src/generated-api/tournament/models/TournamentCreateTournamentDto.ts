@@ -71,6 +71,12 @@ export class TournamentCreateTournamentDto {
     imageUrl: string;
     /**
      *
+     * @type {string}
+     * @memberof TournamentCreateTournamentDto
+     */
+    prize: string;
+    /**
+     *
      * @type {number}
      * @memberof TournamentCreateTournamentDto
      */
@@ -118,6 +124,7 @@ export function TournamentCreateTournamentDtoFromJSONTyped(json: any, ignoreDisc
         'description': json['description'],
         'startDate': json['startDate'],
         'imageUrl': json['imageUrl'],
+        'prize': json['prize'],
         'gameDurationSeconds': json['gameDurationSeconds'],
         'gameBreakDurationSeconds': json['gameBreakDurationSeconds'],
         'roundBestOf': json['roundBestOf'],
@@ -142,6 +149,7 @@ export function TournamentCreateTournamentDtoToJSON(value?: TournamentCreateTour
         'description': value.description,
         'startDate': value.startDate,
         'imageUrl': value.imageUrl,
+        'prize': value.prize,
         'gameDurationSeconds': value.gameDurationSeconds,
         'gameBreakDurationSeconds': value.gameBreakDurationSeconds,
         'roundBestOf': value.roundBestOf,
