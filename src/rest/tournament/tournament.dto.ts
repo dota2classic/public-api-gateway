@@ -118,6 +118,7 @@ export class RegistrationDto {
   id: number;
   players: RegistrationPlayerDto[];
   state: TournamentRegistrationState;
+  title: string;
 }
 
 export class TournamentStandingDto {

@@ -49,11 +49,19 @@ export class TournamentMapper {
 
   mapRegistration = async (
     t: TournamentRegistrationDto,
-  ): Promise<RegistrationDto> => ({
-    id: t.id,
-    players: await Promise.all(t.players.map(this.mapRegistrationPlayer)),
-    state: t.state,
-  });
+  ): Promise<RegistrationDto> => {
+    const players = await Promise.all(
+      t.players.map(this.mapRegistrationPlayer),
+    );
+    return {
+      id: t.id,
+      players,
+      state: t.state,
+      title:
+        `${players[0].user.name}` +
+        (players.length === 1 ? "" : ` + ${players.length - 1}`),
+    };
+  };
 
   mapRegistrationPlayer = async (
     t: TournamentRegistrationPlayerDto,
