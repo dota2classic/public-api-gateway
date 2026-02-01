@@ -41,6 +41,13 @@ export class TournamentController {
       .then(this.mapper.mapTournament);
   }
 
+  @Get("/:id/matches")
+  public getMatches(@Param("id") id: number) {
+    return this.api
+      .tournamentControllerGetTournamentMatches(id)
+      .then((matches) => Promise.all(matches.map(this.mapper.mapMatch)));
+  }
+
   @Get("/:id/bracket")
   public getBracket(@Param("id") id: number) {
     return this.api
