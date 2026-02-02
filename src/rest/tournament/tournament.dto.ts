@@ -158,9 +158,9 @@ export class SmallParticipantDto {
   players?: UserDTO[];
 }
 
-export class ScheduleTournamentMatchDto {
-  gameId: number;
-  scheduledDate: number;
+export class ScheduleTournamentGameDto {
+  gameId: string;
+  scheduledDate: string;
 }
 
 export class ForfeitDto {

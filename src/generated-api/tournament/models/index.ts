@@ -20,6 +20,7 @@ export * from './TournamentRegistrationDto';
 export * from './TournamentRegistrationPlayerDto';
 export * from './TournamentRoundDto';
 export * from './TournamentScheduleStrategy';
+export * from './TournamentScheduleTournamentGameDto';
 export * from './TournamentSeedDto';
 export * from './TournamentSeedItemDto';
 export * from './TournamentSetGameWinnerDto';

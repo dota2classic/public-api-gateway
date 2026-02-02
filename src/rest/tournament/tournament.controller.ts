@@ -11,6 +11,7 @@ import { PartyService } from "../party.service";
 import {
   ConfirmRegistrationDto,
   CreateTournamentDto,
+  ScheduleTournamentGameDto,
   SetMatchResultDto,
   UpdateTournamentDto,
 } from "./tournament.dto";
@@ -167,6 +168,19 @@ export class TournamentController {
     return this.api.tournamentControllerSetGameWinner(id, {
       winnerId: dto.winnerId,
       gameId: dto.gameId,
+    });
+  }
+
+  @AdminGuard()
+  @WithUser()
+  @Post("/:id/schedule_game")
+  public async scheduleGame(
+    @Param("id") id: number,
+    @Body() dto: ScheduleTournamentGameDto,
+  ) {
+    await this.api.tournamentControllerScheduleMatch(id, {
+      gameId: dto.gameId,
+      scheduledDate: dto.scheduledDate,
     });
   }
 
