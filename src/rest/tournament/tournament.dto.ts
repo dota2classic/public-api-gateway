@@ -169,8 +169,8 @@ export class ForfeitDto {
 }
 
 export class SetMatchResultDto {
-  gameId: number;
-  winnerId: string;
+  gameId: string;
+  winnerId: number;
 }
 
 /**
@@ -239,6 +239,7 @@ export class BracketMatchDto {
   round_id: number;
   child_count: number;
   number: number;
+  @ApiProperty({ enum: MatchStatus, enumName: "MatchStatus" })
   status: MatchStatus;
   opponent1?: ParticipantResultDto;
   opponent2?: ParticipantResultDto;
@@ -277,6 +278,7 @@ export class MatchGameDto {
   scheduledDate?: string;
   teamOffset: number;
   number: number;
+  @ApiProperty({ enum: MatchStatus, enumName: "MatchStatus" })
   status: MatchStatus;
   finished: boolean;
   opponent1?: ParticipantResultDto;

@@ -11,6 +11,7 @@ import { PartyService } from "../party.service";
 import {
   ConfirmRegistrationDto,
   CreateTournamentDto,
+  SetMatchResultDto,
   UpdateTournamentDto,
 } from "./tournament.dto";
 import { TournamentMapper } from "./tournament.mapper";
@@ -46,6 +47,12 @@ export class TournamentController {
     return this.api
       .tournamentControllerGetTournamentMatches(id)
       .then((matches) => Promise.all(matches.map(this.mapper.mapMatch)));
+  }
+  @Get("/:id/matches/:match_id")
+  public getMatch(@Param("id") id: number, @Param("match_id") matchId: number) {
+    return this.api
+      .tournamentControllerGetMatch(id, matchId)
+      .then(this.mapper.mapMatch);
   }
 
   @Get("/:id/bracket")
@@ -85,8 +92,8 @@ export class TournamentController {
    * Admin
    * ============================ */
 
-  // @AdminGuard()
-  // @WithUser()
+  @AdminGuard()
+  @WithUser()
   @Post("/")
   public createTournament(@Body() body: CreateTournamentDto) {
     return this.api
@@ -148,6 +155,19 @@ export class TournamentController {
   @Post("/:id/generate_bracket")
   public startTournament(@Param("id") id: number) {
     return this.api.tournamentControllerStartTournament(id);
+  }
+
+  @AdminGuard()
+  @WithUser()
+  @Post("/:id/set_game_winner")
+  public setGameWinner(
+    @Param("id") id: number,
+    @Body() dto: SetMatchResultDto,
+  ) {
+    return this.api.tournamentControllerSetGameWinner(id, {
+      winnerId: dto.winnerId,
+      gameId: dto.gameId,
+    });
   }
 
   @AdminGuard()
