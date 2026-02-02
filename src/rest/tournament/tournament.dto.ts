@@ -219,6 +219,7 @@ export class Match {
   group_id: number;
   round_id: number;
   child_count: number;
+  @ApiProperty({ enum: MatchStatus, enumName: "MatchStatus" })
   status: MatchStatus;
   opponent1?: MatchOpponent;
   opponent2?: MatchOpponent;
