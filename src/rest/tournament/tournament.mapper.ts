@@ -98,7 +98,7 @@ export class TournamentMapper {
     if (part.team) {
       name = part.team.name;
       avatar = part.team.imageUrl;
-    } else if (sortedPlayers) {
+    } else if (sortedPlayers.length > 0) {
       name = sortedPlayers[0].name;
       avatar = sortedPlayers[0].avatar;
       if (sortedPlayers.length > 1) {
