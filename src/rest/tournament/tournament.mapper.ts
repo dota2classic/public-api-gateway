@@ -166,12 +166,6 @@ export class TournamentMapper {
     score: t.score,
     position: t.position,
     result: t.result as unknown as any,
-    participant: t.participant && {
-      tournament_id: t.participant?.tournament_id,
-      id: t.id,
-      players:
-        t.participant?.players &&
-        (await Promise.all(t.participant.players.map(this.user.userDto))),
-    },
+    participant: t.participant && (await this.mapParticipant(t.participant)),
   });
 }
