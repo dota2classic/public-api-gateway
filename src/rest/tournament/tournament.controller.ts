@@ -164,6 +164,13 @@ export class TournamentController {
 
   @AdminGuard()
   @WithUser()
+  @Post("/:id/finish_tournament")
+  public finishTournament(@Param("id") id: number) {
+    return this.api.tournamentControllerFinishTournament(id);
+  }
+
+  @AdminGuard()
+  @WithUser()
   @Post("/:id/generate_bracket")
   public startTournament(@Param("id") id: number) {
     return this.api.tournamentControllerStartTournament(id);
