@@ -32,5 +32,6 @@ export * from './TournamentTeamInvitationDto';
 export * from './TournamentTeamMemberDto';
 export * from './TournamentTournamentBracketInfoDto';
 export * from './TournamentTournamentDto';
+export * from './TournamentUnregisterPlayerDto';
 export * from './TournamentUpdateTournamentDto';
 export * from "../../mapped-models"

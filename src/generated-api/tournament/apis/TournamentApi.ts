@@ -36,6 +36,8 @@ import {
   TournamentTournamentBracketInfoDtoFromJSON,
   TournamentTournamentDto,
   TournamentTournamentDtoFromJSON,
+  TournamentUnregisterPlayerDto,
+  TournamentUnregisterPlayerDtoToJSON,
   TournamentUpdateTournamentDto,
   TournamentUpdateTournamentDtoToJSON,
 } from "../models";
@@ -108,6 +110,11 @@ export interface TournamentControllerStartGameRequest {
 
 export interface TournamentControllerStartTournamentRequest {
     id: number;
+}
+
+export interface TournamentControllerUnregisterRequest {
+    id: number;
+    tournamentUnregisterPlayerDto: TournamentUnregisterPlayerDto;
 }
 
 export interface TournamentControllerUpdateTournamentRequest {
@@ -587,6 +594,50 @@ export class TournamentApi extends runtime.BaseAPI {
 
     /**
      */
+    tournamentControllerUnregisterContext(requestParameters: TournamentControllerUnregisterRequest): runtime.RequestOpts {
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+        return {
+            path: `/tournament/{id}/unregister`.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters.id))),
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+            body: TournamentUnregisterPlayerDtoToJSON(requestParameters.tournamentUnregisterPlayerDto),
+        };
+    }
+
+    /**
+     */
+    tournamentControllerUnregister = async (id: number, tournamentUnregisterPlayerDto: TournamentUnregisterPlayerDto): Promise<void> => {
+        await this.tournamentControllerUnregisterRaw({ id: id, tournamentUnregisterPlayerDto: tournamentUnregisterPlayerDto });
+    }
+
+    /**
+     */
+    private async tournamentControllerPublishTournamentRaw(requestParameters: TournamentControllerPublishTournamentRequest): Promise<runtime.ApiResponse<TournamentTournamentDto>> {
+        this.tournamentControllerPublishTournamentValidation(requestParameters);
+        const context = this.tournamentControllerPublishTournamentContext(requestParameters);
+        const response = await this.request(context);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => TournamentTournamentDtoFromJSON(jsonValue));
+    }
+
+
+
+    /**
+     */
+    private tournamentControllerPublishTournamentValidation(requestParameters: TournamentControllerPublishTournamentRequest) {
+        if (requestParameters.id === null || requestParameters.id === undefined) {
+            throw new runtime.RequiredError('id','Required parameter requestParameters.id was null or undefined when calling tournamentControllerPublishTournament.');
+        }
+    }
+
+    /**
+     */
     tournamentControllerUpdateTournamentContext(requestParameters: TournamentControllerUpdateTournamentRequest): runtime.RequestOpts {
         const queryParameters: any = {};
 
@@ -612,44 +663,6 @@ export class TournamentApi extends runtime.BaseAPI {
 
     /**
      */
-    private async tournamentControllerPublishTournamentRaw(requestParameters: TournamentControllerPublishTournamentRequest): Promise<runtime.ApiResponse<TournamentTournamentDto>> {
-        this.tournamentControllerPublishTournamentValidation(requestParameters);
-        const context = this.tournamentControllerPublishTournamentContext(requestParameters);
-        const response = await this.request(context);
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => TournamentTournamentDtoFromJSON(jsonValue));
-    }
-
-
-
-    /**
-     */
-    private tournamentControllerPublishTournamentValidation(requestParameters: TournamentControllerPublishTournamentRequest) {
-        if (requestParameters.id === null || requestParameters.id === undefined) {
-            throw new runtime.RequiredError('id','Required parameter requestParameters.id was null or undefined when calling tournamentControllerPublishTournament.');
-        }
-    }
-
-    /**
-     */
-    private async tournamentControllerAutoScheduleBracketRaw(requestParameters: TournamentControllerAutoScheduleBracketRequest): Promise<runtime.ApiResponse<TournamentBracketDto>> {
-        this.tournamentControllerAutoScheduleBracketValidation(requestParameters);
-        const context = this.tournamentControllerAutoScheduleBracketContext(requestParameters);
-        const response = await this.request(context);
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => TournamentBracketDtoFromJSON(jsonValue));
-    }
-
-    /**
-     */
-    private tournamentControllerAutoScheduleBracketValidation(requestParameters: TournamentControllerAutoScheduleBracketRequest) {
-        if (requestParameters.id === null || requestParameters.id === undefined) {
-            throw new runtime.RequiredError('id','Required parameter requestParameters.id was null or undefined when calling tournamentControllerAutoScheduleBracket.');
-        }
-    }
-
-    /**
-     */
     private async tournamentControllerRegisterRaw(requestParameters: TournamentControllerRegisterRequest): Promise<runtime.ApiResponse<number>> {
         this.tournamentControllerRegisterValidation(requestParameters);
         const context = this.tournamentControllerRegisterContext(requestParameters);
@@ -668,6 +681,24 @@ export class TournamentApi extends runtime.BaseAPI {
         }
         if (requestParameters.tournamentRegisterAsPartyDto === null || requestParameters.tournamentRegisterAsPartyDto === undefined) {
             throw new runtime.RequiredError('tournamentRegisterAsPartyDto','Required parameter requestParameters.tournamentRegisterAsPartyDto was null or undefined when calling tournamentControllerRegister.');
+        }
+    }
+
+    /**
+     */
+    private async tournamentControllerAutoScheduleBracketRaw(requestParameters: TournamentControllerAutoScheduleBracketRequest): Promise<runtime.ApiResponse<TournamentBracketDto>> {
+        this.tournamentControllerAutoScheduleBracketValidation(requestParameters);
+        const context = this.tournamentControllerAutoScheduleBracketContext(requestParameters);
+        const response = await this.request(context);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => TournamentBracketDtoFromJSON(jsonValue));
+    }
+
+    /**
+     */
+    private tournamentControllerAutoScheduleBracketValidation(requestParameters: TournamentControllerAutoScheduleBracketRequest) {
+        if (requestParameters.id === null || requestParameters.id === undefined) {
+            throw new runtime.RequiredError('id','Required parameter requestParameters.id was null or undefined when calling tournamentControllerAutoScheduleBracket.');
         }
     }
 
@@ -712,24 +743,6 @@ export class TournamentApi extends runtime.BaseAPI {
 
     /**
      */
-    private async tournamentControllerEndReadyCheckRaw(requestParameters: TournamentControllerEndReadyCheckRequest): Promise<runtime.ApiResponse<TournamentTournamentDto>> {
-        this.tournamentControllerEndReadyCheckValidation(requestParameters);
-        const context = this.tournamentControllerEndReadyCheckContext(requestParameters);
-        const response = await this.request(context);
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => TournamentTournamentDtoFromJSON(jsonValue));
-    }
-
-    /**
-     */
-    private tournamentControllerEndReadyCheckValidation(requestParameters: TournamentControllerEndReadyCheckRequest) {
-        if (requestParameters.id === null || requestParameters.id === undefined) {
-            throw new runtime.RequiredError('id','Required parameter requestParameters.id was null or undefined when calling tournamentControllerEndReadyCheck.');
-        }
-    }
-
-    /**
-     */
     private async tournamentControllerSetGameWinnerRaw(requestParameters: TournamentControllerSetGameWinnerRequest): Promise<runtime.ApiResponse<void>> {
         this.tournamentControllerSetGameWinnerValidation(requestParameters);
         const context = this.tournamentControllerSetGameWinnerContext(requestParameters);
@@ -753,9 +766,9 @@ export class TournamentApi extends runtime.BaseAPI {
 
     /**
      */
-    private async tournamentControllerEndRegistrationRaw(requestParameters: TournamentControllerEndRegistrationRequest): Promise<runtime.ApiResponse<TournamentTournamentDto>> {
-        this.tournamentControllerEndRegistrationValidation(requestParameters);
-        const context = this.tournamentControllerEndRegistrationContext(requestParameters);
+    private async tournamentControllerEndReadyCheckRaw(requestParameters: TournamentControllerEndReadyCheckRequest): Promise<runtime.ApiResponse<TournamentTournamentDto>> {
+        this.tournamentControllerEndReadyCheckValidation(requestParameters);
+        const context = this.tournamentControllerEndReadyCheckContext(requestParameters);
         const response = await this.request(context);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => TournamentTournamentDtoFromJSON(jsonValue));
@@ -763,9 +776,9 @@ export class TournamentApi extends runtime.BaseAPI {
 
     /**
      */
-    private tournamentControllerEndRegistrationValidation(requestParameters: TournamentControllerEndRegistrationRequest) {
+    private tournamentControllerEndReadyCheckValidation(requestParameters: TournamentControllerEndReadyCheckRequest) {
         if (requestParameters.id === null || requestParameters.id === undefined) {
-            throw new runtime.RequiredError('id','Required parameter requestParameters.id was null or undefined when calling tournamentControllerEndRegistration.');
+            throw new runtime.RequiredError('id','Required parameter requestParameters.id was null or undefined when calling tournamentControllerEndReadyCheck.');
         }
     }
 
@@ -794,22 +807,19 @@ export class TournamentApi extends runtime.BaseAPI {
 
     /**
      */
-    private async tournamentControllerGetMatchRaw(requestParameters: TournamentControllerGetMatchRequest): Promise<runtime.ApiResponse<TournamentBracketMatchDto>> {
-        this.tournamentControllerGetMatchValidation(requestParameters);
-        const context = this.tournamentControllerGetMatchContext(requestParameters);
+    private async tournamentControllerEndRegistrationRaw(requestParameters: TournamentControllerEndRegistrationRequest): Promise<runtime.ApiResponse<TournamentTournamentDto>> {
+        this.tournamentControllerEndRegistrationValidation(requestParameters);
+        const context = this.tournamentControllerEndRegistrationContext(requestParameters);
         const response = await this.request(context);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => TournamentBracketMatchDtoFromJSON(jsonValue));
+        return new runtime.JSONApiResponse(response, (jsonValue) => TournamentTournamentDtoFromJSON(jsonValue));
     }
 
     /**
      */
-    private tournamentControllerGetMatchValidation(requestParameters: TournamentControllerGetMatchRequest) {
+    private tournamentControllerEndRegistrationValidation(requestParameters: TournamentControllerEndRegistrationRequest) {
         if (requestParameters.id === null || requestParameters.id === undefined) {
-            throw new runtime.RequiredError('id','Required parameter requestParameters.id was null or undefined when calling tournamentControllerGetMatch.');
-        }
-        if (requestParameters.matchId === null || requestParameters.matchId === undefined) {
-            throw new runtime.RequiredError('matchId','Required parameter requestParameters.matchId was null or undefined when calling tournamentControllerGetMatch.');
+            throw new runtime.RequiredError('id','Required parameter requestParameters.id was null or undefined when calling tournamentControllerEndRegistration.');
         }
     }
 
@@ -835,6 +845,27 @@ export class TournamentApi extends runtime.BaseAPI {
 
     /**
      */
+    private async tournamentControllerGetMatchRaw(requestParameters: TournamentControllerGetMatchRequest): Promise<runtime.ApiResponse<TournamentBracketMatchDto>> {
+        this.tournamentControllerGetMatchValidation(requestParameters);
+        const context = this.tournamentControllerGetMatchContext(requestParameters);
+        const response = await this.request(context);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => TournamentBracketMatchDtoFromJSON(jsonValue));
+    }
+
+    /**
+     */
+    private tournamentControllerGetMatchValidation(requestParameters: TournamentControllerGetMatchRequest) {
+        if (requestParameters.id === null || requestParameters.id === undefined) {
+            throw new runtime.RequiredError('id','Required parameter requestParameters.id was null or undefined when calling tournamentControllerGetMatch.');
+        }
+        if (requestParameters.matchId === null || requestParameters.matchId === undefined) {
+            throw new runtime.RequiredError('matchId','Required parameter requestParameters.matchId was null or undefined when calling tournamentControllerGetMatch.');
+        }
+    }
+
+    /**
+     */
     private async tournamentControllerGetTournamentMatchesRaw(requestParameters: TournamentControllerGetTournamentMatchesRequest): Promise<runtime.ApiResponse<Array<TournamentBracketMatchDto>>> {
         this.tournamentControllerGetTournamentMatchesValidation(requestParameters);
         const context = this.tournamentControllerGetTournamentMatchesContext(requestParameters);
@@ -848,6 +879,27 @@ export class TournamentApi extends runtime.BaseAPI {
     private tournamentControllerGetTournamentMatchesValidation(requestParameters: TournamentControllerGetTournamentMatchesRequest) {
         if (requestParameters.id === null || requestParameters.id === undefined) {
             throw new runtime.RequiredError('id','Required parameter requestParameters.id was null or undefined when calling tournamentControllerGetTournamentMatches.');
+        }
+    }
+
+    /**
+     */
+    private async tournamentControllerScheduleMatchRaw(requestParameters: TournamentControllerScheduleMatchRequest): Promise<runtime.ApiResponse<void>> {
+        this.tournamentControllerScheduleMatchValidation(requestParameters);
+        const context = this.tournamentControllerScheduleMatchContext(requestParameters);
+        const response = await this.request(context);
+
+        return new runtime.VoidApiResponse(response);
+    }
+
+    /**
+     */
+    private tournamentControllerScheduleMatchValidation(requestParameters: TournamentControllerScheduleMatchRequest) {
+        if (requestParameters.id === null || requestParameters.id === undefined) {
+            throw new runtime.RequiredError('id','Required parameter requestParameters.id was null or undefined when calling tournamentControllerScheduleMatch.');
+        }
+        if (requestParameters.tournamentScheduleTournamentGameDto === null || requestParameters.tournamentScheduleTournamentGameDto === undefined) {
+            throw new runtime.RequiredError('tournamentScheduleTournamentGameDto','Required parameter requestParameters.tournamentScheduleTournamentGameDto was null or undefined when calling tournamentControllerScheduleMatch.');
         }
     }
 
@@ -876,9 +928,9 @@ export class TournamentApi extends runtime.BaseAPI {
 
     /**
      */
-    private async tournamentControllerScheduleMatchRaw(requestParameters: TournamentControllerScheduleMatchRequest): Promise<runtime.ApiResponse<void>> {
-        this.tournamentControllerScheduleMatchValidation(requestParameters);
-        const context = this.tournamentControllerScheduleMatchContext(requestParameters);
+    private async tournamentControllerUnregisterRaw(requestParameters: TournamentControllerUnregisterRequest): Promise<runtime.ApiResponse<void>> {
+        this.tournamentControllerUnregisterValidation(requestParameters);
+        const context = this.tournamentControllerUnregisterContext(requestParameters);
         const response = await this.request(context);
 
         return new runtime.VoidApiResponse(response);
@@ -886,12 +938,12 @@ export class TournamentApi extends runtime.BaseAPI {
 
     /**
      */
-    private tournamentControllerScheduleMatchValidation(requestParameters: TournamentControllerScheduleMatchRequest) {
+    private tournamentControllerUnregisterValidation(requestParameters: TournamentControllerUnregisterRequest) {
         if (requestParameters.id === null || requestParameters.id === undefined) {
-            throw new runtime.RequiredError('id','Required parameter requestParameters.id was null or undefined when calling tournamentControllerScheduleMatch.');
+            throw new runtime.RequiredError('id','Required parameter requestParameters.id was null or undefined when calling tournamentControllerUnregister.');
         }
-        if (requestParameters.tournamentScheduleTournamentGameDto === null || requestParameters.tournamentScheduleTournamentGameDto === undefined) {
-            throw new runtime.RequiredError('tournamentScheduleTournamentGameDto','Required parameter requestParameters.tournamentScheduleTournamentGameDto was null or undefined when calling tournamentControllerScheduleMatch.');
+        if (requestParameters.tournamentUnregisterPlayerDto === null || requestParameters.tournamentUnregisterPlayerDto === undefined) {
+            throw new runtime.RequiredError('tournamentUnregisterPlayerDto','Required parameter requestParameters.tournamentUnregisterPlayerDto was null or undefined when calling tournamentControllerUnregister.');
         }
     }
 

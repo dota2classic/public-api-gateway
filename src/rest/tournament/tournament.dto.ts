@@ -15,6 +15,12 @@ export enum TournamentRegistrationState {
   TIMED_OUT = "TIMED_OUT",
 }
 
+export enum OpponentResult {
+  WIN = "win",
+  LOSS = "loss",
+  DRAW = "draw",
+}
+
 export class RegisterAsPartyDto {
   steamIds: string[];
 }
@@ -197,7 +203,8 @@ export class MatchOpponent {
   id: number | null;
   position?: number;
   score?: number;
-  result?: "win" | "loss" | "draw";
+  @ApiProperty({ enum: OpponentResult, enumName: "OpponentResult" })
+  result?: OpponentResult;
 }
 
 export class Match {
@@ -246,7 +253,8 @@ export class ParticipantResultDto {
   /** The current score of the participant. */
   score?: number;
   /** Tells what is the result of a duel for this participant. */
-  result?: "win" | "draw" | "loss";
+  @ApiProperty({ enum: OpponentResult, enumName: "OpponentResult" })
+  result?: OpponentResult;
 
   tbd?: boolean;
 

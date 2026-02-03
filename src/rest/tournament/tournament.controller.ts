@@ -77,6 +77,17 @@ export class TournamentController {
   }
 
   @WithUser()
+  @Post("/:id/unregister")
+  public async unregister(
+    @CurrentUser() user: CurrentUserDto,
+    @Param("id") id: number,
+  ) {
+    await this.api.tournamentControllerUnregister(id, {
+      steamId: user.steam_id,
+    });
+  }
+
+  @WithUser()
   @Post("/:id/confirm_registration")
   public confirmRegistration(
     @Param("id") id: number,
