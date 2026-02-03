@@ -93,11 +93,14 @@ export class TournamentMapper {
       (part.players || []).map(this.user.userDto),
     ).then((it) => it.sort());
 
-    let name = "";
+    let name: string;
+    let avatar = "/avatar.png";
     if (part.team) {
       name = part.team.name;
+      avatar = part.team.imageUrl;
     } else if (sortedPlayers) {
       name = sortedPlayers[0].name;
+      avatar = sortedPlayers[0].avatar;
       if (sortedPlayers.length > 1) {
         name += ` +${sortedPlayers.length - 1}`;
       }
@@ -108,6 +111,7 @@ export class TournamentMapper {
       tournament_id: part.tournament_id,
       players: sortedPlayers,
       name,
+      avatar,
     };
   };
 

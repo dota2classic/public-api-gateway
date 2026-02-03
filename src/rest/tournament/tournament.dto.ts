@@ -143,6 +143,7 @@ export class BracketParticipantDto {
   tournament_id: number;
   players?: UserDTO[];
   name?: string;
+  avatar?: string;
 }
 
 export class ScheduleTournamentGameDto {
