@@ -88,11 +88,28 @@ export class TournamentMapper {
 
   mapParticipant = async (
     part: TournamentBracketParticipantDto,
-  ): Promise<BracketParticipantDto> => ({
-    id: part.id,
-    tournament_id: part.tournament_id,
-    players: await Promise.all(part.players.map(this.user.userDto)),
-  });
+  ): Promise<BracketParticipantDto> => {
+    const sortedPlayers = await Promise.all(
+      (part.players || []).map(this.user.userDto),
+    ).then((it) => it.sort());
+
+    let name = "";
+    if (part.team) {
+      name = part.team.name;
+    } else if (sortedPlayers) {
+      name = sortedPlayers[0].name;
+      if (sortedPlayers.length > 1) {
+        name += ` +${sortedPlayers.length - 1}`;
+      }
+    }
+
+    return {
+      id: part.id,
+      tournament_id: part.tournament_id,
+      players: sortedPlayers,
+      name,
+    };
+  };
 
   mapBracket = async (
     t: TournamentTournamentBracketInfoDto,

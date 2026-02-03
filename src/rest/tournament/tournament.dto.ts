@@ -138,24 +138,11 @@ export class FullTournamentDto {
   description: string;
 }
 
-export class BracketOpponentDto {
-  id: number;
-  // tournament_id: number;
-  result?: "win" | "loss" | "draw";
-  // team?: TeamDto;
-  tbd?: boolean;
-  score?: number;
-  position?: number;
-
-  players?: UserDTO[];
-
-  participant?: SmallParticipantDto;
-}
-
-export class SmallParticipantDto {
+export class BracketParticipantDto {
   id: number;
   tournament_id: number;
   players?: UserDTO[];
+  name?: string;
 }
 
 export class ScheduleTournamentGameDto {
@@ -262,14 +249,7 @@ export class ParticipantResultDto {
 
   tbd?: boolean;
 
-  participant?: SmallParticipantDto;
-}
-
-export class BracketParticipantDto {
-  id: number;
-  tournament_id: number;
-  // team?: TeamDto;
-  players?: UserDTO[];
+  participant?: BracketParticipantDto;
 }
 
 export class MatchGameDto {
