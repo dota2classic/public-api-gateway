@@ -27,6 +27,7 @@ import { MatchHighlightsEvent } from "./gateway/events/match-highlights.event";
 import { AchievementCompleteEvent } from "./gateway/events/gs/achievement-complete.event";
 import { PleaseGoQueueEvent } from "./rest/notification/event/please-go-queue.event";
 import { GameResultsEvent } from "./gateway/events/gs/game-results.event";
+import { TournamentReadyCheckStartedEvent } from './gateway/events/tournament/tournament-ready-check-started.event';
 
 @Controller()
 export class RmqController {
@@ -45,6 +46,17 @@ export class RmqController {
     private readonly config: ConfigService,
     private readonly ebus: EventBus,
   ) {}
+
+  @RabbitSubscribe({
+    exchange: "app.events",
+    routingKey: TournamentReadyCheckStartedEvent.name,
+    queue: `api-queue.${TournamentReadyCheckStartedEvent.name}`,
+  })
+  async TournamentReadyCheckStartedEvent(
+    data: TournamentReadyCheckStartedEvent,
+  ) {
+    this.event(TournamentReadyCheckStartedEvent, data);
+  }
 
   @RabbitSubscribe({
     exchange: "app.events",

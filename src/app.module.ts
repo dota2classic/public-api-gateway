@@ -161,6 +161,7 @@ import { GameResultsHandler } from "./socket/event-handler/game-results.handler"
 import { SRCDSPerformanceHandler } from "./event-handler/srcds-performance.handler";
 import { TournamentController } from "./rest/tournament/tournament.controller";
 import { TournamentMapper } from "./rest/tournament/tournament.mapper";
+import { TournamentReadyCheckStartedHandler } from './event-handler/tournament-ready-check-started.handler';
 
 @Module({
   imports: [
@@ -370,6 +371,7 @@ import { TournamentMapper } from "./rest/tournament/tournament.mapper";
     UserHttpCacheInterceptor,
     MainService,
 
+    TournamentReadyCheckStartedHandler,
     StopLiveGameHandler,
     SRCDSPerformanceHandler,
     GameResultsHandler,
