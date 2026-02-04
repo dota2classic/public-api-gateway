@@ -388,6 +388,18 @@ export class ForumController {
     }
   }
 
+  @Get("thread/message/:id")
+  @UseGuards(CustomThrottlerGuard)
+  async getMessage(@Param("id") id: string): Promise<ThreadMessageDTO> {
+    try {
+      return await this.api
+        .forumControllerGetMessage(id)
+        .then(this.mapper.mapApiMessage);
+    } catch (response) {
+      throw new HttpException("Muted", response.status);
+    }
+  }
+
   @Post("thread/message")
   @UseGuards(CustomThrottlerGuard)
   @WithUser()
