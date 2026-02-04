@@ -94,6 +94,12 @@ export class ForumThreadDTO {
      * @memberof ForumThreadDTO
      */
     lastMessage?: ForumMessageDTO;
+    /**
+     *
+     * @type {ForumMessageDTO}
+     * @memberof ForumThreadDTO
+     */
+    pinnedMessage?: ForumMessageDTO;
 }
 
 export function ForumThreadDTOFromJSON(json: any): ForumThreadDTO {
@@ -117,6 +123,7 @@ export function ForumThreadDTOFromJSONTyped(json: any, ignoreDiscriminator: bool
         'newMessageCount': json['newMessageCount'],
         'originalPoster': !exists(json, 'originalPoster') ? undefined : json['originalPoster'],
         'lastMessage': !exists(json, 'lastMessage') ? undefined : ForumMessageDTOFromJSON(json['lastMessage']),
+        'pinnedMessage': !exists(json, 'pinnedMessage') ? undefined : ForumMessageDTOFromJSON(json['pinnedMessage']),
     };
 }
 
@@ -140,6 +147,7 @@ export function ForumThreadDTOToJSON(value?: ForumThreadDTO | null): any {
         'newMessageCount': value.newMessageCount,
         'originalPoster': value.originalPoster,
         'lastMessage': ForumMessageDTOToJSON(value.lastMessage),
+        'pinnedMessage': ForumMessageDTOToJSON(value.pinnedMessage),
     };
 }
 

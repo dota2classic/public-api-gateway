@@ -509,6 +509,17 @@ export class ForumController {
     }
   }
 
+  @Post("thread/message/:id/pin")
+  @ModeratorGuard()
+  @WithUser()
+  async pinMessage(@Param("id") messageId: string) {
+    try {
+      return await this.api.forumControllerPinMessage(messageId);
+    } catch (response) {
+      throw new HttpException("Muted", response.status);
+    }
+  }
+
   @ApiQuery({
     type: "string",
     required: false,

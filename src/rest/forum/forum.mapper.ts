@@ -95,6 +95,8 @@ export class ForumMapper {
       thread.originalPoster && (await this.user.userDto(thread.originalPoster)),
     lastMessage:
       thread.lastMessage && (await this.mapApiMessage(thread.lastMessage)),
+    pinnedMessage:
+      thread.pinnedMessage && (await this.mapApiMessage(thread.pinnedMessage)),
   });
 
   public mapUser = async (user: ForumForumUserDTO): Promise<ForumUserDto> => ({
