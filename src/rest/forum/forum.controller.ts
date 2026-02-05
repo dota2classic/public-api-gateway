@@ -389,7 +389,6 @@ export class ForumController {
   }
 
   @Get("thread/message/:id")
-  @UseGuards(CustomThrottlerGuard)
   async getMessage(@Param("id") id: string): Promise<ThreadMessageDTO> {
     try {
       return await this.api
