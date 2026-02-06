@@ -131,10 +131,9 @@ export class StatsController {
   @Get("/online")
   @CacheTTL(10) // 10 seconds
   async online(): Promise<CurrentOnlineDto> {
-    const [online, sessions, servers] = await Promise.all<any>([
+    const [online, sessions] = await Promise.all<any>([
       this.ms.infoControllerGetCurrentOnline(),
       this.ms.infoControllerGameSessions(),
-      this.ms.infoControllerGameServers(),
     ]);
 
     const ses = sessions as GameserverGameSessionDto[];
@@ -154,7 +153,7 @@ export class StatsController {
 
     return {
       inGame: online,
-      servers: servers.length,
+      servers: 0,
       sessions: sessions.length,
       perMode,
     };
