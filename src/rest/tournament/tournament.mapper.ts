@@ -8,6 +8,8 @@ import {
   TournamentRegistrationPlayerDto,
   TournamentRoundDto,
   TournamentStageDto,
+  TournamentStageStandingsResultDto,
+  TournamentStageStandingsResultRankDto,
   TournamentTournamentBracketInfoDto,
   TournamentTournamentDto,
 } from "../../generated-api/tournament";
@@ -20,6 +22,8 @@ import {
   RegistrationPlayerDto,
   RoundDto,
   StageDto,
+  StageStandingRankedDto,
+  StageStandingsDto,
   TournamentBracketInfoDto,
   TournamentDto,
 } from "./tournament.dto";
@@ -167,5 +171,20 @@ export class TournamentMapper {
     position: t.position,
     result: t.result as unknown as any,
     participant: t.participant && (await this.mapParticipant(t.participant)),
+  });
+
+  mapStandingDto = async (
+    t: TournamentStageStandingsResultRankDto,
+  ): Promise<StageStandingRankedDto> => ({
+    rank: t.rank,
+    participant: await this.mapParticipant(t.participant),
+  });
+
+  mapStanding = async (
+    t: TournamentStageStandingsResultDto,
+  ): Promise<StageStandingsDto> => ({
+    id: t.stage_id,
+    name: t.name,
+    standings: await Promise.all(t.standings.map(this.mapStandingDto)),
   });
 }

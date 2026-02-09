@@ -49,11 +49,19 @@ export class TournamentController {
       .tournamentControllerGetTournamentMatches(id)
       .then((matches) => Promise.all(matches.map(this.mapper.mapMatch)));
   }
+
   @Get("/:id/matches/:match_id")
   public getMatch(@Param("id") id: number, @Param("match_id") matchId: number) {
     return this.api
       .tournamentControllerGetMatch(id, matchId)
       .then(this.mapper.mapMatch);
+  }
+
+  @Get("/:id/standings")
+  public getStandings(@Param("id") id: number) {
+    return this.api
+      .tournamentControllerGetTournamentStandings(id)
+      .then((matches) => Promise.all(matches.map(this.mapper.mapStanding)));
   }
 
   @Get("/:id/bracket")

@@ -25,6 +25,8 @@ export * from './TournamentSeedDto';
 export * from './TournamentSeedItemDto';
 export * from './TournamentSetGameWinnerDto';
 export * from './TournamentStageDto';
+export * from './TournamentStageStandingsResultDto';
+export * from './TournamentStageStandingsResultRankDto';
 export * from './TournamentStartGameDto';
 export * from './TournamentSubmitInvitationDto';
 export * from './TournamentTeamDto';

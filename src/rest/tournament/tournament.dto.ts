@@ -284,3 +284,14 @@ export class BracketMatchGameDto {
   finished: boolean;
   scheduledDate: string;
 }
+
+export class StageStandingRankedDto {
+  rank: number;
+  participant: BracketParticipantDto;
+}
+
+export class StageStandingsDto {
+  name: string;
+  id: number;
+  standings: StageStandingRankedDto[];
+}
