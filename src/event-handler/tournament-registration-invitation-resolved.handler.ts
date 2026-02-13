@@ -14,7 +14,7 @@ export class TournamentRegistrationInvitationResolvedHandler
 
   async handle(event: TournamentRegistrationInvitationResolvedEvent) {
     await this.notificationService.createNotification(
-      event.steamId,
+      event.inviterSteamId,
       event.inviterSteamId,
       NotificationEntityType.PLAYER,
       NotificationType.TOURNAMENT_REGISTRATION_INVITATION_RESOLVED,

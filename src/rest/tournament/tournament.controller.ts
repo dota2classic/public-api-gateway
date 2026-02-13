@@ -112,12 +112,12 @@ export class TournamentController {
 
   @WithUser()
   @Post("/:id/invite_to_registration")
-  public inviteToRegistration(
+  public async inviteToRegistration(
     @Param("id") id: number,
     @CurrentUser() user: CurrentUserDto,
     @Body() body: InviteToRegistrationDto,
   ) {
-    return this.api.tournamentControllerInviteToRegistration(id, {
+    await this.api.tournamentControllerInviteToRegistration(id, {
       steamId: body.steamId,
       inviterSteamId: user.steam_id,
     });
@@ -125,12 +125,12 @@ export class TournamentController {
 
   @WithUser()
   @Post("/:id/reply_to_registration_invitation")
-  public replyToRegistrationInvitationR(
+  public async replyToRegistrationInvitationR(
     @Param("id") id: number,
     @CurrentUser() user: CurrentUserDto,
     @Body() body: ReplyInvitationDto,
   ) {
-    return this.api.tournamentControllerReplyRegistrationInvitation(id, {
+    await this.api.tournamentControllerReplyRegistrationInvitation(id, {
       invitationId: body.id,
       accept: body.accept,
     });
