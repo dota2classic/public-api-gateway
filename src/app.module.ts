@@ -161,7 +161,9 @@ import { GameResultsHandler } from "./socket/event-handler/game-results.handler"
 import { SRCDSPerformanceHandler } from "./event-handler/srcds-performance.handler";
 import { TournamentController } from "./rest/tournament/tournament.controller";
 import { TournamentMapper } from "./rest/tournament/tournament.mapper";
-import { TournamentReadyCheckStartedHandler } from './event-handler/tournament-ready-check-started.handler';
+import { TournamentReadyCheckStartedHandler } from "./event-handler/tournament-ready-check-started.handler";
+import { TournamentRegistrationInvitationResolvedHandler } from "./event-handler/tournament-registration-invitation-resolved.handler";
+import { TournamentRegistrationInvitationCreatedHandler } from "./event-handler/tournament-registration-invitation-created.handler";
 
 @Module({
   imports: [
@@ -372,6 +374,8 @@ import { TournamentReadyCheckStartedHandler } from './event-handler/tournament-r
     MainService,
 
     TournamentReadyCheckStartedHandler,
+    TournamentRegistrationInvitationCreatedHandler,
+    TournamentRegistrationInvitationResolvedHandler,
     StopLiveGameHandler,
     SRCDSPerformanceHandler,
     GameResultsHandler,

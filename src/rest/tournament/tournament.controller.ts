@@ -11,6 +11,8 @@ import { PartyService } from "../party.service";
 import {
   ConfirmRegistrationDto,
   CreateTournamentDto,
+  InviteToRegistrationDto,
+  ReplyInvitationDto,
   ScheduleTournamentGameDto,
   SetMatchResultDto,
   UpdateTournamentDto,
@@ -105,6 +107,32 @@ export class TournamentController {
     return this.api.tournamentControllerConfirmRegistration(id, {
       steamId: user.steam_id,
       confirm: body.confirm,
+    });
+  }
+
+  @WithUser()
+  @Post("/:id/invite_to_registration")
+  public inviteToRegistration(
+    @Param("id") id: number,
+    @CurrentUser() user: CurrentUserDto,
+    @Body() body: InviteToRegistrationDto,
+  ) {
+    return this.api.tournamentControllerInviteToRegistration(id, {
+      steamId: body.steamId,
+      inviterSteamId: user.steam_id,
+    });
+  }
+
+  @WithUser()
+  @Post("/:id/reply_to_registration_invitation")
+  public replyToRegistrationInvitationR(
+    @Param("id") id: number,
+    @CurrentUser() user: CurrentUserDto,
+    @Body() body: ReplyInvitationDto,
+  ) {
+    return this.api.tournamentControllerReplyRegistrationInvitation(id, {
+      invitationId: body.id,
+      accept: body.accept,
     });
   }
 

@@ -29,6 +29,15 @@ export class ConfirmRegistrationDto {
   confirm: boolean;
 }
 
+export class ReplyInvitationDto {
+  id: string;
+  accept: boolean;
+}
+
+export class InviteToRegistrationDto {
+  steamId: string;
+}
+
 export class BestOfStrategy {
   round: number;
   final: number;

@@ -27,7 +27,9 @@ import { MatchHighlightsEvent } from "./gateway/events/match-highlights.event";
 import { AchievementCompleteEvent } from "./gateway/events/gs/achievement-complete.event";
 import { PleaseGoQueueEvent } from "./rest/notification/event/please-go-queue.event";
 import { GameResultsEvent } from "./gateway/events/gs/game-results.event";
-import { TournamentReadyCheckStartedEvent } from './gateway/events/tournament/tournament-ready-check-started.event';
+import { TournamentReadyCheckStartedEvent } from "./gateway/events/tournament/tournament-ready-check-started.event";
+import { TournamentRegistrationInvitationCreatedEvent } from "./gateway/events/tournament/tournament-registration-invitation-created.event";
+import { TournamentRegistrationInvitationResolvedEvent } from "./gateway/events/tournament/tournament-registration-invitation-resolved.event";
 
 @Controller()
 export class RmqController {
@@ -172,6 +174,28 @@ export class RmqController {
   })
   private async handleGameServerPerformance(msg: GameResultsEvent) {
     this.event(GameResultsEvent, msg);
+  }
+
+  @RabbitSubscribe({
+    exchange: "app.events",
+    routingKey: TournamentRegistrationInvitationCreatedEvent.name,
+    queue: `api-queue.${TournamentRegistrationInvitationCreatedEvent.name}`,
+  })
+  private async handleTournamentRegistrationInvitationCreated(
+    msg: TournamentRegistrationInvitationCreatedEvent,
+  ) {
+    this.event(TournamentRegistrationInvitationCreatedEvent, msg);
+  }
+
+  @RabbitSubscribe({
+    exchange: "app.events",
+    routingKey: TournamentRegistrationInvitationResolvedEvent.name,
+    queue: `api-queue.${TournamentRegistrationInvitationResolvedEvent.name}`,
+  })
+  private async handleTournamentRegistrationInvitationResolved(
+    msg: TournamentRegistrationInvitationResolvedEvent,
+  ) {
+    this.event(TournamentRegistrationInvitationResolvedEvent, msg);
   }
 
   private event<T>(constructor: Constructor<T>, data: any) {
