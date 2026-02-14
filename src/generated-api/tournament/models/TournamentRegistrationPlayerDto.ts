@@ -16,7 +16,7 @@ import {
   TournamentTournamentRegistrationState,
   TournamentTournamentRegistrationStateFromJSON,
   TournamentTournamentRegistrationStateToJSON,
-} from './';
+} from "./";
 
 /**
  *

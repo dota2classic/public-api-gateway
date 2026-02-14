@@ -12,7 +12,7 @@
  * Do not edit the class manually.
  */
 
-import { TournamentSeedDto, TournamentSeedDtoFromJSON, TournamentSeedDtoToJSON } from './';
+import { TournamentSeedDto, TournamentSeedDtoFromJSON, TournamentSeedDtoToJSON, } from "./";
 
 /**
  *

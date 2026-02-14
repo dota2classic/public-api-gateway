@@ -19,7 +19,7 @@ import {
   TournamentDotaGameMode,
   TournamentDotaGameModeFromJSON,
   TournamentDotaGameModeToJSON,
-} from './';
+} from "./";
 
 /**
  *

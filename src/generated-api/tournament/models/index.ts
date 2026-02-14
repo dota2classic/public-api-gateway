@@ -21,6 +21,7 @@ export * from './TournamentRegistrationDto';
 export * from './TournamentRegistrationInvitationDto';
 export * from './TournamentRegistrationPlayerDto';
 export * from './TournamentReplyRegistrationInvitationDto';
+export * from './TournamentResetGameDataDto';
 export * from './TournamentRoundDto';
 export * from './TournamentScheduleStrategy';
 export * from './TournamentScheduleTournamentGameDto';

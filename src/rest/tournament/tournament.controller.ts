@@ -13,6 +13,7 @@ import {
   CreateTournamentDto,
   InviteToRegistrationDto,
   ReplyInvitationDto,
+  ResetGameDataDto,
   ScheduleTournamentGameDto,
   SetMatchResultDto,
   UpdateTournamentDto,
@@ -243,5 +244,12 @@ export class TournamentController {
   @Post("/:id/auto_schedule_bracket")
   public autoScheduleBracket(@Param("id") id: number) {
     return this.api.tournamentControllerAutoScheduleBracket(id);
+  }
+
+  @AdminGuard()
+  @WithUser()
+  @Post("/:id/reset_game_data")
+  public resetGameData(@Param("id") id: number, dto: ResetGameDataDto) {
+    return this.api.tournamentControllerResetGameData(id, dto);
   }
 }

@@ -22,7 +22,7 @@ import {
   TournamentSeedItemDto,
   TournamentSeedItemDtoFromJSON,
   TournamentSeedItemDtoToJSON,
-} from './';
+} from "./";
 
 /**
  *

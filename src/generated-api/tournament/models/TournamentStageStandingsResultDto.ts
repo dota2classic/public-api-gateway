@@ -16,7 +16,7 @@ import {
   TournamentStageStandingsResultRankDto,
   TournamentStageStandingsResultRankDtoFromJSON,
   TournamentStageStandingsResultRankDtoToJSON,
-} from './';
+} from "./";
 
 /**
  *

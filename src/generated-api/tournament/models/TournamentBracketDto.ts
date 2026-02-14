@@ -19,7 +19,7 @@ import {
   TournamentBracketType,
   TournamentBracketTypeFromJSON,
   TournamentBracketTypeToJSON,
-} from './';
+} from "./";
 
 /**
  *

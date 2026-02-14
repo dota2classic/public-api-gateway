@@ -16,7 +16,7 @@ import {
   TournamentSmallTournamentDto,
   TournamentSmallTournamentDtoFromJSON,
   TournamentSmallTournamentDtoToJSON,
-} from './';
+} from "./";
 
 /**
  *

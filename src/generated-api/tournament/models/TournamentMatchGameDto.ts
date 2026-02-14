@@ -12,7 +12,7 @@
  * Do not edit the class manually.
  */
 
-import { exists } from '../runtime';
+import { exists } from "../runtime";
 import {
   TournamentMatchStatus,
   TournamentMatchStatusFromJSON,
@@ -20,7 +20,7 @@ import {
   TournamentSeedItemDto,
   TournamentSeedItemDtoFromJSON,
   TournamentSeedItemDtoToJSON,
-} from './';
+} from "./";
 
 /**
  *

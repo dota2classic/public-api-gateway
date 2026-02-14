@@ -12,8 +12,8 @@
  * Do not edit the class manually.
  */
 
-import { exists } from '../runtime';
-import { TournamentTeamDto, TournamentTeamDtoFromJSON, TournamentTeamDtoToJSON } from './';
+import { exists } from "../runtime";
+import { TournamentTeamDto, TournamentTeamDtoFromJSON, TournamentTeamDtoToJSON, } from "./";
 
 /**
  *

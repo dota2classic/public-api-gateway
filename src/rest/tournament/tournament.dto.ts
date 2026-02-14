@@ -304,3 +304,6 @@ export class StageStandingsDto {
   id: number;
   standings: StageStandingRankedDto[];
 }
+export class ResetGameDataDto {
+  gameId: string;
+}
