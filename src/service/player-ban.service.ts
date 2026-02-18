@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { ForbiddenException, Injectable } from "@nestjs/common";
 import { PlayerApi } from "../generated-api/gameserver";
 
 export enum BanLevel {
@@ -28,6 +28,6 @@ export class PlayerBanService {
     errorMessage: string = "Игрок заблокирован",
   ) {
     const banStatus = await this.getBanStatus(steamId);
-    if (banStatus >= banLevel) throw new Error(errorMessage);
+    if (banStatus >= banLevel) throw new ForbiddenException(errorMessage);
   }
 }

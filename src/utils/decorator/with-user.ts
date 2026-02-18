@@ -1,5 +1,10 @@
 import { ApiBearerAuth } from "@nestjs/swagger";
-import { CanActivate, ExecutionContext, Injectable, UseGuards, } from "@nestjs/common";
+import {
+  CanActivate,
+  ExecutionContext,
+  Injectable,
+  UseGuards,
+} from "@nestjs/common";
 import { AuthGuard } from "@nestjs/passport";
 import { Role } from "../../gateway/shared-types/roles";
 import { Observable } from "rxjs";
