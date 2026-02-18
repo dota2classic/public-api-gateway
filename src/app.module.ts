@@ -164,6 +164,8 @@ import { TournamentMapper } from "./rest/tournament/tournament.mapper";
 import { TournamentReadyCheckStartedHandler } from "./event-handler/tournament-ready-check-started.handler";
 import { TournamentRegistrationInvitationResolvedHandler } from "./event-handler/tournament-registration-invitation-resolved.handler";
 import { TournamentRegistrationInvitationCreatedHandler } from "./event-handler/tournament-registration-invitation-created.handler";
+import { PlayerBanService } from "./service/player-ban.service";
+import { PermaBanGuard } from "./utils/decorator/with-user";
 
 @Module({
   imports: [
@@ -372,6 +374,9 @@ import { TournamentRegistrationInvitationCreatedHandler } from "./event-handler/
     ReqLoggingInterceptor,
     UserHttpCacheInterceptor,
     MainService,
+    PermaBanGuard,
+
+    PlayerBanService,
 
     TournamentReadyCheckStartedHandler,
     TournamentRegistrationInvitationCreatedHandler,

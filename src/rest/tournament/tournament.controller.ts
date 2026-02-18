@@ -1,8 +1,20 @@
-import { Body, Controller, Get, Param, Patch, Post } from "@nestjs/common";
+import {
+  Body,
+  Controller,
+  ForbiddenException,
+  Get,
+  Param,
+  Patch,
+  Post,
+} from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
 
 import { TournamentApi } from "../../generated-api/tournament";
-import { AdminGuard, WithUser } from "../../utils/decorator/with-user";
+import {
+  AdminGuard,
+  NoPermabanGuard,
+  WithUser,
+} from "../../utils/decorator/with-user";
 import {
   CurrentUser,
   CurrentUserDto,
@@ -19,6 +31,7 @@ import {
   UpdateTournamentDto,
 } from "./tournament.dto";
 import { TournamentMapper } from "./tournament.mapper";
+import { BanLevel, PlayerBanService } from "../../service/player-ban.service";
 
 @Controller("tournament")
 @ApiTags("tournament")
@@ -27,6 +40,7 @@ export class TournamentController {
     private readonly api: TournamentApi,
     private readonly partyService: PartyService,
     private readonly mapper: TournamentMapper,
+    private readonly playerBan: PlayerBanService,
   ) {}
 
   /* ============================
@@ -81,6 +95,12 @@ export class TournamentController {
     @Param("id") id: number,
   ) {
     const party = await this.partyService.getPartyRaw(user.steam_id);
+    const banInfos = await Promise.all(
+      party.players.map(this.playerBan.getBanStatus),
+    );
+    if (banInfos.some((bi) => bi === BanLevel.PERMANENT)) {
+      throw new ForbiddenException("Нельзя участвовать в турнире");
+    }
 
     return this.api.tournamentControllerRegister(id, {
       steamIds: party.players,
@@ -98,6 +118,7 @@ export class TournamentController {
     });
   }
 
+  @NoPermabanGuard
   @WithUser()
   @Post("/:id/confirm_registration")
   public confirmRegistration(
@@ -111,6 +132,7 @@ export class TournamentController {
     });
   }
 
+  @NoPermabanGuard
   @WithUser()
   @Post("/:id/invite_to_registration")
   public async inviteToRegistration(
@@ -118,6 +140,12 @@ export class TournamentController {
     @CurrentUser() user: CurrentUserDto,
     @Body() body: InviteToRegistrationDto,
   ) {
+    await this.playerBan.assertNotBanned(
+      body.steamId,
+      BanLevel.PERMANENT,
+      "Игрок заблокирован",
+    );
+
     await this.api.tournamentControllerInviteToRegistration(id, {
       steamId: body.steamId,
       inviterSteamId: user.steam_id,
@@ -249,7 +277,7 @@ export class TournamentController {
   @AdminGuard()
   @WithUser()
   @Post("/:id/reset_game_data")
-  public resetGameData(@Param("id") id: number, dto: ResetGameDataDto) {
+  public resetGameData(@Param("id") id: number, @Body() dto: ResetGameDataDto) {
     return this.api.tournamentControllerResetGameData(id, dto);
   }
 }

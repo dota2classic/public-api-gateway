@@ -1,16 +1,12 @@
 import { ApiBearerAuth } from "@nestjs/swagger";
-import {
-  CanActivate,
-  ExecutionContext,
-  Injectable,
-  UseGuards,
-} from "@nestjs/common";
+import { CanActivate, ExecutionContext, Injectable, UseGuards, } from "@nestjs/common";
 import { AuthGuard } from "@nestjs/passport";
 import { Role } from "../../gateway/shared-types/roles";
 import { Observable } from "rxjs";
 import { CurrentUserDto } from "./current-user";
 import { JwtService } from "@nestjs/jwt";
 import { TOKEN_KEY } from "../env";
+import { BanLevel, PlayerBanService } from "../../service/player-ban.service";
 
 @Injectable()
 export class CookieUserGuard implements CanActivate {
@@ -59,14 +55,31 @@ export class RoleGuard implements CanActivate {
 
     // @ts-ignore
     const user: CurrentUserDto | undefined = request.user;
-    console.log(user)
+    console.log(user);
     return !!user?.roles.find((t) => this.role.includes(t));
   }
 }
 
+@Injectable()
+export class PermaBanGuard implements CanActivate {
+  constructor(private readonly playerBan: PlayerBanService) {}
+  async canActivate(context: ExecutionContext): Promise<boolean> {
+    const request = context.switchToHttp().getRequest<Request>();
+
+    // @ts-ignore
+    const user: CurrentUserDto | undefined = request.user;
+    if (!user) return false;
+    const bs = await this.playerBan.getBanStatus(user.steam_id);
+    return bs !== BanLevel.PERMANENT;
+  }
+}
+
+export const NoPermabanGuard = UseGuards(PermaBanGuard);
+
 export const ModeratorGuard = () =>
   UseGuards(new RoleGuard(Role.ADMIN, Role.MODERATOR));
-export const AdminGuard = () => UseGuards(new RoleGuard(Role.ADMIN), AuthGuard("jwt"));
+export const AdminGuard = () =>
+  UseGuards(new RoleGuard(Role.ADMIN), AuthGuard("jwt"));
 
 export const OldGuard = () =>
   UseGuards(new RoleGuard(Role.OLD, Role.HUMAN, Role.ADMIN, Role.MODERATOR));
