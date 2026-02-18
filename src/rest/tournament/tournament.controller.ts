@@ -1,24 +1,9 @@
-import {
-  Body,
-  Controller,
-  ForbiddenException,
-  Get,
-  Param,
-  Patch,
-  Post,
-} from "@nestjs/common";
+import { Body, Controller, ForbiddenException, Get, Param, Patch, Post, } from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
 
 import { TournamentApi } from "../../generated-api/tournament";
-import {
-  AdminGuard,
-  NoPermabanGuard,
-  WithUser,
-} from "../../utils/decorator/with-user";
-import {
-  CurrentUser,
-  CurrentUserDto,
-} from "../../utils/decorator/current-user";
+import { AdminGuard, NoPermabanGuard, WithUser, } from "../../utils/decorator/with-user";
+import { CurrentUser, CurrentUserDto, } from "../../utils/decorator/current-user";
 import { PartyService } from "../party.service";
 import {
   ConfirmRegistrationDto,
@@ -96,7 +81,7 @@ export class TournamentController {
   ) {
     const party = await this.partyService.getPartyRaw(user.steam_id);
     const banInfos = await Promise.all(
-      party.players.map(this.playerBan.getBanStatus),
+      party.players.map((sid) => this.playerBan.getBanStatus(sid)),
     );
     if (banInfos.some((bi) => bi === BanLevel.PERMANENT)) {
       throw new ForbiddenException("Нельзя участвовать в турнире");
