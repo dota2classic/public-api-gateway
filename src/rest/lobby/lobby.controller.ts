@@ -146,7 +146,8 @@ export class LobbyController {
         dto.region,
         dto.noRunes,
         dto.midTowerToWin,
-        dto.midTowerKillsToWin
+        dto.midTowerKillsToWin,
+        dto.enableBanStage
       )
       .then((item) => this.lobbyMapper.mapLobby(item, user.steam_id));
   }

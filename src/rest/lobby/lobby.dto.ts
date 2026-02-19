@@ -46,6 +46,7 @@ export class LobbyDto {
   enableCheats: boolean;
 
   noRunes: boolean;
+  enableBanStage: boolean;
   midTowerToWin: boolean;
   midTowerKillsToWin: number;
 }
@@ -69,6 +70,7 @@ export class UpdateLobbyDto {
 
   fillBots?: boolean;
   enableCheats?: boolean;
+  enableBanStage?: boolean;
 
   @ApiProperty({ enum: DotaPatch, enumName: "DotaPatch" })
   patch?: DotaPatch;

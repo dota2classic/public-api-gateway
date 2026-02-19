@@ -257,6 +257,7 @@ export class LobbyService {
     noRunes?: boolean,
     midTowerToWin?: boolean,
     midTowerKillsToWin?: number,
+    enableBanStage?: boolean,
   ): Promise<LobbyEntity> {
     let lobby = await this.getLobby(id, user);
 
@@ -277,6 +278,7 @@ export class LobbyService {
     lobby.disableRunes = noRunes;
     lobby.midTowerToWin = midTowerToWin;
     lobby.killsToWin = midTowerKillsToWin;
+    lobby.enableBanStage = enableBanStage;
 
     await this.lobbyEntityRepository.save(lobby);
 
@@ -378,6 +380,7 @@ export class LobbyService {
         lobby.disableRunes,
         lobby.midTowerToWin,
         lobby.killsToWin,
+        lobby.enableBanStage,
       );
 
       await this.amqpConnection.publish(

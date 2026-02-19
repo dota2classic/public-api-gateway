@@ -36,6 +36,7 @@ export class LobbyMapper {
       noRunes: lobby.disableRunes,
       midTowerToWin: lobby.midTowerToWin,
       midTowerKillsToWin: lobby.killsToWin,
+      enableBanStage: lobby.enableBanStage,
     };
   };
 }

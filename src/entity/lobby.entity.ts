@@ -43,6 +43,9 @@ export class LobbyEntity {
   @Column({ name: "mid_tower_to_win", default: false })
   public midTowerToWin: boolean;
 
+  @Column({ name: "enable_ban_stage", default: false })
+  public enableBanStage: boolean;
+
   @Column({ name: "mid_tower_kills_to_win", default: 0 })
   public killsToWin: number;
 
