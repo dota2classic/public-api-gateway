@@ -11,7 +11,6 @@ import { PlayerSocket } from "./player.socket";
 import { JwtService } from "@nestjs/jwt";
 import { Server as WSServer } from "socket.io";
 import { SocketMessageService } from "./socket-message.service";
-import { SocketDelivery } from "./socket-delivery";
 import { MessageTypeS2C } from "./messages/s2c/message-type.s2c";
 import { MessageTypeC2S } from "./messages/c2s/message-type.c2s";
 import { Inject, Logger } from "@nestjs/common";
@@ -27,7 +26,6 @@ import { PartyInviteAcceptedEvent } from "../gateway/events/party/party-invite-a
 import { PartyInviteRequestedEvent } from "../gateway/events/party/party-invite-requested.event";
 import { AcceptPartyInviteMessageC2S } from "./messages/c2s/accept-party-invite-message.c2s";
 import { InviteToPartyMessageC2S } from "./messages/c2s/invite-to-party-message.c2s";
-import { EventBus } from "@nestjs/cqrs";
 import { PlayerEnterQueueRequestedEvent } from "../gateway/events/mm/player-enter-queue-requested.event";
 import { PlayerLeaveQueueRequestedEvent } from "../gateway/events/mm/player-leave-queue-requested.event";
 import { Cron, CronExpression } from "@nestjs/schedule";
@@ -36,6 +34,7 @@ import { UserRelationService } from "../service/user-relation.service";
 import { UserRelationStatus } from "../gateway/shared-types/user-relation";
 import Redis from "ioredis";
 import { OnlineUpdateMessageS2C } from "./messages/s2c/online-update-message.s2c";
+import { PlayerBanService } from "../service/player-ban.service";
 
 @WebSocketGateway({ cors: "*" })
 export class SocketGateway implements OnGatewayDisconnect, OnGatewayConnection {
@@ -47,8 +46,7 @@ export class SocketGateway implements OnGatewayDisconnect, OnGatewayConnection {
   constructor(
     private readonly jwtService: JwtService,
     private readonly messageService: SocketMessageService,
-    private readonly delivery: SocketDelivery,
-    private readonly ebus: EventBus,
+    private readonly playerBan: PlayerBanService,
     @Inject("QueryCore") private readonly redisQueue: ClientProxy,
     private readonly metrics: MetricsService,
     private readonly relationService: UserRelationService,
@@ -124,6 +122,10 @@ export class SocketGateway implements OnGatewayDisconnect, OnGatewayConnection {
     @MessageBody() data: InviteToPartyMessageC2S,
     @ConnectedSocket() client: PlayerSocket,
   ) {
+    if (await this.playerBan.isPermabanned(client.steamId)) {
+      return;
+    }
+
     const rel = await this.relationService.getRelation(
       data.invitedPlayerId,
       client.steamId,

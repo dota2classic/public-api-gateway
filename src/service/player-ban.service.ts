@@ -30,4 +30,8 @@ export class PlayerBanService {
     const banStatus = await this.getBanStatus(steamId);
     if (banStatus >= banLevel) throw new ForbiddenException(errorMessage);
   }
+
+  async isPermabanned(steamId: string) {
+    return this.getBanStatus(steamId).then(it => it === BanLevel.PERMANENT);
+  }
 }
