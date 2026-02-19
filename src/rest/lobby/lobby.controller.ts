@@ -144,6 +144,9 @@ export class LobbyController {
         dto.fillBots,
         dto.patch,
         dto.region,
+        dto.noRunes,
+        dto.midTowerToWin,
+        dto.midTowerKillsToWin
       )
       .then((item) => this.lobbyMapper.mapLobby(item, user.steam_id));
   }

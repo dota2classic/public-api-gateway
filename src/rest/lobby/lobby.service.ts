@@ -254,6 +254,9 @@ export class LobbyService {
     fillBots: boolean,
     patch: DotaPatch,
     region?: Region,
+    noRunes?: boolean,
+    midTowerToWin?: boolean,
+    midTowerKillsToWin?: number,
   ): Promise<LobbyEntity> {
     let lobby = await this.getLobby(id, user);
 
@@ -271,6 +274,9 @@ export class LobbyService {
     lobby.enableCheats = enableCheats;
     lobby.patch = patch;
     lobby.region = region;
+    lobby.disableRunes = noRunes;
+    lobby.midTowerToWin = midTowerToWin;
+    lobby.killsToWin = midTowerKillsToWin;
 
     await this.lobbyEntityRepository.save(lobby);
 
@@ -369,6 +375,9 @@ export class LobbyService {
         lobby.enableCheats,
         lobby.patch,
         lobby.region,
+        lobby.disableRunes,
+        lobby.midTowerToWin,
+        lobby.killsToWin,
       );
 
       await this.amqpConnection.publish(

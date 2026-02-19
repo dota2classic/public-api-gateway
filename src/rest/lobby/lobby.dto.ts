@@ -44,6 +44,10 @@ export class LobbyDto {
 
   fillBots: boolean;
   enableCheats: boolean;
+
+  noRunes: boolean;
+  midTowerToWin: boolean;
+  midTowerKillsToWin: number;
 }
 
 export class UpdateLobbyDto {
@@ -68,6 +72,10 @@ export class UpdateLobbyDto {
 
   @ApiProperty({ enum: DotaPatch, enumName: "DotaPatch" })
   patch?: DotaPatch;
+
+  noRunes?: boolean;
+  midTowerToWin?: boolean;
+  midTowerKillsToWin?: number;
 }
 
 export class KickPlayerDto {

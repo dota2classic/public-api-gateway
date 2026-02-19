@@ -33,6 +33,9 @@ export class LobbyMapper {
       fillBots: lobby.fillBots,
       patch: lobby.patch,
       region: lobby.region,
+      noRunes: lobby.disableRunes,
+      midTowerToWin: lobby.midTowerToWin,
+      midTowerKillsToWin: lobby.killsToWin,
     };
   };
 }
