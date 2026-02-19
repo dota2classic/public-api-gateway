@@ -49,6 +49,11 @@ export class TournamentMapper {
     registrations: await Promise.all(t.registrations.map(this.mapRegistration)),
     gameMode: t.gameMode,
     scheduleStrategy: t.scheduleStrategy,
+
+    disableRunes: t.disableRunes,
+    midTowerToWin: t.midTowerToWin,
+    enableBanStage: t.enableBanStage,
+    killsToWin: t.killsToWin,
   });
 
   mapRegistration = async (

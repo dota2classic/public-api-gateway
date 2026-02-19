@@ -70,6 +70,11 @@ export class TournamentDto {
   gameMode: Dota_GameMode;
 
   scheduleStrategy: ScheduleStrategy;
+
+  disableRunes: boolean;
+  midTowerToWin: boolean;
+  enableBanStage: boolean;
+  killsToWin: number;
 }
 
 export class CreateTournamentDto {
@@ -92,6 +97,11 @@ export class CreateTournamentDto {
 
   gameDurationSeconds: number;
   gameBreakDurationSeconds: number;
+
+  disableRunes: boolean;
+  midTowerToWin: boolean;
+  enableBanStage: boolean;
+  killsToWin: number;
 }
 
 export class UpdateTournamentDto {
@@ -114,6 +124,11 @@ export class UpdateTournamentDto {
 
   gameDurationSeconds?: number;
   gameBreakDurationSeconds?: number;
+
+  disableRunes?: boolean;
+  midTowerToWin?: boolean;
+  enableBanStage?: boolean;
+  killsToWin?: number;
 }
 
 export class UpdateTournamentStatusDto {
@@ -136,23 +151,6 @@ export class RegistrationDto {
   title: string;
 }
 
-export class TournamentStandingDto {
-  steam_id?: string;
-  // team?: TeamDto;
-  position: string;
-}
-
-export class FullTournamentDto {
-  id: number;
-  name: string;
-  status: TournamentStatus;
-  startDate: number;
-  imageUrl: string;
-  participants: TournamentParticipantDto[];
-  standings?: TournamentStandingDto[];
-  description: string;
-}
-
 export class BracketParticipantDto {
   id: number;
   tournament_id: number;
@@ -164,11 +162,6 @@ export class BracketParticipantDto {
 export class ScheduleTournamentGameDto {
   gameId: string;
   scheduledDate: string;
-}
-
-export class ForfeitDto {
-  gameId: number;
-  forfeitId: string;
 }
 
 export class SetMatchResultDto {

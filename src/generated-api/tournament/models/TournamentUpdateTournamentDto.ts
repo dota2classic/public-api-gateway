@@ -108,6 +108,30 @@ export class TournamentUpdateTournamentDto {
      * @memberof TournamentUpdateTournamentDto
      */
     grandFinalBestOf?: number;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof TournamentUpdateTournamentDto
+     */
+    disableRunes?: boolean;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof TournamentUpdateTournamentDto
+     */
+    midTowerToWin?: boolean;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof TournamentUpdateTournamentDto
+     */
+    enableBanStage?: boolean;
+    /**
+     * 
+     * @type {number}
+     * @memberof TournamentUpdateTournamentDto
+     */
+    killsToWin?: number;
 }
 
 export function TournamentUpdateTournamentDtoFromJSON(json: any): TournamentUpdateTournamentDto {
@@ -133,6 +157,10 @@ export function TournamentUpdateTournamentDtoFromJSONTyped(json: any, ignoreDisc
         'roundBestOf': !exists(json, 'roundBestOf') ? undefined : json['roundBestOf'],
         'finalBestOf': !exists(json, 'finalBestOf') ? undefined : json['finalBestOf'],
         'grandFinalBestOf': !exists(json, 'grandFinalBestOf') ? undefined : json['grandFinalBestOf'],
+        'disableRunes': !exists(json, 'disableRunes') ? undefined : json['disableRunes'],
+        'midTowerToWin': !exists(json, 'midTowerToWin') ? undefined : json['midTowerToWin'],
+        'enableBanStage': !exists(json, 'enableBanStage') ? undefined : json['enableBanStage'],
+        'killsToWin': !exists(json, 'killsToWin') ? undefined : json['killsToWin'],
     };
 }
 
@@ -158,6 +186,10 @@ export function TournamentUpdateTournamentDtoToJSON(value?: TournamentUpdateTour
         'roundBestOf': value.roundBestOf,
         'finalBestOf': value.finalBestOf,
         'grandFinalBestOf': value.grandFinalBestOf,
+        'disableRunes': value.disableRunes,
+        'midTowerToWin': value.midTowerToWin,
+        'enableBanStage': value.enableBanStage,
+        'killsToWin': value.killsToWin,
     };
 }
 

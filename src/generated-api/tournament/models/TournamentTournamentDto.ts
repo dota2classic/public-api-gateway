@@ -124,6 +124,30 @@ export class TournamentTournamentDto {
      * @memberof TournamentTournamentDto
      */
     registrations: Array<TournamentRegistrationDto>;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof TournamentTournamentDto
+     */
+    disableRunes: boolean;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof TournamentTournamentDto
+     */
+    midTowerToWin: boolean;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof TournamentTournamentDto
+     */
+    enableBanStage: boolean;
+    /**
+     * 
+     * @type {number}
+     * @memberof TournamentTournamentDto
+     */
+    killsToWin: number;
 }
 
 export function TournamentTournamentDtoFromJSON(json: any): TournamentTournamentDto {
@@ -149,6 +173,10 @@ export function TournamentTournamentDtoFromJSONTyped(json: any, ignoreDiscrimina
         'startDate': json['startDate'],
         'description': json['description'],
         'registrations': ((json['registrations'] as Array<any>).map(TournamentRegistrationDtoFromJSON)),
+        'disableRunes': json['disableRunes'],
+        'midTowerToWin': json['midTowerToWin'],
+        'enableBanStage': json['enableBanStage'],
+        'killsToWin': json['killsToWin'],
     };
 }
 
@@ -174,6 +202,10 @@ export function TournamentTournamentDtoToJSON(value?: TournamentTournamentDto | 
         'startDate': value.startDate,
         'description': value.description,
         'registrations': ((value.registrations as Array<any>).map(TournamentRegistrationDtoToJSON)),
+        'disableRunes': value.disableRunes,
+        'midTowerToWin': value.midTowerToWin,
+        'enableBanStage': value.enableBanStage,
+        'killsToWin': value.killsToWin,
     };
 }
 
