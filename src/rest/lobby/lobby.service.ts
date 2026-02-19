@@ -31,6 +31,7 @@ import { PlayerLeaveQueueRequestedEvent } from "../../gateway/events/mm/player-l
 import { AmqpConnection } from "@golevelup/nestjs-rabbitmq";
 import { DotaPatch } from "../../gateway/constants/patch";
 import { Region } from "../../gateway/shared-types/region";
+import { GameServerPluginParameters } from "../../gateway/commands/LaunchGameServer/game-server-plugin-parameters";
 
 @Injectable()
 export class LobbyService {
@@ -373,14 +374,16 @@ export class LobbyService {
             ),
         ),
         Dota2Version.Dota_684,
-        lobby.fillBots,
-        lobby.enableCheats,
         lobby.patch,
         lobby.region,
-        lobby.disableRunes,
-        lobby.midTowerToWin,
-        lobby.killsToWin,
-        lobby.enableBanStage,
+        new GameServerPluginParameters(
+          lobby.disableRunes,
+          lobby.midTowerToWin,
+          lobby.killsToWin,
+          lobby.enableBanStage,
+          lobby.fillBots,
+          lobby.enableCheats,
+        ),
       );
 
       await this.amqpConnection.publish(
