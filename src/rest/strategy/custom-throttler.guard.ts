@@ -3,9 +3,13 @@ import { Injectable } from "@nestjs/common";
 
 @Injectable()
 export class CustomThrottlerGuard extends ThrottlerGuard {
-  // Overwritten to handle the IP restriction along with firstName + lastName restriction
-
   protected async getTracker(req: Record<string, any>): Promise<string> {
-    return req.user.steam_id;
+    // If authenticated → rate limit by steam_id
+    if (req.user?.steam_id) {
+      return `steam:${req.user.steam_id}`;
+    }
+
+    // Fallback to IP
+    return `ip:${req.ip}`;
   }
 }

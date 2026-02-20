@@ -65,6 +65,7 @@ import { Repository } from "typeorm";
 import { CacheTTL } from "@nestjs/cache-manager";
 import { FeedbackAssistantService } from "../feedback/feedback-assistant.service";
 import { UserHttpCacheInterceptor } from "../../utils/cache-key-track";
+import { Throttle } from "@nestjs/throttler";
 
 @UseInterceptors(ReqLoggingInterceptor)
 @Controller("forum")
@@ -388,6 +389,7 @@ export class ForumController {
     }
   }
 
+  @UseGuards(CustomThrottlerGuard)
   @Get("thread/message/:id")
   async getMessage(@Param("id") id: string): Promise<ThreadMessageDTO> {
     try {
@@ -501,6 +503,7 @@ export class ForumController {
     return 200;
   }
 
+  @Throttle({ default: { limit: 10, ttl: 60_000 } })
   @UseGuards(CustomThrottlerGuard)
   @Post("thread/message/:id/react")
   @WithUser()
