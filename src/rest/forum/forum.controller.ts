@@ -501,6 +501,7 @@ export class ForumController {
     return 200;
   }
 
+  @UseGuards(CustomThrottlerGuard)
   @Post("thread/message/:id/react")
   @WithUser()
   async react(
