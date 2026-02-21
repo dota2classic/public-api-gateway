@@ -37,6 +37,7 @@ export class ForumMapper {
           emoticon: this.mapEmoticon(reaction.emoticon),
           reacted: [],
           reactedCount: reaction.reacted.length,
+          myReaction: reaction.reacted.includes(mapFor?.steam_id),
         })),
       ),
       msg.repliedMessage

@@ -16,6 +16,7 @@ export class ReactionEntry {
   emoticon: EmoticonDto;
   reacted: UserDTO[];
   reactedCount: number;
+  myReaction: boolean;
 }
 
 export enum SortOrder {
