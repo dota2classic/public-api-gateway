@@ -35,7 +35,8 @@ export class ForumMapper {
       Promise.all(
         msg.reactions.map(async (reaction) => ({
           emoticon: this.mapEmoticon(reaction.emoticon),
-          reacted: await Promise.all(reaction.reacted.map(this.user.userDto)),
+          reacted: [],
+          reactedCount: reaction.reacted.length,
         })),
       ),
       msg.repliedMessage
