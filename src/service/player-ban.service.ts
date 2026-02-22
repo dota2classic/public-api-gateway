@@ -1,5 +1,6 @@
 import { ForbiddenException, Injectable } from "@nestjs/common";
 import { PlayerApi } from "../generated-api/gameserver";
+import { MatchAccessLevel } from "../gateway/shared-types/match-access-level";
 
 export enum BanLevel {
   NONE,
@@ -10,6 +11,11 @@ export enum BanLevel {
 @Injectable()
 export class PlayerBanService {
   constructor(private readonly playerApi: PlayerApi) {}
+
+  public async hasPlayedAnyGame(steamId: string) {
+    const info = await this.playerApi.playerControllerPlayerSummary(steamId);
+    return info.accessLevel != MatchAccessLevel.EDUCATION;
+  }
 
   public async getBanStatus(steamId: string) {
     const bi = await this.playerApi.playerControllerBanInfo(steamId);
@@ -31,7 +37,13 @@ export class PlayerBanService {
     if (banStatus >= banLevel) throw new ForbiddenException(errorMessage);
   }
 
+  public async assertPlayedAnyGame(steamId: string) {
+    if (!(await this.hasPlayedAnyGame(steamId))) {
+      throw new ForbiddenException("Need to play a game");
+    }
+  }
+
   async isPermabanned(steamId: string) {
-    return this.getBanStatus(steamId).then(it => it === BanLevel.PERMANENT);
+    return this.getBanStatus(steamId).then((it) => it === BanLevel.PERMANENT);
   }
 }
