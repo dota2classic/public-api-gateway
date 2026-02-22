@@ -61,6 +61,11 @@ export class UpdateDropTierDto {
   weight?: number;
 }
 
+export class CreateDropDto {
+  playerId: string;
+  tierId: number;
+}
+
 export class CreateDropTierDto {
   minPrice: number;
   maxPrice: number;

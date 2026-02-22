@@ -1,4 +1,5 @@
 export * from './TradeBotCreateDropTierDto';
+export * from './TradeBotDropItemDto';
 export * from './TradeBotDropSettingsDto';
 export * from './TradeBotDropTierDto';
 export * from './TradeBotDroppedItemDto';

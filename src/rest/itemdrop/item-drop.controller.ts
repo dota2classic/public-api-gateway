@@ -19,6 +19,7 @@ import {
 } from "../../utils/decorator/current-user";
 import { ItemDropMapper } from "./item-drop.mapper";
 import {
+  CreateDropDto,
   CreateDropTierDto,
   DropSettingsDto,
   DropTierDto,
@@ -44,6 +45,15 @@ export class ItemDropController {
     @InjectRepository(SubscriptionProductEntity)
     private readonly subscriptionProductEntityRepository: Repository<SubscriptionProductEntity>,
   ) {}
+
+  @AdminGuard()
+  @WithUser()
+  @Post("drop_for_player")
+  public async dropItemOfTier(@Body() dto: CreateDropDto) {
+    await this.api.tradeControllerDropItem(dto.playerId, {
+      tierId: dto.tierId,
+    })
+  }
 
   @WithUser()
   @Get("/item")

@@ -16,32 +16,32 @@ import { exists, mapValues } from '../runtime';
 /**
  * 
  * @export
- * @interface TradeBotUpdateUserDto
+ * @interface TradeBotDropItemDto
  */
-export class TradeBotUpdateUserDto {
+export class TradeBotDropItemDto {
     /**
      * 
-     * @type {string}
-     * @memberof TradeBotUpdateUserDto
+     * @type {number}
+     * @memberof TradeBotDropItemDto
      */
-    tradeLink: string;
+    tierId: number;
 }
 
-export function TradeBotUpdateUserDtoFromJSON(json: any): TradeBotUpdateUserDto {
-    return TradeBotUpdateUserDtoFromJSONTyped(json, false);
+export function TradeBotDropItemDtoFromJSON(json: any): TradeBotDropItemDto {
+    return TradeBotDropItemDtoFromJSONTyped(json, false);
 }
 
-export function TradeBotUpdateUserDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): TradeBotUpdateUserDto {
+export function TradeBotDropItemDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): TradeBotDropItemDto {
     if ((json === undefined) || (json === null)) {
         return json;
     }
     return {
         
-        'tradeLink': json['tradeLink'],
+        'tierId': json['tierId'],
     };
 }
 
-export function TradeBotUpdateUserDtoToJSON(value?: TradeBotUpdateUserDto | null): any {
+export function TradeBotDropItemDtoToJSON(value?: TradeBotDropItemDto | null): any {
     if (value === undefined) {
         return undefined;
     }
@@ -50,7 +50,7 @@ export function TradeBotUpdateUserDtoToJSON(value?: TradeBotUpdateUserDto | null
     }
     return {
         
-        'tradeLink': value.tradeLink,
+        'tierId': value.tierId,
     };
 }
 
