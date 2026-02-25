@@ -36,7 +36,7 @@ import { GetPlayerInfoQuery } from "../../gateway/queries/GetPlayerInfo/get-play
 import { GetPlayerInfoQueryResult } from "../../gateway/queries/GetPlayerInfo/get-player-info-query.result";
 import { Dota2Version } from "../../gateway/shared-types/dota2version";
 import { PlayerBanHammeredEvent } from "../../gateway/events/bans/player-ban-hammered.event";
-import { NullableIntPipe } from "../../utils/pipes";
+import { NullableIntPipe, PagePipe, PerPagePipe } from "../../utils/pipes";
 import { AdminMapper } from "./admin.mapper";
 import { WithPagination } from "../../utils/decorator/pagination";
 import { MatchmakingInfo } from "../stats/stats.dto";
@@ -81,8 +81,8 @@ export class AdminUserController {
   })
   @Get("/crimes")
   async crimes(
-    @Query("page", NullableIntPipe) page: number,
-    @Query("per_page", NullableIntPipe) perPage: number = 25,
+    @Query("page", PagePipe) page: number,
+    @Query("per_page", new PerPagePipe()) perPage: number,
     @Query("steam_id") steamId?: string,
   ): Promise<CrimeLogPageDto> {
     const res = await this.gsApi.crime.crimeControllerCrimeLog({

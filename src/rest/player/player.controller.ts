@@ -40,7 +40,7 @@ import { UserHttpCacheInterceptor } from "../../utils/cache-key-track";
 import { UserDTO } from "../shared.dto";
 import { AchievementDto } from "./dto/achievement.dto";
 import { WithPagination } from "../../utils/decorator/pagination";
-import { NullableIntPipe } from "../../utils/pipes";
+import { NullableIntPipe, PagePipe, PerPagePipe } from "../../utils/pipes";
 import { PartyService } from "../party.service";
 import { ReqLoggingInterceptor } from "../../middleware/req-logging.interceptor";
 import { UserProfileService } from "../../service/user-profile.service";
@@ -96,8 +96,8 @@ export class PlayerController {
     required: false,
   })
   async leaderboard(
-    @Query("page") page: number,
-    @Query("per_page", NullableIntPipe) perPage: number = 25,
+    @Query("page", PagePipe) page: number,
+    @Query("per_page", new PerPagePipe()) perPage: number,
     @Query("season_id", NullableIntPipe) seasonId?: number,
   ): Promise<LeaderboardEntryPageDto> {
     const res = await this.gsApi.player.playerControllerLeaderboard({
@@ -121,8 +121,8 @@ export class PlayerController {
   @Get("/:id/teammates")
   async teammates(
     @Param("id") steam_id: string,
-    @Query("page") page: number,
-    @Query("per_page") perPage: number = 25,
+    @Query("page", PagePipe) page: number,
+    @Query("per_page", new PerPagePipe()) perPage: number,
   ): Promise<PlayerTeammatePageDto> {
     const res = await this.gsApi.player.playerControllerPlayerTeammates(
       steam_id,

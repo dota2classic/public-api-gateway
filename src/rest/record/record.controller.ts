@@ -31,20 +31,7 @@ export class RecordController {
   @Get()
   public async records(): Promise<PlayerRecordsResponse> {
     const res = await this.gsApi.record.recordControllerRecords();
-    const records = res.data;
-
-    const [overall, month, season, day] = await Promise.all([
-      Promise.all(records.overall.map(this.mapper.mapPlayerRecord)),
-      Promise.all(records.month.map(this.mapper.mapPlayerRecord)),
-      Promise.all(records.season.map(this.mapper.mapPlayerRecord)),
-      Promise.all(records.day.map(this.mapper.mapPlayerRecord)),
-    ]);
-    return {
-      overall,
-      month,
-      season,
-      day,
-    };
+    return this.mapper.mapRecordsResponse(res.data);
   }
 
   // @CacheTTL(60 * 30)
@@ -63,20 +50,7 @@ export class RecordController {
     @Param("steam_id") steamId: string,
   ): Promise<PlayerRecordsResponse> {
     const res = await this.gsApi.record.recordControllerPlayerRecord(steamId);
-    const records = res.data;
-
-    const [overall, month, season, day] = await Promise.all([
-      Promise.all(records.overall.map(this.mapper.mapPlayerRecord)),
-      Promise.all(records.month.map(this.mapper.mapPlayerRecord)),
-      Promise.all(records.season.map(this.mapper.mapPlayerRecord)),
-      Promise.all(records.day.map(this.mapper.mapPlayerRecord)),
-    ]);
-    return {
-      overall,
-      month,
-      season,
-      day,
-    };
+    return this.mapper.mapRecordsResponse(res.data);
   }
 
   @Get("daily")

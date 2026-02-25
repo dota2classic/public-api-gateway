@@ -3,6 +3,7 @@ import * as GsApi from "@dota2classic/gs-api-generated/dist/Api";
 import {
   PlayerDailyRecord,
   PlayerRecordDto,
+  PlayerRecordsResponse,
   PlayerYearSummaryDto,
 } from "./record.dto";
 import { MatchMapper } from "../match/match.mapper";
@@ -60,4 +61,16 @@ export class RecordMapper {
     mostPurchasedItem: source.most_purchased_item,
     mostPurchasedItemCount: source.most_purchased_item_count,
   });
+
+  public mapRecordsResponse = async (
+    records: GsApi.PlayerRecordsResponse,
+  ): Promise<PlayerRecordsResponse> => {
+    const [overall, month, season, day] = await Promise.all([
+      Promise.all(records.overall.map(this.mapPlayerRecord)),
+      Promise.all(records.month.map(this.mapPlayerRecord)),
+      Promise.all(records.season.map(this.mapPlayerRecord)),
+      Promise.all(records.day.map(this.mapPlayerRecord)),
+    ]);
+    return { overall, month, season, day };
+  };
 }

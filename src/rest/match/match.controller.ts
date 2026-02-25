@@ -28,6 +28,7 @@ import { WithPagination } from "../../utils/decorator/pagination";
 import { ReqLoggingInterceptor } from "../../middleware/req-logging.interceptor";
 import { WithUser } from "../../utils/decorator/with-user";
 import { ApiClient } from "@dota2classic/gs-api-generated/dist/module";
+import { PagePipe, PerPagePipe } from "../../utils/pipes";
 
 @UseInterceptors(ReqLoggingInterceptor)
 @Controller("match")
@@ -47,8 +48,8 @@ export class MatchController {
   })
   @Get("/all")
   async matches(
-    @Query("page") page: number,
-    @Query("per_page") perPage: number = 25,
+    @Query("page", PagePipe) page: number,
+    @Query("per_page", new PerPagePipe()) perPage: number,
     @Query("mode") mode?: MatchmakingMode,
   ): Promise<MatchPageDto> {
     const res = await this.gsApi.match.matchControllerMatches({
@@ -67,8 +68,8 @@ export class MatchController {
   })
   @Get("/by_hero")
   async heroMatches(
-    @Query("page") page: number,
-    @Query("per_page") perPage: number = 25,
+    @Query("page", PagePipe) page: number,
+    @Query("per_page", new PerPagePipe()) perPage: number,
     @Query("hero") hero: string,
   ): Promise<MatchPageDto> {
     const res = await this.gsApi.match.matchControllerHeroMatches({
@@ -142,8 +143,8 @@ export class MatchController {
   @Get("/player/:id")
   async playerMatches(
     @Param("id") steam_id: string,
-    @Query("page") page: number,
-    @Query("per_page") perPage: number = 25,
+    @Query("page", PagePipe) page: number,
+    @Query("per_page", new PerPagePipe()) perPage: number,
     @Query("mode") mode?: MatchmakingMode,
     @Query("hero") hero?: string,
   ): Promise<MatchPageDto> {

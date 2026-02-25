@@ -38,7 +38,7 @@ import {
   UpdateUserDTO,
 } from "./forum.dto";
 import { ForumApi, ForumSortOrder } from "../../generated-api/forum";
-import { NullableIntPipe } from "../../utils/pipes";
+import { NullableIntPipe, PagePipe, PerPagePipe } from "../../utils/pipes";
 import {
   AdminGuard,
   ModeratorGuard,
@@ -195,9 +195,9 @@ export class ForumController {
   async messagesPage(
     @Param("id") id: string,
     @Param("threadType") threadType: ThreadType,
-    @Query("page", NullableIntPipe) page: number,
+    @Query("page", PagePipe) page: number,
     @Query("cursor") cursor?: string,
-    @Query("per_page", NullableIntPipe) perPage: number = 15,
+    @Query("per_page", new PerPagePipe(15)) perPage: number = 15,
     @CurrentUser() user?: CurrentUserDto,
   ): Promise<ThreadMessagePageDTO> {
     const pg = await this.api.forumControllerMessagesPage(
@@ -234,8 +234,8 @@ export class ForumController {
   @CacheTTL(15)
   async threads(
     @Req() req: any,
-    @Query("page", NullableIntPipe) page: number,
-    @Query("per_page", NullableIntPipe) perPage: number = 25,
+    @Query("page", PagePipe) page: number,
+    @Query("per_page", new PerPagePipe()) perPage: number,
     @Query("threadType") threadType?: ThreadType,
     @Query("only_authored", ParseBoolPipe) onlyAuthored: boolean = false,
     @CurrentUser() u?: CurrentUserDto,
