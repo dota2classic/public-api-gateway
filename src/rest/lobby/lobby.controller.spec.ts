@@ -32,7 +32,7 @@ import {
   StartedRabbitMQContainer,
 } from "@testcontainers/rabbitmq";
 import { RabbitMQConfig, RabbitMQModule } from "@golevelup/nestjs-rabbitmq";
-import { PlayerApi } from "../../generated-api/gameserver";
+import { ApiClient } from "@dota2classic/gs-api-generated/dist/module";
 import {
   makeHistogramProvider,
   PrometheusModule,
@@ -212,9 +212,12 @@ describe("LobbyController", () => {
           },
         },
         {
-          provide: PlayerApi,
+          provide: ApiClient,
           useValue: {
-            playerControllerPlayerSummary: () => Promise.resolve({}),
+            player: {
+              playerControllerPlayerSummary: () =>
+                Promise.resolve({ data: {} }),
+            },
           },
         },
         {

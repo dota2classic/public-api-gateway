@@ -9,7 +9,7 @@ import {
 } from "@nestjs/common";
 import { ClientProxy } from "@nestjs/microservices";
 import { EventBus, QueryBus } from "@nestjs/cqrs";
-import { CrimeApi, InfoApi, PlayerApi } from "../../generated-api/gameserver";
+import { ApiClient } from "@dota2classic/gs-api-generated/dist/module";
 import { ApiQuery, ApiTags } from "@nestjs/swagger";
 import {
   BanHammerDto,
@@ -45,6 +45,16 @@ import { UserProfileService } from "../../service/user-profile.service";
 import { PlayerFlagsEntity } from "../../entity/player-flags.entity";
 import { Repository } from "typeorm";
 import { InjectRepository } from "@nestjs/typeorm";
+import {
+  asMatchmakingMode,
+  asDotaMap,
+  asGameMode,
+  asDotaPatch,
+  asBanReason,
+  toApiDotaMap,
+  toApiGameMode,
+  toApiDotaPatch,
+} from "../../types/gs-api-compat";
 
 @Controller("admin/users")
 @ApiTags("admin")
@@ -55,9 +65,7 @@ export class AdminUserController {
     private readonly user: UserProfileService,
     private readonly ebus: EventBus,
     private readonly mapper: AdminMapper,
-    private readonly api: CrimeApi,
-    private readonly infoApi: InfoApi,
-    private readonly playerApi: PlayerApi,
+    private readonly gsApi: ApiClient,
     @InjectRepository(PlayerFlagsEntity)
     private readonly playerFlagsRepo: Repository<PlayerFlagsEntity>,
     @InjectS3() private readonly s3: S3,
@@ -77,7 +85,12 @@ export class AdminUserController {
     @Query("per_page", NullableIntPipe) perPage: number = 25,
     @Query("steam_id") steamId?: string,
   ): Promise<CrimeLogPageDto> {
-    const pg = await this.api.crimeControllerCrimeLog(page, perPage, steamId);
+    const res = await this.gsApi.crime.crimeControllerCrimeLog({
+      page,
+      per_page: perPage,
+      steam_id: steamId,
+    });
+    const pg = res.data;
     const data: CrimeLogDto[] = await Promise.all(
       pg.data.map(this.mapper.mapCrimeLog),
     );
@@ -93,21 +106,26 @@ export class AdminUserController {
   public async updateGameMode(
     @Body() b: UpdateModeDTO,
   ): Promise<MatchmakingInfo[]> {
-    await this.infoApi.infoControllerUpdateGamemode(b.mode, {
+    await this.gsApi.info.infoControllerUpdateGamemode(b.mode, {
       enabled: b.enabled,
-      dota_map: b.dotaMap,
-      game_mode: b.dotaGameMode,
+      dota_map: toApiDotaMap(b.dotaMap),
+      game_mode: toApiGameMode(b.dotaGameMode),
       enableCheats: b.enableCheats,
       fillBots: b.fillBots,
-      patch: b.patch,
+      patch: toApiDotaPatch(b.patch),
     });
 
-    return this.infoApi.infoControllerGamemodes().then((t) =>
-      t.map((x) => ({
-        ...x,
-        queueDurations: [],
-      })),
-    );
+    const res = await this.gsApi.info.infoControllerGamemodes();
+    return res.data.map((x) => ({
+      lobby_type: asMatchmakingMode(x.lobby_type),
+      game_mode: asGameMode(x.game_mode),
+      dota_map: asDotaMap(x.dota_map),
+      patch: asDotaPatch(x.patch),
+      enabled: x.enabled,
+      fillBots: x.fillBots,
+      enableCheats: x.enableCheats,
+      queueDurations: [],
+    }));
   }
 
   @AdminGuard()
@@ -161,14 +179,14 @@ export class AdminUserController {
   public async smurfOf(
     @Param("steam_id") steamId: string,
   ): Promise<SmurfData[]> {
-    const data = await this.playerApi.playerControllerSmurfData(steamId);
+    const res = await this.gsApi.player.playerControllerSmurfData(steamId);
     return Promise.all(
-      data.relatedBans.map(async (rb) => ({
+      res.data.relatedBans.map(async (rb) => ({
         user: await this.user.userDto(rb.steam_id),
         ban: {
           isBanned: rb.isBanned,
           bannedUntil: rb.bannedUntil,
-          status: rb.status,
+          status: asBanReason(rb.status),
         },
       })),
     );

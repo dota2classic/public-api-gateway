@@ -49,7 +49,7 @@ import {
   CurrentUserDto,
 } from "../../utils/decorator/current-user";
 import { CustomThrottlerGuard } from "../strategy/custom-throttler.guard";
-import { MatchApi } from "../../generated-api/gameserver";
+import { ApiClient } from "@dota2classic/gs-api-generated/dist/module";
 import { ThreadType } from "../../gateway/shared-types/thread-type";
 import { randomUUID } from "crypto";
 import { MessageUpdatedEvent } from "../../gateway/events/message-updated.event";
@@ -77,7 +77,7 @@ export class ForumController {
     private readonly ebus: EventBus,
     private readonly mapper: ForumMapper,
     private readonly api: ForumApi,
-    private readonly matchApi: MatchApi,
+    private readonly gsApi: ApiClient,
     private readonly liveMatchService: LiveMatchService,
     @InjectRepository(BlogpostEntity)
     private readonly blogpostEntityRepository: Repository<BlogpostEntity>,
@@ -323,10 +323,8 @@ export class ForumController {
       try {
         // Live or finished
         const matchId = parseInt(id);
-        if (
-          this.liveMatchService.isLive(matchId) ||
-          (await this.matchApi.matchControllerGetMatch(matchId))
-        )
+        const matchRes = await this.gsApi.match.matchControllerGetMatch(matchId);
+        if (this.liveMatchService.isLive(matchId) || matchRes.data)
           return this.api
             .forumControllerGetThreadForKey({
               threadType: ThreadType.MATCH,

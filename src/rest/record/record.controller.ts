@@ -6,7 +6,7 @@ import {
   UseInterceptors,
 } from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
-import { RecordApi } from "../../generated-api/gameserver";
+import { ApiClient } from "@dota2classic/gs-api-generated/dist/module";
 import {
   PlayerDailyRecord,
   PlayerRecordsResponse,
@@ -23,14 +23,15 @@ export class RecordController {
   private logger = new Logger(RecordController.name);
 
   constructor(
-    private readonly api: RecordApi,
+    private readonly gsApi: ApiClient,
     private readonly mapper: RecordMapper,
   ) {}
 
   @CacheTTL(60 * 30)
   @Get()
   public async records(): Promise<PlayerRecordsResponse> {
-    const records = await this.api.recordControllerRecords();
+    const res = await this.gsApi.record.recordControllerRecords();
+    const records = res.data;
 
     const [overall, month, season, day] = await Promise.all([
       Promise.all(records.overall.map(this.mapper.mapPlayerRecord)),
@@ -52,8 +53,8 @@ export class RecordController {
     @Param("steam_id") steamId: string,
   ): Promise<PlayerYearSummaryDto> {
     this.logger.log(`Getting yearly summary for ${steamId}`);
-    const result = await this.api.recordControllerYearResults(steamId);
-    return this.mapper.mapYearResult(result);
+    const res = await this.gsApi.record.recordControllerYearResults(steamId);
+    return this.mapper.mapYearResult(res.data);
   }
 
   @CacheTTL(60 * 30)
@@ -61,7 +62,8 @@ export class RecordController {
   public async playerRecords(
     @Param("steam_id") steamId: string,
   ): Promise<PlayerRecordsResponse> {
-    const records = await this.api.recordControllerPlayerRecord(steamId);
+    const res = await this.gsApi.record.recordControllerPlayerRecord(steamId);
+    const records = res.data;
 
     const [overall, month, season, day] = await Promise.all([
       Promise.all(records.overall.map(this.mapper.mapPlayerRecord)),
@@ -79,8 +81,7 @@ export class RecordController {
 
   @Get("daily")
   public async dailyRecords(): Promise<PlayerDailyRecord[]> {
-    return this.api
-      .recordControllerPlayerDaily()
-      .then((all) => Promise.all(all.map(this.mapper.mapDailyRecord)));
+    const res = await this.gsApi.record.recordControllerPlayerDaily();
+    return Promise.all(res.data.map(this.mapper.mapDailyRecord));
   }
 }

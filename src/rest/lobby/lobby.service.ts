@@ -25,7 +25,7 @@ import { Dota_Map } from "../../gateway/shared-types/dota-map";
 import { LobbyUpdatedEvent } from "./event/lobby-updated.event";
 import { shuffle } from "../../utils/shuffle";
 import { ClientProxy } from "@nestjs/microservices";
-import { PlayerApi } from "../../generated-api/gameserver";
+import { ApiClient } from "@dota2classic/gs-api-generated/dist/module";
 import { LobbyAction } from "./lobby.dto";
 import { PlayerLeaveQueueRequestedEvent } from "../../gateway/events/mm/player-leave-queue-requested.event";
 import { AmqpConnection } from "@golevelup/nestjs-rabbitmq";
@@ -45,7 +45,7 @@ export class LobbyService {
     private readonly datasource: DataSource,
     private readonly ebus: EventBus,
     @Inject("QueryCore") private readonly redisEventQueue: ClientProxy,
-    private ms: PlayerApi,
+    private readonly gsApi: ApiClient,
     private readonly amqpConnection: AmqpConnection,
   ) {}
 
@@ -519,9 +519,8 @@ export class LobbyService {
 
   private async isInGame(steamId: string) {
     try {
-      return this.ms
-        .playerControllerPlayerSummary(steamId)
-        .then((t) => !!t.session);
+      const res = await this.gsApi.player.playerControllerPlayerSummary(steamId);
+      return !!res.data.session;
     } catch (e) {
       this.logger.error("Error getting summary", e);
       return true;
