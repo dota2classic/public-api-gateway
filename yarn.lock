@@ -1000,6 +1000,11 @@
     ioredis "^5.6.1"
     memoizee "^0.4.17"
 
+"@dota2classic/gs-api-generated@^0.0.6":
+  version "0.0.6"
+  resolved "https://registry.yarnpkg.com/@dota2classic/gs-api-generated/-/gs-api-generated-0.0.6.tgz#3d1158073f0828e7b55dc97b212100c5b77e8850"
+  integrity sha512-8rBqZbeIDgprgP/KdyO4Ya/fSqFbKupy8cEkORLndfDsZrM7nlBsjcw5natMti/0hnXm8oKODtH31xJ8nBcaMw==
+
 "@dota2classic/nest_logger@^0.0.15":
   version "0.0.15"
   resolved "https://registry.yarnpkg.com/@dota2classic/nest_logger/-/nest_logger-0.0.15.tgz#b6b135a893b4da002da40004e61f9df4e587ccb4"
