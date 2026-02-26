@@ -1,13 +1,4 @@
 import { Global, Module } from "@nestjs/common";
-import {
-  Configuration as GSConfiguration,
-  CrimeApi,
-  InfoApi,
-  MatchApi,
-  MetaApi,
-  PlayerApi,
-  RecordApi,
-} from "../generated-api/gameserver";
 import { ConfigService } from "@nestjs/config";
 import {
   Configuration as FConfiguratin,
@@ -29,6 +20,7 @@ import {
   Configuration as TrConfiguration,
   TournamentApi,
 } from "../generated-api/tournament";
+import { ApiClient } from "@dota2classic/gs-api-generated/dist/module";
 // Create a keep-alive agent for HTTP
 const httpAgent = new http.Agent({ keepAlive: true });
 const httpsAgent = new https.Agent({ keepAlive: true });
@@ -58,74 +50,11 @@ const fetchProvider: typeof fetch = (
       inject: [ConfigService],
     },
     {
-      provide: MatchApi,
+      provide: ApiClient,
       useFactory: (config: ConfigService) => {
-        return new MatchApi(
-          new GSConfiguration({
-            basePath: config.get("api.gameserverApiUrl"),
-            fetchApi: fetchProvider,
-          }),
-        );
-      },
-      inject: [ConfigService],
-    },
-    {
-      provide: MetaApi,
-      useFactory: (config: ConfigService) => {
-        return new MetaApi(
-          new GSConfiguration({
-            basePath: config.get("api.gameserverApiUrl"),
-            fetchApi: fetchProvider,
-          }),
-        );
-      },
-      inject: [ConfigService],
-    },
-    {
-      provide: CrimeApi,
-      useFactory: (config: ConfigService) => {
-        return new CrimeApi(
-          new GSConfiguration({
-            basePath: config.get("api.gameserverApiUrl"),
-            fetchApi: fetchProvider,
-          }),
-        );
-      },
-      inject: [ConfigService],
-    },
-    {
-      provide: PlayerApi,
-      useFactory: (config: ConfigService) => {
-        return new PlayerApi(
-          new GSConfiguration({
-            basePath: config.get("api.gameserverApiUrl"),
-            fetchApi: fetchProvider,
-          }),
-        );
-      },
-      inject: [ConfigService],
-    },
-    {
-      provide: InfoApi,
-      useFactory: (config: ConfigService) => {
-        return new InfoApi(
-          new GSConfiguration({
-            basePath: config.get("api.gameserverApiUrl"),
-            fetchApi: fetchProvider,
-          }),
-        );
-      },
-      inject: [ConfigService],
-    },
-    {
-      provide: RecordApi,
-      useFactory: (config: ConfigService) => {
-        return new RecordApi(
-          new GSConfiguration({
-            basePath: config.get("api.gameserverApiUrl"),
-            fetchApi: fetchProvider,
-          }),
-        );
+        const client = new ApiClient();
+        client.configure(config.get("api.gameserverApiUrl"));
+        return client;
       },
       inject: [ConfigService],
     },
@@ -179,12 +108,7 @@ const fetchProvider: typeof fetch = (
     },
   ],
   exports: [
-    MatchApi,
-    MetaApi,
-    CrimeApi,
-    PlayerApi,
-    InfoApi,
-    RecordApi,
+    ApiClient,
     ForumApi,
     MatchmakerApi,
     TradeApi,

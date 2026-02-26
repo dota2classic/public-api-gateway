@@ -11,7 +11,6 @@ import {
 import { CacheTTL } from "@nestjs/cache-manager";
 import { ApiParam, ApiQuery, ApiTags } from "@nestjs/swagger";
 import { MatchmakingMode } from "../../gateway/shared-types/matchmaking-mode";
-import { MatchApi, PlayerApi } from "../../generated-api/gameserver";
 import {
   MatchDto,
   MatchPageDto,
@@ -25,11 +24,11 @@ import {
   CurrentUserDto,
 } from "../../utils/decorator/current-user";
 import { UserHttpCacheInterceptor } from "../../utils/cache-key-track";
-import { QueryBus } from "@nestjs/cqrs";
 import { WithPagination } from "../../utils/decorator/pagination";
 import { ReqLoggingInterceptor } from "../../middleware/req-logging.interceptor";
 import { WithUser } from "../../utils/decorator/with-user";
-import { UserProfileService } from "../../service/user-profile.service";
+import { ApiClient } from "@dota2classic/gs-api-generated/dist/module";
+import { PagePipe, PerPagePipe } from "../../utils/pipes";
 
 @UseInterceptors(ReqLoggingInterceptor)
 @Controller("match")
@@ -37,10 +36,7 @@ import { UserProfileService } from "../../service/user-profile.service";
 export class MatchController {
   constructor(
     private readonly mapper: MatchMapper,
-    private readonly qbus: QueryBus,
-    private readonly ms: MatchApi,
-    private readonly ps: PlayerApi,
-    private readonly user: UserProfileService,
+    private readonly gsApi: ApiClient,
   ) {}
 
   @UseInterceptors(UserHttpCacheInterceptor)
@@ -52,13 +48,16 @@ export class MatchController {
   })
   @Get("/all")
   async matches(
-    @Query("page") page: number,
-    @Query("per_page") perPage: number = 25,
+    @Query("page", PagePipe) page: number,
+    @Query("per_page", new PerPagePipe()) perPage: number,
     @Query("mode") mode?: MatchmakingMode,
   ): Promise<MatchPageDto> {
-    return this.ms
-      .matchControllerMatches(page, perPage, mode)
-      .then(this.mapper.mapMatchPage);
+    const res = await this.gsApi.match.matchControllerMatches({
+      page,
+      per_page: perPage,
+      mode,
+    });
+    return this.mapper.mapMatchPage(res.data);
   }
 
   @UseInterceptors(UserHttpCacheInterceptor)
@@ -69,13 +68,16 @@ export class MatchController {
   })
   @Get("/by_hero")
   async heroMatches(
-    @Query("page") page: number,
-    @Query("per_page") perPage: number = 25,
+    @Query("page", PagePipe) page: number,
+    @Query("per_page", new PerPagePipe()) perPage: number,
     @Query("hero") hero: string,
   ): Promise<MatchPageDto> {
-    return this.ms
-      .matchControllerHeroMatches(page, hero, perPage)
-      .then(this.mapper.mapMatchPage);
+    const res = await this.gsApi.match.matchControllerHeroMatches({
+      page,
+      per_page: perPage,
+      hero,
+    });
+    return this.mapper.mapMatchPage(res.data);
   }
 
   @UseInterceptors(UserHttpCacheInterceptor)
@@ -91,10 +93,8 @@ export class MatchController {
     @Param("id") id: number,
   ): Promise<MatchDto> {
     try {
-      return this.mapper.mapMatch(
-        await this.ms.matchControllerGetMatch(id),
-        user?.steam_id,
-      );
+      const res = await this.gsApi.match.matchControllerGetMatch(id);
+      return this.mapper.mapMatch(res.data, user?.steam_id);
     } catch (e) {
       throw new NotFoundException();
     }
@@ -112,11 +112,11 @@ export class MatchController {
   ): Promise<MatchReportInfoDto> {
     try {
       if (user) {
-        const matrix = await this.ms.matchControllerGetMatchReportMatrix(
+        const res = await this.gsApi.match.matchControllerGetMatchReportMatrix(
           id,
-          user.steam_id || "",
+          { steamId: user.steam_id || "" },
         );
-        return this.mapper.mapReportMatrixDto(matrix, user.steam_id);
+        return this.mapper.mapReportMatrixDto(res.data, user.steam_id);
       } else {
         return { reportableSteamIds: [] };
       }
@@ -143,14 +143,18 @@ export class MatchController {
   @Get("/player/:id")
   async playerMatches(
     @Param("id") steam_id: string,
-    @Query("page") page: number,
-    @Query("per_page") perPage: number = 25,
+    @Query("page", PagePipe) page: number,
+    @Query("per_page", new PerPagePipe()) perPage: number,
     @Query("mode") mode?: MatchmakingMode,
     @Query("hero") hero?: string,
   ): Promise<MatchPageDto> {
-    return this.ms
-      .matchControllerPlayerMatches(steam_id, page, perPage, mode, hero)
-      .then((t) => this.mapper.mapMatchPage(t));
+    const res = await this.gsApi.match.matchControllerPlayerMatches(steam_id, {
+      page,
+      per_page: perPage,
+      mode,
+      hero,
+    });
+    return this.mapper.mapMatchPage(res.data);
   }
 
   @WithUser()
@@ -159,7 +163,7 @@ export class MatchController {
     @CurrentUser() user: CurrentUserDto,
     @Body() dto: ReportPlayerDto,
   ) {
-    await this.ps.playerControllerReportPlayer({
+    await this.gsApi.player.playerControllerReportPlayer({
       reporterSteamId: user.steam_id,
       reportedSteamId: dto.steamId,
       aspect: dto.aspect,

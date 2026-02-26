@@ -1,10 +1,6 @@
 import { Controller, Get, Param, Post, UseInterceptors } from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
-import {
-  GameserverGameSessionDto,
-  InfoApi,
-  MatchApi,
-} from "../../generated-api/gameserver";
+import { ApiClient } from "@dota2classic/gs-api-generated/dist/module";
 import {
   AggregatedStatsDto,
   CurrentOnlineDto,
@@ -29,14 +25,19 @@ import { DemoHighlightsEntity } from "../../entity/demo-highlights.entity";
 import { AmqpConnection } from "@golevelup/nestjs-rabbitmq";
 import { MatchArtifactUploadedEvent } from "../../gateway/events/match-artifact-uploaded.event";
 import { MatchArtifactType } from "../../gateway/shared-types/match-artifact-type";
+import {
+  asMatchmakingMode,
+  asGameMode,
+  asDotaMap,
+  asDotaPatch,
+} from "../../types/gs-api-compat";
 
 @UseInterceptors(ReqLoggingInterceptor)
 @Controller("stats")
 @ApiTags("stats")
 export class StatsController {
   constructor(
-    private readonly ms: InfoApi,
-    private readonly match: MatchApi,
+    private readonly gsApi: ApiClient,
     private readonly twitch: TwitchService,
     private readonly mapper: StatsMapper,
     private readonly statsService: StatsService,
@@ -49,13 +50,13 @@ export class StatsController {
 
   @Post("/highlights/:id")
   public async requestHighlights(@Param("id") id: number) {
-    const res = await this.match.matchControllerGetMatch(id);
+    const res = await this.gsApi.match.matchControllerGetMatch(id);
     await this.amqpConnection.publish(
       "app.events",
       MatchArtifactUploadedEvent.name,
       new MatchArtifactUploadedEvent(
         id,
-        res.mode,
+        asMatchmakingMode(res.data.mode),
         MatchArtifactType.REPLAY,
         "replays",
         `${id}.dem.zip`,
@@ -90,19 +91,26 @@ export class StatsController {
   @CacheTTL(30)
   @Get("/matchmaking")
   async getMatchmakingInfo(): Promise<MatchmakingInfo[]> {
-    const [modes, queueTimes] = await Promise.combine([
-      this.ms.infoControllerGamemodes(),
+    const [modesRes, queueTimes] = await Promise.combine([
+      this.gsApi.info.infoControllerGamemodes(),
       Promise.resolve(this.statsService.stats),
     ]);
 
-    return modes.map((mode) => {
+    return modesRes.data.map((mode) => {
+      const localMode = asMatchmakingMode(mode.lobby_type);
       const q: [number, QueueTimeDto][] = queueTimes.map((queueTime) => [
         queueTime[0],
-        queueTime[1].find((stat) => stat.mode === mode.lobby_type),
+        queueTime[1].find((stat) => stat.mode === localMode),
       ]);
 
       return {
-        ...mode,
+        lobby_type: localMode,
+        game_mode: asGameMode(mode.game_mode),
+        dota_map: asDotaMap(mode.dota_map),
+        patch: asDotaPatch(mode.patch),
+        enabled: mode.enabled,
+        fillBots: mode.fillBots,
+        enableCheats: mode.enableCheats,
         queueDurations: q.map(([hr, stat]) => ({
           duration: stat?.queueTime,
           utcHour: hr,
@@ -124,22 +132,23 @@ export class StatsController {
   @CacheTTL(60 * 60) // 1 hr
   @Get("/seasons")
   async getGameSeasons(): Promise<GameSeasonDto[]> {
-    return this.ms.infoControllerGetSeasons();
+    const res = await this.gsApi.info.infoControllerGetSeasons();
+    return res.data;
   }
 
   @UseInterceptors(GlobalHttpCacheInterceptor)
   @Get("/online")
   @CacheTTL(10) // 10 seconds
   async online(): Promise<CurrentOnlineDto> {
-    const [online, sessions] = await Promise.all<any>([
-      this.ms.infoControllerGetCurrentOnline(),
-      this.ms.infoControllerGameSessions(),
+    const [onlineRes, sessionsRes] = await Promise.all([
+      this.gsApi.info.infoControllerGetCurrentOnline(),
+      this.gsApi.info.infoControllerGameSessions(),
     ]);
 
-    const ses = sessions as GameserverGameSessionDto[];
+    const ses = sessionsRes.data;
 
     const perMode: PerModePlayersDto[] = MatchmakingModes.map((mode) => {
-      const sessions = ses.filter((t) => t.info.mode === mode);
+      const sessions = ses.filter((t) => asMatchmakingMode(t.info.mode) === mode);
       const playerCount = sessions.reduce(
         (a, b) => a + b.info.radiant.length + b.info.dire.length,
         0,
@@ -152,24 +161,20 @@ export class StatsController {
     });
 
     return {
-      inGame: online,
+      inGame: onlineRes.data,
       servers: 0,
-      sessions: sessions.length,
+      sessions: sessionsRes.data.length,
       perMode,
     };
   }
 
-  @Get("/servers")
-  public async getServers(): Promise<string[]> {
-    const servers = await this.ms.infoControllerGameServers();
-    const hosts = new Set(servers.map((server) => server.url.split(":")[0]));
-    return Array.from(hosts.values());
-  }
+  // NOTE: getServers endpoint removed - infoControllerGameServers no longer exists in the API
 
   @UseInterceptors(GlobalHttpCacheInterceptor)
   @CacheTTL(60 * 5)
   @Get("/agg_stats")
   public async getAggStats(): Promise<AggregatedStatsDto> {
-    return this.ms.infoControllerGetAggregatedStats();
+    const res = await this.gsApi.info.infoControllerGetAggregatedStats();
+    return res.data;
   }
 }
