@@ -255,23 +255,21 @@ export class PlayerController {
 
     const parametrizedLike = `%${name.replace(/%/g, "")}%`;
 
-    const onlineArray = online.map((t) => `'${t}'`).join(",");
-
     const a = await this.ds.query<{ steam_id: string }[]>(
       `
 SELECT
     ue.steam_id,
-    CASE 
-        WHEN ARRAY[${onlineArray}]::text[] @> ARRAY[ue.steam_id::text] 
-        THEN 10000 
-        ELSE 1 
+    CASE
+        WHEN $3::text[] @> ARRAY[ue.steam_id::text]
+        THEN 10000
+        ELSE 1
     END AS score
 FROM user_entity ue
 WHERE ue.name ILIKE $1
 ORDER BY score DESC
 LIMIT $2;
     `,
-      [parametrizedLike, count],
+      [parametrizedLike, count, online],
     );
 
     return Promise.all(a.map((t) => this.userProfile.userDto(t.steam_id)));

@@ -167,12 +167,27 @@ import { TournamentRegistrationInvitationCreatedHandler } from "./event-handler/
 import { PlayerBanService } from "./service/player-ban.service";
 import { PermaBanGuard } from "./utils/decorator/with-user";
 import { GsApiGeneratedModule } from "@dota2classic/gs-api-generated/dist/module";
+import { LoggerModule } from "nestjs-pino";
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
       load: [configuration],
+    }),
+    LoggerModule.forRoot({
+      pinoHttp: {
+        autoLogging: true,
+        transport:
+          process.env.NODE_ENV !== "production"
+            ? { target: "pino-pretty", options: { colorize: true } }
+            : undefined,
+        level: process.env.LOG_LEVEL || "info",
+        redact: {
+          paths: ["req.headers.authorization", "req.headers.cookie"],
+          remove: true,
+        },
+      },
     }),
     GsApiGeneratedModule.forRootAsync({
       imports: [],

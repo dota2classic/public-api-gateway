@@ -15,12 +15,11 @@ import {
 import fastifyCookie from "@fastify/cookie";
 import fastify from "fastify";
 import fastyfyMultipart from "@fastify/multipart";
+import { Logger } from "nestjs-pino";
 
 async function bootstrap() {
   const parsedConfig = configuration();
   const config = new ConfigService(parsedConfig);
-
-  console.log(parsedConfig);
 
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
@@ -30,16 +29,10 @@ async function bootstrap() {
         bodyLimit: 1024 * 1024 * 20, // 20 MB
       }),
     ),
-    {
-      // logger: new WinstonWrapper(
-      //   config.get("fluentbit.host"),
-      //   config.get<number>("fluentbit.port"),
-      //   config.get<string>("fluentbit.application"),
-      //   config.get<boolean>("fluentbit.disabled"),
-      //   config.get<boolean>("fluentbit.noStdout"),
-      // ),
-    },
+    { bufferLogs: true },
   );
+
+  app.useLogger(app.get(Logger));
   app.setGlobalPrefix("v1");
   app.useGlobalFilters(new EntityNotFoundErrorFilter());
 
