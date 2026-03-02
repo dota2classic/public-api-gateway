@@ -1,17 +1,14 @@
 import { Injectable } from "@nestjs/common";
+import * as GsApi from "@dota2classic/gs-api-generated/dist/Api";
 import {
   PlayerDailyRecord,
   PlayerRecordDto,
+  PlayerRecordsResponse,
   PlayerYearSummaryDto,
 } from "./record.dto";
-import {
-  GameserverPlayerDailyRecord,
-  GameserverPlayerRecordDto,
-  GameserverPlayerYearSummaryDto,
-} from "../../generated-api/gameserver";
 import { MatchMapper } from "../match/match.mapper";
 import { UserProfileService } from "../../service/user-profile.service";
-import { MatchmakingMode } from "../../gateway/shared-types/matchmaking-mode";
+import { asMatchmakingMode } from "../../types/gs-api-compat";
 
 @Injectable()
 export class RecordMapper {
@@ -21,7 +18,7 @@ export class RecordMapper {
   ) {}
 
   public mapPlayerRecord = async (
-    it: GameserverPlayerRecordDto,
+    it: GsApi.PlayerRecordDto,
   ): Promise<PlayerRecordDto> => {
     return {
       player: await this.urepo.userDto(it.steamId),
@@ -31,7 +28,7 @@ export class RecordMapper {
   };
 
   public mapDailyRecord = async (
-    it: GameserverPlayerDailyRecord,
+    it: GsApi.PlayerDailyRecord,
   ): Promise<PlayerDailyRecord> => {
     return {
       player: await this.urepo.userDto(it.steam_id),
@@ -42,9 +39,7 @@ export class RecordMapper {
     };
   };
 
-  mapYearResult = (
-    source: GameserverPlayerYearSummaryDto,
-  ): PlayerYearSummaryDto => ({
+  mapYearResult = (source: GsApi.PlayerYearSummaryDto): PlayerYearSummaryDto => ({
     steamId: source.steam_id,
 
     lastHits: source.last_hits,
@@ -60,10 +55,22 @@ export class RecordMapper {
     kda: source.kda,
     playedGames: source.played_games,
 
-    mostPlayedMode: source.most_played_mode as MatchmakingMode,
+    mostPlayedMode: asMatchmakingMode(source.most_played_mode),
     mostPlayedModeCount: source.most_played_mode_count,
 
     mostPurchasedItem: source.most_purchased_item,
     mostPurchasedItemCount: source.most_purchased_item_count,
   });
+
+  public mapRecordsResponse = async (
+    records: GsApi.PlayerRecordsResponse,
+  ): Promise<PlayerRecordsResponse> => {
+    const [overall, month, season, day] = await Promise.all([
+      Promise.all(records.overall.map(this.mapPlayerRecord)),
+      Promise.all(records.month.map(this.mapPlayerRecord)),
+      Promise.all(records.season.map(this.mapPlayerRecord)),
+      Promise.all(records.day.map(this.mapPlayerRecord)),
+    ]);
+    return { overall, month, season, day };
+  };
 }

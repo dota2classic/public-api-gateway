@@ -22,7 +22,7 @@ import {
 import { Cron, CronExpression } from "@nestjs/schedule";
 import { NotificationCreatedEvent } from "./event/notification-created.event";
 import { NotificationMapper } from "./notification.mapper";
-import { InfoApi } from "../../generated-api/gameserver";
+import { ApiClient } from "@dota2classic/gs-api-generated/dist/module";
 import { ClientProxy } from "@nestjs/microservices";
 import { RedlockService } from "@dota2classic/redlock/dist/redlock.service";
 
@@ -41,7 +41,7 @@ export class NotificationService {
     private readonly mapper: NotificationMapper,
     @Inject("QueryCore") private readonly redisEventQueue: ClientProxy,
     private readonly redlock: RedlockService,
-    private readonly ms: InfoApi,
+    private readonly gsApi: ApiClient,
   ) {
     webpush.setVapidDetails(
       "mailto:enchantinggg4@gmail.com",
@@ -142,11 +142,11 @@ export class NotificationService {
       new GetQueueStateQuery(Dota2Version.Dota_684),
     );
 
-    const inGame: string[] = await this.ms
-      .infoControllerGameSessions()
-      .then((it) =>
-        it.flatMap((ses) => [...ses.info.radiant, ...ses.info.dire]),
-      );
+    const sessionsRes = await this.gsApi.info.infoControllerGameSessions();
+    const inGame: string[] = sessionsRes.data.flatMap((ses) => [
+      ...ses.info.radiant,
+      ...ses.info.dire,
+    ]);
 
     const alreadyInQueue: string[] = qs.entries
       .filter((t) => t.modes.includes(mode))

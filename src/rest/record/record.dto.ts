@@ -1,12 +1,12 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { MatchDto } from "../match/dto/match.dto";
-import { GameserverRecordType } from "../../generated-api/gameserver";
+import { RecordType } from "@dota2classic/gs-api-generated/dist/Api";
 import { UserDTO } from "../shared.dto";
 import { MatchmakingMode } from "../../gateway/shared-types/matchmaking-mode";
 
 export class PlayerRecordDto {
-  @ApiProperty({ enum: GameserverRecordType, enumName: "RecordType" })
-  recordType: GameserverRecordType;
+  @ApiProperty({ enum: RecordType, enumName: "RecordType" })
+  recordType: RecordType;
 
   player: UserDTO;
 

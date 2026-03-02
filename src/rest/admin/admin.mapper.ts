@@ -1,38 +1,27 @@
 import { Injectable } from "@nestjs/common";
-import {
-  GameserverCrimeLogDto,
-  GameserverGameServerDto,
-  GameserverGameSessionDto,
-} from "../../generated-api/gameserver/models";
-import { CrimeLogDto, GameServerDto, GameSessionDto } from "./dto/admin.dto";
+import * as GsApi from "@dota2classic/gs-api-generated/dist/Api";
+import { CrimeLogDto, GameSessionDto } from "./dto/admin.dto";
 import { Dota2Version } from "../../gateway/shared-types/dota2version";
-import { MatchmakingMode } from "../../gateway/shared-types/matchmaking-mode";
 import { UserProfileService } from "../../service/user-profile.service";
+import { asMatchmakingMode, asBanReason } from "../../types/gs-api-compat";
 
 @Injectable()
 export class AdminMapper {
   constructor(private readonly user: UserProfileService) {}
 
-  public mapCrimeLog = async (
-    t: GameserverCrimeLogDto,
-  ): Promise<CrimeLogDto> => ({
+  public mapCrimeLog = async (t: GsApi.CrimeLogDto): Promise<CrimeLogDto> => ({
     id: t.id,
     user: await this.user.userDto(t.steam_id),
     handled: t.handled,
-    crime: t.crime,
-    lobby_type: t.lobby_type,
+    crime: asBanReason(t.crime),
+    lobby_type: asMatchmakingMode(t.lobby_type),
     created_at: t.created_at,
     ban_duration: t.banTime,
     match_id: t.match_id,
   });
 
-  public mapGameServer = (t: GameserverGameServerDto): GameServerDto => ({
-    url: t.url,
-    version: t.version as unknown as Dota2Version,
-  });
-
   public mapGameSession = async (
-    it: GameserverGameSessionDto,
+    it: GsApi.GameSessionDto,
   ): Promise<GameSessionDto> => {
     const radiant = await Promise.all(
       it.info.radiant.map(async (t) => await this.user.userDto(t)),
@@ -48,7 +37,7 @@ export class AdminMapper {
         ...it.info,
         radiant: radiant,
         dire: dire,
-        mode: it.info.mode as unknown as MatchmakingMode,
+        mode: asMatchmakingMode(it.info.mode),
         version: it.info.version as unknown as Dota2Version,
       },
     };

@@ -1,11 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import {
-  GameserverMatchDto,
-  GameserverMatchPageDto,
-  GameserverMatchReportMatrixDto,
-  GameserverMmrChangeDto,
-  GameserverPlayerInMatchDto,
-} from "../../generated-api/gameserver/models";
+import * as GsApi from "@dota2classic/gs-api-generated/dist/Api";
 import {
   MatchDto,
   MatchPageDto,
@@ -17,6 +11,7 @@ import { MATCH_REPORT_TIMEOUT } from "../../gateway/shared-types/timings";
 import { ConfigService } from "@nestjs/config";
 import { MatchmakingMode } from "../../gateway/shared-types/matchmaking-mode";
 import { UserProfileService } from "../../service/user-profile.service";
+import { asMatchmakingMode, asGameMode } from "../../types/gs-api-compat";
 
 @Injectable()
 export class MatchMapper {
@@ -25,7 +20,7 @@ export class MatchMapper {
     private readonly configService: ConfigService,
   ) {}
 
-  public mapMmr = (it: GameserverMmrChangeDto): MmrChangeDto => ({
+  public mapMmr = (it: GsApi.MmrChangeDto): MmrChangeDto => ({
     mmr_before: it.mmr_before,
     mmr_after: it.mmr_after,
     change: it.change,
@@ -35,7 +30,7 @@ export class MatchMapper {
   });
 
   public mapPlayerInMatch = async (
-    it: GameserverPlayerInMatchDto,
+    it: GsApi.PlayerInMatchDto,
   ): Promise<PlayerInMatchDto> => {
     const { steam_id, ...dto } = it;
     return {
@@ -48,23 +43,25 @@ export class MatchMapper {
   };
 
   public mapMatch = async (
-    it: GameserverMatchDto,
+    it: GsApi.MatchDto,
     mapForSteamId?: string,
   ): Promise<MatchDto> => {
     const [radiant, dire] = await Promise.combine([
       Promise.all(it.radiant.map(this.mapPlayerInMatch)),
       Promise.all(it.dire.map(this.mapPlayerInMatch)),
     ]);
+    const mode = asMatchmakingMode(it.mode);
+
     let replayUrl: string | undefined = undefined;
     if (it.replayPath) {
       replayUrl = `${this.configService.get("api.replayUrl")}${it.replayPath.replace("replays/", "")}`;
-    } else if (it.id > 16500 && it.mode != MatchmakingMode.BOTS) {
+    } else if (it.id > 16500 && mode !== MatchmakingMode.BOTS) {
       replayUrl = `${this.configService.get("api.replayUrl")}${it.id}.dem`;
     }
     return {
       id: it.id,
-      mode: it.mode,
-      game_mode: it.game_mode,
+      mode,
+      game_mode: asGameMode(it.game_mode),
       winner: it.winner,
       duration: it.duration,
       timestamp: it.timestamp,
@@ -79,7 +76,7 @@ export class MatchMapper {
   };
 
   public mapReportMatrixDto = (
-    reportMatrix: GameserverMatchReportMatrixDto,
+    reportMatrix: GsApi.MatchReportMatrixDto,
     mapForSteamId: string,
   ): MatchReportInfoDto => {
     const timeDiff =
@@ -101,7 +98,7 @@ export class MatchMapper {
   };
 
   public mapMatchPage = async (
-    it: GameserverMatchPageDto,
+    it: GsApi.MatchPageDto,
     mapForSteamId?: string,
   ): Promise<MatchPageDto> => {
     return {

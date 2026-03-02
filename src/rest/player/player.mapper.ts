@@ -1,13 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import {
-  GameserverAchievementDto,
-  GameserverBanStatusDto,
-  GameserverDodgeListEntryDto,
-  GameserverLeaderboardEntryDto,
-  GameserverPlayerSummaryDto,
-  GameserverPlayerTeammateDto,
-  GameserverReportsAvailableDto,
-} from "../../generated-api/gameserver/models";
+import * as GsApi from "@dota2classic/gs-api-generated/dist/Api";
 import {
   DodgeListEntryDto,
   GamemodeAccessMap,
@@ -27,6 +19,12 @@ import { UserProfileService } from "../../service/user-profile.service";
 import { RoleLifetime } from "../../gateway/caches/user-fast-profile.dto";
 import { MatchmakerGetPartyQueryResultDto } from "../../generated-api/matchmaker";
 import { LobbySlotEntity } from "../../entity/lobby-slot.entity";
+import {
+  asBanReason,
+  asMatchAccessLevel,
+  asMatchmakingMode,
+  asAchievementKey,
+} from "../../types/gs-api-compat";
 
 @Injectable()
 export class PlayerMapper {
@@ -36,7 +34,7 @@ export class PlayerMapper {
   ) {}
 
   public mapTeammate = async (
-    it: GameserverPlayerTeammateDto,
+    it: GsApi.PlayerTeammateDto,
   ): Promise<PlayerTeammateDto> => ({
     user: await this.userRepository.userDto(it.steam_id),
 
@@ -47,7 +45,7 @@ export class PlayerMapper {
     rank: it.rank,
   });
   public mapLeaderboardEntry = async (
-    it: GameserverLeaderboardEntryDto,
+    it: GsApi.LeaderboardEntryDto,
   ): Promise<LeaderboardEntryDto> => {
     return {
       mmr: it.mmr,
@@ -71,9 +69,9 @@ export class PlayerMapper {
   });
 
   public mapMe = async (
-    it: GameserverPlayerSummaryDto,
-    status: GameserverBanStatusDto,
-    reports?: GameserverReportsAvailableDto,
+    it: GsApi.PlayerSummaryDto,
+    status: GsApi.BanStatusDto,
+    reports?: GsApi.ReportsAvailableDto,
   ): Promise<MeDto> => {
     const user = await this.userRepository.userDto(it.steamId);
     return {
@@ -84,30 +82,30 @@ export class PlayerMapper {
       banStatus: {
         isBanned: status.isBanned,
         bannedUntil: status.bannedUntil,
-        status: status.status,
+        status: asBanReason(status.status),
       },
       reportsAvailable: reports?.count || 0,
     };
   };
 
   public mapPlayerSummary = async (
-    it: GameserverPlayerSummaryDto,
-    status: GameserverBanStatusDto,
+    it: GsApi.PlayerSummaryDto,
+    status: GsApi.BanStatusDto,
   ): Promise<PlayerSummaryDto> => {
     return {
       user: await this.userRepository.userDto(it.steamId),
       id: numSteamId(it.steamId),
       calibrationGamesLeft: it.calibrationGamesLeft,
-      accessMap: this.mapAccessLevel(it.accessLevel),
+      accessMap: this.mapAccessLevel(asMatchAccessLevel(it.accessLevel)),
       aspects: it.reports,
       banStatus: {
         isBanned: status.isBanned,
         bannedUntil: status.bannedUntil,
-        status: status.status,
+        status: asBanReason(status.status),
       },
       session: it.session
         ? {
-            lobbyType: it.session.lobbyType,
+            lobbyType: asMatchmakingMode(it.session.lobbyType),
             matchId: it.session.matchId,
             serverUrl: it.session.serverUrl,
           }
@@ -118,9 +116,7 @@ export class PlayerMapper {
     };
   };
 
-  private mapPlayerStats = (
-    it: GameserverLeaderboardEntryDto,
-  ): PlayerStatsDto => ({
+  private mapPlayerStats = (it: GsApi.LeaderboardEntryDto): PlayerStatsDto => ({
     rank: it.rank,
     mmr: it.mmr,
     wins: it.wins,
@@ -143,8 +139,8 @@ export class PlayerMapper {
 
   public mapParty = async (
     party: MatchmakerGetPartyQueryResultDto,
-    banStatuses: GameserverBanStatusDto[],
-    summaries: GameserverPlayerSummaryDto[],
+    banStatuses: GsApi.BanStatusDto[],
+    summaries: GsApi.PlayerSummaryDto[],
     lobbies: (LobbySlotEntity | undefined)[],
   ): Promise<PartyDto> => {
     return {
@@ -158,7 +154,13 @@ export class PlayerMapper {
           const lobby = lobbies.find((t) => t?.steamId === plr);
 
           return {
-            session: summary.session,
+            session: summary.session
+              ? {
+                  lobbyType: asMatchmakingMode(summary.session.lobbyType),
+                  matchId: summary.session.matchId,
+                  serverUrl: summary.session.serverUrl,
+                }
+              : undefined,
             summary: await this.mapPlayerSummary(summary, status),
             lobbyId: lobby?.lobbyId,
           } satisfies PartyMemberDTO;
@@ -172,10 +174,10 @@ export class PlayerMapper {
   };
 
   public mapAchievement = async (
-    ach: GameserverAchievementDto,
+    ach: GsApi.AchievementDto,
   ): Promise<AchievementDto> => {
     return {
-      key: ach.key,
+      key: asAchievementKey(ach.key),
       user: await this.userRepository.userDto(ach.steamId),
 
       isComplete: ach.isComplete,
@@ -188,7 +190,7 @@ export class PlayerMapper {
   };
 
   public mapDodgeEntry = async (
-    it: GameserverDodgeListEntryDto,
+    it: GsApi.DodgeListEntryDto,
   ): Promise<DodgeListEntryDto> => ({
     user: await this.userRepository.userDto(it.steamId),
     createdAt: it.createdAt,

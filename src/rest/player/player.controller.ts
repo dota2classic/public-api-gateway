@@ -13,7 +13,7 @@ import {
 } from "@nestjs/common";
 import { CacheTTL } from "@nestjs/cache-manager";
 import { ApiBearerAuth, ApiQuery, ApiTags } from "@nestjs/swagger";
-import { PlayerApi } from "../../generated-api/gameserver";
+import { ApiClient } from "@dota2classic/gs-api-generated/dist/module";
 import { PlayerMapper } from "./player.mapper";
 import {
   DodgeListEntryDto,
@@ -40,7 +40,7 @@ import { UserHttpCacheInterceptor } from "../../utils/cache-key-track";
 import { UserDTO } from "../shared.dto";
 import { AchievementDto } from "./dto/achievement.dto";
 import { WithPagination } from "../../utils/decorator/pagination";
-import { NullableIntPipe } from "../../utils/pipes";
+import { NullableIntPipe, PagePipe, PerPagePipe } from "../../utils/pipes";
 import { PartyService } from "../party.service";
 import { ReqLoggingInterceptor } from "../../middleware/req-logging.interceptor";
 import { UserProfileService } from "../../service/user-profile.service";
@@ -59,7 +59,7 @@ export class PlayerController {
     private readonly qbus: QueryBus,
     @Inject("QueryCore") private readonly redisEventQueue: ClientProxy,
     private readonly partyService: PartyService,
-    private readonly ms: PlayerApi,
+    private readonly gsApi: ApiClient,
     private readonly socketGateway: SocketGateway,
     private readonly userProfile: UserProfileService,
     private readonly relation: UserRelationService,
@@ -72,11 +72,11 @@ export class PlayerController {
   // @CacheTTL(5)
   async me(@CurrentUser() user: CurrentUserDto): Promise<MeDto> {
     const [summary, banStatus, reportsAvailable] = await Promise.combine([
-      this.ms.playerControllerPlayerSummary(user.steam_id),
-      this.ms.playerControllerBanInfo(user.steam_id),
-      this.ms.playerControllerReportsAvailable(user.steam_id),
+      this.gsApi.player.playerControllerPlayerSummary(user.steam_id),
+      this.gsApi.player.playerControllerBanInfo(user.steam_id),
+      this.gsApi.player.playerControllerReportsAvailable(user.steam_id),
     ]);
-    return this.mapper.mapMe(summary, banStatus, reportsAvailable);
+    return this.mapper.mapMe(summary.data, banStatus.data, reportsAvailable.data);
   }
 
   @Get("/connections")
@@ -96,15 +96,16 @@ export class PlayerController {
     required: false,
   })
   async leaderboard(
-    @Query("page") page: number,
-    @Query("per_page", NullableIntPipe) perPage: number = 25,
+    @Query("page", PagePipe) page: number,
+    @Query("per_page", new PerPagePipe()) perPage: number,
     @Query("season_id", NullableIntPipe) seasonId?: number,
   ): Promise<LeaderboardEntryPageDto> {
-    const rawPage = await this.ms.playerControllerLeaderboard(
+    const res = await this.gsApi.player.playerControllerLeaderboard({
       page,
-      perPage,
-      seasonId,
-    );
+      per_page: perPage,
+      season_id: seasonId,
+    });
+    const rawPage = res.data;
 
     return {
       data: await Promise.all(
@@ -120,14 +121,14 @@ export class PlayerController {
   @Get("/:id/teammates")
   async teammates(
     @Param("id") steam_id: string,
-    @Query("page") page: number,
-    @Query("per_page") perPage: number = 25,
+    @Query("page", PagePipe) page: number,
+    @Query("per_page", new PerPagePipe()) perPage: number,
   ): Promise<PlayerTeammatePageDto> {
-    const rawData = await this.ms.playerControllerPlayerTeammates(
+    const res = await this.gsApi.player.playerControllerPlayerTeammates(
       steam_id,
-      page,
-      perPage,
+      { page, per_page: perPage },
     );
+    const rawData = res.data;
     return {
       data: await Promise.all(rawData.data.map(this.mapper.mapTeammate)),
       page: rawData.page,
@@ -143,9 +144,9 @@ export class PlayerController {
 
   @Get("/:id/achievements")
   async achievements(@Param("id") steam_id: string): Promise<AchievementDto[]> {
-    const rawData = await this.ms.playerControllerPlayerAchievements(steam_id);
+    const res = await this.gsApi.player.playerControllerPlayerAchievements(steam_id);
 
-    return Promise.all(rawData.map(this.mapper.mapAchievement));
+    return Promise.all(res.data.map(this.mapper.mapAchievement));
   }
 
   @CacheTTL(5)
@@ -157,11 +158,11 @@ export class PlayerController {
     );
 
     const [raw, bans] = await Promise.combine([
-      this.ms.playerControllerPlayerSummary(steamId),
-      this.ms.playerControllerBanInfo(steamId),
+      this.gsApi.player.playerControllerPlayerSummary(steamId),
+      this.gsApi.player.playerControllerBanInfo(steamId),
     ]);
 
-    return this.mapper.mapPlayerSummary(raw, bans);
+    return this.mapper.mapPlayerSummary(raw.data, bans.data);
   }
 
   @Get("/party")
@@ -174,7 +175,8 @@ export class PlayerController {
   @UseInterceptors(UserHttpCacheInterceptor)
   @Get("/summary/hero/:id")
   async heroSummary(@Param("id") steam_id: string): Promise<HeroStatsDto[]> {
-    return this.ms.playerControllerPlayerHeroSummary(steam_id);
+    const res = await this.gsApi.player.playerControllerPlayerHeroSummary(steam_id);
+    return res.data;
   }
 
   @WithUser()
@@ -182,9 +184,10 @@ export class PlayerController {
   async getDodgeList(
     @CurrentUser() user: CurrentUserDto,
   ): Promise<DodgeListEntryDto[]> {
-    return this.ms
-      .playerControllerGetDodgeList(user.steam_id)
-      .then((list) => Promise.all(list.map(this.mapper.mapDodgeEntry)));
+    const res = await this.gsApi.player.playerControllerGetDodgeList({
+      steamId: user.steam_id,
+    });
+    return Promise.all(res.data.map(this.mapper.mapDodgeEntry));
   }
 
   @OldGuard()
@@ -194,9 +197,10 @@ export class PlayerController {
     @CurrentUser() user: CurrentUserDto,
   ): Promise<PlayerSummaryDto> {
     try {
-      return await this.ms
-        .playerControllerStartRecalibration({ steamId: user.steam_id })
-        .then(() => this.playerSummary(user.steam_id));
+      await this.gsApi.player.playerControllerStartRecalibration({
+        steamId: user.steam_id,
+      });
+      return this.playerSummary(user.steam_id);
     } catch (e) {
       throw new HttpException(
         { message: "Калибровку можно перезапускать 1 раз за сезон!" },
@@ -208,7 +212,7 @@ export class PlayerController {
   @WithUser()
   @Post("/abandon_game")
   public async abandonGame(@CurrentUser() user: CurrentUserDto) {
-    await this.ms.playerControllerAbandonSession({
+    await this.gsApi.player.playerControllerAbandonSession({
       steamId: user.steam_id,
     });
   }
@@ -220,12 +224,11 @@ export class PlayerController {
     @CurrentUser() user: CurrentUserDto,
     @Body() dto: DodgePlayerDto,
   ): Promise<DodgeListEntryDto[]> {
-    return this.ms
-      .playerControllerDodgePlayer({
-        steamId: user.steam_id,
-        toDodgeSteamId: dto.dodgeSteamId,
-      })
-      .then((list) => Promise.all(list.map(this.mapper.mapDodgeEntry)));
+    const res = await this.gsApi.player.playerControllerDodgePlayer({
+      steamId: user.steam_id,
+      toDodgeSteamId: dto.dodgeSteamId,
+    });
+    return Promise.all(res.data.map(this.mapper.mapDodgeEntry));
   }
 
   @OldGuard()
@@ -235,12 +238,11 @@ export class PlayerController {
     @CurrentUser() user: CurrentUserDto,
     @Body() dto: DodgePlayerDto,
   ): Promise<DodgeListEntryDto[]> {
-    return this.ms
-      .playerControllerUnDodgePlayer({
-        steamId: user.steam_id,
-        toDodgeSteamId: dto.dodgeSteamId,
-      })
-      .then((list) => Promise.all(list.map(this.mapper.mapDodgeEntry)));
+    const res = await this.gsApi.player.playerControllerUnDodgePlayer({
+      steamId: user.steam_id,
+      toDodgeSteamId: dto.dodgeSteamId,
+    });
+    return Promise.all(res.data.map(this.mapper.mapDodgeEntry));
   }
 
   @Get("/search")
@@ -253,23 +255,21 @@ export class PlayerController {
 
     const parametrizedLike = `%${name.replace(/%/g, "")}%`;
 
-    const onlineArray = online.map((t) => `'${t}'`).join(",");
-
     const a = await this.ds.query<{ steam_id: string }[]>(
       `
 SELECT
     ue.steam_id,
-    CASE 
-        WHEN ARRAY[${onlineArray}]::text[] @> ARRAY[ue.steam_id::text] 
-        THEN 10000 
-        ELSE 1 
+    CASE
+        WHEN $3::text[] @> ARRAY[ue.steam_id::text]
+        THEN 10000
+        ELSE 1
     END AS score
 FROM user_entity ue
 WHERE ue.name ILIKE $1
 ORDER BY score DESC
 LIMIT $2;
     `,
-      [parametrizedLike, count],
+      [parametrizedLike, count, online],
     );
 
     return Promise.all(a.map((t) => this.userProfile.userDto(t.steam_id)));

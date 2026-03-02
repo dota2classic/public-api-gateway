@@ -1,6 +1,0 @@
-{
-  "withSeparateModelsAndApi": true,
-  "apiPackage": "api",
-  "modelPackage": "models",
-  "modelNamePrefix": "Gameserver"
-}

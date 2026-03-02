@@ -21,7 +21,7 @@ import { UserProfileService } from "../service/user-profile.service";
 import { PartyService } from "../rest/party.service";
 import { MatchmakerApi } from "../generated-api/matchmaker";
 import { ReadyState } from "../gateway/events/ready-state-received.event";
-import { PlayerApi } from "../generated-api/gameserver";
+import { ApiClient } from "@dota2classic/gs-api-generated/dist/module";
 
 @Injectable()
 export class SocketMessageService {
@@ -35,7 +35,7 @@ export class SocketMessageService {
     private readonly user: UserProfileService,
     private readonly party: PartyService,
     private readonly matchmakerApi: MatchmakerApi,
-    private readonly playerApi: PlayerApi,
+    private readonly gsApi: ApiClient,
   ) {}
 
   async playerRoomState(
@@ -85,10 +85,10 @@ export class SocketMessageService {
   async playerGameState(
     steamId: string,
   ): Promise<PlayerGameStateMessageS2C | undefined> {
-    const res = await this.playerApi.playerControllerPlayerSummary(steamId);
-    if (!res.session) return undefined;
+    const res = await this.gsApi.player.playerControllerPlayerSummary(steamId);
+    if (!res.data.session) return undefined;
 
-    return new PlayerGameStateMessageS2C(res.session.serverUrl);
+    return new PlayerGameStateMessageS2C(res.data.session.serverUrl);
   }
 
   async queues(): Promise<QueueStateMessageS2C[]> {

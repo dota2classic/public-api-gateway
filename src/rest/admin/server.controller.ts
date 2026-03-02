@@ -1,7 +1,6 @@
 import { Body, Controller, Get, Inject, Post } from "@nestjs/common";
 import {
   EventAdminDto,
-  GameServerDto,
   GameSessionDto,
   QueueEntryDTO,
   RunRconDto,
@@ -14,7 +13,7 @@ import { AdminMapper } from "./admin.mapper";
 import { ApiTags } from "@nestjs/swagger";
 import { KillServerRequestedEvent } from "../../gateway/events/gs/kill-server-requested.event";
 import { timeout } from "rxjs/operators";
-import { InfoApi } from "../../generated-api/gameserver";
+import { ApiClient } from "@dota2classic/gs-api-generated/dist/module";
 import { GetQueueStateQuery } from "../../gateway/queries/QueueState/get-queue-state.query";
 import { Dota2Version } from "../../gateway/shared-types/dota2version";
 import { GetQueueStateQueryResult } from "../../gateway/queries/QueueState/get-queue-state-query.result";
@@ -40,7 +39,7 @@ export class ServerController {
     private readonly user: UserProfileService,
     private readonly mapper: AdminMapper,
     private readonly ebus: EventBus,
-    private readonly ms: InfoApi,
+    private readonly gsApi: ApiClient,
   ) {}
 
   @Get("/queues")
@@ -61,14 +60,7 @@ export class ServerController {
     );
   }
 
-  @ModeratorGuard()
-  @WithUser()
-  @Get("/server_pool")
-  async serverPool(): Promise<GameServerDto[]> {
-    return this.ms
-      .infoControllerGameServers()
-      .then((t) => t.map(this.mapper.mapGameServer));
-  }
+  // NOTE: serverPool endpoint removed - infoControllerGameServers no longer exists in the API
 
   @AdminGuard()
   @WithUser()
@@ -100,9 +92,9 @@ export class ServerController {
   @WithUser()
   @Get("/live_sessions")
   async liveSessions(): Promise<GameSessionDto[]> {
-    const res = await this.ms.infoControllerGameSessions();
+    const res = await this.gsApi.info.infoControllerGameSessions();
 
-    return Promise.all(res.map(async (t) => this.mapper.mapGameSession(t)));
+    return Promise.all(res.data.map(async (t) => this.mapper.mapGameSession(t)));
   }
 
   @AdminGuard()

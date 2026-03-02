@@ -7,7 +7,7 @@ import {
   ItemDto,
   ItemHeroDto,
 } from "./dto/meta.dto";
-import { MetaApi, PlayerApi } from "../../generated-api/gameserver";
+import { ApiClient } from "@dota2classic/gs-api-generated/dist/module";
 import { CacheTTL } from "@nestjs/cache-manager";
 import { MetaMapper } from "./meta.mapper";
 import { ReqLoggingInterceptor } from "../../middleware/req-logging.interceptor";
@@ -19,32 +19,35 @@ import { GlobalHttpCacheInterceptor } from "../../utils/cache-global";
 export class MetaController {
   constructor(
     private readonly mapper: MetaMapper,
-    private readonly ps: PlayerApi,
-    private readonly ms: MetaApi,
+    private readonly gsApi: ApiClient,
   ) {}
 
   @CacheTTL(60 * 30) // 30m cache
   @Get("heroes")
   public async heroes(): Promise<HeroSummaryDto[]> {
-    return this.ms.metaControllerHeroes().then((t) => t);
+    const res = await this.gsApi.meta.metaControllerHeroes();
+    return res.data;
   }
 
   @CacheTTL(60 * 30) // 30m cache
   @Get("hero/:hero")
   public async hero(@Param("hero") hero: string): Promise<HeroItemDto[]> {
-    return this.ms.metaControllerHeroData(hero).then((it) => it);
+    const res = await this.gsApi.meta.metaControllerHeroData(hero);
+    return res.data;
   }
 
   @CacheTTL(60 * 30) // 30m cache
   @Get("item/:item")
   public async item(@Param("item") item: number): Promise<ItemHeroDto[]> {
-    return this.ms.metaControllerItemData(item).then((it) => it);
+    const res = await this.gsApi.meta.metaControllerItemData(item);
+    return res.data;
   }
 
   @CacheTTL(60 * 30) // 30m cache
   @Get("items")
   public async items(): Promise<ItemDto[]> {
-    return this.ms.metaControllerItems();
+    const res = await this.gsApi.meta.metaControllerItems();
+    return res.data;
   }
 
   @CacheTTL(60 * 15) // 30m cache
@@ -52,7 +55,7 @@ export class MetaController {
   public async heroPlayers(
     @Param("hero") hero: string,
   ): Promise<HeroPlayerDto[]> {
-    const d = await this.ps.playerControllerGetHeroPlayers(hero);
-    return await Promise.all(d.map(this.mapper.mapHeroPlayer));
+    const res = await this.gsApi.player.playerControllerGetHeroPlayers(hero);
+    return await Promise.all(res.data.map(this.mapper.mapHeroPlayer));
   }
 }

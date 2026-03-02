@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { GameserverPlayerHeroPerformance } from "../../generated-api/gameserver/models";
+import * as GsApi from "@dota2classic/gs-api-generated/dist/Api";
 import { HeroPlayerDto } from "./dto/meta.dto";
 import { UserProfileService } from "../../service/user-profile.service";
 
@@ -8,7 +8,7 @@ export class MetaMapper {
   constructor(private readonly user: UserProfileService) {}
 
   public mapHeroPlayer = async (
-    it: GameserverPlayerHeroPerformance,
+    it: GsApi.PlayerHeroPerformance,
   ): Promise<HeroPlayerDto> => {
     return {
       user: await this.user.userDto(it.steam_id),

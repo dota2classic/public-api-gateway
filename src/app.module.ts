@@ -1,9 +1,19 @@
-import { MiddlewareConsumer, Module, NestModule, RequestMethod, } from "@nestjs/common";
+import {
+  MiddlewareConsumer,
+  Module,
+  NestModule,
+  RequestMethod,
+} from "@nestjs/common";
 import { MatchController } from "./rest/match/match.controller";
 import { SteamController } from "./rest/steam.controller";
 import SteamStrategy from "./rest/strategy/steam.strategy";
 import { JwtModule, JwtModuleOptions } from "@nestjs/jwt";
-import { ClientsModule, RedisOptions, RmqOptions, Transport, } from "@nestjs/microservices";
+import {
+  ClientsModule,
+  RedisOptions,
+  RmqOptions,
+  Transport,
+} from "@nestjs/microservices";
 import { GetUserInfoQuery } from "./gateway/queries/GetUserInfo/get-user-info.query";
 import { CqrsModule } from "@nestjs/cqrs";
 import { MatchMapper } from "./rest/match/match.mapper";
@@ -39,7 +49,10 @@ import { StopLiveGameHandler } from "./cache/event-handler/stop-live-game.handle
 import { ForumController } from "./rest/forum/forum.controller";
 import { ThrottlerModule } from "@nestjs/throttler";
 import { GetQueueStateQuery } from "./gateway/queries/QueueState/get-queue-state.query";
-import { makeHistogramProvider, PrometheusModule, } from "@willsoto/nestjs-prometheus";
+import {
+  makeHistogramProvider,
+  PrometheusModule,
+} from "@willsoto/nestjs-prometheus";
 import { CustomMetricsMiddleware } from "./middleware/custom-metrics.middleware";
 import { PrometheusGuardedController } from "./rest/prometheus-guarded.controller";
 import { BasicStrategy } from "./rest/strategy/prometheus-basic-auth.strategy";
@@ -55,9 +68,7 @@ import { PartyService } from "./rest/party.service";
 import { ReadyStateUpdatedHandler } from "./socket/event-handler/ready-state-updated.handler";
 import { QueueUpdatedHandler } from "./socket/event-handler/queue-updated.handler";
 import { PartyUpdatedHandler } from "./socket/event-handler/party-updated.handler";
-import {
-  ReadyCheckStartedHandler as SocketReadyCheckStartedHandler
-} from "./socket/event-handler/ready-check-started.handler";
+import { ReadyCheckStartedHandler as SocketReadyCheckStartedHandler } from "./socket/event-handler/ready-check-started.handler";
 import { PartyInviteExpiredHandler } from "./socket/event-handler/party-invite-expired.handler";
 import { PartyInviteCreatedHandler } from "./socket/event-handler/party-invite-created.handler";
 import { MatchStartedHandler } from "./socket/event-handler/match-started.handler";
@@ -102,7 +113,10 @@ import { RecordMapper } from "./rest/record/record.mapper";
 import { FeedbackAssistantService } from "./rest/feedback/feedback-assistant.service";
 import { PlayerSmurfDetectedHandler } from "./rest/notification/event-handler/player-smurf-detected.handler";
 import { ApiModule } from "./api/api.module";
-import { UserProfileModule as UPM, UserProfileModule as UMP, } from "@dota2classic/caches";
+import {
+  UserProfileModule as UPM,
+  UserProfileModule as UMP,
+} from "@dota2classic/caches";
 import { getTypeormConfig } from "./config/typeorm.config";
 import { PlayerReportBanCreatedHandler } from "./rest/notification/event-handler/player-report-ban-created.handler";
 import { TwitchController } from "./rest/twitch.controller";
@@ -128,9 +142,7 @@ import { ReportController } from "./rest/report/report.controller";
 import { ReportService } from "./rest/report/report.service";
 import { ReportMapper } from "./rest/report/report.mapper";
 import { PayanywayPaymentAdapter } from "./rest/payments/payanyway-payment-adapter";
-import {
-  CreateFeedbackNotificationHandler
-} from "./rest/notification/command-handler/CreateFeebackNotification/create-feedback-notification.handler";
+import { CreateFeedbackNotificationHandler } from "./rest/notification/command-handler/CreateFeebackNotification/create-feedback-notification.handler";
 import { RmqController } from "./rmq.controller";
 import Redis from "ioredis";
 import { LobbyUpdatedHandler } from "./rest/lobby/event-handler/lobby-updated.handler";
@@ -150,20 +162,41 @@ import { SRCDSPerformanceHandler } from "./event-handler/srcds-performance.handl
 import { TournamentController } from "./rest/tournament/tournament.controller";
 import { TournamentMapper } from "./rest/tournament/tournament.mapper";
 import { TournamentReadyCheckStartedHandler } from "./event-handler/tournament-ready-check-started.handler";
-import {
-  TournamentRegistrationInvitationResolvedHandler
-} from "./event-handler/tournament-registration-invitation-resolved.handler";
-import {
-  TournamentRegistrationInvitationCreatedHandler
-} from "./event-handler/tournament-registration-invitation-created.handler";
+import { TournamentRegistrationInvitationResolvedHandler } from "./event-handler/tournament-registration-invitation-resolved.handler";
+import { TournamentRegistrationInvitationCreatedHandler } from "./event-handler/tournament-registration-invitation-created.handler";
 import { PlayerBanService } from "./service/player-ban.service";
 import { PermaBanGuard } from "./utils/decorator/with-user";
+import { GsApiGeneratedModule } from "@dota2classic/gs-api-generated/dist/module";
+import { LoggerModule } from "nestjs-pino";
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
       load: [configuration],
+    }),
+    LoggerModule.forRoot({
+      pinoHttp: {
+        autoLogging: true,
+        transport:
+          process.env.NODE_ENV !== "production"
+            ? { target: "pino-pretty", options: { colorize: true } }
+            : undefined,
+        level: process.env.LOG_LEVEL || "info",
+        redact: {
+          paths: ["req.headers.authorization", "req.headers.cookie"],
+          remove: true,
+        },
+      },
+    }),
+    GsApiGeneratedModule.forRootAsync({
+      imports: [],
+      inject: [ConfigService],
+      useFactory(config: ConfigService) {
+        return {
+          baseUrl: config.get("api.gameserverApiUrl"),
+        };
+      },
     }),
     PrometheusModule.register({
       path: "/metrics",
@@ -218,15 +251,15 @@ import { PermaBanGuard } from "./utils/decorator/with-user";
     }),
     ThrottlerModule.forRoot([
       {
-        name: 'burst',
+        name: "burst",
         ttl: 10_000, // 10 seconds
         limit: 3, // 10 msgs
       },
       {
         name: "long",
         ttl: 60_000,
-        limit: 20
-      }
+        limit: 20,
+      },
     ]),
     TypeOrmModule.forFeature(Entities),
     ScheduleModule.forRoot(),
