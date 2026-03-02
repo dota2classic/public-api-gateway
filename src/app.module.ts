@@ -178,10 +178,13 @@ import { LoggerModule } from "nestjs-pino";
     LoggerModule.forRoot({
       pinoHttp: {
         autoLogging: true,
-        transport:
-          process.env.NODE_ENV !== "production"
-            ? { target: "pino-pretty", options: { colorize: true } }
-            : undefined,
+        transport: {
+          target: "pino-pretty",
+          options: {
+            colorize: process.env.NODE_ENV !== "production",
+            singleLine: true,
+          },
+        },
         level: process.env.LOG_LEVEL || "info",
         redact: {
           paths: ["req.headers.authorization", "req.headers.cookie"],
