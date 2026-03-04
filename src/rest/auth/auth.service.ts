@@ -53,6 +53,7 @@ export class AuthService {
       key: this.config.get("steam.key"),
       ticket: sessionToken,
       appid: 480,
+      identity: 'dotaclassic.ru'
     });
 
     try {
