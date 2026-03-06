@@ -168,6 +168,7 @@ import { PlayerBanService } from "./service/player-ban.service";
 import { PermaBanGuard } from "./utils/decorator/with-user";
 import { GsApiGeneratedModule } from "@dota2classic/gs-api-generated/dist/module";
 import { LoggerModule } from "nestjs-pino";
+import { PlayerAbandonedSocketHandler } from "./socket/event-handler/player-abandoned.handler";
 
 @Module({
   imports: [
@@ -416,6 +417,7 @@ import { LoggerModule } from "nestjs-pino";
     TournamentRegistrationInvitationCreatedHandler,
     TournamentRegistrationInvitationResolvedHandler,
     StopLiveGameHandler,
+    PlayerAbandonedSocketHandler,
     SRCDSPerformanceHandler,
     GameResultsHandler,
     StorageMapper,
