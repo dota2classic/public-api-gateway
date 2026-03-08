@@ -74,6 +74,7 @@ export class TwitchService implements OnApplicationBootstrap {
       this._streams = await this.getLiveStreamingDota();
     } catch (e) {
       this.logger.error("Error getting live streaming data", e);
+      console.error(e);
     }
   }
 
