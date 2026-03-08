@@ -28,7 +28,7 @@ export class MatchStartedHandler implements IEventHandler<MatchStartedEvent> {
       players.map(async (steamId) => {
         const msg = await this.socketMessage.playerGameState(steamId);
         await this.delivery
-          .deliver(steamId, MessageTypeS2C.PLAYER_GAME_STATE, msg)
+          .deliver(steamId, MessageTypeS2C.PLAYER_GAME_READY, msg)
           .catch((e) => this.logger.warn("Issue sending socket message", e));
       }),
     );
