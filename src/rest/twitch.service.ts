@@ -145,6 +145,7 @@ export class TwitchService implements OnApplicationBootstrap {
       `streams?${this.getParams("user_login", twitchUsernames)}&game_id=${29595}&type=live`,
     );
     if (!response.ok) {
+      this.logger.error (response.data)
       this.logger.error(
         "Couldn't get live streams from twitch!",
         response.originalError,
