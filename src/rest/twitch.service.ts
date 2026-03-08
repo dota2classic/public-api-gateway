@@ -135,6 +135,8 @@ export class TwitchService implements OnApplicationBootstrap {
       this.token = token.data.access_token;
       this.helix.setHeader("Authorization", `Bearer ${this.token}`);
       this.logger.log("Successfully updated token");
+    } else {
+      this.logger.log("There was an issue updating the token", token.data);
     }
   }
 
