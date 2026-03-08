@@ -74,7 +74,6 @@ export class TwitchService implements OnApplicationBootstrap {
       this._streams = await this.getLiveStreamingDota();
     } catch (e) {
       this.logger.error("Error getting live streaming data", e);
-      console.error(e);
     }
   }
 
@@ -143,20 +142,52 @@ export class TwitchService implements OnApplicationBootstrap {
   private async getDotaStreams(
     twitchUsernames: string[],
   ): Promise<StreamInfo[]> {
-    const response = await this.helix.get<{ data: StreamInfo[] }>(
-      `streams?${this.getParams("user_login", twitchUsernames)}&game_id=${29595}&type=live`,
-    );
-    if (!response.ok) {
-      this.logger.error (response.data)
-      this.logger.error(
-        "Couldn't get live streams from twitch!",
-        response.originalError,
-      );
-      return [];
+    const batches = this.chunk(twitchUsernames, 100);
+    const batchResults = await Promise.all(batches.map((b) => this.fetchStreamBatch(b)));
+    return batchResults
+      .flat()
+      .filter((stream) => stream.title.toLowerCase().includes("dotaclassic.ru"));
+  }
+
+  private async fetchStreamBatch(usernames: string[]): Promise<StreamInfo[]> {
+    const streams: StreamInfo[] = [];
+    let cursor: string | undefined;
+
+    do {
+      const params = [
+        this.getParams("user_login", usernames),
+        `game_id=29595`,
+        `type=live`,
+        `first=100`,
+        cursor ? `after=${cursor}` : "",
+      ]
+        .filter(Boolean)
+        .join("&");
+
+      const response = await this.helix.get<{
+        data: StreamInfo[];
+        pagination?: { cursor?: string };
+      }>(`streams?${params}`);
+
+      if (!response.ok) {
+        this.logger.error(response.data);
+        this.logger.error("Couldn't get live streams from twitch!", response.originalError);
+        return [];
+      }
+
+      streams.push(...response.data.data);
+      cursor = response.data.pagination?.cursor;
+    } while (cursor);
+
+    return streams;
+  }
+
+  private chunk<T>(arr: T[], size: number): T[][] {
+    const chunks: T[][] = [];
+    for (let i = 0; i < arr.length; i += size) {
+      chunks.push(arr.slice(i, i + size));
     }
-    return response.data.data.filter((stream) =>
-      stream.title.toLowerCase().includes("dotaclassic.ru"),
-    );
+    return chunks;
   }
 
   private getParams(name: string, values: string[]) {
