@@ -6,6 +6,9 @@ import { UserDTO } from "../shared.dto";
 import { ConfigService } from "@nestjs/config";
 import * as qs from "querystring";
 import { steam64to32 } from "../../utils/steamIds";
+import { EventBus } from "@nestjs/cqrs";
+import { UserLoggedInEvent } from "../../gateway/events/user/user-logged-in.event";
+import { PlayerId } from "../../gateway/shared-types/player-id";
 
 export interface JwtPayload {
   sub: string;
@@ -35,6 +38,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly user: UserProfileService,
     private readonly config: ConfigService,
+    private readonly ebus: EventBus,
   ) {}
 
   public async refreshToken(token: string) {
@@ -67,7 +71,23 @@ export class AuthService {
       const star = res as SteamSessionTokenAuthResponse;
       if (star.response.params.result === "OK") {
         const steamId = star.response.params.steamid;
-        return this.createToken(steam64to32(steamId));
+
+        const profileQ = qs.stringify({
+          key: this.config.get("steam.key"),
+          steamids: steamId,
+        });
+        const profileRes = await fetch(
+          `https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/?${profileQ}`,
+        ).then((it) => it.json());
+
+        const player = profileRes?.response?.players?.[0];
+        const name: string | undefined = player?.personaname;
+        const avatar: string | undefined = player?.avatarfull;
+
+        const steam32id = steam64to32(steamId);
+        this.ebus.publish(new UserLoggedInEvent(new PlayerId(steam32id), name, avatar));
+
+        return this.createToken(steam32id, name, avatar);
       }
     } catch (e) {
       this.logger.error("Error validating steam sessson token", e);
