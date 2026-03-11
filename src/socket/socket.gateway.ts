@@ -7,7 +7,7 @@ import {
   WebSocketGateway,
   WebSocketServer,
 } from "@nestjs/websockets";
-import { PlayerSocket } from "./player.socket";
+import { ClientType, PlayerSocket } from "./player.socket";
 import { JwtService } from "@nestjs/jwt";
 import { Server as WSServer } from "socket.io";
 import { SocketMessageService } from "./socket-message.service";
@@ -33,7 +33,7 @@ import { MetricsService } from "../metrics.service";
 import { UserRelationService } from "../service/user-relation.service";
 import { UserRelationStatus } from "../gateway/shared-types/user-relation";
 import Redis from "ioredis";
-import { OnlineUpdateMessageS2C } from "./messages/s2c/online-update-message.s2c";
+import { OnlineEntry, OnlineUpdateMessageS2C } from "./messages/s2c/online-update-message.s2c";
 import { PlayerBanService } from "../service/player-ban.service";
 
 @WebSocketGateway({ cors: "*" })
@@ -55,6 +55,8 @@ export class SocketGateway implements OnGatewayDisconnect, OnGatewayConnection {
 
   async handleConnection(client: PlayerSocket, ...args) {
     const authToken = client.handshake.auth?.token;
+    const clientTypeRaw = client.handshake.auth?.clientType ?? client.handshake.query?.clientType;
+    client.clientType = clientTypeRaw === ClientType.LAUNCHER ? ClientType.LAUNCHER : ClientType.WEBAPP;
 
     try {
       const parsed = this.jwtService.verify<{ sub: string }>(authToken);
@@ -174,21 +176,49 @@ export class SocketGateway implements OnGatewayDisconnect, OnGatewayConnection {
   }
 
   public async getOnlineSteamIds() {
-    const steamKeys: string[] = await this.redis.keys("connected_steamId:*");
-    return steamKeys.map((t) => t.replace("connected_steamId:", ""));
+    const { steamIds } = await this.getOnlineClients();
+    return steamIds;
+  }
+
+  public async getClientType(steamId: string): Promise<ClientType> {
+    const hasLauncher = await this.redis.exists(
+      `connected_steamId:${steamId}:${ClientType.LAUNCHER}`,
+    );
+    return hasLauncher ? ClientType.LAUNCHER : ClientType.WEBAPP;
   }
 
   private async updateOnline() {
-    const steamIds = await this.getOnlineSteamIds();
+    const { steamIds, clients } = await this.getOnlineClients();
     this.logger.log("Online update", {
       authorized: steamIds.length,
     });
-    //
-    //
     this.server.emit(
       MessageTypeS2C.ONLINE_UPDATE,
-      new OnlineUpdateMessageS2C(steamIds, steamIds.length) as any,
+      new OnlineUpdateMessageS2C(steamIds, steamIds.length, clients) as any,
     );
+  }
+
+  private async getOnlineClients(): Promise<{
+    steamIds: string[];
+    clients: OnlineEntry[];
+  }> {
+    const steamKeys: string[] = await this.redis.keys("connected_steamId:*");
+    // Each key is connected_steamId:{steamId}:{clientType}
+    // A steamId may have both types; launcher takes priority in the clients list
+    const byId = new Map<string, ClientType>();
+    for (const key of steamKeys) {
+      const [steamId, clientType] = key
+        .replace("connected_steamId:", "")
+        .split(":");
+      // Only upgrade to launcher, never downgrade
+      if (!byId.has(steamId) || clientType === ClientType.LAUNCHER) {
+        byId.set(steamId, clientType as ClientType);
+      }
+    }
+    const clients: OnlineEntry[] = Array.from(byId.entries()).map(
+      ([steamId, clientType]) => ({ steamId, clientType }),
+    );
+    return { steamIds: clients.map((c) => c.steamId), clients };
   }
 
   private async onConnect(socket: PlayerSocket) {
@@ -197,25 +227,28 @@ export class SocketGateway implements OnGatewayDisconnect, OnGatewayConnection {
       return;
     }
 
-    socket.conn.on("packet", function (packet) {
+    const ping = (steamId: string, clientType: ClientType) => {
+      const key = `connected_steamId:${steamId}:${clientType}`;
+      return this.redis.multi().set(key, "1").expire(key, 120).exec();
+    };
+
+    socket.conn.on("packet", (packet) => {
       if (packet.type === "pong") {
-        ping(steamId);
+        ping(steamId, socket.clientType);
       }
     });
 
-    const ping = (steamId: string) => {
-      return this.redis
-        .multi()
-        .set(`connected_steamId:${steamId}`, "1")
-        .expire(`connected_steamId:${steamId}`, 120)
-        .exec();
-    };
-
-    socket.onAny(() => ping(steamId));
-    await ping(steamId);
+    socket.onAny(() => ping(steamId, socket.clientType));
+    await ping(steamId, socket.clientType);
   }
 
-  private async onDisconnect(socket: PlayerSocket) {}
+  private async onDisconnect(socket: PlayerSocket) {
+    if (socket.steamId) {
+      await this.redis.del(
+        `connected_steamId:${socket.steamId}:${socket.clientType}`,
+      );
+    }
+  }
 
   private async getOnlineUsers(): Promise<number> {
     return this.redis.scard("connected_steamId:*");

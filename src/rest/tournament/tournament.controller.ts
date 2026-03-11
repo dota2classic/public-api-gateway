@@ -95,12 +95,27 @@ export class TournamentController {
     @Param("id") id: number,
   ) {
     const party = await this.partyService.getParty(user.steam_id);
-    if (party.players.some((bi) => bi.summary.banStatus.isBanned || bi.summary.accessMap.humanGames === false)) {
-      throw new ForbiddenException("Нельзя участвовать в турнире");
+    const hasBan = party.players.some((bi) => bi.summary.banStatus.isBanned);
+
+    const noHumanAccess = party.players.some(
+      (bi) => bi.summary.accessMap.humanGames === false,
+    );
+
+    if (hasBan) {
+      throw new ForbiddenException(
+        "Нельзя участвовать в турнире с блокировкой",
+      );
     }
 
+    if (noHumanAccess) {
+      throw new ForbiddenException(
+        "Для участия нужно победить против ботов",
+      );
+    }
+
+
     return this.api.tournamentControllerRegister(id, {
-      steamIds: party.players.map(t => t.summary.user.steamId),
+      steamIds: party.players.map((t) => t.summary.user.steamId),
     });
   }
 
@@ -143,9 +158,7 @@ export class TournamentController {
       "Игрок заблокирован",
     );
 
-    await this.playerBan.assertPlayedAnyGame(
-      body.steamId,
-    )
+    await this.playerBan.assertPlayedAnyGame(body.steamId);
 
     await this.api.tournamentControllerInviteToRegistration(id, {
       steamId: body.steamId,
