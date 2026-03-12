@@ -44,6 +44,10 @@ export class MatchArtifactUploadedHandler {
       `Chat moderation for match ${event.matchId}: ${JSON.stringify(results)}`,
     );
 
+    results.filter(t => t.messageTemperature >= 6).forEach(t => {
+      this.logger.warn(`Match ${event.matchId}: player ${t.steamId} has high toxicity: ${t.messageTemperature} (${t.reasoning})`);
+    })
+
     return results;
   }
 }
