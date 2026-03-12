@@ -169,6 +169,7 @@ import { PermaBanGuard } from "./utils/decorator/with-user";
 import { GsApiGeneratedModule } from "@dota2classic/gs-api-generated/dist/module";
 import { LoggerModule } from "nestjs-pino";
 import { PlayerAbandonedSocketHandler } from "./socket/event-handler/player-abandoned.handler";
+import { MatchArtifactUploadedHandler } from "./rest/storage/event-handler/match-artifact-uploaded.handler";
 
 @Module({
   imports: [
@@ -555,6 +556,8 @@ import { PlayerAbandonedSocketHandler } from "./socket/event-handler/player-aban
     SocketMessageService,
     NotificationCreatedHandler,
     PlayerSmurfDetectedHandler,
+
+    MatchArtifactUploadedHandler,
 
     // Feedback
     PlayerNotLoadedHandler,

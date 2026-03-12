@@ -70,6 +70,43 @@ export class FeedbackAssistantService {
     }
   }
 
+  public async getChatModerationResult(
+    chatLog: string,
+  ): Promise<
+    { steamId: string; messageTemperature: number; reasoning: string }[]
+  > {
+    try {
+      const request: CompletionRequest = {
+        model: "gpt-4o-mini",
+        response_format: { type: "json_object" },
+        messages: [
+          {
+            role: "system",
+            content: GptSystemPrompt.ChatModeration,
+          },
+          {
+            role: "user",
+            content: chatLog,
+          },
+        ],
+      };
+
+      const res = await this.api.post<CompletionResponse>(
+        `/v1/chat/completions`,
+        request,
+      );
+
+      if (res.ok) {
+        const parsed = JSON.parse(res.data.choices[0].message.content);
+        return parsed.results ?? [];
+      }
+
+      return [];
+    } catch (e) {
+      return [];
+    }
+  }
+
   public async getGptResponse(
     context: string,
   ): Promise<{ answer?: string; unknown?: boolean }> {

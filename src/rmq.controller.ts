@@ -30,6 +30,8 @@ import { GameResultsEvent } from "./gateway/events/gs/game-results.event";
 import { TournamentReadyCheckStartedEvent } from "./gateway/events/tournament/tournament-ready-check-started.event";
 import { TournamentRegistrationInvitationCreatedEvent } from "./gateway/events/tournament/tournament-registration-invitation-created.event";
 import { TournamentRegistrationInvitationResolvedEvent } from "./gateway/events/tournament/tournament-registration-invitation-resolved.event";
+import { MatchArtifactUploadedEvent } from "./gateway/events/match-artifact-uploaded.event";
+import { MatchArtifactUploadedHandler } from "./rest/storage/event-handler/match-artifact-uploaded.handler";
 
 @Controller()
 export class RmqController {
@@ -47,6 +49,7 @@ export class RmqController {
     private readonly itemDropService: ItemDropService,
     private readonly config: ConfigService,
     private readonly ebus: EventBus,
+    private readonly matchArtifactUploadedHandler: MatchArtifactUploadedHandler,
   ) {}
 
   @RabbitSubscribe({
@@ -196,6 +199,15 @@ export class RmqController {
     msg: TournamentRegistrationInvitationResolvedEvent,
   ) {
     this.event(TournamentRegistrationInvitationResolvedEvent, msg);
+  }
+
+  @RabbitSubscribe({
+    exchange: "app.events",
+    routingKey: MatchArtifactUploadedEvent.name,
+    queue: `api-queue.${MatchArtifactUploadedEvent.name}`,
+  })
+  private async handleMatchArtifactUploaded(msg: MatchArtifactUploadedEvent) {
+    await this.matchArtifactUploadedHandler.handle(msg);
   }
 
   private event<T>(constructor: Constructor<T>, data: any) {
