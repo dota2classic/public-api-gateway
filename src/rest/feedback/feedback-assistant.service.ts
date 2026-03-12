@@ -9,8 +9,10 @@ export interface AIMessageHistory {
   content: string;
 }
 
+type GptModel = "gpt-4o-mini" | "gpt-4o" | "gpt-4-turbo";
+
 interface CompletionRequest {
-  model: "gpt-4o-mini";
+  model: GptModel;
   response_format?: { type: "json_object" };
   messages: AIMessageHistory[];
 }
@@ -32,116 +34,62 @@ export class FeedbackAssistantService {
     });
   }
 
-  public async getValidationResult(content: string): Promise<ValidationResult> {
+  private async query<T>(
+    prompt: keyof typeof GptSystemPrompt,
+    input: string,
+    fallback: T,
+    model: GptModel = "gpt-4o-mini",
+  ): Promise<T> {
     try {
       const request: CompletionRequest = {
-        model: "gpt-4o-mini",
+        model,
         response_format: { type: "json_object" },
         messages: [
-          {
-            role: "system",
-            content: GptSystemPrompt.ThreadValidation,
-          },
-          {
-            role: "user",
-            content: content,
-          },
+          { role: "system", content: GptSystemPrompt[prompt] },
+          { role: "user", content: input },
         ],
       };
 
       const res = await this.api.post<CompletionResponse>(
-        `/v1/chat/completions`,
+        "/v1/chat/completions",
         request,
       );
 
       if (res.ok) {
-        return JSON.parse(res.data.choices[0].message.content);
+        return JSON.parse(res.data.choices[0].message.content) as T;
       }
 
-      return {
-        invalid: false,
-        reason: "",
-      };
-    } catch (e) {
-      return {
-        invalid: false,
-        reason: "",
-      };
+      return fallback;
+    } catch {
+      return fallback;
     }
+  }
+
+  public async getValidationResult(content: string): Promise<ValidationResult> {
+    return this.query<ValidationResult>(
+      "ThreadValidation",
+      content,
+      { invalid: false, reason: "" },
+    );
   }
 
   public async getChatModerationResult(
     chatLog: string,
-  ): Promise<
-    { steamId: string; messageTemperature: number; reasoning: string }[]
-  > {
-    try {
-      const request: CompletionRequest = {
-        model: "gpt-4o-mini",
-        response_format: { type: "json_object" },
-        messages: [
-          {
-            role: "system",
-            content: GptSystemPrompt.ChatModeration,
-          },
-          {
-            role: "user",
-            content: chatLog,
-          },
-        ],
-      };
+  ): Promise<{ steamId: string; messageTemperature: number; reasoning: string }[]> {
+    const raw = await this.query<{
+      results?: { steamId: string; messageTemperature: number; reasoning: string }[];
+    }>("ChatModeration", chatLog, { results: [] });
 
-      const res = await this.api.post<CompletionResponse>(
-        `/v1/chat/completions`,
-        request,
-      );
-
-      if (res.ok) {
-        const parsed = JSON.parse(res.data.choices[0].message.content);
-        return parsed.results ?? [];
-      }
-
-      return [];
-    } catch (e) {
-      return [];
-    }
+    return raw.results ?? [];
   }
 
   public async getGptResponse(
     context: string,
   ): Promise<{ answer?: string; unknown?: boolean }> {
-    try {
-      const request: CompletionRequest = {
-        model: "gpt-4o-mini",
-        response_format: { type: "json_object" },
-        messages: [
-          {
-            role: "system",
-            content: GptSystemPrompt.TechicalIssues,
-          },
-          {
-            role: "user",
-            content: context,
-          },
-        ],
-      };
-
-      const res = await this.api.post<CompletionResponse>(
-        `/v1/chat/completions`,
-        request,
-      );
-
-      if (res.ok) {
-        return JSON.parse(res.data.choices[0].message.content);
-      }
-
-      return {
-        unknown: true,
-      };
-    } catch (e) {
-      return {
-        unknown: true,
-      };
-    }
+    return this.query<{ answer?: string; unknown?: boolean }>(
+      "TechicalIssues",
+      context,
+      { unknown: true },
+    );
   }
 }
