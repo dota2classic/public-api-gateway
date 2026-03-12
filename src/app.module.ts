@@ -91,18 +91,12 @@ import * as TelegramBot from "node-telegram-bot-api";
 import { TelegramNotificationService } from "./rest/notification/telegram-notification.service";
 import { TicketMessageHandler } from "./rest/notification/event-handler/ticket-message-handler.service";
 import { StorageController } from "./rest/storage/storage.controller";
-import { BlogpostController } from "./rest/blogpost/blogpost.controller";
-import { BlogpostMapper } from "./rest/blogpost/blogpost.mapper";
+import { BlogpostModule } from "./rest/blogpost/blogpost.module";
 import { StorageService } from "./rest/storage/storage.service";
-import { RecordController } from "./rest/record/record.controller";
-import { RecordMapper } from "./rest/record/record.mapper";
+import { RecordModule } from "./rest/record/record.module";
 import { AiService } from "./service/ai.service";
 import { PlayerSmurfDetectedHandler } from "./rest/notification/event-handler/player-smurf-detected.handler";
 import { ApiModule } from "./api/api.module";
-import {
-  UserProfileModule as UPM,
-  UserProfileModule as UMP,
-} from "@dota2classic/caches";
 import { getTypeormConfig } from "./config/typeorm.config";
 import { PlayerReportBanCreatedHandler } from "./rest/notification/event-handler/player-report-ban-created.handler";
 import { TwitchController } from "./rest/twitch.controller";
@@ -111,11 +105,7 @@ import { TwitchService } from "./rest/twitch.service";
 import { StatsMapper } from "./rest/stats/stats.mapper";
 import { StatsService } from "./rest/stats/stats.service";
 import { CustomizationController } from "./rest/customization/customization.controller";
-import { CustomizationMapper } from "./rest/customization/customization.mapper";
-import Keyv from "keyv";
-import KeyvRedis from "@keyv/redis";
-import { UserProfileService } from "./service/user-profile.service";
-import { StorageMapper } from "./rest/storage/storage.mapper";
+import { UserServicesModule } from "./service/user-services.module";
 import { PaymentHooksController } from "./rest/payments/payment-hooks.controller";
 import { UserPaymentsController } from "./rest/payments/user-payments.controller";
 import { PaymentService } from "./rest/payments/payment.service";
@@ -160,6 +150,9 @@ import { MetricsModule } from "./metrics/metrics.module";
   imports: [
     MetricsModule,
     RuleModule,
+    UserServicesModule,
+    BlogpostModule,
+    RecordModule,
     ConfigModule.forRoot({
       isGlobal: true,
       load: [configuration],
@@ -189,17 +182,6 @@ import { MetricsModule } from "./metrics/metrics.module";
           baseUrl: config.get("api.gameserverApiUrl"),
         };
       },
-    }),
-    UMP.registerAsync({
-      imports: [],
-      useFactory(config: ConfigService) {
-        return {
-          host: config.get("redis.host"),
-          password: config.get("redis.password"),
-          port: 6379,
-        };
-      },
-      inject: [ConfigService],
     }),
     TypeOrmModule.forRootAsync({
       useFactory(config: ConfigService): TypeOrmModuleOptions {
@@ -263,6 +245,7 @@ import { MetricsModule } from "./metrics/metrics.module";
     }),
     CqrsModule,
     CacheModule.registerAsync({
+      isGlobal: true,
       useFactory(config: ConfigService): CacheModuleOptions {
         return {
           ttl: 10,
@@ -353,7 +336,6 @@ import { MetricsModule } from "./metrics/metrics.module";
       },
     ]),
     ApiModule,
-    UPM,
   ],
   controllers: [
     MatchController,
@@ -366,7 +348,6 @@ import { MetricsModule } from "./metrics/metrics.module";
     LobbyController,
     TournamentController,
 
-    RecordController,
     ItemDropController,
 
     MetaController,
@@ -381,7 +362,6 @@ import { MetricsModule } from "./metrics/metrics.module";
     AdminFeedbackController,
 
     StorageController,
-    BlogpostController,
     CustomizationController,
 
     PaymentHooksController,
@@ -402,7 +382,6 @@ import { MetricsModule } from "./metrics/metrics.module";
     PlayerAbandonedSocketHandler,
     SRCDSPerformanceHandler,
     GameResultsHandler,
-    StorageMapper,
     TournamentMapper,
     {
       provide: "REDIS",
@@ -413,37 +392,6 @@ import { MetricsModule } from "./metrics/metrics.module";
       },
       inject: [ConfigService],
     },
-    {
-      provide: "full-profile",
-      async useFactory(config: ConfigService) {
-        return new Keyv(
-          new KeyvRedis({
-            url: `redis://${config.get("redis.host")}:6379`,
-            password: config.get<string>("redis.password"),
-          }),
-          {
-            namespace: "user-profile-full",
-          },
-        );
-      },
-      inject: [ConfigService],
-    },
-    {
-      provide: "fast-user-profile",
-      async useFactory(config: ConfigService) {
-        return new Keyv(
-          new KeyvRedis({
-            url: `redis://${config.get("redis.host")}:6379`,
-            password: config.get<string>("redis.password"),
-          }),
-          {
-            namespace: "user-profile-fast",
-          },
-        );
-      },
-      inject: [ConfigService],
-    },
-    UserProfileService,
 
     {
       provide: "QueryCache",
@@ -489,10 +437,7 @@ import { MetricsModule } from "./metrics/metrics.module";
     LobbyMapper,
     NotificationMapper,
     FeedbackMapper,
-    BlogpostMapper,
-    RecordMapper,
     StatsMapper,
-    CustomizationMapper,
     ReportMapper,
     ItemDropMapper,
 

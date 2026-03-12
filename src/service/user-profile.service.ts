@@ -1,6 +1,5 @@
 import { Inject, Injectable, Logger } from "@nestjs/common";
 import Keyv from "keyv";
-import { QueryBus } from "@nestjs/cqrs";
 import { UserProfileFastService } from "@dota2classic/caches/dist/service/user-profile-fast.service";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
@@ -15,7 +14,6 @@ export class UserProfileService {
 
   constructor(
     @Inject("full-profile") private readonly keyv: Keyv,
-    private readonly qbus: QueryBus,
     private readonly fastUserService: UserProfileFastService<UserFastProfileDto>,
     @InjectRepository(UserProfileDecorationPreferencesEntity)
     private readonly userProfileDecorationPreferencesEntityRepository: Repository<UserProfileDecorationPreferencesEntity>,

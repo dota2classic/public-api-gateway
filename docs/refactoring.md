@@ -40,10 +40,13 @@ The codebase has grown into a classic god-module pattern. `app.module.ts` (603 l
 
 Target: replace the monolithic `app.module.ts` with feature modules.
 
-Each module should follow the pattern:
+### Folder convention
+
+Modules live as **top-level folders under `src/`**, mirroring the `src/metrics/` pattern — not nested under `src/rest/`.
+
 ```
-src/rest/{feature}/
-  {feature}.module.ts       ← new
+src/{feature}/
+  {feature}.module.ts
   {feature}.controller.ts
   {feature}.service.ts
   {feature}.mapper.ts
@@ -51,13 +54,16 @@ src/rest/{feature}/
   event-handler/
 ```
 
-The module declares its own `TypeOrmModule.forFeature([...])`, exports services that other modules need, and is imported once in `app.module.ts`.
+Previously extracted modules still under `src/rest/` (blogpost, record, rule, etc.) should be relocated when convenient.
+
+Each module declares its own `TypeOrmModule.forFeature([...])`, exports services that other modules need, and is imported once in `app.module.ts`.
 
 ### Module extraction checklist
 
 - [x] `RuleModule` — `RuleController`, `RuleService`, `RuleMapper`, `RuleEntity`, `RulePunishmentEntity`
-- [ ] `BlogpostModule` — `BlogpostController`, `BlogpostMapper`
-- [ ] `RecordModule` — `RecordController`, `RecordMapper`
+- [x] `BlogpostModule` — `BlogpostController`, `BlogpostMapper`
+- [x] `RecordModule` — `RecordController`, `RecordMapper`, `MatchMapper` (local)
+- [x] `UserServicesModule` (@Global) — `UserProfileService`, `StorageMapper`, `CustomizationMapper` (shared; enables all above)
 - [ ] `AuthModule` — `AuthController`, `AuthService`, strategies
 - [ ] `MetaModule` — `MetaController`, `MetaMapper`
 - [ ] `StatsModule` — `StatsController`, `StatsMapper`
