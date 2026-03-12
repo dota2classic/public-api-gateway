@@ -1,15 +1,15 @@
 import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { ApisauceInstance, create } from "apisauce";
-import { CompletionResponse } from "./openai";
-import { GptSystemPrompt } from "./gpt-systems";
+import { CompletionResponse } from "../rest/feedback/openai";
+import { GptSystemPrompt } from "../rest/feedback/gpt-systems";
 
 export interface AIMessageHistory {
   role: "system" | "assistant" | "user";
   content: string;
 }
 
-type GptModel = "gpt-4o-mini" | "gpt-4o" | "gpt-4-turbo";
+export type GptModel = "gpt-4o-mini" | "gpt-4o" | "gpt-4-turbo";
 
 interface CompletionRequest {
   model: GptModel;
@@ -23,7 +23,7 @@ interface ValidationResult {
 }
 
 @Injectable()
-export class FeedbackAssistantService {
+export class AiService {
   private api: ApisauceInstance;
   constructor(private readonly config: ConfigService) {
     this.api = create({

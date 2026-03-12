@@ -11,7 +11,7 @@ import { FeedbackOptionEntity } from "../../entity/feedback-option.entity";
 import { ThreadType } from "../../gateway/shared-types/thread-type";
 import { CurrentUserDto } from "../../utils/decorator/current-user";
 import { ForumApi } from "../../generated-api/forum";
-import { FeedbackAssistantService } from "./feedback-assistant.service";
+import { AiService } from "../../service/ai.service";
 import { Role } from "../../gateway/shared-types/roles";
 import { AmqpConnection } from "@golevelup/nestjs-rabbitmq";
 
@@ -29,7 +29,7 @@ export class FeedbackService implements OnApplicationBootstrap {
     private readonly feedbackOptionEntityRepository: Repository<FeedbackOptionEntity>,
     private readonly ebus: EventBus,
     private readonly forumApi: ForumApi,
-    private readonly feedbackAssistant: FeedbackAssistantService,
+    private readonly feedbackAssistant: AiService,
     private readonly amqpConnection: AmqpConnection,
   ) {}
 

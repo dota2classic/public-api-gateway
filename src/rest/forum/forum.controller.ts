@@ -63,7 +63,7 @@ import { BlogpostEntity } from "../../entity/blogpost.entity";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { CacheTTL } from "@nestjs/cache-manager";
-import { FeedbackAssistantService } from "../feedback/feedback-assistant.service";
+import { AiService } from "../../service/ai.service";
 import { UserHttpCacheInterceptor } from "../../utils/cache-key-track";
 import { Throttle } from "@nestjs/throttler";
 
@@ -81,7 +81,7 @@ export class ForumController {
     private readonly liveMatchService: LiveMatchService,
     @InjectRepository(BlogpostEntity)
     private readonly blogpostEntityRepository: Repository<BlogpostEntity>,
-    private readonly feedbackAssistant: FeedbackAssistantService,
+    private readonly feedbackAssistant: AiService,
   ) {}
 
   @ApiParam({

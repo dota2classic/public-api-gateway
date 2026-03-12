@@ -3,7 +3,7 @@ import { InjectS3, S3 } from "nestjs-s3";
 import { MatchArtifactUploadedEvent } from "../../../gateway/events/match-artifact-uploaded.event";
 import { MatchArtifactType } from "../../../gateway/shared-types/match-artifact-type";
 import { parseLogFile } from "../../../utils/parseLogFile";
-import { FeedbackAssistantService } from "../../feedback/feedback-assistant.service";
+import { AiService } from "../../../service/ai.service";
 
 export interface PlayerChatModerationResult {
   steamId: string;
@@ -17,7 +17,7 @@ export class MatchArtifactUploadedHandler {
 
   constructor(
     @InjectS3() private readonly s3: S3,
-    private readonly feedbackAssistant: FeedbackAssistantService,
+    private readonly feedbackAssistant: AiService,
   ) {}
 
   async handle(

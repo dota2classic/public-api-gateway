@@ -110,7 +110,7 @@ import { BlogpostMapper } from "./rest/blogpost/blogpost.mapper";
 import { StorageService } from "./rest/storage/storage.service";
 import { RecordController } from "./rest/record/record.controller";
 import { RecordMapper } from "./rest/record/record.mapper";
-import { FeedbackAssistantService } from "./rest/feedback/feedback-assistant.service";
+import { AiService } from "./service/ai.service";
 import { PlayerSmurfDetectedHandler } from "./rest/notification/event-handler/player-smurf-detected.handler";
 import { ApiModule } from "./api/api.module";
 import {
@@ -565,7 +565,7 @@ import { MatchArtifactUploadedHandler } from "./rest/storage/event-handler/match
     TicketMessageHandler,
     PlayerReportBanCreatedHandler,
     TelegramNotificationService,
-    FeedbackAssistantService,
+    AiService,
     MessageCreatedHandler,
     PleaseGoQueueHandler,
 
