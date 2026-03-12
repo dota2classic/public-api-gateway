@@ -25,7 +25,7 @@ import {
 } from "../../utils/decorator/current-user";
 import { UserHttpCacheInterceptor } from "../../utils/cache-key-track";
 import { WithPagination } from "../../utils/decorator/pagination";
-import { ReqLoggingInterceptor } from "../../middleware/req-logging.interceptor";
+import { ReqLoggingInterceptor } from "../../metrics/req-logging.interceptor";
 import { WithUser } from "../../utils/decorator/with-user";
 import { ApiClient } from "@dota2classic/gs-api-generated/dist/module";
 import { PagePipe, PerPagePipe } from "../../utils/pipes";

@@ -20,7 +20,7 @@ import {
   CurrentUserDto,
 } from "../../utils/decorator/current-user";
 import { NotificationService } from "./notification.service";
-import { ReqLoggingInterceptor } from "../../middleware/req-logging.interceptor";
+import { ReqLoggingInterceptor } from "../../metrics/req-logging.interceptor";
 import { NotificationMapper } from "./notification.mapper";
 import { PleaseGoQueueEvent } from "./event/please-go-queue.event";
 import { AmqpConnection } from "@golevelup/nestjs-rabbitmq";

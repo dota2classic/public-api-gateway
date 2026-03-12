@@ -1,9 +1,4 @@
-import {
-  MiddlewareConsumer,
-  Module,
-  NestModule,
-  RequestMethod,
-} from "@nestjs/common";
+import { Module } from "@nestjs/common";
 import { MatchController } from "./rest/match/match.controller";
 import { SteamController } from "./rest/steam.controller";
 import SteamStrategy from "./rest/strategy/steam.strategy";
@@ -49,13 +44,6 @@ import { StopLiveGameHandler } from "./cache/event-handler/stop-live-game.handle
 import { ForumController } from "./rest/forum/forum.controller";
 import { ThrottlerModule } from "@nestjs/throttler";
 import { GetQueueStateQuery } from "./gateway/queries/QueueState/get-queue-state.query";
-import {
-  makeHistogramProvider,
-  PrometheusModule,
-} from "@willsoto/nestjs-prometheus";
-import { CustomMetricsMiddleware } from "./middleware/custom-metrics.middleware";
-import { PrometheusGuardedController } from "./rest/prometheus-guarded.controller";
-import { BasicStrategy } from "./rest/strategy/prometheus-basic-auth.strategy";
 import { ForumMapper } from "./rest/forum/forum.mapper";
 import { AuthController } from "./rest/auth/auth.controller";
 import { AuthService } from "./rest/auth/auth.service";
@@ -83,7 +71,6 @@ import { PartyInvalidatedHandler } from "./socket/event-handler/party-invalidate
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import configuration from "./config/configuration";
 import { outerQueryNew } from "./utils/outerQueryNew";
-import { ReqLoggingInterceptor } from "./middleware/req-logging.interceptor";
 import { LobbyController } from "./rest/lobby/lobby.controller";
 import { LobbyMapper } from "./rest/lobby/lobby.mapper";
 import { LobbyService } from "./rest/lobby/lobby.service";
@@ -103,7 +90,6 @@ import { AdminFeedbackController } from "./rest/feedback/admin-feedback.controll
 import * as TelegramBot from "node-telegram-bot-api";
 import { TelegramNotificationService } from "./rest/notification/telegram-notification.service";
 import { TicketMessageHandler } from "./rest/notification/event-handler/ticket-message-handler.service";
-import { MetricsService } from "./metrics.service";
 import { StorageController } from "./rest/storage/storage.controller";
 import { BlogpostController } from "./rest/blogpost/blogpost.controller";
 import { BlogpostMapper } from "./rest/blogpost/blogpost.mapper";
@@ -135,9 +121,7 @@ import { UserPaymentsController } from "./rest/payments/user-payments.controller
 import { PaymentService } from "./rest/payments/payment.service";
 import { PlayerFeedbackCreatedHandler } from "./rest/notification/event-handler/player-feedback-created.handler";
 import { UserRelationService } from "./service/user-relation.service";
-import { RuleMapper } from "./rest/rule/rule.mapper";
-import { RuleController } from "./rest/rule/rule.controller";
-import { RuleService } from "./rest/rule/rule.service";
+import { RuleModule } from "./rest/rule/rule.module";
 import { ReportController } from "./rest/report/report.controller";
 import { ReportService } from "./rest/report/report.service";
 import { ReportMapper } from "./rest/report/report.mapper";
@@ -170,9 +154,12 @@ import { GsApiGeneratedModule } from "@dota2classic/gs-api-generated/dist/module
 import { LoggerModule } from "nestjs-pino";
 import { PlayerAbandonedSocketHandler } from "./socket/event-handler/player-abandoned.handler";
 import { MatchArtifactUploadedHandler } from "./rest/storage/event-handler/match-artifact-uploaded.handler";
+import { MetricsModule } from "./metrics/metrics.module";
 
 @Module({
   imports: [
+    MetricsModule,
+    RuleModule,
     ConfigModule.forRoot({
       isGlobal: true,
       load: [configuration],
@@ -202,10 +189,6 @@ import { MatchArtifactUploadedHandler } from "./rest/storage/event-handler/match
           baseUrl: config.get("api.gameserverApiUrl"),
         };
       },
-    }),
-    PrometheusModule.register({
-      path: "/metrics",
-      controller: PrometheusGuardedController,
     }),
     UMP.registerAsync({
       imports: [],
@@ -403,11 +386,9 @@ import { MatchArtifactUploadedHandler } from "./rest/storage/event-handler/match
 
     PaymentHooksController,
     UserPaymentsController,
-    RuleController,
     ReportController,
   ],
   providers: [
-    ReqLoggingInterceptor,
     UserHttpCacheInterceptor,
     MainService,
     PermaBanGuard,
@@ -487,7 +468,6 @@ import { MatchArtifactUploadedHandler } from "./rest/storage/event-handler/match
     SteamStrategy,
     JwtStrategy,
     DiscordStrategy,
-    BasicStrategy,
     TwitchStrategy,
     LiveMatchService,
     TwitchService,
@@ -500,7 +480,6 @@ import { MatchArtifactUploadedHandler } from "./rest/storage/event-handler/match
     StorageService,
     StatsService,
     UserRelationService,
-    RuleService,
 
     MatchMapper,
     PlayerMapper,
@@ -514,7 +493,6 @@ import { MatchArtifactUploadedHandler } from "./rest/storage/event-handler/match
     RecordMapper,
     StatsMapper,
     CustomizationMapper,
-    RuleMapper,
     ReportMapper,
     ItemDropMapper,
 
@@ -582,22 +560,6 @@ import { MatchArtifactUploadedHandler } from "./rest/storage/event-handler/match
       inject: [ConfigService],
     },
 
-    // grafana
-    makeHistogramProvider({
-      name: "http_requests_duration_seconds",
-      help: "Duration of HTTP requests in seconds",
-      labelNames: ["method", "route", "request_type", "status_code"],
-      buckets: [0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1, 2, 5], // you can adjust buckets
-    }),
-    MetricsService,
   ],
 })
-export class AppModule implements NestModule {
-  configure(consumer: MiddlewareConsumer) {
-    //forRoutes('yourRootapi')
-    consumer.apply(CustomMetricsMiddleware).forRoutes({
-      path: "*",
-      method: RequestMethod.ALL,
-    });
-  }
-}
+export class AppModule {}

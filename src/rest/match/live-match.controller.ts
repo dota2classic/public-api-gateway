@@ -15,7 +15,7 @@ import {
 } from "./dto/match.dto";
 import { Observable } from "rxjs";
 import { map } from "rxjs/operators";
-import { ReqLoggingInterceptor } from "../../middleware/req-logging.interceptor";
+import { ReqLoggingInterceptor } from "../../metrics/req-logging.interceptor";
 import { getLobbyTypePriority } from "../../utils/getLobbyTypePriority";
 
 function wrapSse<A>() {

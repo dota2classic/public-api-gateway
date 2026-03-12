@@ -1,6 +1,6 @@
 import { EventsHandler, IEventHandler } from "@nestjs/cqrs";
 import { GameResultsEvent } from "../gateway/events/gs/game-results.event";
-import { MetricsService } from "../metrics.service";
+import { MetricsService } from "../metrics/metrics.service";
 import * as ss from "simple-statistics";
 import { PrometheusDriver } from "prometheus-query";
 import { Gauge } from "prom-client";

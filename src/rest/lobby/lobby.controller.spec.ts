@@ -37,7 +37,7 @@ import {
   makeHistogramProvider,
   PrometheusModule,
 } from "@willsoto/nestjs-prometheus";
-import { ReqLoggingInterceptor } from "../../middleware/req-logging.interceptor";
+import { ReqLoggingInterceptor } from "../../metrics/req-logging.interceptor";
 import { CallHandler, ExecutionContext, NestInterceptor } from "@nestjs/common";
 import { Observable } from "rxjs";
 import { RoleLifetimeDto } from "../shared.dto";

@@ -26,7 +26,7 @@ import {
   UpdateLobbyDto,
 } from "./lobby.dto";
 import { ApiParam, ApiTags } from "@nestjs/swagger";
-import { ReqLoggingInterceptor } from "../../middleware/req-logging.interceptor";
+import { ReqLoggingInterceptor } from "../../metrics/req-logging.interceptor";
 import { filter, Observable } from "rxjs";
 import { asyncMap } from "rxjs-async-map";
 import { EventBus } from "@nestjs/cqrs";

@@ -10,7 +10,7 @@ import {
   UseGuards,
   UseInterceptors,
 } from "@nestjs/common";
-import { ReqLoggingInterceptor } from "../../middleware/req-logging.interceptor";
+import { ReqLoggingInterceptor } from "../../metrics/req-logging.interceptor";
 import { ApiQuery, ApiTags } from "@nestjs/swagger";
 import { CustomThrottlerGuard } from "../strategy/custom-throttler.guard";
 import { ModeratorGuard, WithUser } from "../../utils/decorator/with-user";

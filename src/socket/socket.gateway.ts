@@ -29,7 +29,7 @@ import { InviteToPartyMessageC2S } from "./messages/c2s/invite-to-party-message.
 import { PlayerEnterQueueRequestedEvent } from "../gateway/events/mm/player-enter-queue-requested.event";
 import { PlayerLeaveQueueRequestedEvent } from "../gateway/events/mm/player-leave-queue-requested.event";
 import { Cron, CronExpression } from "@nestjs/schedule";
-import { MetricsService } from "../metrics.service";
+import { MetricsService } from "../metrics/metrics.service";
 import { UserRelationService } from "../service/user-relation.service";
 import { UserRelationStatus } from "../gateway/shared-types/user-relation";
 import Redis from "ioredis";

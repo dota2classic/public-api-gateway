@@ -12,7 +12,7 @@ import {
   TwitchStreamDto,
 } from "./stats.dto";
 import { CacheTTL } from "@nestjs/cache-manager";
-import { ReqLoggingInterceptor } from "../../middleware/req-logging.interceptor";
+import { ReqLoggingInterceptor } from "../../metrics/req-logging.interceptor";
 import { MatchmakingModes } from "../../gateway/shared-types/matchmaking-mode";
 import { GlobalHttpCacheInterceptor } from "../../utils/cache-global";
 import { TwitchService } from "../twitch.service";

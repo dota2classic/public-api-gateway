@@ -9,7 +9,7 @@ import {
   Post,
   UseInterceptors,
 } from "@nestjs/common";
-import { ReqLoggingInterceptor } from "../../middleware/req-logging.interceptor";
+import { ReqLoggingInterceptor } from "../../metrics/req-logging.interceptor";
 import { ApiTags } from "@nestjs/swagger";
 import {
   CreateRuleDto,

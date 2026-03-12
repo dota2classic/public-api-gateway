@@ -42,7 +42,7 @@ import { AchievementDto } from "./dto/achievement.dto";
 import { WithPagination } from "../../utils/decorator/pagination";
 import { NullableIntPipe, PagePipe, PerPagePipe } from "../../utils/pipes";
 import { PartyService } from "../party.service";
-import { ReqLoggingInterceptor } from "../../middleware/req-logging.interceptor";
+import { ReqLoggingInterceptor } from "../../metrics/req-logging.interceptor";
 import { UserProfileService } from "../../service/user-profile.service";
 import { UserRelationService } from "../../service/user-relation.service";
 import { UserRelationStatus } from "../../gateway/shared-types/user-relation";

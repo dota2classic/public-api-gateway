@@ -7,7 +7,7 @@ import {
   Query,
   UseInterceptors,
 } from "@nestjs/common";
-import { ReqLoggingInterceptor } from "../../middleware/req-logging.interceptor";
+import { ReqLoggingInterceptor } from "../../metrics/req-logging.interceptor";
 import { ApiBody, ApiConsumes, ApiQuery, ApiTags } from "@nestjs/swagger";
 import { AdminGuard, WithUser } from "../../utils/decorator/with-user";
 import {

@@ -56,7 +56,7 @@ import { MessageUpdatedEvent } from "../../gateway/events/message-updated.event"
 import { ForumMapper } from "./forum.mapper";
 import { WithPagination } from "../../utils/decorator/pagination";
 import { PlayerId } from "../../gateway/shared-types/player-id";
-import { ReqLoggingInterceptor } from "../../middleware/req-logging.interceptor";
+import { ReqLoggingInterceptor } from "../../metrics/req-logging.interceptor";
 import { LiveMatchService } from "../../cache/live-match.service";
 import { WithOptionalUser } from "../../utils/decorator/with-optional-user";
 import { BlogpostEntity } from "../../entity/blogpost.entity";
