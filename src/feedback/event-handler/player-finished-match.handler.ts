@@ -1,6 +1,6 @@
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs";
 import { Logger } from "@nestjs/common";
-import { FeedbackService } from "../../feedback/feedback.service";
+import { FeedbackService } from "../feedback.service";
 import { PlayerFinishedMatchCommand } from "./player-finished-match.command";
 
 @CommandHandler(PlayerFinishedMatchCommand)

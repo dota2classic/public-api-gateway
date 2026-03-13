@@ -24,7 +24,7 @@ import { TicketMessageCommand } from "./notification/event-handler/ticket-messag
 import { PlayerSmurfDetectedCommand } from "./notification/event-handler/player-smurf-detected.command";
 import { TradeOfferExpiredCommand } from "./notification/event-handler/trade-offer-expired.command";
 import { ItemDroppedCommand } from "./itemdrop/item-dropped.command";
-import { PlayerFinishedMatchCommand } from "./notification/event-handler/player-finished-match.command";
+import { PlayerFinishedMatchCommand } from "./feedback/event-handler/player-finished-match.command";
 import { MatchArtifactUploadedCommand } from "./storage/event-handler/match-artifact-uploaded.command";
 
 @Controller()

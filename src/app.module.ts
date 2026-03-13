@@ -46,18 +46,11 @@ import { outerQueryNew } from "./utils/outerQueryNew";
 import { LobbyController } from "./lobby/lobby.controller";
 import { LeaveLobbySocketDisconnectHandler } from "./lobby/event-handler/leave-lobby-socket-disconnect.handler";
 import { S3Module, S3ModuleOptions } from "nestjs-s3";
-import { FeedbackService } from "./feedback/feedback.service";
-import { FeedbackController } from "./feedback/feedback.controller";
-import { FeedbackMapper } from "./feedback/feedback.mapper";
-import { PlayerNotLoadedHandler } from "./feedback/event-handler/player-not-loaded.handler";
-import { PlayerAbandonedHandler } from "./feedback/event-handler/player-abandoned.handler";
-import { PlayerFinishedMatchHandler } from "./notification/event-handler/player-finished-match.handler";
-import { AdminFeedbackController } from "./feedback/admin-feedback.controller";
+import { FeedbackModule } from "./feedback/feedback.module";
 import { StorageController } from "./storage/storage.controller";
 import { BlogpostModule } from "./blogpost/blogpost.module";
 import { StorageService } from "./storage/storage.service";
 import { RecordModule } from "./record/record.module";
-import { AiService } from "./service/ai.service";
 import { ApiModule } from "./api/api.module";
 import { getTypeormConfig } from "./config/typeorm.config";
 import { TwitchController } from "./twitch.controller";
@@ -105,6 +98,7 @@ import { ItemDropModule } from "./itemdrop/itemdrop.module";
     NotificationModule,
     PaymentsModule,
     ItemDropModule,
+    FeedbackModule,
     ConfigModule.forRoot({
       isGlobal: true,
       load: [configuration],
@@ -220,8 +214,6 @@ import { ItemDropModule } from "./itemdrop/itemdrop.module";
     DiscordController,
     ForumController,
     AuthController,
-    FeedbackController,
-    AdminFeedbackController,
 
     StorageController,
     CustomizationController,
@@ -268,7 +260,6 @@ import { ItemDropModule } from "./itemdrop/itemdrop.module";
     TwitchService,
     ReportService,
 
-    FeedbackService,
     AuthService,
     StorageService,
     StatsService,
@@ -276,7 +267,6 @@ import { ItemDropModule } from "./itemdrop/itemdrop.module";
     MetaMapper,
     AdminMapper,
     ForumMapper,
-    FeedbackMapper,
     LobbyMapper,
     StatsMapper,
     ReportMapper,
@@ -291,12 +281,6 @@ import { ItemDropModule } from "./itemdrop/itemdrop.module";
     LeaveLobbySocketDisconnectHandler,
     LobbyUpdatedHandler,
 
-    // Feedback handlers
-    PlayerNotLoadedHandler,
-    PlayerAbandonedHandler,
-    PlayerFinishedMatchHandler,
-
-    AiService,
     MessageCreatedHandler,
 
     MatchArtifactUploadedHandler,
