@@ -8,11 +8,12 @@ import { UserProfileDecorationPreferencesEntity } from "../entity/user-profile-d
 import { StorageMapper } from "../storage/storage.mapper";
 import { CustomizationMapper } from "../customization/customization.mapper";
 import { UserProfileService } from "./user-profile.service";
+import { PlayerFlagsEntity } from "../entity/player-flags.entity";
 
 @Global()
 @Module({
   imports: [
-    TypeOrmModule.forFeature([UserProfileDecorationPreferencesEntity]),
+    TypeOrmModule.forFeature([UserProfileDecorationPreferencesEntity, PlayerFlagsEntity]),
     UserProfileModule.registerAsync({
       useFactory(config: ConfigService) {
         return {
