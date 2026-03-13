@@ -1,9 +1,10 @@
-import { Injectable, Logger } from "@nestjs/common";
+import { Logger } from "@nestjs/common";
 import { InjectS3, S3 } from "nestjs-s3";
-import { MatchArtifactUploadedEvent } from "../../gateway/events/match-artifact-uploaded.event";
 import { MatchArtifactType } from "../../gateway/shared-types/match-artifact-type";
 import { parseLogFile } from "../../utils/parseLogFile";
 import { AiService } from "../../service/ai.service";
+import { CommandHandler, ICommandHandler } from "@nestjs/cqrs";
+import { MatchArtifactUploadedCommand } from "./match-artifact-uploaded.command";
 
 export interface PlayerChatModerationResult {
   steamId: string;
@@ -11,8 +12,10 @@ export interface PlayerChatModerationResult {
   reasoning: string;
 }
 
-@Injectable()
-export class MatchArtifactUploadedHandler {
+@CommandHandler(MatchArtifactUploadedCommand)
+export class MatchArtifactUploadedHandler
+  implements ICommandHandler<MatchArtifactUploadedCommand>
+{
   private readonly logger = new Logger(MatchArtifactUploadedHandler.name);
 
   constructor(
@@ -20,9 +23,7 @@ export class MatchArtifactUploadedHandler {
     private readonly feedbackAssistant: AiService,
   ) {}
 
-  async handle(
-    event: MatchArtifactUploadedEvent,
-  ): Promise<PlayerChatModerationResult[]> {
+  async execute({ event }: MatchArtifactUploadedCommand): Promise<PlayerChatModerationResult[]> {
     if (event.artifactType !== MatchArtifactType.LOG) return [];
 
     const object = await this.s3.getObject({
@@ -46,7 +47,7 @@ export class MatchArtifactUploadedHandler {
 
     results.filter(t => t.messageTemperature >= 6).forEach(t => {
       this.logger.warn(`Match ${event.matchId}: player ${t.steamId} has high toxicity: ${t.messageTemperature} (${t.reasoning})`);
-    })
+    });
 
     return results;
   }

@@ -1,5 +1,4 @@
-import { EventsHandler, IEventHandler } from "@nestjs/cqrs";
-import { FeedbackCreatedEvent } from "../../feedback/event/feedback-created.event";
+import { CommandHandler, ICommandHandler } from "@nestjs/cqrs";
 import { NotificationService } from "../notification.service";
 import {
   NotificationEntity,
@@ -8,10 +7,11 @@ import {
 } from "../../entity/notification.entity";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
+import { FeedbackCreatedCommand } from "./feedback-created.command";
 
-@EventsHandler(FeedbackCreatedEvent)
+@CommandHandler(FeedbackCreatedCommand)
 export class FeedbackCreatedHandler
-  implements IEventHandler<FeedbackCreatedEvent>
+  implements ICommandHandler<FeedbackCreatedCommand>
 {
   constructor(
     private readonly notificationService: NotificationService,
@@ -19,7 +19,7 @@ export class FeedbackCreatedHandler
     private readonly notificationEntityRepository: Repository<NotificationEntity>,
   ) {}
 
-  async handle(event: FeedbackCreatedEvent) {
+  async execute({ event }: FeedbackCreatedCommand) {
     await this.notificationService.createNotification(
       event.steamId,
       event.playerFeedbackId.toString(),

@@ -1,28 +1,14 @@
-import { Controller, Logger } from "@nestjs/common";
+import { Controller } from "@nestjs/common";
 import { CommandBus, Constructor, EventBus } from "@nestjs/cqrs";
-import { ConfigService } from "@nestjs/config";
-import { PlayerFeedbackCreatedEvent } from "./gateway/events/player-feedback-created.event";
 import { RabbitSubscribe } from "@golevelup/nestjs-rabbitmq";
+import { PlayerFeedbackCreatedEvent } from "./gateway/events/player-feedback-created.event";
 import { MessageUpdatedEvent } from "./gateway/events/message-updated.event";
-import { TicketMessageHandler } from "./notification/event-handler/ticket-message-handler.service";
 import { PlayerNotLoadedEvent } from "./gateway/events/bans/player-not-loaded.event";
-import { PlayerNotLoadedHandler } from "./feedback/event-handler/player-not-loaded.handler";
-import { PlayerFeedbackCreatedHandler } from "./notification/event-handler/player-feedback-created.handler";
 import { FeedbackCreatedEvent } from "./feedback/event/feedback-created.event";
-import { FeedbackCreatedHandler } from "./notification/event-handler/feedback-created.handler";
 import { PlayerSmurfDetectedEvent } from "./gateway/events/bans/player-smurf-detected.event";
-import { PlayerSmurfDetectedHandler } from "./notification/event-handler/player-smurf-detected.handler";
-import { NotificationService } from "./notification/notification.service";
 import { TradeOfferExpiredEvent } from "./gateway/events/trade-offer-expired.event";
-import {
-  NotificationEntityType,
-  NotificationType,
-} from "./entity/notification.entity";
 import { ItemDroppedEvent } from "./gateway/events/item-dropped.event";
-import { ItemDropService } from "./service/item-drop.service";
 import { PlayerFinishedMatchEvent } from "./gateway/events/gs/player-finished-match.event";
-import { PlayerFinishedMatchHandler } from "./notification/event-handler/player-finished-match.handler";
-import { MessageCreatedEvent } from "./cache/message-created.event";
 import { MatchHighlightsEvent } from "./gateway/events/match-highlights.event";
 import { AchievementCompleteEvent } from "./gateway/events/gs/achievement-complete.event";
 import { PleaseGoQueueEvent } from "./notification/event/please-go-queue.event";
@@ -31,25 +17,21 @@ import { TournamentReadyCheckStartedEvent } from "./gateway/events/tournament/to
 import { TournamentRegistrationInvitationCreatedEvent } from "./gateway/events/tournament/tournament-registration-invitation-created.event";
 import { TournamentRegistrationInvitationResolvedEvent } from "./gateway/events/tournament/tournament-registration-invitation-resolved.event";
 import { MatchArtifactUploadedEvent } from "./gateway/events/match-artifact-uploaded.event";
-import { MatchArtifactUploadedHandler } from "./storage/event-handler/match-artifact-uploaded.handler";
+import { FeedbackCreatedCommand } from "./notification/event-handler/feedback-created.command";
+import { PlayerFeedbackCreatedCommand } from "./notification/event-handler/player-feedback-created.command";
+import { PlayerNotLoadedCommand } from "./feedback/event-handler/player-not-loaded.command";
+import { TicketMessageCommand } from "./notification/event-handler/ticket-message.command";
+import { PlayerSmurfDetectedCommand } from "./notification/event-handler/player-smurf-detected.command";
+import { TradeOfferExpiredCommand } from "./notification/event-handler/trade-offer-expired.command";
+import { ItemDroppedCommand } from "./itemdrop/item-dropped.command";
+import { PlayerFinishedMatchCommand } from "./notification/event-handler/player-finished-match.command";
+import { MatchArtifactUploadedCommand } from "./storage/event-handler/match-artifact-uploaded.command";
 
 @Controller()
 export class RmqController {
-  private readonly logger = new Logger(RmqController.name);
-
   constructor(
     private readonly cbus: CommandBus,
-    private readonly ticketMessageHandler: TicketMessageHandler,
-    private readonly playerNotLoadedHandler: PlayerNotLoadedHandler,
-    private readonly playerFeedbackCreatedHandler: PlayerFeedbackCreatedHandler,
-    private readonly feedbackCreatedHandler: FeedbackCreatedHandler,
-    private readonly playerFinishedMatchHandler: PlayerFinishedMatchHandler,
-    private readonly smurfDetectedHandler: PlayerSmurfDetectedHandler,
-    private readonly notification: NotificationService,
-    private readonly itemDropService: ItemDropService,
-    private readonly config: ConfigService,
     private readonly ebus: EventBus,
-    private readonly matchArtifactUploadedHandler: MatchArtifactUploadedHandler,
   ) {}
 
   @RabbitSubscribe({
@@ -57,9 +39,7 @@ export class RmqController {
     routingKey: TournamentReadyCheckStartedEvent.name,
     queue: `api-queue.${TournamentReadyCheckStartedEvent.name}`,
   })
-  async TournamentReadyCheckStartedEvent(
-    data: TournamentReadyCheckStartedEvent,
-  ) {
+  async TournamentReadyCheckStartedEvent(data: TournamentReadyCheckStartedEvent) {
     this.event(TournamentReadyCheckStartedEvent, data);
   }
 
@@ -69,7 +49,7 @@ export class RmqController {
     queue: `api-queue.${PlayerFinishedMatchEvent.name}`,
   })
   async PlayerFinishedMatchEvent(data: PlayerFinishedMatchEvent) {
-    await this.playerFinishedMatchHandler.handle(data);
+    await this.cbus.execute(new PlayerFinishedMatchCommand(data));
   }
 
   @RabbitSubscribe({
@@ -78,7 +58,7 @@ export class RmqController {
     queue: `api-queue.${FeedbackCreatedEvent.name}`,
   })
   async FeedbackCreatedEvent(data: FeedbackCreatedEvent) {
-    await this.feedbackCreatedHandler.handle(data);
+    await this.cbus.execute(new FeedbackCreatedCommand(data));
   }
 
   @RabbitSubscribe({
@@ -87,7 +67,7 @@ export class RmqController {
     queue: `api-queue.${PlayerFeedbackCreatedEvent.name}`,
   })
   async PlayerFeedbackCreatedEvent(data: PlayerFeedbackCreatedEvent) {
-    await this.playerFeedbackCreatedHandler.handle(data);
+    await this.cbus.execute(new PlayerFeedbackCreatedCommand(data));
   }
 
   @RabbitSubscribe({
@@ -95,8 +75,8 @@ export class RmqController {
     routingKey: PlayerNotLoadedEvent.name,
     queue: `api-queue.${PlayerNotLoadedEvent.name}`,
   })
-  private async createFeedbackForNotLoading(msg: PlayerNotLoadedEvent) {
-    await this.playerNotLoadedHandler.handle(msg);
+  async PlayerNotLoadedEvent(data: PlayerNotLoadedEvent) {
+    await this.cbus.execute(new PlayerNotLoadedCommand(data));
   }
 
   @RabbitSubscribe({
@@ -104,11 +84,8 @@ export class RmqController {
     routingKey: MessageUpdatedEvent.name,
     queue: `api-queue.${MessageUpdatedEvent.name}`,
   })
-  private async createTicketMessageNotification(msg: MessageUpdatedEvent) {
-    await this.ticketMessageHandler.handle(msg);
-    if (msg.createdAt === msg.updatedAt) {
-      this.ebus.publish(new MessageCreatedEvent(msg));
-    }
+  async MessageUpdatedEvent(data: MessageUpdatedEvent) {
+    await this.cbus.execute(new TicketMessageCommand(data));
   }
 
   @RabbitSubscribe({
@@ -116,8 +93,8 @@ export class RmqController {
     routingKey: PlayerSmurfDetectedEvent.name,
     queue: `api-queue.${PlayerSmurfDetectedEvent.name}`,
   })
-  private async handleSmurfDetection(msg: PlayerSmurfDetectedEvent) {
-    await this.smurfDetectedHandler.handle(msg);
+  async PlayerSmurfDetectedEvent(data: PlayerSmurfDetectedEvent) {
+    await this.cbus.execute(new PlayerSmurfDetectedCommand(data));
   }
 
   @RabbitSubscribe({
@@ -125,13 +102,8 @@ export class RmqController {
     routingKey: TradeOfferExpiredEvent.name,
     queue: `api-queue.${TradeOfferExpiredEvent.name}`,
   })
-  private async handleTradeOfferExpired(msg: TradeOfferExpiredEvent) {
-    await this.notification.createNotification(
-      msg.steamId,
-      msg.steamId,
-      NotificationEntityType.PLAYER,
-      NotificationType.TRADE_OFFER_EXPIRED,
-    );
+  async TradeOfferExpiredEvent(data: TradeOfferExpiredEvent) {
+    await this.cbus.execute(new TradeOfferExpiredCommand(data));
   }
 
   @RabbitSubscribe({
@@ -139,8 +111,8 @@ export class RmqController {
     routingKey: ItemDroppedEvent.name,
     queue: `api-queue.${ItemDroppedEvent.name}`,
   })
-  private async handleItemDroppedEvent(msg: ItemDroppedEvent) {
-    await this.itemDropService.onItemDrop(msg);
+  async ItemDroppedEvent(data: ItemDroppedEvent) {
+    await this.cbus.execute(new ItemDroppedCommand(data));
   }
 
   @RabbitSubscribe({
@@ -148,8 +120,8 @@ export class RmqController {
     routingKey: MatchHighlightsEvent.name,
     queue: `api-queue.${MatchHighlightsEvent.name}`,
   })
-  private async handleMatchHighlightsReceived(msg: MatchHighlightsEvent) {
-    this.event(MatchHighlightsEvent, msg);
+  async MatchHighlightsEvent(data: MatchHighlightsEvent) {
+    this.event(MatchHighlightsEvent, data);
   }
 
   @RabbitSubscribe({
@@ -157,8 +129,8 @@ export class RmqController {
     routingKey: AchievementCompleteEvent.name,
     queue: `api-queue.${AchievementCompleteEvent.name}`,
   })
-  private async handleAchievementComplete(msg: AchievementCompleteEvent) {
-    this.event(AchievementCompleteEvent, msg);
+  async AchievementCompleteEvent(data: AchievementCompleteEvent) {
+    this.event(AchievementCompleteEvent, data);
   }
 
   @RabbitSubscribe({
@@ -166,8 +138,8 @@ export class RmqController {
     routingKey: PleaseGoQueueEvent.name,
     queue: `api-queue.${PleaseGoQueueEvent.name}`,
   })
-  private async handlePleaseGoQueueEvent(msg: PleaseGoQueueEvent) {
-    this.event(PleaseGoQueueEvent, msg);
+  async PleaseGoQueueEvent(data: PleaseGoQueueEvent) {
+    this.event(PleaseGoQueueEvent, data);
   }
 
   @RabbitSubscribe({
@@ -175,8 +147,8 @@ export class RmqController {
     routingKey: GameResultsEvent.name,
     queue: `api-queue.${GameResultsEvent.name}`,
   })
-  private async handleGameServerPerformance(msg: GameResultsEvent) {
-    this.event(GameResultsEvent, msg);
+  async GameResultsEvent(data: GameResultsEvent) {
+    this.event(GameResultsEvent, data);
   }
 
   @RabbitSubscribe({
@@ -184,10 +156,10 @@ export class RmqController {
     routingKey: TournamentRegistrationInvitationCreatedEvent.name,
     queue: `api-queue.${TournamentRegistrationInvitationCreatedEvent.name}`,
   })
-  private async handleTournamentRegistrationInvitationCreated(
-    msg: TournamentRegistrationInvitationCreatedEvent,
+  async TournamentRegistrationInvitationCreatedEvent(
+    data: TournamentRegistrationInvitationCreatedEvent,
   ) {
-    this.event(TournamentRegistrationInvitationCreatedEvent, msg);
+    this.event(TournamentRegistrationInvitationCreatedEvent, data);
   }
 
   @RabbitSubscribe({
@@ -195,10 +167,10 @@ export class RmqController {
     routingKey: TournamentRegistrationInvitationResolvedEvent.name,
     queue: `api-queue.${TournamentRegistrationInvitationResolvedEvent.name}`,
   })
-  private async handleTournamentRegistrationInvitationResolved(
-    msg: TournamentRegistrationInvitationResolvedEvent,
+  async TournamentRegistrationInvitationResolvedEvent(
+    data: TournamentRegistrationInvitationResolvedEvent,
   ) {
-    this.event(TournamentRegistrationInvitationResolvedEvent, msg);
+    this.event(TournamentRegistrationInvitationResolvedEvent, data);
   }
 
   @RabbitSubscribe({
@@ -206,8 +178,8 @@ export class RmqController {
     routingKey: MatchArtifactUploadedEvent.name,
     queue: `api-queue.${MatchArtifactUploadedEvent.name}`,
   })
-  private async handleMatchArtifactUploaded(msg: MatchArtifactUploadedEvent) {
-    await this.matchArtifactUploadedHandler.handle(msg);
+  async MatchArtifactUploadedEvent(data: MatchArtifactUploadedEvent) {
+    await this.cbus.execute(new MatchArtifactUploadedCommand(data));
   }
 
   private event<T>(constructor: Constructor<T>, data: any) {

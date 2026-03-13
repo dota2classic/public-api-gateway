@@ -10,7 +10,7 @@ import {
   TradeBotItemQuality,
   TradeBotItemRarity,
 } from "../generated-api/tradebot";
-import { MarketItemDto } from "../itemdrop/item-drop.dto";
+import { MarketItemDto } from "./item-drop.dto";
 
 @Injectable()
 export class ItemDropService {

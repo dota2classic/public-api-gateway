@@ -1,4 +1,4 @@
-import { IEventHandler } from "@nestjs/cqrs";
+import { CommandHandler, EventBus, ICommandHandler } from "@nestjs/cqrs";
 import { MessageUpdatedEvent } from "../../gateway/events/message-updated.event";
 import {
   NotificationEntityType,
@@ -8,15 +8,17 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { PlayerFeedbackEntity } from "../../entity/player-feedback.entity";
 import { ThreadType } from "../../gateway/shared-types/thread-type";
-import { Injectable, Logger } from "@nestjs/common";
+import { Logger } from "@nestjs/common";
 import { NotificationService } from "../../notification/notification.service";
 import { TelegramNotificationService } from "../telegram-notification.service";
 import { UserProfileService } from "../../service/user-profile.service";
 import { UserReportEntity } from "../../entity/user-report.entity";
+import { TicketMessageCommand } from "./ticket-message.command";
+import { MessageCreatedEvent } from "../../cache/message-created.event";
 
-@Injectable()
+@CommandHandler(TicketMessageCommand)
 export class TicketMessageHandler
-  implements IEventHandler<MessageUpdatedEvent>
+  implements ICommandHandler<TicketMessageCommand>
 {
   private logger = new Logger(TicketMessageHandler.name);
   constructor(
@@ -27,9 +29,14 @@ export class TicketMessageHandler
     private readonly urep: UserProfileService,
     @InjectRepository(UserReportEntity)
     private readonly userReportEntityRepository: Repository<UserReportEntity>,
+    private readonly ebus: EventBus,
   ) {}
 
-  async handle(event: MessageUpdatedEvent) {
+  async execute({ event }: TicketMessageCommand) {
+    if (event.createdAt === event.updatedAt) {
+      this.ebus.publish(new MessageCreatedEvent(event));
+    }
+
     if (event.createdAt !== event.updatedAt) return;
 
     const [threadType, threadId] = event.threadId.split("_");
@@ -52,7 +59,6 @@ export class TicketMessageHandler
     });
 
     if (!playerReport) {
-      // No feedback?
       this.logger.warn("Received report message but no report entity", {
         messageId: event.id,
         threadId: event.threadId,
@@ -65,7 +71,6 @@ export class TicketMessageHandler
         event,
         `https://dotaclassic.ru/forum/report/${event.threadId.replace("report_", "")}`,
       );
-      // From player
       return;
     }
 
@@ -98,7 +103,6 @@ export class TicketMessageHandler
     });
 
     if (!pFeedback) {
-      // No feedback?
       this.logger.warn("Received ticket message but no feedback", {
         messageId: event.id,
         threadId: event.threadId,
@@ -111,7 +115,6 @@ export class TicketMessageHandler
         event,
         `https://dotaclassic.ru/forum/ticket/${event.threadId.replace(/\D/g, "")}`,
       );
-      // From player
       return;
     }
 

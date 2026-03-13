@@ -1,24 +1,21 @@
-import { EventBus, IEventHandler } from "@nestjs/cqrs";
-import { PlayerNotLoadedEvent } from "../../gateway/events/bans/player-not-loaded.event";
+import { CommandHandler, ICommandHandler } from "@nestjs/cqrs";
 import { FeedbackService } from "../../feedback/feedback.service";
 import { Injectable, Logger } from "@nestjs/common";
+import { PlayerNotLoadedCommand } from "./player-not-loaded.command";
 
 @Injectable()
+@CommandHandler(PlayerNotLoadedCommand)
 export class PlayerNotLoadedHandler
-  implements IEventHandler<PlayerNotLoadedEvent>
+  implements ICommandHandler<PlayerNotLoadedCommand>
 {
   private logger = new Logger(PlayerNotLoadedHandler.name);
-  constructor(
-    private readonly ebus: EventBus,
-    private readonly feedbackService: FeedbackService,
-  ) {}
+  constructor(private readonly feedbackService: FeedbackService) {}
 
-  async handle(event: PlayerNotLoadedEvent) {
+  async execute({ event }: PlayerNotLoadedCommand) {
     this.logger.log("PlayerNotLoaded event, creating feedback");
     await this.feedbackService.createFeedbackForPlayer(
       "PlayerNotLoadedEvent",
       event.playerId.value,
     );
-    // Also invalidate party
   }
 }

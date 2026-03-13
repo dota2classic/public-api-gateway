@@ -1,5 +1,4 @@
-import { EventsHandler, IEventHandler } from "@nestjs/cqrs";
-import { PlayerSmurfDetectedEvent } from "../../gateway/events/bans/player-smurf-detected.event";
+import { CommandHandler, ICommandHandler } from "@nestjs/cqrs";
 import { TelegramNotificationService } from "../telegram-notification.service";
 import { BanReason } from "../../gateway/shared-types/ban";
 import { fullDate } from "../../utils/format-date";
@@ -8,10 +7,11 @@ import { PlayerFlagsEntity } from "../../entity/player-flags.entity";
 import { Repository } from "typeorm";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Logger } from "@nestjs/common";
+import { PlayerSmurfDetectedCommand } from "./player-smurf-detected.command";
 
-@EventsHandler(PlayerSmurfDetectedEvent)
+@CommandHandler(PlayerSmurfDetectedCommand)
 export class PlayerSmurfDetectedHandler
-  implements IEventHandler<PlayerSmurfDetectedEvent>
+  implements ICommandHandler<PlayerSmurfDetectedCommand>
 {
   private logger = new Logger(PlayerSmurfDetectedHandler.name);
 
@@ -22,7 +22,7 @@ export class PlayerSmurfDetectedHandler
     private readonly playerFlagsEntityRepository: Repository<PlayerFlagsEntity>,
   ) {}
 
-  async handle(event: PlayerSmurfDetectedEvent) {
+  async execute({ event }: PlayerSmurfDetectedCommand) {
     if (!(await this.shouldHandle(event.steamId))) {
       this.logger.log(
         `Skipping smurf detection for steam id ${event.steamId} cause flag`,

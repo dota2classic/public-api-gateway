@@ -9,11 +9,14 @@ import { StorageMapper } from "../storage/storage.mapper";
 import { CustomizationMapper } from "../customization/customization.mapper";
 import { UserProfileService } from "./user-profile.service";
 import { PlayerFlagsEntity } from "../entity/player-flags.entity";
+import { PlayerBanService } from "./player-ban.service";
+import { UserRelationService } from "./user-relation.service";
+import { UserRelationEntity } from "../entity/user-relation.entity";
 
 @Global()
 @Module({
   imports: [
-    TypeOrmModule.forFeature([UserProfileDecorationPreferencesEntity, PlayerFlagsEntity]),
+    TypeOrmModule.forFeature([UserProfileDecorationPreferencesEntity, PlayerFlagsEntity, UserRelationEntity]),
     UserProfileModule.registerAsync({
       useFactory(config: ConfigService) {
         return {
@@ -44,7 +47,9 @@ import { PlayerFlagsEntity } from "../entity/player-flags.entity";
     StorageMapper,
     CustomizationMapper,
     UserProfileService,
+    PlayerBanService,
+    UserRelationService,
   ],
-  exports: [UserProfileModule, StorageMapper, CustomizationMapper, UserProfileService],
+  exports: [UserProfileModule, StorageMapper, CustomizationMapper, UserProfileService, PlayerBanService, UserRelationService],
 })
 export class UserServicesModule {}

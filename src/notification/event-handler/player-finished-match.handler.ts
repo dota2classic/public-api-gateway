@@ -1,21 +1,19 @@
-import { EventsHandler, IEventHandler } from "@nestjs/cqrs";
-import { PlayerFinishedMatchEvent } from "../../gateway/events/gs/player-finished-match.event";
+import { CommandHandler, ICommandHandler } from "@nestjs/cqrs";
 import { Logger } from "@nestjs/common";
 import { FeedbackService } from "../../feedback/feedback.service";
+import { PlayerFinishedMatchCommand } from "./player-finished-match.command";
 
-@EventsHandler(PlayerFinishedMatchEvent)
+@CommandHandler(PlayerFinishedMatchCommand)
 export class PlayerFinishedMatchHandler
-  implements IEventHandler<PlayerFinishedMatchEvent>
+  implements ICommandHandler<PlayerFinishedMatchCommand>
 {
   private logger = new Logger(PlayerFinishedMatchHandler.name);
-
   private GAME_FEEDBACK_CHANCE = 0.2;
 
   constructor(private readonly feedbackService: FeedbackService) {}
 
-  async handle(event: PlayerFinishedMatchEvent) {
+  async execute({ event }: PlayerFinishedMatchCommand) {
     if (event.isFirstGame || Math.random() < this.GAME_FEEDBACK_CHANCE) {
-      // create feedback
       this.logger.log("PlayerFinishedMatchEvent event, creating feedback");
       await this.feedbackService.createFeedbackForPlayer(
         "PlayerFinishedMatchEvent",
