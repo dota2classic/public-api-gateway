@@ -1,26 +1,18 @@
 import { Module } from "@nestjs/common";
 import { MatchController } from "./match/match.controller";
-import { SteamController } from "./steam.controller";
-import SteamStrategy from "./strategy/steam.strategy";
 import { GetUserInfoQuery } from "./gateway/queries/GetUserInfo/get-user-info.query";
 import { PlayerController } from "./player/player.controller";
-import { JwtStrategy } from "./strategy/jwt.strategy";
 import { ServerController } from "./admin/server.controller";
 import { AdminMapper } from "./admin/admin.mapper";
 import { EventController } from "./event.controller";
 import { AdminUserController } from "./admin/admin-user.controller";
-import { DiscordController } from "./discord.controller";
-import { DiscordStrategy } from "./strategy/discord.strategy";
 import { GetAllConnectionsQuery } from "./gateway/queries/GetAllConnections/get-all-connections.query";
 import { GetConnectionsQuery } from "./gateway/queries/GetConnections/get-connections.query";
 import { GetRoleSubscriptionsQuery } from "./gateway/queries/user/GetRoleSubscriptions/get-role-subscriptions.query";
 import { LiveMatchUpdateHandler } from "./cache/event-handler/live-match-update.handler";
-import { LiveMatchService } from "./cache/live-match.service";
 import { LiveMatchController } from "./match/live-match.controller";
 import { GetPlayerInfoQuery } from "./gateway/queries/GetPlayerInfo/get-player-info.query";
-import { StatsController } from "./stats/stats.controller";
 import * as redisStore from "cache-manager-redis-store";
-import { MetaController } from "./meta/meta.controller";
 import { UserHttpCacheInterceptor } from "./utils/cache-key-track";
 import { GetReportsAvailableQuery } from "./gateway/queries/GetReportsAvailable/get-reports-available.query";
 import { ScheduleModule } from "@nestjs/schedule";
@@ -29,14 +21,9 @@ import { Entities } from "./db.config";
 import { TypeOrmModule, TypeOrmModuleOptions } from "@nestjs/typeorm";
 import { CacheModule, CacheModuleOptions } from "@nestjs/cache-manager";
 import { QueryCache } from "./rcache";
-import { MetaMapper } from "./meta/meta.mapper";
 import { StopLiveGameHandler } from "./cache/event-handler/stop-live-game.handler";
-import { ForumController } from "./forum/forum.controller";
 import { ThrottlerModule } from "@nestjs/throttler";
 import { GetQueueStateQuery } from "./gateway/queries/QueueState/get-queue-state.query";
-import { ForumMapper } from "./forum/forum.mapper";
-import { AuthController } from "./auth/auth.controller";
-import { AuthService } from "./auth/auth.service";
 import { MatchFinishedHandler } from "./cache/event-handler/match-finished.handler";
 import { ReadyCheckStartedHandler } from "./cache/event-handler/ready-check-started.handler";
 import { GetPartyInvitationsQuery } from "./gateway/queries/GetPartyInvitations/get-party-invitations.query";
@@ -44,6 +31,11 @@ import { ConfigModule, ConfigService } from "@nestjs/config";
 import configuration from "./config/configuration";
 import { outerQueryNew } from "./utils/outerQueryNew";
 import { LobbyModule } from "./lobby/lobby.module";
+import { StatsModule } from "./stats/stats.module";
+import { ReportModule } from "./report/report.module";
+import { AuthModule } from "./auth/auth.module";
+import { MetaModule } from "./meta/meta.module";
+import { ForumModule } from "./forum/forum.module";
 import { S3Module, S3ModuleOptions } from "nestjs-s3";
 import { FeedbackModule } from "./feedback/feedback.module";
 import { StorageModule } from "./storage/storage.module";
@@ -51,17 +43,9 @@ import { BlogpostModule } from "./blogpost/blogpost.module";
 import { RecordModule } from "./record/record.module";
 import { ApiModule } from "./api/api.module";
 import { getTypeormConfig } from "./config/typeorm.config";
-import { TwitchController } from "./twitch.controller";
-import TwitchStrategy from "./strategy/twitch.strategy";
-import { TwitchService } from "./twitch.service";
-import { StatsMapper } from "./stats/stats.mapper";
-import { StatsService } from "./stats/stats.service";
 import { CustomizationController } from "./customization/customization.controller";
 import { UserServicesModule } from "./service/user-services.module";
 import { RuleModule } from "./rule/rule.module";
-import { ReportController } from "./report/report.controller";
-import { ReportService } from "./report/report.service";
-import { ReportMapper } from "./report/report.mapper";
 import { RmqController } from "./rmq.controller";
 import { MessageCreatedHandler } from "./cache/event-handler/message-created.handler";
 import { MatchHighlightsHandler } from "./service/match-highlights.handler";
@@ -96,6 +80,11 @@ import { ItemDropModule } from "./itemdrop/itemdrop.module";
     FeedbackModule,
     StorageModule,
     LobbyModule,
+    StatsModule,
+    ReportModule,
+    AuthModule,
+    MetaModule,
+    ForumModule,
     ConfigModule.forRoot({
       isGlobal: true,
       load: [configuration],
@@ -203,17 +192,7 @@ import { ItemDropModule } from "./itemdrop/itemdrop.module";
     AdminUserController,
     TournamentController,
 
-    MetaController,
-    StatsController,
-    SteamController,
-    TwitchController,
-    DiscordController,
-    ForumController,
-    AuthController,
-
     CustomizationController,
-
-    ReportController,
   ],
   providers: [
     UserHttpCacheInterceptor,
@@ -247,22 +226,7 @@ import { ItemDropModule } from "./itemdrop/itemdrop.module";
     outerQueryNew(GetPlayerInfoQuery, "QueryCore"),
     outerQueryNew(GetPartyInvitationsQuery, "QueryCore"),
 
-    SteamStrategy,
-    JwtStrategy,
-    DiscordStrategy,
-    TwitchStrategy,
-    LiveMatchService,
-    TwitchService,
-    ReportService,
-
-    AuthService,
-    StatsService,
-
-    MetaMapper,
     AdminMapper,
-    ForumMapper,
-    StatsMapper,
-    ReportMapper,
 
     LiveMatchUpdateHandler,
     ReadyCheckStartedHandler,
