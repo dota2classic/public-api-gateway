@@ -8,6 +8,7 @@ import { UserProfileDecorationPreferencesEntity } from "../entity/user-profile-d
 import { CustomizationMapper } from "../customization/customization.mapper";
 import { UserDTO } from "../shared.dto";
 import { PlayerFlagsEntity } from "../entity/player-flags.entity";
+import { memoize2 } from "../utils/memoize";
 
 @Injectable()
 export class UserProfileService {
@@ -30,7 +31,7 @@ export class UserProfileService {
       this.getPlayerFlags(steamId),
     ]);
 
-    if(flags?.legalRemove) {
+    if (flags?.legalRemove) {
       fu.name = "Removed";
       fu.avatar = "";
       fu.connections = [];
@@ -55,6 +56,7 @@ export class UserProfileService {
     };
   };
 
+  @memoize2({ maxAge: 10_000 })
   private async getPlayerFlags(steamId: string) {
     return this.playerFlagsEntityRepository.findOne({
       where: { steamId },
