@@ -43,8 +43,7 @@ import { GetPartyInvitationsQuery } from "./gateway/queries/GetPartyInvitations/
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import configuration from "./config/configuration";
 import { outerQueryNew } from "./utils/outerQueryNew";
-import { LobbyController } from "./lobby/lobby.controller";
-import { LeaveLobbySocketDisconnectHandler } from "./lobby/event-handler/leave-lobby-socket-disconnect.handler";
+import { LobbyModule } from "./lobby/lobby.module";
 import { S3Module, S3ModuleOptions } from "nestjs-s3";
 import { FeedbackModule } from "./feedback/feedback.module";
 import { StorageModule } from "./storage/storage.module";
@@ -64,8 +63,6 @@ import { ReportController } from "./report/report.controller";
 import { ReportService } from "./report/report.service";
 import { ReportMapper } from "./report/report.mapper";
 import { RmqController } from "./rmq.controller";
-import { LobbyMapper } from "./lobby/lobby.mapper";
-import { LobbyUpdatedHandler } from "./lobby/event-handler/lobby-updated.handler";
 import { MessageCreatedHandler } from "./cache/event-handler/message-created.handler";
 import { MatchHighlightsHandler } from "./service/match-highlights.handler";
 import { SRCDSPerformanceHandler } from "./event-handler/srcds-performance.handler";
@@ -98,6 +95,7 @@ import { ItemDropModule } from "./itemdrop/itemdrop.module";
     ItemDropModule,
     FeedbackModule,
     StorageModule,
+    LobbyModule,
     ConfigModule.forRoot({
       isGlobal: true,
       load: [configuration],
@@ -203,7 +201,6 @@ import { ItemDropModule } from "./itemdrop/itemdrop.module";
     EventController,
     RmqController,
     AdminUserController,
-    LobbyController,
     TournamentController,
 
     MetaController,
@@ -264,7 +261,6 @@ import { ItemDropModule } from "./itemdrop/itemdrop.module";
     MetaMapper,
     AdminMapper,
     ForumMapper,
-    LobbyMapper,
     StatsMapper,
     ReportMapper,
 
@@ -273,10 +269,6 @@ import { ItemDropModule } from "./itemdrop/itemdrop.module";
 
     MatchFinishedHandler,
     MatchHighlightsHandler,
-
-    // Lobby socket handlers (will move to LobbyModule later)
-    LeaveLobbySocketDisconnectHandler,
-    LobbyUpdatedHandler,
 
     MessageCreatedHandler,
   ],
