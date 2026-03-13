@@ -5,8 +5,8 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { UserFastProfileDto } from "../gateway/caches/user-fast-profile.dto";
 import { UserProfileDecorationPreferencesEntity } from "../entity/user-profile-decoration-preferences.entity";
-import { CustomizationMapper } from "../rest/customization/customization.mapper";
-import { UserDTO } from "../rest/shared.dto";
+import { CustomizationMapper } from "../customization/customization.mapper";
+import { UserDTO } from "../shared.dto";
 
 @Injectable()
 export class UserProfileService {

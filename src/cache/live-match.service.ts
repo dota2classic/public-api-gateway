@@ -1,5 +1,5 @@
 import { Injectable, Logger } from "@nestjs/common";
-import { LiveMatchDto } from "../rest/match/dto/match.dto";
+import { LiveMatchDto } from "../match/dto/match.dto";
 import { concat, Observable, of, Subject } from "rxjs";
 import { ConfigService } from "@nestjs/config";
 

@@ -1,6 +1,6 @@
 import { EventsHandler, IEventHandler } from "@nestjs/cqrs";
 import { ReadyCheckStartedEvent } from "../../gateway/events/ready-check-started.event";
-import { NotificationService } from "../../rest/notification/notification.service";
+import { NotificationService } from "../../notification/notification.service";
 
 @EventsHandler(ReadyCheckStartedEvent)
 export class ReadyCheckStartedHandler

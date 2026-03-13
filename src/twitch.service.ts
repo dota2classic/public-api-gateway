@@ -1,0 +1,196 @@
+import { Injectable, Logger, OnApplicationBootstrap } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
+import { ApisauceInstance, create } from "apisauce";
+import * as qs from "qs";
+import { Cron, CronExpression } from "@nestjs/schedule";
+import { QueryBus } from "@nestjs/cqrs";
+import { GetAllConnectionsQuery } from "./gateway/queries/GetAllConnections/get-all-connections.query";
+import { UserConnection } from "./gateway/shared-types/user-connection";
+import { GetAllConnectionsQueryResult } from "./gateway/queries/GetAllConnections/get-all-connections-query.result";
+import { PlayerFlagsEntity } from "./entity/player-flags.entity";
+import { Repository } from "typeorm";
+import { InjectRepository } from "@nestjs/typeorm";
+
+interface StreamInfo {
+  id: string;
+  user_id: string;
+  user_login: string;
+  user_name: string;
+  game_id: string;
+  game_name: string;
+  type: string;
+  title: string;
+  viewer_count: number;
+  started_at: string;
+  language: string;
+  thumbnail_url: string;
+  tag_ids: any[];
+  tags: string[];
+  is_mature: boolean;
+}
+
+export interface FullStreamInfo {
+  stream: StreamInfo;
+  steamId: string;
+}
+
+@Injectable()
+export class TwitchService implements OnApplicationBootstrap {
+  private _streams: FullStreamInfo[] = [];
+  private logger = new Logger(TwitchService.name);
+
+  private oauth: ApisauceInstance;
+  private helix: ApisauceInstance;
+  private token?: string;
+
+  get streams(): FullStreamInfo[] {
+    return this._streams;
+  }
+
+  constructor(
+    private readonly config: ConfigService,
+    private readonly qbus: QueryBus,
+    @InjectRepository(PlayerFlagsEntity)
+    private readonly playerFlagsEntityRepository: Repository<PlayerFlagsEntity>,
+  ) {
+    this.oauth = create({
+      baseURL: "https://id.twitch.tv",
+    });
+    this.helix = create({
+      baseURL: "https://api.twitch.tv/helix",
+    });
+
+    this.helix.setHeader("Client-id", this.config.get("twitch.clientId"));
+  }
+
+  async onApplicationBootstrap() {
+    await this.refreshToken();
+    this.fetchLivestreams().catch();
+  }
+
+  @Cron(CronExpression.EVERY_MINUTE)
+  private async fetchLivestreams() {
+    try {
+      this._streams = await this.getLiveStreamingDota();
+    } catch (e) {
+      this.logger.error("Error getting live streaming data", e);
+    }
+  }
+
+  private async getLiveStreamingDota(): Promise<FullStreamInfo[]> {
+    const res = await this.qbus.execute<
+      GetAllConnectionsQuery,
+      GetAllConnectionsQueryResult
+    >(new GetAllConnectionsQuery(UserConnection.TWITCH));
+
+    const banned = await this.playerFlagsEntityRepository
+      .find({
+        where: {
+          disableStreams: true,
+        },
+      })
+      .then((t) => t.map((z) => z.steamId));
+
+    const legitStreamers = res.entries.filter(
+      (entry) => !banned.includes(entry.id.value),
+    );
+
+    const streams = await this.getDotaStreams(
+      legitStreamers.map((it) => it.externalId),
+    );
+
+    if (streams.length == 0) {
+      return [];
+    }
+
+    return streams.map((stream) => ({
+      stream,
+      steamId: legitStreamers.find((t) => t.externalId === stream.user_login)
+        ?.id.value,
+    }));
+  }
+
+  @Cron(CronExpression.EVERY_5_MINUTES)
+  private async refreshToken() {
+    const token = await this.oauth.post<{
+      access_token: string;
+      expires_in: number;
+      token_type: "bearer";
+    }>(
+      "/oauth2/token",
+      qs.stringify({
+        client_id: this.config.get("twitch.clientId"),
+        client_secret: this.config.get("twitch.secret"),
+        grant_type: "client_credentials",
+      }),
+      {
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+      },
+    );
+
+    if (token.ok) {
+      this.token = token.data.access_token;
+      this.helix.setHeader("Authorization", `Bearer ${this.token}`);
+      this.logger.log("Successfully updated token");
+    } else {
+      this.logger.log("There was an issue updating the token", token.data);
+    }
+  }
+
+  private async getDotaStreams(
+    twitchUsernames: string[],
+  ): Promise<StreamInfo[]> {
+    const batches = this.chunk(twitchUsernames, 100);
+    const batchResults = await Promise.all(batches.map((b) => this.fetchStreamBatch(b)));
+    return batchResults
+      .flat()
+      .filter((stream) => stream.title.toLowerCase().includes("dotaclassic.ru"));
+  }
+
+  private async fetchStreamBatch(usernames: string[]): Promise<StreamInfo[]> {
+    const streams: StreamInfo[] = [];
+    let cursor: string | undefined;
+
+    do {
+      const params = [
+        this.getParams("user_login", usernames),
+        `game_id=29595`,
+        `type=live`,
+        `first=100`,
+        cursor ? `after=${cursor}` : "",
+      ]
+        .filter(Boolean)
+        .join("&");
+
+      const response = await this.helix.get<{
+        data: StreamInfo[];
+        pagination?: { cursor?: string };
+      }>(`streams?${params}`);
+
+      if (!response.ok) {
+        this.logger.error(response.data);
+        this.logger.error("Couldn't get live streams from twitch!", response.originalError);
+        return [];
+      }
+
+      streams.push(...response.data.data);
+      cursor = response.data.pagination?.cursor;
+    } while (cursor);
+
+    return streams;
+  }
+
+  private chunk<T>(arr: T[], size: number): T[][] {
+    const chunks: T[][] = [];
+    for (let i = 0; i < arr.length; i += size) {
+      chunks.push(arr.slice(i, i + size));
+    }
+    return chunks;
+  }
+
+  private getParams(name: string, values: string[]) {
+    return values.map((t) => `${name}=${t}`).join("&");
+  }
+}

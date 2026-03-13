@@ -1,4 +1,4 @@
-import { TournamentRegistrationState } from "../../rest/tournament/tournament.dto";
+import { TournamentRegistrationState } from "../../tournament/tournament.dto";
 
 export type TournamentTournamentRegistrationState = TournamentRegistrationState;
 

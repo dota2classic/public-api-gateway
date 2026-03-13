@@ -1,4 +1,4 @@
-import { UserDTO } from "../../../rest/shared.dto";
+import { UserDTO } from "../../../shared.dto";
 
 export class PartyInviteReceivedMessageS2C {
   constructor(

@@ -1,5 +1,5 @@
 import { Column, Entity, PrimaryColumn } from "typeorm";
-import { SubscriptionDto } from "../rest/notification/notification.dto";
+import { SubscriptionDto } from "../notification/notification.dto";
 
 @Entity()
 export class WebpushSubscriptionEntity {

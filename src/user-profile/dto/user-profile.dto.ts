@@ -1,6 +1,6 @@
 import { Role } from "../../gateway/shared-types/roles";
-import { PlayerAspectDto } from "../../rest/player/dto/player.dto";
-import { BanStatusDto } from "../../rest/admin/dto/admin.dto";
+import { PlayerAspectDto } from "../../player/dto/player.dto";
+import { BanStatusDto } from "../../admin/dto/admin.dto";
 import { MatchAccessLevel } from "../../gateway/shared-types/match-access-level";
 
 export interface _UserProfileDataJson {

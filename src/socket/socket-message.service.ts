@@ -18,7 +18,7 @@ import { MatchmakingModes } from "../gateway/shared-types/matchmaking-mode";
 import { QueueStateMessageS2C } from "./messages/s2c/queue-state-message.s2c";
 import { PlayerQueueStateMessageS2C } from "./messages/s2c/player-queue-state-message.s2c";
 import { UserProfileService } from "../service/user-profile.service";
-import { PartyService } from "../rest/party.service";
+import { PartyService } from "../party.service";
 import { MatchmakerApi } from "../generated-api/matchmaker";
 import { ReadyState } from "../gateway/events/ready-state-received.event";
 import { ApiClient } from "@dota2classic/gs-api-generated/dist/module";

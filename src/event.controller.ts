@@ -22,8 +22,8 @@ import { PlayerAbandonedEvent } from "./gateway/events/bans/player-abandoned.eve
 import { BanSystemEvent } from "./gateway/events/gs/ban-system.event";
 import { LobbyReadyEvent } from "./gateway/events/lobby-ready.event";
 import { PlayerReportBanCreatedEvent } from "./gateway/events/bans/player-report-ban-created.event";
-import { NotificationCreatedEvent } from "./rest/notification/event/notification-created.event";
-import { LobbyUpdatedEvent } from "./rest/lobby/event/lobby-updated.event";
+import { NotificationCreatedEvent } from "./notification/event/notification-created.event";
+import { LobbyUpdatedEvent } from "./lobby/event/lobby-updated.event";
 
 @Controller()
 export class EventController {

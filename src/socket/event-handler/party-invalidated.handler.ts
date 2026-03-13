@@ -1,7 +1,7 @@
 import { EventsHandler, IEventHandler } from "@nestjs/cqrs";
 import { PartyInvalidatedEvent } from "../event/party-invalidated.event";
 import { SocketDelivery } from "../socket-delivery";
-import { PartyService } from "../../rest/party.service";
+import { PartyService } from "../../party.service";
 import { MessageTypeS2C } from "../messages/s2c/message-type.s2c";
 
 @EventsHandler(PartyInvalidatedEvent)

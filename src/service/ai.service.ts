@@ -1,8 +1,8 @@
 import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { ApisauceInstance, create } from "apisauce";
-import { CompletionResponse } from "../rest/feedback/openai";
-import { GptSystemPrompt } from "../rest/feedback/gpt-systems";
+import { CompletionResponse } from "../feedback/openai";
+import { GptSystemPrompt } from "../feedback/gpt-systems";
 
 export interface AIMessageHistory {
   role: "system" | "assistant" | "user";

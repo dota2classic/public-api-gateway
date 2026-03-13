@@ -1,5 +1,5 @@
 import { Injectable, Logger } from "@nestjs/common";
-import { NotificationService } from "../rest/notification/notification.service";
+import { NotificationService } from "../notification/notification.service";
 import { ForumApi } from "../generated-api/forum";
 import { ItemDroppedEvent } from "../gateway/events/item-dropped.event";
 import {
@@ -10,7 +10,7 @@ import {
   TradeBotItemQuality,
   TradeBotItemRarity,
 } from "../generated-api/tradebot";
-import { MarketItemDto } from "../rest/itemdrop/item-drop.dto";
+import { MarketItemDto } from "../itemdrop/item-drop.dto";
 
 @Injectable()
 export class ItemDropService {

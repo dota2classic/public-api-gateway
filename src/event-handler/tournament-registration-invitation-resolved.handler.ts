@@ -4,7 +4,7 @@ import {
   NotificationEntityType,
   NotificationType,
 } from "../entity/notification.entity";
-import { NotificationService } from "../rest/notification/notification.service";
+import { NotificationService } from "../notification/notification.service";
 
 @EventsHandler(TournamentRegistrationInvitationResolvedEvent)
 export class TournamentRegistrationInvitationResolvedHandler

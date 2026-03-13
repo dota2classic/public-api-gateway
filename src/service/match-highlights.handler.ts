@@ -1,6 +1,6 @@
 import { EventsHandler, IEventHandler } from "@nestjs/cqrs";
 import { MatchHighlightsEvent } from "../gateway/events/match-highlights.event";
-import { TelegramNotificationService } from "../rest/notification/telegram-notification.service";
+import { TelegramNotificationService } from "../notification/telegram-notification.service";
 import { formatDuration } from "../utils/format-duration";
 import { DemoHighlightsEntity } from "../entity/demo-highlights.entity";
 import { InjectRepository } from "@nestjs/typeorm";

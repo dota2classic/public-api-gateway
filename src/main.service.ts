@@ -7,7 +7,7 @@ import {
 import { EventBus, ofType, QueryBus } from "@nestjs/cqrs";
 import { ClientProxy } from "@nestjs/microservices";
 import { UserLoggedInEvent } from "./gateway/events/user/user-logged-in.event";
-import { TelegramNotificationService } from "./rest/notification/telegram-notification.service";
+import { TelegramNotificationService } from "./notification/telegram-notification.service";
 import { tap } from "rxjs";
 import { AmqpConnection } from "@golevelup/nestjs-rabbitmq";
 import { UserSubscriptionPaidEvent } from "./gateway/events/user/user-subscription-paid.event";

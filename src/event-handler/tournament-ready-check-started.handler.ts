@@ -1,6 +1,6 @@
 import { EventsHandler, IEventHandler } from "@nestjs/cqrs";
 import { TournamentReadyCheckStartedEvent } from "../gateway/events/tournament/tournament-ready-check-started.event";
-import { NotificationService } from "../rest/notification/notification.service";
+import { NotificationService } from "../notification/notification.service";
 import {
   NotificationEntityType,
   NotificationType,

@@ -4,15 +4,15 @@ import { ConfigService } from "@nestjs/config";
 import { PlayerFeedbackCreatedEvent } from "./gateway/events/player-feedback-created.event";
 import { RabbitSubscribe } from "@golevelup/nestjs-rabbitmq";
 import { MessageUpdatedEvent } from "./gateway/events/message-updated.event";
-import { TicketMessageHandler } from "./rest/notification/event-handler/ticket-message-handler.service";
+import { TicketMessageHandler } from "./notification/event-handler/ticket-message-handler.service";
 import { PlayerNotLoadedEvent } from "./gateway/events/bans/player-not-loaded.event";
-import { PlayerNotLoadedHandler } from "./rest/feedback/event-handler/player-not-loaded.handler";
-import { PlayerFeedbackCreatedHandler } from "./rest/notification/event-handler/player-feedback-created.handler";
-import { FeedbackCreatedEvent } from "./rest/feedback/event/feedback-created.event";
-import { FeedbackCreatedHandler } from "./rest/notification/event-handler/feedback-created.handler";
+import { PlayerNotLoadedHandler } from "./feedback/event-handler/player-not-loaded.handler";
+import { PlayerFeedbackCreatedHandler } from "./notification/event-handler/player-feedback-created.handler";
+import { FeedbackCreatedEvent } from "./feedback/event/feedback-created.event";
+import { FeedbackCreatedHandler } from "./notification/event-handler/feedback-created.handler";
 import { PlayerSmurfDetectedEvent } from "./gateway/events/bans/player-smurf-detected.event";
-import { PlayerSmurfDetectedHandler } from "./rest/notification/event-handler/player-smurf-detected.handler";
-import { NotificationService } from "./rest/notification/notification.service";
+import { PlayerSmurfDetectedHandler } from "./notification/event-handler/player-smurf-detected.handler";
+import { NotificationService } from "./notification/notification.service";
 import { TradeOfferExpiredEvent } from "./gateway/events/trade-offer-expired.event";
 import {
   NotificationEntityType,
@@ -21,17 +21,17 @@ import {
 import { ItemDroppedEvent } from "./gateway/events/item-dropped.event";
 import { ItemDropService } from "./service/item-drop.service";
 import { PlayerFinishedMatchEvent } from "./gateway/events/gs/player-finished-match.event";
-import { PlayerFinishedMatchHandler } from "./rest/notification/event-handler/player-finished-match.handler";
+import { PlayerFinishedMatchHandler } from "./notification/event-handler/player-finished-match.handler";
 import { MessageCreatedEvent } from "./cache/message-created.event";
 import { MatchHighlightsEvent } from "./gateway/events/match-highlights.event";
 import { AchievementCompleteEvent } from "./gateway/events/gs/achievement-complete.event";
-import { PleaseGoQueueEvent } from "./rest/notification/event/please-go-queue.event";
+import { PleaseGoQueueEvent } from "./notification/event/please-go-queue.event";
 import { GameResultsEvent } from "./gateway/events/gs/game-results.event";
 import { TournamentReadyCheckStartedEvent } from "./gateway/events/tournament/tournament-ready-check-started.event";
 import { TournamentRegistrationInvitationCreatedEvent } from "./gateway/events/tournament/tournament-registration-invitation-created.event";
 import { TournamentRegistrationInvitationResolvedEvent } from "./gateway/events/tournament/tournament-registration-invitation-resolved.event";
 import { MatchArtifactUploadedEvent } from "./gateway/events/match-artifact-uploaded.event";
-import { MatchArtifactUploadedHandler } from "./rest/storage/event-handler/match-artifact-uploaded.handler";
+import { MatchArtifactUploadedHandler } from "./storage/event-handler/match-artifact-uploaded.handler";
 
 @Controller()
 export class RmqController {

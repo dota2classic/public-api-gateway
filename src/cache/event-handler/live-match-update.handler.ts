@@ -4,7 +4,7 @@ import {
   SlotInfo,
 } from "../../gateway/events/gs/live-match-update.event";
 import { LiveMatchService } from "../live-match.service";
-import { MatchSlotInfo } from "../../rest/match/dto/match.dto";
+import { MatchSlotInfo } from "../../match/dto/match.dto";
 import { UserProfileService } from "../../service/user-profile.service";
 
 @EventsHandler(LiveMatchUpdateEvent)

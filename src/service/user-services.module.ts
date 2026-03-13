@@ -5,8 +5,8 @@ import { UserProfileModule } from "@dota2classic/caches";
 import Keyv from "keyv";
 import KeyvRedis from "@keyv/redis";
 import { UserProfileDecorationPreferencesEntity } from "../entity/user-profile-decoration-preferences.entity";
-import { StorageMapper } from "../rest/storage/storage.mapper";
-import { CustomizationMapper } from "../rest/customization/customization.mapper";
+import { StorageMapper } from "../storage/storage.mapper";
+import { CustomizationMapper } from "../customization/customization.mapper";
 import { UserProfileService } from "./user-profile.service";
 
 @Global()

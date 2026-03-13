@@ -1,6 +1,6 @@
 import { EventsHandler, IEventHandler } from "@nestjs/cqrs";
 import { TournamentRegistrationInvitationCreatedEvent } from "../gateway/events/tournament/tournament-registration-invitation-created.event";
-import { NotificationService } from "../rest/notification/notification.service";
+import { NotificationService } from "../notification/notification.service";
 import {
   NotificationEntityType,
   NotificationType,

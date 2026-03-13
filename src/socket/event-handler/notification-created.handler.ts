@@ -1,5 +1,5 @@
 import { EventsHandler, IEventHandler } from "@nestjs/cqrs";
-import { NotificationCreatedEvent } from "../../rest/notification/event/notification-created.event";
+import { NotificationCreatedEvent } from "../../notification/event/notification-created.event";
 import { SocketDelivery } from "../socket-delivery";
 import { MessageTypeS2C } from "../messages/s2c/message-type.s2c";
 import { NotificationCreatedMessageS2C } from "../messages/s2c/notification-created-message.s2c";
