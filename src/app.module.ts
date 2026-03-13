@@ -47,9 +47,8 @@ import { LobbyController } from "./lobby/lobby.controller";
 import { LeaveLobbySocketDisconnectHandler } from "./lobby/event-handler/leave-lobby-socket-disconnect.handler";
 import { S3Module, S3ModuleOptions } from "nestjs-s3";
 import { FeedbackModule } from "./feedback/feedback.module";
-import { StorageController } from "./storage/storage.controller";
+import { StorageModule } from "./storage/storage.module";
 import { BlogpostModule } from "./blogpost/blogpost.module";
-import { StorageService } from "./storage/storage.service";
 import { RecordModule } from "./record/record.module";
 import { ApiModule } from "./api/api.module";
 import { getTypeormConfig } from "./config/typeorm.config";
@@ -78,7 +77,6 @@ import { TournamentRegistrationInvitationCreatedHandler } from "./event-handler/
 import { PermaBanGuard } from "./utils/decorator/with-user";
 import { GsApiGeneratedModule } from "@dota2classic/gs-api-generated/dist/module";
 import { LoggerModule } from "nestjs-pino";
-import { MatchArtifactUploadedHandler } from "./storage/event-handler/match-artifact-uploaded.handler";
 import { MetricsModule } from "./metrics/metrics.module";
 import { CoreModule } from "./core/core.module";
 import { SocketModule } from "./socket/socket.module";
@@ -99,6 +97,7 @@ import { ItemDropModule } from "./itemdrop/itemdrop.module";
     PaymentsModule,
     ItemDropModule,
     FeedbackModule,
+    StorageModule,
     ConfigModule.forRoot({
       isGlobal: true,
       load: [configuration],
@@ -215,7 +214,6 @@ import { ItemDropModule } from "./itemdrop/itemdrop.module";
     ForumController,
     AuthController,
 
-    StorageController,
     CustomizationController,
 
     ReportController,
@@ -261,7 +259,6 @@ import { ItemDropModule } from "./itemdrop/itemdrop.module";
     ReportService,
 
     AuthService,
-    StorageService,
     StatsService,
 
     MetaMapper,
@@ -282,8 +279,6 @@ import { ItemDropModule } from "./itemdrop/itemdrop.module";
     LobbyUpdatedHandler,
 
     MessageCreatedHandler,
-
-    MatchArtifactUploadedHandler,
   ],
 })
 export class AppModule {}
