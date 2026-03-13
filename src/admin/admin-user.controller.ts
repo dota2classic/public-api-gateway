@@ -243,6 +243,7 @@ export class AdminUserController {
         ignoreSmurf: false,
         disableReports: false,
         disableStreams: false,
+        legalRemove: false
       };
     }
     return ex;

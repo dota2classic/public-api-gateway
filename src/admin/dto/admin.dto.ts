@@ -152,6 +152,7 @@ export class PlayerFlagDto {
   ignoreSmurf: boolean;
   disableReports: boolean;
   disableStreams: boolean;
+  legalRemove: boolean;
 }
 
 export class UpdatePlayerFlagDto extends PartialType(PlayerFlagDto) {}
