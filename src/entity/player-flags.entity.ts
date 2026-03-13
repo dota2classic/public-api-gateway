@@ -26,4 +26,11 @@ export class PlayerFlagsEntity {
     default: false,
   })
   disableStreams: boolean;
+
+  @Column({
+    name: "legal_remove",
+    type: "boolean",
+    default: false,
+  })
+  legalRemove: boolean;
 }

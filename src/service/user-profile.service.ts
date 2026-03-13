@@ -7,6 +7,7 @@ import { UserFastProfileDto } from "../gateway/caches/user-fast-profile.dto";
 import { UserProfileDecorationPreferencesEntity } from "../entity/user-profile-decoration-preferences.entity";
 import { CustomizationMapper } from "../customization/customization.mapper";
 import { UserDTO } from "../shared.dto";
+import { PlayerFlagsEntity } from "../entity/player-flags.entity";
 
 @Injectable()
 export class UserProfileService {
@@ -18,13 +19,22 @@ export class UserProfileService {
     @InjectRepository(UserProfileDecorationPreferencesEntity)
     private readonly userProfileDecorationPreferencesEntityRepository: Repository<UserProfileDecorationPreferencesEntity>,
     private readonly customizationMapper: CustomizationMapper,
+    @InjectRepository(PlayerFlagsEntity)
+    private readonly playerFlagsEntityRepository: Repository<PlayerFlagsEntity>,
   ) {}
 
   public userDto = async (steamId: string): Promise<UserDTO> => {
-    const [fu, prefs] = await Promise.combine([
+    const [fu, prefs, flags] = await Promise.combine([
       this.fastUserService.get(steamId),
       this.getProfileDecorations(steamId),
+      this.getPlayerFlags(steamId),
     ]);
+
+    if(flags?.legalRemove) {
+      fu.name = "Removed";
+      fu.avatar = "";
+      fu.connections = [];
+    }
 
     return {
       steamId: steamId,
@@ -44,6 +54,12 @@ export class UserProfileService {
         this.customizationMapper.mapDecoration(prefs.animation),
     };
   };
+
+  private async getPlayerFlags(steamId: string) {
+    return this.playerFlagsEntityRepository.findOne({
+      where: { steamId },
+    });
+  }
 
   // @memoize2({ maxAge: 10_000 })
   private async getProfileDecorations(steamId: string) {
