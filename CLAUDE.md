@@ -26,22 +26,41 @@ npm run migration:generate -- src/database/migrations/MigrationName  # Generate 
 
 ```
 src/
-  api/              # Global API clients (Forum, Matchmaker, Tournament, Trade, GS)
-  cache/            # Live match caching + cache event handlers
+  api/              # @Global ApiModule — Forum, Matchmaker, Tournament, Trade, GS, PrometheusDriver
+  admin/            # AdminModule — ServerController, AdminUserController, AdminMapper
+  auth/             # AuthModule — AuthController, Steam/Discord/Twitch OAuth controllers + strategies
+  blogpost/         # BlogpostModule
+  cache/            # Live match cache event handlers (StopLiveGame, LiveMatchUpdate, MatchFinished, etc.)
   config/           # configuration.ts (env mapping), typeorm.config.ts
+  core/             # @Global CoreModule — CqrsModule, JwtModule, RedlockModule, RabbitMQModule, Redis
+  customization/    # CustomizationController (still in AppModule)
   database/         # TypeORM migrations
   entity/           # All TypeORM entities (imported via db.config.ts)
-  event-handler/    # Top-level CQRS event handlers
+  event-handler/    # Misc CQRS handlers (SRCDSPerformanceHandler)
+  feedback/         # FeedbackModule — FeedbackService, AiService (exported), FeedbackMapper, event handlers
+  forum/            # ForumModule — ForumController, ForumMapper (exported), LiveMatchService (exported)
   gateway/
     events/         # Shared event class definitions
     shared-types/   # Shared enums and types
-  middleware/       # Logging, metrics
-  rest/             # Feature modules (controller + service + mapper + dto/)
-  service/          # Shared services (UserProfileService, ItemDropService, etc.)
-  socket/           # WebSocket gateway + handlers
+  itemdrop/         # ItemDropModule — ItemDropController, ItemDropService, ItemDropMapper, ItemDroppedHandler
+  lobby/            # LobbyModule — LobbyController, LobbyMapper, lobby event handlers
+  match/            # MatchController, LiveMatchController (still in AppModule)
+  meta/             # MetaModule — MetaController, MetaMapper
+  metrics/          # @Global MetricsModule — Prometheus, ReqLoggingInterceptor
+  notification/     # NotificationModule — NotificationService, TelegramNotificationService, command handlers
+  payments/         # PaymentsModule — PaymentService, PayanywayPaymentAdapter, controllers
+  player/           # PlayerController (still in AppModule)
+  record/           # RecordModule
+  report/           # ReportModule — ReportController, ReportService, ReportMapper, PlayerRuleBrokenHandler
+  rule/             # RuleModule — RuleMapper (exported), RuleService (exported)
+  service/          # @Global UserServicesModule — UserProfileService, PlayerBanService, UserRelationService
+  socket/           # @Global SocketModule — SocketGateway, SocketDelivery, PartyService (exported), LobbyService (exported), MatchMapper (exported), PlayerMapper (exported)
+  stats/            # StatsModule — StatsController, StatsService, StatsMapper, TwitchService (exported)
+  storage/          # StorageModule — StorageController, StorageService, StorageMapper, MatchArtifactUploadedHandler
+  tournament/       # TournamentModule — TournamentController, TournamentMapper, 3 invitation/ready-check handlers
   utils/            # Auth decorators, pipes, helpers
-  app.module.ts     # All providers and controllers registered here
-  rmq.controller.ts # All @RabbitSubscribe handlers
+  app.module.ts     # Root module — wires all feature modules; remaining: MatchController, LiveMatchController, PlayerController, CustomizationController, cache handlers, MainService
+  rmq.controller.ts # All @RabbitSubscribe handlers — dispatches via CommandBus
   event.controller.ts # @EventPattern handlers (republish to internal EventBus)
 ```
 
@@ -63,7 +82,7 @@ export class MyEvent {
 }
 ```
 
-**2. Handler service** (`src/rest/<feature>/event-handler/my-event.handler.ts`):
+**2. Handler service** (`src/<feature>/event-handler/my-event.handler.ts`):
 ```typescript
 @Injectable()
 export class MyEventHandler {
@@ -161,8 +180,8 @@ Methods are arrow functions (not class methods) for consistent `this` binding.
 
 ### LLM integration (FeedbackAssistantService)
 
-- Service: `src/rest/feedback/feedback-assistant.service.ts`
-- System prompts: `src/rest/feedback/gpt-systems.ts` (add new prompts to the `GptSystemPrompt` object)
+- Service: `src/feedback/feedback-assistant.service.ts` (exposed as `AiService`)
+- System prompts: `src/feedback/gpt-systems.ts` (add new prompts to the `GptSystemPrompt` object)
 - Model: `gpt-4o-mini` via ProxyAPI (`https://api.proxyapi.ru/openai`)
 - Always use `response_format: { type: "json_object" }` and return a JSON **object** (not array) — wrap arrays as `{ "results": [...] }`
 - Prompts are written in Russian to match user locale
@@ -201,7 +220,7 @@ Log files are parsed with `parseLogFile(text)` from `src/utils/parseLogFile.ts`,
 | S3 | `s3.*` | Replays bucket `logs`, uploads bucket configurable |
 | OpenAI/ProxyAPI | `gpt.token` | Used by FeedbackAssistantService |
 | Telegram | `telegram.*` | TelegramNotificationService |
-| Steam/Discord/Twitch | respective keys | OAuth strategies in `src/rest/strategy/` |
+| Steam/Discord/Twitch | respective keys | OAuth strategies in `src/strategy/`, controllers in `AuthModule` |
 
 All config comes from environment variables mapped in `src/config/configuration.ts`.
 

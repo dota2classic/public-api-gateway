@@ -1,7 +1,6 @@
 import { Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { LobbyController } from "./lobby.controller";
-import { LobbyService } from "./lobby.service";
 import { LobbyMapper } from "./lobby.mapper";
 import { LobbyUpdatedHandler } from "./event-handler/lobby-updated.handler";
 import { LeaveLobbySocketDisconnectHandler } from "./event-handler/leave-lobby-socket-disconnect.handler";
@@ -12,7 +11,6 @@ import { LobbySlotEntity } from "../entity/lobby-slot.entity";
   imports: [TypeOrmModule.forFeature([LobbyEntity, LobbySlotEntity])],
   controllers: [LobbyController],
   providers: [
-    LobbyService,
     LobbyMapper,
     LobbyUpdatedHandler,
     LeaveLobbySocketDisconnectHandler,

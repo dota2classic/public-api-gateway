@@ -2,10 +2,7 @@ import { Module } from "@nestjs/common";
 import { MatchController } from "./match/match.controller";
 import { GetUserInfoQuery } from "./gateway/queries/GetUserInfo/get-user-info.query";
 import { PlayerController } from "./player/player.controller";
-import { ServerController } from "./admin/server.controller";
-import { AdminMapper } from "./admin/admin.mapper";
 import { EventController } from "./event.controller";
-import { AdminUserController } from "./admin/admin-user.controller";
 import { GetAllConnectionsQuery } from "./gateway/queries/GetAllConnections/get-all-connections.query";
 import { GetConnectionsQuery } from "./gateway/queries/GetConnections/get-connections.query";
 import { GetRoleSubscriptionsQuery } from "./gateway/queries/user/GetRoleSubscriptions/get-role-subscriptions.query";
@@ -50,11 +47,8 @@ import { RmqController } from "./rmq.controller";
 import { MessageCreatedHandler } from "./cache/event-handler/message-created.handler";
 import { MatchHighlightsHandler } from "./service/match-highlights.handler";
 import { SRCDSPerformanceHandler } from "./event-handler/srcds-performance.handler";
-import { TournamentController } from "./tournament/tournament.controller";
-import { TournamentMapper } from "./tournament/tournament.mapper";
-import { TournamentReadyCheckStartedHandler } from "./event-handler/tournament-ready-check-started.handler";
-import { TournamentRegistrationInvitationResolvedHandler } from "./event-handler/tournament-registration-invitation-resolved.handler";
-import { TournamentRegistrationInvitationCreatedHandler } from "./event-handler/tournament-registration-invitation-created.handler";
+import { TournamentModule } from "./tournament/tournament.module";
+import { AdminModule } from "./admin/admin.module";
 import { PermaBanGuard } from "./utils/decorator/with-user";
 import { GsApiGeneratedModule } from "@dota2classic/gs-api-generated/dist/module";
 import { LoggerModule } from "nestjs-pino";
@@ -85,6 +79,8 @@ import { ItemDropModule } from "./itemdrop/itemdrop.module";
     AuthModule,
     MetaModule,
     ForumModule,
+    TournamentModule,
+    AdminModule,
     ConfigModule.forRoot({
       isGlobal: true,
       load: [configuration],
@@ -186,11 +182,8 @@ import { ItemDropModule } from "./itemdrop/itemdrop.module";
     MatchController,
     LiveMatchController,
     PlayerController,
-    ServerController,
     EventController,
     RmqController,
-    AdminUserController,
-    TournamentController,
 
     CustomizationController,
   ],
@@ -199,12 +192,8 @@ import { ItemDropModule } from "./itemdrop/itemdrop.module";
     MainService,
     PermaBanGuard,
 
-    TournamentReadyCheckStartedHandler,
-    TournamentRegistrationInvitationCreatedHandler,
-    TournamentRegistrationInvitationResolvedHandler,
     StopLiveGameHandler,
     SRCDSPerformanceHandler,
-    TournamentMapper,
 
     {
       provide: "QueryCache",
@@ -225,8 +214,6 @@ import { ItemDropModule } from "./itemdrop/itemdrop.module";
     outerQueryNew(GetRoleSubscriptionsQuery, "QueryCore"),
     outerQueryNew(GetPlayerInfoQuery, "QueryCore"),
     outerQueryNew(GetPartyInvitationsQuery, "QueryCore"),
-
-    AdminMapper,
 
     LiveMatchUpdateHandler,
     ReadyCheckStartedHandler,
