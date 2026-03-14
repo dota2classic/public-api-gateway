@@ -2,6 +2,7 @@ import { Controller } from "@nestjs/common";
 import { EventPattern } from "@nestjs/microservices";
 import { UserCreatedEvent } from "./gateway/events/user/user-created.event";
 import { Constructor, EventBus } from "@nestjs/cqrs";
+import { construct } from "./gateway/util/construct";
 import { MatchFinishedEvent } from "./gateway/events/match-finished.event";
 import { ReadyCheckStartedEvent } from "./gateway/events/ready-check-started.event";
 import { LiveMatchUpdateEvent } from "./gateway/events/gs/live-match-update.event";
@@ -30,9 +31,7 @@ export class EventController {
   constructor(private readonly ebus: EventBus) {}
 
   private event<T>(constructor: Constructor<T>, data: any) {
-    const buff = data;
-    buff.__proto__ = constructor.prototype;
-    this.ebus.publish(buff);
+    this.ebus.publish(construct(constructor, data));
   }
 
   @EventPattern(UserCreatedEvent.name)

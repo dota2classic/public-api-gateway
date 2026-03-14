@@ -26,6 +26,7 @@ import { TradeOfferExpiredCommand } from "./notification/event-handler/trade-off
 import { ItemDroppedCommand } from "./itemdrop/item-dropped.command";
 import { PlayerFinishedMatchCommand } from "./feedback/event-handler/player-finished-match.command";
 import { MatchArtifactUploadedCommand } from "./storage/event-handler/match-artifact-uploaded.command";
+import { construct } from "./gateway/util/construct";
 
 @Controller()
 export class RmqController {
@@ -183,8 +184,6 @@ export class RmqController {
   }
 
   private event<T>(constructor: Constructor<T>, data: any) {
-    const buff = data;
-    buff.__proto__ = constructor.prototype;
-    this.ebus.publish(buff);
+    this.ebus.publish(construct(constructor, data));
   }
 }
