@@ -57,7 +57,6 @@ import { ForumMapper } from "./forum.mapper";
 import { WithPagination } from "../utils/decorator/pagination";
 import { PlayerId } from "../gateway/shared-types/player-id";
 import { ReqLoggingInterceptor } from "../metrics/req-logging.interceptor";
-import { LiveMatchService } from "../cache/live-match.service";
 import { WithOptionalUser } from "../utils/decorator/with-optional-user";
 import { BlogpostEntity } from "../entity/blogpost.entity";
 import { InjectRepository } from "@nestjs/typeorm";
@@ -78,7 +77,6 @@ export class ForumController {
     private readonly mapper: ForumMapper,
     private readonly api: ForumApi,
     private readonly gsApi: ApiClient,
-    private readonly liveMatchService: LiveMatchService,
     @InjectRepository(BlogpostEntity)
     private readonly blogpostEntityRepository: Repository<BlogpostEntity>,
     private readonly feedbackAssistant: AiService,
@@ -324,7 +322,7 @@ export class ForumController {
         // Live or finished
         const matchId = parseInt(id);
         const matchRes = await this.gsApi.match.matchControllerGetMatch(matchId);
-        if (this.liveMatchService.isLive(matchId) || matchRes.data)
+        if (matchRes.data)
           return this.api
             .forumControllerGetThreadForKey({
               threadType: ThreadType.MATCH,

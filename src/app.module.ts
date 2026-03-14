@@ -6,8 +6,7 @@ import { EventController } from "./event.controller";
 import { GetAllConnectionsQuery } from "./gateway/queries/GetAllConnections/get-all-connections.query";
 import { GetConnectionsQuery } from "./gateway/queries/GetConnections/get-connections.query";
 import { GetRoleSubscriptionsQuery } from "./gateway/queries/user/GetRoleSubscriptions/get-role-subscriptions.query";
-import { LiveMatchUpdateHandler } from "./cache/event-handler/live-match-update.handler";
-import { LiveMatchController } from "./match/live-match.controller";
+import { LiveMatchStreamModule } from "./cache/live-match-stream.module";
 import { GetPlayerInfoQuery } from "./gateway/queries/GetPlayerInfo/get-player-info.query";
 import * as redisStore from "cache-manager-redis-store";
 import { UserHttpCacheInterceptor } from "./utils/cache-key-track";
@@ -18,10 +17,8 @@ import { Entities } from "./db.config";
 import { TypeOrmModule, TypeOrmModuleOptions } from "@nestjs/typeorm";
 import { CacheModule, CacheModuleOptions } from "@nestjs/cache-manager";
 import { QueryCache } from "./rcache";
-import { StopLiveGameHandler } from "./cache/event-handler/stop-live-game.handler";
 import { ThrottlerModule } from "@nestjs/throttler";
 import { GetQueueStateQuery } from "./gateway/queries/QueueState/get-queue-state.query";
-import { MatchFinishedHandler } from "./cache/event-handler/match-finished.handler";
 import { ReadyCheckStartedHandler } from "./cache/event-handler/ready-check-started.handler";
 import { GetPartyInvitationsQuery } from "./gateway/queries/GetPartyInvitations/get-party-invitations.query";
 import { ConfigModule, ConfigService } from "@nestjs/config";
@@ -81,6 +78,7 @@ import { ItemDropModule } from "./itemdrop/itemdrop.module";
     ForumModule,
     TournamentModule,
     AdminModule,
+    LiveMatchStreamModule,
     ConfigModule.forRoot({
       isGlobal: true,
       load: [configuration],
@@ -180,7 +178,6 @@ import { ItemDropModule } from "./itemdrop/itemdrop.module";
   ],
   controllers: [
     MatchController,
-    LiveMatchController,
     PlayerController,
     EventController,
     RmqController,
@@ -192,7 +189,6 @@ import { ItemDropModule } from "./itemdrop/itemdrop.module";
     MainService,
     PermaBanGuard,
 
-    StopLiveGameHandler,
     SRCDSPerformanceHandler,
 
     {
@@ -215,10 +211,7 @@ import { ItemDropModule } from "./itemdrop/itemdrop.module";
     outerQueryNew(GetPlayerInfoQuery, "QueryCore"),
     outerQueryNew(GetPartyInvitationsQuery, "QueryCore"),
 
-    LiveMatchUpdateHandler,
     ReadyCheckStartedHandler,
-
-    MatchFinishedHandler,
     MatchHighlightsHandler,
 
     MessageCreatedHandler,
