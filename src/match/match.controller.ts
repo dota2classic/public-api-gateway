@@ -108,19 +108,7 @@ export class MatchController {
     @CurrentUser() user: CurrentUserDto | undefined,
     @Param("id") id: number,
   ): Promise<MatchReportInfoDto> {
-    try {
-      if (user) {
-        const res = await this.gsApi.match.matchControllerGetMatchReportMatrix(
-          id,
-          { steamId: user.steam_id || "" },
-        );
-        return this.mapper.mapReportMatrixDto(res.data, user.steam_id);
-      } else {
-        return { reportableSteamIds: [] };
-      }
-    } catch (e) {
-      throw new NotFoundException();
-    }
+    return this.getReportMatrix(user, id);
   }
 
   @UseInterceptors(UserHttpCacheInterceptor)
@@ -167,6 +155,25 @@ export class MatchController {
       aspect: dto.aspect,
       matchId: dto.matchId,
     });
-    return this.matchReportMatrix(user, dto.matchId);
+    return this.getReportMatrix(user, dto.matchId);
+  }
+
+  private async getReportMatrix(
+    user: CurrentUserDto | undefined,
+    id: number,
+  ): Promise<MatchReportInfoDto> {
+    try {
+      if (user) {
+        const res = await this.gsApi.match.matchControllerGetMatchReportMatrix(
+          id,
+          { steamId: user.steam_id || "" },
+        );
+        return this.mapper.mapReportMatrixDto(res.data, user.steam_id);
+      } else {
+        return { reportableSteamIds: [] };
+      }
+    } catch (e) {
+      throw new NotFoundException();
+    }
   }
 }

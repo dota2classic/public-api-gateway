@@ -85,21 +85,23 @@ Fires on every guarded request in production.
 
 ## Medium
 
-### M1. Re-enable `@memoize` on `getProfileDecorations`
+### M1. Re-enable `@memoize` on `getProfileDecorations` ⏸ DEFERRED
 **File:** `src/service/user-profile.service.ts:66`
 
 The decorator is commented out. Called on every message mapping, leaderboard entry, teammate — now does 2 DB lookups with no caching every time. Likely an accidental regression.
 
-- Restore `@memoize2({ maxAge: 10_000 })`
+**Why deferred:** There is no cache invalidation implemented. Re-enabling memoize will cause decoration changes (create/update/delete via `CustomizationService`) to not be reflected until the TTL expires. This needs to be addressed together with adding invalidation calls in `CustomizationService`.
 
-### M2. Fix `ModeratorGuard` to include JWT verification
+- Restore `@memoize2({ maxAge: 10_000 })` **only after** adding `userProfileService.invalidateDecorations()` calls in `CustomizationService.createDecoration`, `updateDecoration`, and `deleteDecoration`
+
+### M2. Fix `ModeratorGuard` to include JWT verification ✅
 **File:** `src/utils/decorator/with-user.ts:84-85`
 
 `ModeratorGuard` uses only `RoleGuard` without wrapping `AuthGuard("jwt")`. If `@WithUser()` is accidentally omitted, an unauthenticated request passes role check if `request.user` is already set from another path.
 
 - Wrap `RoleGuard` with `AuthGuard("jwt")` inside `ModeratorGuard`, same as `AdminGuard`
 
-### M3. Fix `UserRelationService` — separate bootstrap from cron, add map eviction
+### M3. Fix `UserRelationService` — separate bootstrap from cron, add map eviction ✅
 **File:** `src/service/user-relation.service.ts:39-58`
 
 `onApplicationBootstrap` is also `@Cron(EVERY_MINUTE)` — the same method runs as both lifecycle hook and scheduler. The in-memory `relationMap` has no eviction policy.
@@ -107,35 +109,35 @@ The decorator is commented out. Called on every message mapping, leaderboard ent
 - Split into two methods: one for initial load, one for refresh
 - Add a max-size or TTL eviction strategy to `relationMap`
 
-### M4. Controller calling another controller method
+### M4. Controller calling another controller method ✅
 **File:** `src/match/match.controller.ts:172`
 
 `reportPlayerInMatch()` ends with `return this.matchReportMatrix(user, dto.matchId)` — calling a sibling controller method for response composition.
 
 - Extract shared logic into a service method called by both handlers
 
-### M5. Fix `throw "string"` in `CustomizationController`
+### M5. Fix `throw "string"` in `CustomizationController` ✅
 **File:** `src/customization/customization.controller.ts:83`
 
 `throw "Bad decoration id for type"` — NestJS exception filters don't catch plain strings, results in unhandled 500.
 
-- Replace with `throw new BadRequestException("Bad decoration id for type")`
+- Fixed: moved to `CustomizationService.selectDecoration()` as `throw new BadRequestException("Bad decoration id for type")` when extracting service logic
 
-### M6. Fix `return 200` in `NotificationController`
+### M6. Fix `return 200` in `NotificationController` ✅
 **File:** `src/notification/notification.controller.ts:42, 52`
 
 `subscribe()` and `unsubscribe()` return the literal number `200` as body.
 
 - Return `void` (NestJS sends 204) or a proper response DTO
 
-### M7. `getThread()` missing default case
+### M7. `getThread()` missing default case ✅
 **File:** `src/forum/forum.controller.ts:338`
 
 Falls through all `ThreadType` branches with no `default`, silently returns `undefined` → empty 200.
 
 - Add `throw new BadRequestException(...)` as the default case
 
-### M8. Side-effect emission in GET handler
+### M8. Side-effect emission in GET handler ✅
 **File:** `src/player/player.controller.ts:154-165`
 
 `playerSummary()` emits `UserMightExistEvent` on every GET, making it non-idempotent.

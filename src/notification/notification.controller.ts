@@ -34,9 +34,8 @@ export class NotificationController {
 
   @Delete("/subscribe")
   @WithUser()
-  async unsubscribe(@CurrentUser() user: CurrentUserDto) {
+  async unsubscribe(@CurrentUser() user: CurrentUserDto): Promise<void> {
     await this.notificationService.unsubscribe(user.steam_id);
-    return 200;
   }
 
   @Post("/subscribe")
@@ -44,9 +43,8 @@ export class NotificationController {
   async subscribe(
     @Body() sub: SubscriptionDto,
     @CurrentUser() user: CurrentUserDto,
-  ) {
+  ): Promise<void> {
     await this.notificationService.subscribe(user.steam_id, sub);
-    return 200;
   }
 
   @AdminGuard()

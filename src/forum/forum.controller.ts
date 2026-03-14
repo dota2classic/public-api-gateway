@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -332,6 +333,8 @@ export class ForumController {
       } catch (e) {
         throw new NotFoundException("Match not found");
       }
+    } else {
+      throw new BadRequestException(`Unknown thread type: ${threadType}`);
     }
   }
 

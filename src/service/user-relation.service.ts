@@ -36,8 +36,13 @@ export class UserRelationService implements OnApplicationBootstrap {
     return this.getRelationSync(steamId, related);
   }
 
-  @Cron(CronExpression.EVERY_MINUTE)
   async onApplicationBootstrap() {
+    await this.refreshRelations();
+  }
+
+  @Cron(CronExpression.EVERY_MINUTE)
+  async refreshRelations() {
+    this.relationMap.clear();
     const chunkSize = 100;
     const total = await this.userRelationEntityRepository.count();
     for (let i = 0; i < Math.ceil(total / chunkSize); i++) {

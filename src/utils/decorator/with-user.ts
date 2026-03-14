@@ -81,7 +81,7 @@ export class PermaBanGuard implements CanActivate {
 export const NoPermabanGuard = UseGuards(PermaBanGuard);
 
 export const ModeratorGuard = () =>
-  UseGuards(new RoleGuard(Role.ADMIN, Role.MODERATOR));
+  UseGuards(AuthGuard("jwt"), new RoleGuard(Role.ADMIN, Role.MODERATOR));
 export const AdminGuard = () =>
   UseGuards(new RoleGuard(Role.ADMIN), AuthGuard("jwt"));
 

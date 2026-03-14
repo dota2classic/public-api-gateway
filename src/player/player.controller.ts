@@ -4,7 +4,6 @@ import {
   Delete,
   Get,
   HttpException,
-  Inject,
   Param,
   Post,
   Query,
@@ -31,10 +30,7 @@ import {
 import { AuthGuard } from "@nestjs/passport";
 import { QueryBus } from "@nestjs/cqrs";
 import { D2CUser } from "../strategy/jwt.strategy";
-import { PlayerId } from "../gateway/shared-types/player-id";
 import { OldGuard, WithUser } from "../utils/decorator/with-user";
-import { UserMightExistEvent } from "../gateway/events/user/user-might-exist.event";
-import { ClientProxy } from "@nestjs/microservices";
 import { HeroStatsDto } from "./dto/hero.dto";
 import { UserHttpCacheInterceptor } from "../utils/cache-key-track";
 import { UserDTO } from "../shared.dto";
@@ -54,7 +50,6 @@ export class PlayerController {
   constructor(
     private readonly mapper: PlayerMapper,
     private readonly qbus: QueryBus,
-    @Inject("QueryCore") private readonly redisEventQueue: ClientProxy,
     private readonly partyService: PartyService,
     private readonly gsApi: ApiClient,
     private readonly userProfile: UserProfileService,
@@ -148,10 +143,7 @@ export class PlayerController {
   @CacheTTL(5)
   @Get("/:id/summary")
   async playerSummary(@Param("id") steamId: string): Promise<PlayerSummaryDto> {
-    this.redisEventQueue.emit(
-      UserMightExistEvent.name,
-      new UserMightExistEvent(new PlayerId(steamId)),
-    );
+    this.playerService.notifyMightExist(steamId);
 
     const [raw, bans] = await Promise.combine([
       this.gsApi.player.playerControllerPlayerSummary(steamId),

@@ -1,13 +1,24 @@
-import { Injectable } from "@nestjs/common";
+import { Inject, Injectable } from "@nestjs/common";
 import { DataSource } from "typeorm";
 import { SocketGateway } from "../socket/socket.gateway";
+import { ClientProxy } from "@nestjs/microservices";
+import { UserMightExistEvent } from "../gateway/events/user/user-might-exist.event";
+import { PlayerId } from "../gateway/shared-types/player-id";
 
 @Injectable()
 export class PlayerService {
   constructor(
     private readonly ds: DataSource,
     private readonly socketGateway: SocketGateway,
+    @Inject("QueryCore") private readonly redisEventQueue: ClientProxy,
   ) {}
+
+  notifyMightExist(steamId: string): void {
+    this.redisEventQueue.emit(
+      UserMightExistEvent.name,
+      new UserMightExistEvent(new PlayerId(steamId)),
+    );
+  }
 
   async search(name: string, count: number): Promise<string[]> {
     const online = await this.socketGateway.getOnlineSteamIds();
