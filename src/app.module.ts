@@ -1,7 +1,5 @@
 import { Module } from "@nestjs/common";
-import { MatchController } from "./match/match.controller";
 import { GetUserInfoQuery } from "./gateway/queries/GetUserInfo/get-user-info.query";
-import { PlayerController } from "./player/player.controller";
 import { EventController } from "./event.controller";
 import { GetAllConnectionsQuery } from "./gateway/queries/GetAllConnections/get-all-connections.query";
 import { GetConnectionsQuery } from "./gateway/queries/GetConnections/get-connections.query";
@@ -36,13 +34,13 @@ import { BlogpostModule } from "./blogpost/blogpost.module";
 import { RecordModule } from "./record/record.module";
 import { ApiModule } from "./api/api.module";
 import { getTypeormConfig } from "./config/typeorm.config";
-import { CustomizationController } from "./customization/customization.controller";
+import { CustomizationModule } from "./customization/customization.module";
 import { UserServicesModule } from "./service/user-services.module";
 import { RuleModule } from "./rule/rule.module";
 import { RmqController } from "./rmq.controller";
 import { MessageCreatedHandler } from "./cache/event-handler/message-created.handler";
-import { MatchHighlightsHandler } from "./service/match-highlights.handler";
-import { SRCDSPerformanceHandler } from "./event-handler/srcds-performance.handler";
+import { MatchModule } from "./match/match.module";
+import { PlayerModule } from "./player/player.module";
 import { TournamentModule } from "./tournament/tournament.module";
 import { AdminModule } from "./admin/admin.module";
 import { PermaBanGuard } from "./utils/decorator/with-user";
@@ -77,6 +75,9 @@ import { ItemDropModule } from "./itemdrop/itemdrop.module";
     ForumModule,
     TournamentModule,
     AdminModule,
+    MatchModule,
+    PlayerModule,
+    CustomizationModule,
     LiveMatchStreamModule,
     ConfigModule.forRoot({
       isGlobal: true,
@@ -176,19 +177,13 @@ import { ItemDropModule } from "./itemdrop/itemdrop.module";
     ApiModule,
   ],
   controllers: [
-    MatchController,
-    PlayerController,
     EventController,
     RmqController,
-
-    CustomizationController,
   ],
   providers: [
     UserHttpCacheInterceptor,
     MainService,
     PermaBanGuard,
-
-    SRCDSPerformanceHandler,
 
     {
       provide: "QueryCache",
@@ -209,8 +204,6 @@ import { ItemDropModule } from "./itemdrop/itemdrop.module";
     outerQueryNew(GetRoleSubscriptionsQuery, "QueryCore"),
     outerQueryNew(GetPlayerInfoQuery, "QueryCore"),
     outerQueryNew(GetPartyInvitationsQuery, "QueryCore"),
-
-    MatchHighlightsHandler,
 
     MessageCreatedHandler,
   ],
