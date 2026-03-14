@@ -7,9 +7,7 @@ import {
   ParseIntPipe,
   Patch,
   Post,
-  UseInterceptors,
 } from "@nestjs/common";
-import { ReqLoggingInterceptor } from "../metrics/req-logging.interceptor";
 import { ApiTags } from "@nestjs/swagger";
 import {
   CreateRuleDto,
@@ -29,7 +27,6 @@ import { RuleService } from "./rule.service";
 import { AdminGuard, WithUser } from "../utils/decorator/with-user";
 import { RulePunishmentEntity } from "../database/entities/rule-punishment.entity";
 
-@UseInterceptors(ReqLoggingInterceptor)
 @Controller("rules")
 @ApiTags("rules")
 export class RuleController {

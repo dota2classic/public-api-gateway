@@ -42,15 +42,12 @@ import { AchievementDto } from "./dto/achievement.dto";
 import { WithPagination } from "../utils/decorator/pagination";
 import { NullableIntPipe, PagePipe, PerPagePipe } from "../utils/pipes";
 import { PartyService } from "../party.service";
-import { ReqLoggingInterceptor } from "../metrics/req-logging.interceptor";
 import { UserProfileService } from "../service/user-profile.service";
 import { UserRelationService } from "../service/user-relation.service";
 import { UserRelationStatus } from "../gateway/shared-types/user-relation";
-import { DataSource } from "typeorm";
 import { GlobalHttpCacheInterceptor } from "../utils/cache-global";
-import { SocketGateway } from "../socket/socket.gateway";
+import { PlayerService } from "./player.service";
 
-@UseInterceptors(ReqLoggingInterceptor)
 @Controller("player")
 @ApiTags("player")
 export class PlayerController {
@@ -60,10 +57,9 @@ export class PlayerController {
     @Inject("QueryCore") private readonly redisEventQueue: ClientProxy,
     private readonly partyService: PartyService,
     private readonly gsApi: ApiClient,
-    private readonly socketGateway: SocketGateway,
     private readonly userProfile: UserProfileService,
     private readonly relation: UserRelationService,
-    private readonly ds: DataSource,
+    private readonly playerService: PlayerService,
   ) {}
 
   // @UseInterceptors(UserHttpCacheInterceptor)
@@ -249,30 +245,9 @@ export class PlayerController {
   async search(
     @Query("name") name: string,
     @Query("count", NullableIntPipe) count: number = 30,
-    @CurrentUser() user: D2CUser,
   ): Promise<UserDTO[]> {
-    const online = await this.socketGateway.getOnlineSteamIds();
-
-    const parametrizedLike = `%${name.replace(/%/g, "")}%`;
-
-    const a = await this.ds.query<{ steam_id: string }[]>(
-      `
-SELECT
-    ue.steam_id,
-    CASE
-        WHEN $3::text[] @> ARRAY[ue.steam_id::text]
-        THEN 10000
-        ELSE 1
-    END AS score
-FROM user_entity ue
-WHERE ue.name ILIKE $1
-ORDER BY score DESC
-LIMIT $2;
-    `,
-      [parametrizedLike, count, online],
-    );
-
-    return Promise.all(a.map((t) => this.userProfile.userDto(t.steam_id)));
+    const steamIds = await this.playerService.search(name, count);
+    return Promise.all(steamIds.map((id) => this.userProfile.userDto(id)));
   }
 
   @OldGuard()

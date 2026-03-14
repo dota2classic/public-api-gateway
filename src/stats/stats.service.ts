@@ -5,10 +5,20 @@ import { MatchmakingMode } from "../gateway/shared-types/matchmaking-mode";
 import { avg } from "../utils/average";
 import { PrometheusDriver } from "prometheus-query";
 import { Cron, CronExpression } from "@nestjs/schedule";
+import { InjectRepository } from "@nestjs/typeorm";
+import { MaintenanceEntity } from "../database/entities/maintenance.entity";
+import { DemoHighlightsEntity } from "../database/entities/demo-highlights.entity";
+import { Repository } from "typeorm";
 
 @Injectable()
 export class StatsService implements OnApplicationBootstrap {
-  constructor(private readonly prom: PrometheusDriver) {}
+  constructor(
+    private readonly prom: PrometheusDriver,
+    @InjectRepository(MaintenanceEntity)
+    private readonly maintenanceRepository: Repository<MaintenanceEntity>,
+    @InjectRepository(DemoHighlightsEntity)
+    private readonly demoHighlightsRepository: Repository<DemoHighlightsEntity>,
+  ) {}
 
   private _stats: [number, QueueTimeDto[]][] = [];
 
@@ -20,11 +30,18 @@ export class StatsService implements OnApplicationBootstrap {
     await this.refreshQueueStats();
   }
 
+  async getMaintenance(): Promise<{ active: boolean }> {
+    const m = await this.maintenanceRepository.find({});
+    return { active: m.length > 0 && m[0].active };
+  }
+
+  async getHighlights(matchId: number): Promise<DemoHighlightsEntity> {
+    return this.demoHighlightsRepository.findOneBy({ matchId });
+  }
+
   @Cron(CronExpression.EVERY_5_MINUTES)
   private async refreshQueueStats() {
-    this._stats = [];
-    // this._stats = await this.queueTimesChart();
-    // console.log(JSON.stringify(this._stats))
+    this._stats = await this.queueTimesChart();
   }
 
   private async queueTimesChart(

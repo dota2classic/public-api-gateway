@@ -1,3 +1,4 @@
+import { APP_INTERCEPTOR } from "@nestjs/core";
 import { Global, MiddlewareConsumer, Module, NestModule, RequestMethod } from "@nestjs/common";
 import { getToken, makeHistogramProvider, PrometheusModule } from "@willsoto/nestjs-prometheus";
 import { ReqLoggingInterceptor } from "./req-logging.interceptor";
@@ -22,6 +23,7 @@ import { CustomMetricsMiddleware } from "./custom-metrics.middleware";
       buckets: [0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1, 2, 5],
     }),
     ReqLoggingInterceptor,
+    { provide: APP_INTERCEPTOR, useClass: ReqLoggingInterceptor },
     MetricsService,
     BasicStrategy,
     CustomMetricsMiddleware,

@@ -12,16 +12,11 @@ import {
   TwitchStreamDto,
 } from "./stats.dto";
 import { CacheTTL } from "@nestjs/cache-manager";
-import { ReqLoggingInterceptor } from "../metrics/req-logging.interceptor";
 import { MatchmakingModes } from "../gateway/shared-types/matchmaking-mode";
 import { GlobalHttpCacheInterceptor } from "../utils/cache-global";
 import { TwitchService } from "../twitch.service";
 import { StatsMapper } from "./stats.mapper";
 import { StatsService } from "./stats.service";
-import { MaintenanceEntity } from "../database/entities/maintenance.entity";
-import { Repository } from "typeorm";
-import { InjectRepository } from "@nestjs/typeorm";
-import { DemoHighlightsEntity } from "../database/entities/demo-highlights.entity";
 import { AmqpConnection } from "@golevelup/nestjs-rabbitmq";
 import { MatchArtifactUploadedEvent } from "../gateway/events/match-artifact-uploaded.event";
 import { MatchArtifactType } from "../gateway/shared-types/match-artifact-type";
@@ -32,7 +27,6 @@ import {
   asDotaPatch,
 } from "../types/gs-api-compat";
 
-@UseInterceptors(ReqLoggingInterceptor)
 @Controller("stats")
 @ApiTags("stats")
 export class StatsController {
@@ -41,10 +35,6 @@ export class StatsController {
     private readonly twitch: TwitchService,
     private readonly mapper: StatsMapper,
     private readonly statsService: StatsService,
-    @InjectRepository(MaintenanceEntity)
-    private readonly maintenanceEntityRepository: Repository<MaintenanceEntity>,
-    @InjectRepository(DemoHighlightsEntity)
-    private readonly demoHighlightsEntityRepository: Repository<DemoHighlightsEntity>,
     private readonly amqpConnection: AmqpConnection,
   ) {}
 
@@ -66,25 +56,14 @@ export class StatsController {
 
   @Get("/highlights/:id")
   public async getHighlights(@Param("id") id: number) {
-    return this.demoHighlightsEntityRepository.findOneBy({
-      matchId: id,
-    });
+    return this.statsService.getHighlights(id);
   }
 
   @UseInterceptors(GlobalHttpCacheInterceptor)
   @CacheTTL(5)
   @Get("/maintenance")
   async maintenance(): Promise<MaintenanceDto> {
-    const m = await this.maintenanceEntityRepository.find({});
-    if (m.length === 0) {
-      return {
-        active: false,
-      };
-    }
-
-    return {
-      active: m[0].active,
-    };
+    return this.statsService.getMaintenance();
   }
 
   @UseInterceptors(GlobalHttpCacheInterceptor)

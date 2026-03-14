@@ -14,6 +14,7 @@ import { ForumApi } from "../generated-api/forum";
 import { AiService } from "../service/ai.service";
 import { Role } from "../gateway/shared-types/roles";
 import { AmqpConnection } from "@golevelup/nestjs-rabbitmq";
+import { ConfigService } from "@nestjs/config";
 
 @Injectable()
 export class FeedbackService implements OnApplicationBootstrap {
@@ -31,6 +32,7 @@ export class FeedbackService implements OnApplicationBootstrap {
     private readonly forumApi: ForumApi,
     private readonly feedbackAssistant: AiService,
     private readonly amqpConnection: AmqpConnection,
+    private readonly config: ConfigService,
   ) {}
 
   public async createFeedbackForPlayer(
@@ -200,7 +202,7 @@ ${comment}
 
     await this.forumApi.forumControllerPostMessage(thread.id, {
       author: {
-        steam_id: "159907143",
+        steam_id: this.config.get("api.botSteamId"),
         roles: [Role.ADMIN],
       },
       content: response?.unknown

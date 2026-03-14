@@ -7,7 +7,6 @@ import {
   Query,
   UseInterceptors,
 } from "@nestjs/common";
-import { ReqLoggingInterceptor } from "../metrics/req-logging.interceptor";
 import { ApiBody, ApiConsumes, ApiQuery, ApiTags } from "@nestjs/swagger";
 import { AdminGuard, WithUser } from "../utils/decorator/with-user";
 import {
@@ -34,7 +33,6 @@ import { parseLogFile } from "../utils/parseLogFile";
 import { GlobalHttpCacheInterceptor } from "../utils/cache-global";
 import { CacheTTL } from "@nestjs/cache-manager";
 
-@UseInterceptors(ReqLoggingInterceptor)
 @Controller("storage")
 @ApiTags("storage")
 export class StorageController {

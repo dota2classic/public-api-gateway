@@ -1,4 +1,4 @@
-import { HttpException, Injectable } from "@nestjs/common";
+import { HttpException, Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { UserReportEntity } from "../database/entities/user-report.entity";
 import { DataSource, EntityManager, Repository } from "typeorm";
@@ -13,6 +13,8 @@ import { NotificationService } from "../notification/notification.service";
 import { CurrentUserDto } from "../utils/decorator/current-user";
 import { RulePunishmentEntity } from "../database/entities/rule-punishment.entity";
 import { PunishmentLogEntity } from "../database/entities/punishment-log.entity";
+import { ApplyPunishmentDto, HandleReportDto } from "./report.dto";
+import { ForumMessageDTO } from "../generated-api/forum";
 import { PlayerBanEntity } from "../database/entities/player-ban.entity";
 import { BanReason } from "../gateway/shared-types/ban";
 import { ConfigService } from "@nestjs/config";
@@ -31,6 +33,8 @@ export class ReportService {
     private readonly punishmentLogEntityRepository: Repository<PunishmentLogEntity>,
     @InjectRepository(PlayerBanEntity)
     private readonly playerBanEntityRepository: Repository<PlayerBanEntity>,
+    @InjectRepository(RulePunishmentEntity)
+    private readonly rulePunishmentEntityRepository: Repository<RulePunishmentEntity>,
     private readonly ds: DataSource,
     private readonly config: ConfigService,
     @InjectRepository(PlayerFlagsEntity)
@@ -238,6 +242,113 @@ ${report.comment ? `Комментарий: \n${report.comment}` : ""}
     if (alreadyReported) {
       throw new HttpException({ message: "Такая жалоба уже заведена" }, 400);
     }
+  }
+
+  public async applyPunishment(dto: ApplyPunishmentDto, executorSteamId: string): Promise<void> {
+    const rule = await this.ruleEntityRepository.findOneOrFail({
+      where: { id: dto.ruleId },
+      relations: ["punishment"],
+    });
+
+    const punishment = dto.overridePunishmentId
+      ? await this.rulePunishmentEntityRepository.findOne({
+          where: { id: dto.overridePunishmentId },
+        })
+      : rule.punishment;
+
+    if (!punishment) {
+      throw new NotFoundException("Punishment not found for rule or override");
+    }
+
+    await this.createLog(
+      dto.steamId,
+      executorSteamId,
+      rule.id,
+      punishment.durationHours * 60 * 60,
+      punishment.id,
+    );
+  }
+
+  public async handleReport(
+    id: string,
+    dto: HandleReportDto,
+    executorSteamId: string,
+  ): Promise<UserReportEntity> {
+    const report = await this.userReportEntityRepository.findOne({
+      where: { id, handled: false },
+      relations: ["rule"],
+    });
+
+    const punishment = dto.overridePunishmentId
+      ? await this.rulePunishmentEntityRepository.findOne({
+          where: { id: dto.overridePunishmentId },
+        })
+      : report.rule.punishment;
+
+    if (!punishment) {
+      throw new NotFoundException("Punishment not found for rule or override");
+    }
+
+    const uc = await this.userReportEntityRepository.update(
+      { id, handled: false },
+      { handled: true },
+    );
+    if (!uc.affected) {
+      throw new NotFoundException();
+    }
+
+    if (dto.valid) {
+      await this.createLogFromReport(report, punishment, executorSteamId);
+    }
+
+    return this.userReportEntityRepository.findOne({
+      where: { id },
+      relations: ["rule"],
+    });
+  }
+
+  public async getReport(id: string): Promise<[UserReportEntity, ForumMessageDTO | undefined]> {
+    const report = await this.userReportEntityRepository.findOne({ where: { id } });
+    const msg = report.messageId
+      ? await this.forumApi.forumControllerGetMessage(report.messageId)
+      : undefined;
+    return [report, msg];
+  }
+
+  public async getPaginationLog(
+    page: number,
+    perPage: number,
+    steamId?: string,
+  ): Promise<[PunishmentLogEntity[], number]> {
+    return this.punishmentLogEntityRepository.findAndCount({
+      take: perPage,
+      skip: page * perPage,
+      relations: ["rule", "punishment"],
+      where: { reportedSteamId: steamId || undefined },
+      order: { createdAt: "DESC" },
+    });
+  }
+
+  public async getReportPage(
+    page: number,
+    perPage: number,
+  ): Promise<[[UserReportEntity, ForumMessageDTO | undefined][], number]> {
+    const [items, count] = await this.userReportEntityRepository.findAndCount({
+      take: perPage,
+      skip: perPage * page,
+      order: { handled: "ASC", createdAt: "DESC" },
+    });
+
+    const itemsWithMessages = await Promise.all(
+      items.map(async (item): Promise<[UserReportEntity, ForumMessageDTO | undefined]> => {
+        if (item.messageId) {
+          return [item, await this.forumApi.forumControllerGetMessage(item.messageId)];
+        }
+        return [item, undefined];
+      }),
+    );
+
+    return [itemsWithMessages, count];
   }
 
   private async checkHasPermission(steamId: string) {

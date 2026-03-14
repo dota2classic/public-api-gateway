@@ -56,7 +56,6 @@ import { MessageUpdatedEvent } from "../gateway/events/message-updated.event";
 import { ForumMapper } from "./forum.mapper";
 import { WithPagination } from "../utils/decorator/pagination";
 import { PlayerId } from "../gateway/shared-types/player-id";
-import { ReqLoggingInterceptor } from "../metrics/req-logging.interceptor";
 import { WithOptionalUser } from "../utils/decorator/with-optional-user";
 import { BlogpostEntity } from "../database/entities/blogpost.entity";
 import { InjectRepository } from "@nestjs/typeorm";
@@ -66,7 +65,6 @@ import { AiService } from "../service/ai.service";
 import { UserHttpCacheInterceptor } from "../utils/cache-key-track";
 import { Throttle } from "@nestjs/throttler";
 
-@UseInterceptors(ReqLoggingInterceptor)
 @Controller("forum")
 @ApiTags("forum")
 export class ForumController {

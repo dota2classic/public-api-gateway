@@ -83,6 +83,7 @@ export default (): ExpectedConfig => {
       gameserverApiUrl: process.env.GAMESERVER_API,
       forumApiUrl: process.env.FORUM_API,
       tradeApiUrl: process.env.TRADE_API,
+      botSteamId: process.env.BOT_STEAM_ID || "159907143",
     },
     telemetry: {
       jaeger: {
