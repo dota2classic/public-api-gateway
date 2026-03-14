@@ -2,7 +2,7 @@ import { Injectable } from "@nestjs/common";
 import {
   NotificationEntity,
   NotificationEntityType,
-} from "../entity/notification.entity";
+} from "../database/entities/notification.entity";
 import {
   NotificationAchievementDto,
   NotificationDto,
@@ -10,7 +10,7 @@ import {
   NotificationThreadDto,
 } from "./notification.dto";
 import { FeedbackMapper } from "../feedback/feedback.mapper";
-import { PlayerFeedbackEntity } from "../entity/player-feedback.entity";
+import { PlayerFeedbackEntity } from "../database/entities/player-feedback.entity";
 import { Repository } from "typeorm";
 import { InjectRepository } from "@nestjs/typeorm";
 import { PlayerFeedbackDto } from "../feedback/feedback.dto";

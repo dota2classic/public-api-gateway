@@ -1,7 +1,7 @@
 import { Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
-import { RuleEntity } from "../entity/rule.entity";
-import { RulePunishmentEntity } from "../entity/rule-punishment.entity";
+import { RuleEntity } from "../database/entities/rule.entity";
+import { RulePunishmentEntity } from "../database/entities/rule-punishment.entity";
 import { RuleController } from "./rule.controller";
 import { RuleService } from "./rule.service";
 import { RuleMapper } from "./rule.mapper";

@@ -8,7 +8,7 @@ import {
   Relation,
 } from "typeorm";
 import { LobbyEntity } from "./lobby.entity";
-import { DotaTeam } from "../gateway/shared-types/dota-team";
+import { DotaTeam } from "../../gateway/shared-types/dota-team";
 
 @Entity("lobby_slot_entity")
 @Index(

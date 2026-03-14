@@ -5,7 +5,7 @@ import { ItemDroppedEvent } from "../gateway/events/item-dropped.event";
 import {
   NotificationEntityType,
   NotificationType,
-} from "../entity/notification.entity";
+} from "../database/entities/notification.entity";
 import {
   TradeBotItemQuality,
   TradeBotItemRarity,

@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { UserProfileDecorationEntity } from "../entity/user-profile-decoration.entity";
+import { UserProfileDecorationEntity } from "../database/entities/user-profile-decoration.entity";
 import { ProfileDecorationDto } from "./customization.dto";
 import { StorageMapper } from "../storage/storage.mapper";
 

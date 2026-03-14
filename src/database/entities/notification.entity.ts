@@ -6,7 +6,7 @@ import {
   PrimaryColumn,
   PrimaryGeneratedColumn,
 } from "typeorm";
-import { VirtualColumn2 } from "../virtual-column";
+import { VirtualColumn2 } from "../../virtual-column";
 
 export enum NotificationEntityType {
   FEEDBACK = "FEEDBACK",

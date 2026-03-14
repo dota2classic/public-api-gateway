@@ -1,4 +1,4 @@
-import { UserProfileDecorationType } from "../entity/user-profile-decoration.entity";
+import { UserProfileDecorationType } from "../database/entities/user-profile-decoration.entity";
 import { UploadedImageDto } from "../storage/storage.dto";
 import { ApiProperty } from "@nestjs/swagger";
 

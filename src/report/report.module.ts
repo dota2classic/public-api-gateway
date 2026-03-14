@@ -5,12 +5,12 @@ import { ReportService } from "./report.service";
 import { ReportMapper } from "./report.mapper";
 import { PlayerRuleBrokenHandler } from "./event-handler/player-rule-broken.handler";
 import { ForumMapper } from "../forum/forum.mapper";
-import { UserReportEntity } from "../entity/user-report.entity";
-import { RuleEntity } from "../entity/rule.entity";
-import { PunishmentLogEntity } from "../entity/punishment-log.entity";
-import { PlayerBanEntity } from "../entity/player-ban.entity";
-import { PlayerFlagsEntity } from "../entity/player-flags.entity";
-import { RulePunishmentEntity } from "../entity/rule-punishment.entity";
+import { UserReportEntity } from "../database/entities/user-report.entity";
+import { RuleEntity } from "../database/entities/rule.entity";
+import { PunishmentLogEntity } from "../database/entities/punishment-log.entity";
+import { PlayerBanEntity } from "../database/entities/player-ban.entity";
+import { PlayerFlagsEntity } from "../database/entities/player-flags.entity";
+import { RulePunishmentEntity } from "../database/entities/rule-punishment.entity";
 import { RuleModule } from "../rule/rule.module";
 import { NotificationModule } from "../notification/notification.module";
 

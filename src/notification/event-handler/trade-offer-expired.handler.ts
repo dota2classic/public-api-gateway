@@ -3,7 +3,7 @@ import { NotificationService } from "../notification.service";
 import {
   NotificationEntityType,
   NotificationType,
-} from "../../entity/notification.entity";
+} from "../../database/entities/notification.entity";
 import { TradeOfferExpiredCommand } from "./trade-offer-expired.command";
 
 @CommandHandler(TradeOfferExpiredCommand)

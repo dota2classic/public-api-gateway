@@ -1,11 +1,11 @@
 import { Injectable } from "@nestjs/common";
-import { PlayerFeedbackEntity } from "../entity/player-feedback.entity";
+import { PlayerFeedbackEntity } from "../database/entities/player-feedback.entity";
 import {
   FeedbackDto,
   FeedbackTemplateDto,
   PlayerFeedbackDto,
 } from "./feedback.dto";
-import { FeedbackEntity } from "../entity/feedback.entity";
+import { FeedbackEntity } from "../database/entities/feedback.entity";
 import { UserProfileService } from "../service/user-profile.service";
 
 @Injectable()

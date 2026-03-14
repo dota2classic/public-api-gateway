@@ -28,17 +28,17 @@ import {
   ReportPlayerInMatchDto,
 } from "./report.dto";
 import { ReportService } from "./report.service";
-import { UserReportEntity } from "../entity/user-report.entity";
+import { UserReportEntity } from "../database/entities/user-report.entity";
 import { Repository } from "typeorm";
 import { InjectRepository } from "@nestjs/typeorm";
 import { ReportMapper } from "./report.mapper";
 import { ForumApi, ForumMessageDTO } from "../generated-api/forum";
-import { RulePunishmentEntity } from "../entity/rule-punishment.entity";
+import { RulePunishmentEntity } from "../database/entities/rule-punishment.entity";
 import { WithPagination } from "../utils/decorator/pagination";
-import { PunishmentLogEntity } from "../entity/punishment-log.entity";
+import { PunishmentLogEntity } from "../database/entities/punishment-log.entity";
 import { NullableIntPipe } from "../utils/pipes";
 import { makePage } from "../gateway/util/make-page";
-import { RuleEntity } from "../entity/rule.entity";
+import { RuleEntity } from "../database/entities/rule.entity";
 
 @UseInterceptors(ReqLoggingInterceptor)
 @Controller("report")

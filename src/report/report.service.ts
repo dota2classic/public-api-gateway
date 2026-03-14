@@ -1,22 +1,22 @@
 import { HttpException, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { UserReportEntity } from "../entity/user-report.entity";
+import { UserReportEntity } from "../database/entities/user-report.entity";
 import { DataSource, EntityManager, Repository } from "typeorm";
 import { ForumApi } from "../generated-api/forum";
 import { ThreadType } from "../gateway/shared-types/thread-type";
-import { RuleEntity, RuleType } from "../entity/rule.entity";
+import { RuleEntity, RuleType } from "../database/entities/rule.entity";
 import {
   NotificationEntityType,
   NotificationType,
-} from "../entity/notification.entity";
+} from "../database/entities/notification.entity";
 import { NotificationService } from "../notification/notification.service";
 import { CurrentUserDto } from "../utils/decorator/current-user";
-import { RulePunishmentEntity } from "../entity/rule-punishment.entity";
-import { PunishmentLogEntity } from "../entity/punishment-log.entity";
-import { PlayerBanEntity } from "../entity/player-ban.entity";
+import { RulePunishmentEntity } from "../database/entities/rule-punishment.entity";
+import { PunishmentLogEntity } from "../database/entities/punishment-log.entity";
+import { PlayerBanEntity } from "../database/entities/player-ban.entity";
 import { BanReason } from "../gateway/shared-types/ban";
 import { ConfigService } from "@nestjs/config";
-import { PlayerFlagsEntity } from "../entity/player-flags.entity";
+import { PlayerFlagsEntity } from "../database/entities/player-flags.entity";
 
 @Injectable()
 export class ReportService {

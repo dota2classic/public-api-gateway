@@ -15,7 +15,7 @@ import {
   CurrentUser,
   CurrentUserDto,
 } from "../utils/decorator/current-user";
-import { FeedbackEntity } from "../entity/feedback.entity";
+import { FeedbackEntity } from "../database/entities/feedback.entity";
 import { Repository } from "typeorm";
 import { InjectRepository } from "@nestjs/typeorm";
 

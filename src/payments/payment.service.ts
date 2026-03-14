@@ -10,14 +10,14 @@ import {
 import {
   PaymentStatus,
   UserPaymentEntity,
-} from "../entity/user-payment.entity";
+} from "../database/entities/user-payment.entity";
 import { UserSubscriptionPaidEvent } from "../gateway/events/user/user-subscription-paid.event";
-import { SubscriptionProductEntity } from "../entity/subscription-product.entity";
+import { SubscriptionProductEntity } from "../database/entities/subscription-product.entity";
 import { NotificationService } from "../notification/notification.service";
 import {
   NotificationEntityType,
   NotificationType,
-} from "../entity/notification.entity";
+} from "../database/entities/notification.entity";
 import * as crypto from "crypto";
 import { PayanywayPaymentAdapter } from "./payanyway-payment-adapter";
 import { AmqpConnection } from "@golevelup/nestjs-rabbitmq";

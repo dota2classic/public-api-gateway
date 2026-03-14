@@ -1,5 +1,5 @@
 import { Injectable, Logger, OnApplicationBootstrap } from "@nestjs/common";
-import { UserRelationEntity } from "../entity/user-relation.entity";
+import { UserRelationEntity } from "../database/entities/user-relation.entity";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { UserRelationStatus } from "../gateway/shared-types/user-relation";

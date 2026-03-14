@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
-import { RuleEntity } from "../entity/rule.entity";
+import { RuleEntity } from "../database/entities/rule.entity";
 import { RuleDto, RulePunishmentDto } from "./rule.dto";
-import { RulePunishmentEntity } from "../entity/rule-punishment.entity";
+import { RulePunishmentEntity } from "../database/entities/rule-punishment.entity";
 
 @Injectable()
 export class RuleMapper {

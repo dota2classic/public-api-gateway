@@ -1,6 +1,6 @@
 import { Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
-import { BlogpostEntity } from "../entity/blogpost.entity";
+import { BlogpostEntity } from "../database/entities/blogpost.entity";
 import { BlogpostController } from "./blogpost.controller";
 import { BlogpostMapper } from "./blogpost.mapper";
 

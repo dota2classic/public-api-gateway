@@ -1,4 +1,4 @@
-import { LobbyEntity } from "../../entity/lobby.entity";
+import { LobbyEntity } from "../../database/entities/lobby.entity";
 import { LobbyAction } from "../lobby.dto";
 
 export class LobbyUpdatedEvent {

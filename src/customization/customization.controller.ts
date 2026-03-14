@@ -13,10 +13,10 @@ import {
 import {
   UserProfileDecorationEntity,
   UserProfileDecorationType,
-} from "../entity/user-profile-decoration.entity";
+} from "../database/entities/user-profile-decoration.entity";
 import { InjectRepository } from "@nestjs/typeorm";
 import { DataSource, Repository } from "typeorm";
-import { UserProfileDecorationPreferencesEntity } from "../entity/user-profile-decoration-preferences.entity";
+import { UserProfileDecorationPreferencesEntity } from "../database/entities/user-profile-decoration-preferences.entity";
 import {
   CreateDecorationDto,
   ProfileDecorationDto,

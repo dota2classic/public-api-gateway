@@ -1,5 +1,5 @@
 import { Column, Entity, PrimaryColumn } from "typeorm";
-import { UserRelationStatus } from "../gateway/shared-types/user-relation";
+import { UserRelationStatus } from "../../gateway/shared-types/user-relation";
 
 @Entity("user_relation")
 export class UserRelationEntity {

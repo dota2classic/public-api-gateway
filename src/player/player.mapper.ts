@@ -18,7 +18,7 @@ import { MatchAccessLevel } from "../gateway/shared-types/match-access-level";
 import { UserProfileService } from "../service/user-profile.service";
 import { RoleLifetime } from "../gateway/caches/user-fast-profile.dto";
 import { MatchmakerGetPartyQueryResultDto } from "../generated-api/matchmaker";
-import { LobbySlotEntity } from "../entity/lobby-slot.entity";
+import { LobbySlotEntity } from "../database/entities/lobby-slot.entity";
 import {
   asBanReason,
   asMatchAccessLevel,

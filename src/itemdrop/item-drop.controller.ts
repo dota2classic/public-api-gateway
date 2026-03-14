@@ -31,7 +31,7 @@ import {
   UpdateTradeLinkDto,
 } from "./item-drop.dto";
 import { PaymentService } from "../payments/payment.service";
-import { SubscriptionProductEntity } from "../entity/subscription-product.entity";
+import { SubscriptionProductEntity } from "../database/entities/subscription-product.entity";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 

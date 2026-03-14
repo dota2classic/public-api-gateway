@@ -1,5 +1,5 @@
 import { Column, Entity, PrimaryColumn } from "typeorm";
-import { MatchHighlightsEvent } from "../gateway/events/match-highlights.event";
+import { MatchHighlightsEvent } from "../../gateway/events/match-highlights.event";
 
 @Entity("demo_highlights")
 export class DemoHighlightsEntity {

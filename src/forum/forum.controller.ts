@@ -58,7 +58,7 @@ import { WithPagination } from "../utils/decorator/pagination";
 import { PlayerId } from "../gateway/shared-types/player-id";
 import { ReqLoggingInterceptor } from "../metrics/req-logging.interceptor";
 import { WithOptionalUser } from "../utils/decorator/with-optional-user";
-import { BlogpostEntity } from "../entity/blogpost.entity";
+import { BlogpostEntity } from "../database/entities/blogpost.entity";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { CacheTTL } from "@nestjs/cache-manager";

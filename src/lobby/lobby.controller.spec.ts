@@ -1,6 +1,6 @@
 import { Test, TestingModule } from "@nestjs/testing";
-import { LobbySlotEntity } from "../entity/lobby-slot.entity";
-import { LobbyEntity } from "../entity/lobby.entity";
+import { LobbySlotEntity } from "../database/entities/lobby-slot.entity";
+import { LobbyEntity } from "../database/entities/lobby.entity";
 import { LobbyController } from "./lobby.controller";
 import { LobbyService } from "./lobby.service";
 import { LobbyMapper } from "./lobby.mapper";

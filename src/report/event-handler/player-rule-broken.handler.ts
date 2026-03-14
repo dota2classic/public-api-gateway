@@ -3,8 +3,8 @@ import { PlayerRuleBrokenEvent } from "../../gateway/events/bans/player-rule-bro
 import { ReportService } from "../report.service";
 import { Repository } from "typeorm";
 import { InjectRepository } from "@nestjs/typeorm";
-import { RuleEntity } from "../../entity/rule.entity";
-import { RulePunishmentEntity } from "../../entity/rule-punishment.entity";
+import { RuleEntity } from "../../database/entities/rule.entity";
+import { RulePunishmentEntity } from "../../database/entities/rule-punishment.entity";
 
 @EventsHandler(PlayerRuleBrokenEvent)
 export class PlayerRuleBrokenHandler

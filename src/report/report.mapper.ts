@@ -2,11 +2,11 @@ import { Injectable } from "@nestjs/common";
 import { RuleMapper } from "../rule/rule.mapper";
 import { MatchMapper } from "../match/match.mapper";
 import { ForumMapper } from "../forum/forum.mapper";
-import { UserReportEntity } from "../entity/user-report.entity";
+import { UserReportEntity } from "../database/entities/user-report.entity";
 import { UserProfileService } from "../service/user-profile.service";
 import { PunishmentLogDto, ReportDto } from "./report.dto";
 import { ForumMessageDTO } from "../generated-api/forum";
-import { PunishmentLogEntity } from "../entity/punishment-log.entity";
+import { PunishmentLogEntity } from "../database/entities/punishment-log.entity";
 
 @Injectable()
 export class ReportMapper {

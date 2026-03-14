@@ -7,7 +7,7 @@ import { QueryBus } from "@nestjs/cqrs";
 import { GetAllConnectionsQuery } from "./gateway/queries/GetAllConnections/get-all-connections.query";
 import { UserConnection } from "./gateway/shared-types/user-connection";
 import { GetAllConnectionsQueryResult } from "./gateway/queries/GetAllConnections/get-all-connections-query.result";
-import { PlayerFlagsEntity } from "./entity/player-flags.entity";
+import { PlayerFlagsEntity } from "./database/entities/player-flags.entity";
 import { Repository } from "typeorm";
 import { InjectRepository } from "@nestjs/typeorm";
 

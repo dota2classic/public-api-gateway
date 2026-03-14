@@ -3,7 +3,7 @@ import { TournamentRegistrationInvitationResolvedEvent } from "../gateway/events
 import {
   NotificationEntityType,
   NotificationType,
-} from "../entity/notification.entity";
+} from "../database/entities/notification.entity";
 import { NotificationService } from "../notification/notification.service";
 
 @EventsHandler(TournamentRegistrationInvitationResolvedEvent)

@@ -4,7 +4,7 @@ import { ApiProperty } from "@nestjs/swagger";
 import {
   NotificationEntityType,
   NotificationType,
-} from "../entity/notification.entity";
+} from "../database/entities/notification.entity";
 import { PlayerFeedbackDto } from "../feedback/feedback.dto";
 import { AchievementKey } from "../gateway/shared-types/achievemen-key";
 import { ThreadType } from "../gateway/shared-types/thread-type";

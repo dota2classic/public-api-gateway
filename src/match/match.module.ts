@@ -4,7 +4,7 @@ import { SRCDSPerformanceHandler } from "../event-handler/srcds-performance.hand
 import { MatchHighlightsHandler } from "../service/match-highlights.handler";
 import { NotificationModule } from "../notification/notification.module";
 import { TypeOrmModule } from "@nestjs/typeorm";
-import { DemoHighlightsEntity } from "../entity/demo-highlights.entity";
+import { DemoHighlightsEntity } from "../database/entities/demo-highlights.entity";
 
 @Module({
   imports: [NotificationModule, TypeOrmModule.forFeature([DemoHighlightsEntity])],

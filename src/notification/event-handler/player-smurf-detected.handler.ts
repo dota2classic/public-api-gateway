@@ -3,7 +3,7 @@ import { TelegramNotificationService } from "../telegram-notification.service";
 import { BanReason } from "../../gateway/shared-types/ban";
 import { fullDate } from "../../utils/format-date";
 import { UserProfileService } from "../../service/user-profile.service";
-import { PlayerFlagsEntity } from "../../entity/player-flags.entity";
+import { PlayerFlagsEntity } from "../../database/entities/player-flags.entity";
 import { Repository } from "typeorm";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Logger } from "@nestjs/common";

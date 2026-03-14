@@ -4,7 +4,7 @@ import {
   NotificationEntity,
   NotificationEntityType,
   NotificationType,
-} from "../../entity/notification.entity";
+} from "../../database/entities/notification.entity";
 import { InjectRepository } from "@nestjs/typeorm";
 import { NotificationService } from "../notification.service";
 import { Repository } from "typeorm";

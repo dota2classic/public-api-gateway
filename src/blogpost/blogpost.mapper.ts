@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { BlogpostEntity } from "../entity/blogpost.entity";
+import { BlogpostEntity } from "../database/entities/blogpost.entity";
 import { BlogpostDto } from "./blogpost.dto";
 import { ConfigService } from "@nestjs/config";
 import { UserProfileService } from "../service/user-profile.service";

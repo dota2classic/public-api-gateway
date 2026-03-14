@@ -3,7 +3,7 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { ServerController } from "./server.controller";
 import { AdminUserController } from "./admin-user.controller";
 import { AdminMapper } from "./admin.mapper";
-import { PlayerFlagsEntity } from "../entity/player-flags.entity";
+import { PlayerFlagsEntity } from "../database/entities/player-flags.entity";
 
 @Module({
   imports: [TypeOrmModule.forFeature([PlayerFlagsEntity])],

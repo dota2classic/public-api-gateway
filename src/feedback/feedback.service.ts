@@ -1,13 +1,13 @@
 import { Injectable, OnApplicationBootstrap } from "@nestjs/common";
-import { FeedbackEntity } from "../entity/feedback.entity";
+import { FeedbackEntity } from "../database/entities/feedback.entity";
 import { InjectRepository } from "@nestjs/typeorm";
 import { DataSource, Repository } from "typeorm";
-import { PlayerFeedbackEntity } from "../entity/player-feedback.entity";
-import { PlayerFeedbackOptionResultEntity } from "../entity/player-feedback-option-result.entity";
+import { PlayerFeedbackEntity } from "../database/entities/player-feedback.entity";
+import { PlayerFeedbackOptionResultEntity } from "../database/entities/player-feedback-option-result.entity";
 import { SubmittedFeedbackOptionDto } from "./feedback.dto";
 import { EventBus } from "@nestjs/cqrs";
 import { FeedbackCreatedEvent } from "./event/feedback-created.event";
-import { FeedbackOptionEntity } from "../entity/feedback-option.entity";
+import { FeedbackOptionEntity } from "../database/entities/feedback-option.entity";
 import { ThreadType } from "../gateway/shared-types/thread-type";
 import { CurrentUserDto } from "../utils/decorator/current-user";
 import { ForumApi } from "../generated-api/forum";

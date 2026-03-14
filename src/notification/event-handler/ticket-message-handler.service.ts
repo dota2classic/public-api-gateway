@@ -3,16 +3,16 @@ import { MessageUpdatedEvent } from "../../gateway/events/message-updated.event"
 import {
   NotificationEntityType,
   NotificationType,
-} from "../../entity/notification.entity";
+} from "../../database/entities/notification.entity";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
-import { PlayerFeedbackEntity } from "../../entity/player-feedback.entity";
+import { PlayerFeedbackEntity } from "../../database/entities/player-feedback.entity";
 import { ThreadType } from "../../gateway/shared-types/thread-type";
 import { Logger } from "@nestjs/common";
 import { NotificationService } from "../../notification/notification.service";
 import { TelegramNotificationService } from "../telegram-notification.service";
 import { UserProfileService } from "../../service/user-profile.service";
-import { UserReportEntity } from "../../entity/user-report.entity";
+import { UserReportEntity } from "../../database/entities/user-report.entity";
 import { TicketMessageCommand } from "./ticket-message.command";
 import { MessageCreatedEvent } from "../../cache/message-created.event";
 

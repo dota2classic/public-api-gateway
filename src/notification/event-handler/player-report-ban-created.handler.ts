@@ -4,7 +4,7 @@ import { NotificationService } from "../notification.service";
 import {
   NotificationEntityType,
   NotificationType,
-} from "../../entity/notification.entity";
+} from "../../database/entities/notification.entity";
 
 @EventsHandler(PlayerReportBanCreatedEvent)
 export class PlayerReportBanCreatedHandler

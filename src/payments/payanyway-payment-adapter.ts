@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
-import { UserPaymentEntity } from "../entity/user-payment.entity";
-import { SubscriptionProductEntity } from "../entity/subscription-product.entity";
+import { UserPaymentEntity } from "../database/entities/user-payment.entity";
+import { SubscriptionProductEntity } from "../database/entities/subscription-product.entity";
 import { pluralize } from "../utils/pluralize";
 import * as qs from "qs";
 import * as crypto from "crypto";

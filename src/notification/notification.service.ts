@@ -1,7 +1,7 @@
 import { Inject, Injectable, Logger } from "@nestjs/common";
 import { SubscriptionDto } from "./notification.dto";
 import { InjectRepository } from "@nestjs/typeorm";
-import { WebpushSubscriptionEntity } from "../entity/webpush-subscription.entity";
+import { WebpushSubscriptionEntity } from "../database/entities/webpush-subscription.entity";
 import { In, Not, Repository, SelectQueryBuilder } from "typeorm";
 import { EventBus, QueryBus } from "@nestjs/cqrs";
 import * as webpush from "web-push";
@@ -17,7 +17,7 @@ import {
   NotificationEntity,
   NotificationEntityType,
   NotificationType,
-} from "../entity/notification.entity";
+} from "../database/entities/notification.entity";
 import { Cron, CronExpression } from "@nestjs/schedule";
 import { NotificationCreatedEvent } from "./event/notification-created.event";
 import { NotificationMapper } from "./notification.mapper";

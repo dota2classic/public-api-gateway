@@ -5,7 +5,7 @@ import { NotificationService } from "../../notification.service";
 import {
   NotificationEntityType,
   NotificationType,
-} from "../../../entity/notification.entity";
+} from "../../../database/entities/notification.entity";
 
 @CommandHandler(CreateFeedbackNotificationCommand)
 export class CreateFeedbackNotificationHandler

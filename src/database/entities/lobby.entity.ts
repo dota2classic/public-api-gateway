@@ -1,9 +1,9 @@
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { LobbySlotEntity } from "./lobby-slot.entity";
-import { Dota_GameMode } from "../gateway/shared-types/dota-game-mode";
-import { Dota_Map } from "../gateway/shared-types/dota-map";
-import { DotaPatch } from "../gateway/constants/patch";
-import { Region } from "../gateway/shared-types/region";
+import { Dota_GameMode } from "../../gateway/shared-types/dota-game-mode";
+import { Dota_Map } from "../../gateway/shared-types/dota-map";
+import { DotaPatch } from "../../gateway/constants/patch";
+import { Region } from "../../gateway/shared-types/region";
 
 @Entity()
 export class LobbyEntity {

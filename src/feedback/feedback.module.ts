@@ -1,9 +1,9 @@
 import { Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
-import { FeedbackEntity } from "../entity/feedback.entity";
-import { PlayerFeedbackEntity } from "../entity/player-feedback.entity";
-import { PlayerFeedbackOptionResultEntity } from "../entity/player-feedback-option-result.entity";
-import { FeedbackOptionEntity } from "../entity/feedback-option.entity";
+import { FeedbackEntity } from "../database/entities/feedback.entity";
+import { PlayerFeedbackEntity } from "../database/entities/player-feedback.entity";
+import { PlayerFeedbackOptionResultEntity } from "../database/entities/player-feedback-option-result.entity";
+import { FeedbackOptionEntity } from "../database/entities/feedback-option.entity";
 import { FeedbackService } from "./feedback.service";
 import { AiService } from "../service/ai.service";
 import { FeedbackMapper } from "./feedback.mapper";

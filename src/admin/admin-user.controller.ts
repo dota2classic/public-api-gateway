@@ -42,7 +42,7 @@ import { WithPagination } from "../utils/decorator/pagination";
 import { MatchmakingInfo } from "../stats/stats.dto";
 import { InjectS3, S3 } from "nestjs-s3";
 import { UserProfileService } from "../service/user-profile.service";
-import { PlayerFlagsEntity } from "../entity/player-flags.entity";
+import { PlayerFlagsEntity } from "../database/entities/player-flags.entity";
 import { Repository } from "typeorm";
 import { InjectRepository } from "@nestjs/typeorm";
 import {

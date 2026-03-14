@@ -4,10 +4,10 @@ import { UserProfileFastService } from "@dota2classic/caches/dist/service/user-p
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { UserFastProfileDto } from "../gateway/caches/user-fast-profile.dto";
-import { UserProfileDecorationPreferencesEntity } from "../entity/user-profile-decoration-preferences.entity";
+import { UserProfileDecorationPreferencesEntity } from "../database/entities/user-profile-decoration-preferences.entity";
 import { CustomizationMapper } from "../customization/customization.mapper";
 import { UserDTO } from "../shared.dto";
-import { PlayerFlagsEntity } from "../entity/player-flags.entity";
+import { PlayerFlagsEntity } from "../database/entities/player-flags.entity";
 import { memoize2 } from "../utils/memoize";
 
 @Injectable()

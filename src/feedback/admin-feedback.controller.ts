@@ -10,8 +10,8 @@ import {
   Query,
 } from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
-import { FeedbackEntity } from "../entity/feedback.entity";
-import { FeedbackOptionEntity } from "../entity/feedback-option.entity";
+import { FeedbackEntity } from "../database/entities/feedback.entity";
+import { FeedbackOptionEntity } from "../database/entities/feedback-option.entity";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import {
@@ -29,7 +29,7 @@ import {
 import { FeedbackService } from "./feedback.service";
 import { FeedbackMapper } from "./feedback.mapper";
 import { WithPagination } from "../utils/decorator/pagination";
-import { PlayerFeedbackEntity } from "../entity/player-feedback.entity";
+import { PlayerFeedbackEntity } from "../database/entities/player-feedback.entity";
 import { makePage } from "../gateway/util/make-page";
 import { NullableIntPipe } from "../utils/pipes";
 

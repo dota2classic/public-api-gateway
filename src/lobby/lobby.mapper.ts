@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
-import { LobbyEntity } from "../entity/lobby.entity";
+import { LobbyEntity } from "../database/entities/lobby.entity";
 import { LobbyDto, LobbySlotDto } from "./lobby.dto";
-import { LobbySlotEntity } from "../entity/lobby-slot.entity";
+import { LobbySlotEntity } from "../database/entities/lobby-slot.entity";
 import { UserProfileService } from "../service/user-profile.service";
 
 @Injectable()

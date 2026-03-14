@@ -4,7 +4,7 @@ import { ItemDropController } from "./item-drop.controller";
 import { ItemDropMapper } from "./item-drop.mapper";
 import { ItemDropService } from "./item-drop.service";
 import { ItemDroppedHandler } from "./item-dropped.handler";
-import { SubscriptionProductEntity } from "../entity/subscription-product.entity";
+import { SubscriptionProductEntity } from "../database/entities/subscription-product.entity";
 import { NotificationModule } from "../notification/notification.module";
 import { PaymentsModule } from "../payments/payments.module";
 

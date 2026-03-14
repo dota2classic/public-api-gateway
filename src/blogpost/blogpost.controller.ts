@@ -15,7 +15,7 @@ import {
   BlogpostDto,
   UpdateBlogpostDraftDto,
 } from "./blogpost.dto";
-import { BlogpostEntity } from "../entity/blogpost.entity";
+import { BlogpostEntity } from "../database/entities/blogpost.entity";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import {

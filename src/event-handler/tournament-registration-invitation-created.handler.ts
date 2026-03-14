@@ -4,7 +4,7 @@ import { NotificationService } from "../notification/notification.service";
 import {
   NotificationEntityType,
   NotificationType,
-} from "../entity/notification.entity";
+} from "../database/entities/notification.entity";
 
 @EventsHandler(TournamentRegistrationInvitationCreatedEvent)
 export class TournamentRegistrationInvitationCreatedHandler

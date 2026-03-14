@@ -4,7 +4,7 @@ import {
   NotificationEntity,
   NotificationEntityType,
   NotificationType,
-} from "../../entity/notification.entity";
+} from "../../database/entities/notification.entity";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { FeedbackCreatedCommand } from "./feedback-created.command";

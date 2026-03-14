@@ -1,5 +1,5 @@
 import { IsInt, IsPositive } from "class-validator";
-import { RuleType } from "../entity/rule.entity";
+import { RuleType } from "../database/entities/rule.entity";
 import { ApiProperty } from "@nestjs/swagger";
 
 export class RuleDto {

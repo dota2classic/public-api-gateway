@@ -24,8 +24,8 @@ import { PartyService } from "../party.service";
 import { PlayerMapper } from "../player/player.mapper";
 import { MatchMapper } from "../match/match.mapper";
 import { LobbyService } from "../lobby/lobby.service";
-import { LobbyEntity } from "../entity/lobby.entity";
-import { LobbySlotEntity } from "../entity/lobby-slot.entity";
+import { LobbyEntity } from "../database/entities/lobby.entity";
+import { LobbySlotEntity } from "../database/entities/lobby-slot.entity";
 
 @Global()
 @Module({

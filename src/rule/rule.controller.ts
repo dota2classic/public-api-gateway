@@ -21,13 +21,13 @@ import {
   UpdateRuleDto,
   UpdateRuleIndicesDto,
 } from "./rule.dto";
-import { RuleEntity } from "../entity/rule.entity";
+import { RuleEntity } from "../database/entities/rule.entity";
 import { InjectRepository } from "@nestjs/typeorm";
 import { IsNull, Repository } from "typeorm";
 import { RuleMapper } from "./rule.mapper";
 import { RuleService } from "./rule.service";
 import { AdminGuard, WithUser } from "../utils/decorator/with-user";
-import { RulePunishmentEntity } from "../entity/rule-punishment.entity";
+import { RulePunishmentEntity } from "../database/entities/rule-punishment.entity";
 
 @UseInterceptors(ReqLoggingInterceptor)
 @Controller("rules")

@@ -6,8 +6,8 @@ import {
   Logger,
   NotFoundException,
 } from "@nestjs/common";
-import { LobbyEntity } from "../entity/lobby.entity";
-import { LobbySlotEntity } from "../entity/lobby-slot.entity";
+import { LobbyEntity } from "../database/entities/lobby.entity";
+import { LobbySlotEntity } from "../database/entities/lobby-slot.entity";
 import { InjectRepository } from "@nestjs/typeorm";
 import { DataSource, IsNull, Repository } from "typeorm";
 import { CurrentUserDto } from "../utils/decorator/current-user";
