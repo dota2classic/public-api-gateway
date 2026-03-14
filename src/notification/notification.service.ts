@@ -9,7 +9,6 @@ import { MatchmakingMode } from "../gateway/shared-types/matchmaking-mode";
 import { GetQueueStateQueryResult } from "../gateway/queries/QueueState/get-queue-state-query.result";
 import { GetQueueStateQuery } from "../gateway/queries/QueueState/get-queue-state.query";
 import { Dota2Version } from "../gateway/shared-types/dota2version";
-import { ReadyCheckStartedEvent } from "../gateway/events/ready-check-started.event";
 import { SocketDelivery } from "../socket/socket-delivery";
 import { MessageTypeS2C } from "../socket/messages/s2c/message-type.s2c";
 import { PleaseEnterQueueMessageS2C } from "../socket/messages/s2c/please-enter-queue-message.s2c";
@@ -119,22 +118,6 @@ export class NotificationService {
     });
 
     return [evt, eligible];
-  }
-
-  public async createGameAcceptPayload(
-    evt: ReadyCheckStartedEvent,
-  ): Promise<[any, WebpushSubscriptionEntity[]]> {
-    const body = {
-      type: "GAME_READY",
-      mode: evt.mode,
-    };
-    const eligible = await this.webpushSubscriptionEntityRepository.find({
-      where: {
-        steam_id: In(evt.entries.map((it) => it.steamId)),
-      },
-    });
-
-    return [body, eligible];
   }
 
   public async notifyOnliners(mode: MatchmakingMode) {

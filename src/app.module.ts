@@ -19,7 +19,6 @@ import { CacheModule, CacheModuleOptions } from "@nestjs/cache-manager";
 import { QueryCache } from "./rcache";
 import { ThrottlerModule } from "@nestjs/throttler";
 import { GetQueueStateQuery } from "./gateway/queries/QueueState/get-queue-state.query";
-import { ReadyCheckStartedHandler } from "./cache/event-handler/ready-check-started.handler";
 import { GetPartyInvitationsQuery } from "./gateway/queries/GetPartyInvitations/get-party-invitations.query";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import configuration from "./config/configuration";
@@ -211,7 +210,6 @@ import { ItemDropModule } from "./itemdrop/itemdrop.module";
     outerQueryNew(GetPlayerInfoQuery, "QueryCore"),
     outerQueryNew(GetPartyInvitationsQuery, "QueryCore"),
 
-    ReadyCheckStartedHandler,
     MatchHighlightsHandler,
 
     MessageCreatedHandler,
