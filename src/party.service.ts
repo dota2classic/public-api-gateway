@@ -3,7 +3,7 @@ import { QueryBus } from "@nestjs/cqrs";
 import { ApiClient } from "@dota2classic/gs-api-generated/dist/module";
 import { PlayerMapper } from "./player/player.mapper";
 import { PartyDto } from "./player/dto/party.dto";
-import { MatchmakerApi } from "./generated-api/matchmaker";
+import { ApiClient as MatchmakerApiClient } from "@dota2classic/matchmaker-generated/dist/module";
 import { LobbyService } from "./lobby/lobby.service";
 
 @Injectable()
@@ -12,12 +12,12 @@ export class PartyService {
     private readonly qbus: QueryBus,
     private readonly gsApi: ApiClient,
     private readonly mapper: PlayerMapper,
-    private readonly matchmakerApi: MatchmakerApi,
+    private readonly matchmakerApi: MatchmakerApiClient,
     private readonly lobby: LobbyService,
   ) {}
 
   public async getPartyRaw(steamId: string) {
-    return this.matchmakerApi.matchmakerApiControllerGetUserParty(steamId);
+    return (await this.matchmakerApi.player.matchmakerApiControllerGetUserParty(steamId)).data;
   }
 
   public async getParty(steamId: string): Promise<PartyDto> {

@@ -17,7 +17,7 @@ import { MatchMapper } from "../match/match.mapper";
 import { MatchAccessLevel } from "../gateway/shared-types/match-access-level";
 import { UserProfileService } from "../service/user-profile.service";
 import { RoleLifetime } from "../gateway/caches/user-fast-profile.dto";
-import { MatchmakerGetPartyQueryResultDto } from "../generated-api/matchmaker";
+import { GetPartyQueryResultDto as MatchmakerGetPartyQueryResultDto } from "@dota2classic/matchmaker-generated/dist/Api";
 import { LobbySlotEntity } from "../database/entities/lobby-slot.entity";
 import {
   asBanReason,

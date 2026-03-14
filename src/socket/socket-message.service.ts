@@ -14,12 +14,12 @@ import { PlayerGameStateMessageS2C } from "./messages/s2c/player-game-state-mess
 import { GetQueueStateQuery } from "../gateway/queries/QueueState/get-queue-state.query";
 import { GetQueueStateQueryResult } from "../gateway/queries/QueueState/get-queue-state-query.result";
 import { Dota2Version } from "../gateway/shared-types/dota2version";
-import { MatchmakingModes } from "../gateway/shared-types/matchmaking-mode";
+import { MatchmakingMode, MatchmakingModes } from "../gateway/shared-types/matchmaking-mode";
 import { QueueStateMessageS2C } from "./messages/s2c/queue-state-message.s2c";
 import { PlayerQueueStateMessageS2C } from "./messages/s2c/player-queue-state-message.s2c";
 import { UserProfileService } from "../service/user-profile.service";
 import { PartyService } from "../party.service";
-import { MatchmakerApi } from "../generated-api/matchmaker";
+import { ApiClient as MatchmakerApiClient } from "@dota2classic/matchmaker-generated/dist/module";
 import { ReadyState } from "../gateway/events/ready-state-received.event";
 import { ApiClient } from "@dota2classic/gs-api-generated/dist/module";
 import {
@@ -38,22 +38,22 @@ export class SocketMessageService {
     private readonly qbus: QueryBus,
     private readonly user: UserProfileService,
     private readonly party: PartyService,
-    private readonly matchmakerApi: MatchmakerApi,
+    private readonly matchmakerApi: MatchmakerApiClient,
     private readonly gsApi: ApiClient,
   ) {}
 
   async playerRoomState(
     steamId: string,
   ): Promise<PlayerRoomStateMessageS2C | undefined> {
-    const room =
-      await this.matchmakerApi.matchmakerApiControllerGetUserRoom(steamId);
+    const { data: room } =
+      await this.matchmakerApi.player.matchmakerApiControllerGetUserRoom(steamId);
 
     // this thing is for "ready check state"
     if (!room.room) return undefined;
 
     return new PlayerRoomStateMessageS2C(
       room.room.roomId,
-      room.room.mode,
+      room.room.mode as unknown as MatchmakingMode,
       room.room.entries.map(
         (it) =>
           new PlayerRoomEntry(
@@ -117,6 +117,6 @@ export class SocketMessageService {
 
   async playerQueueState(steamId: string) {
     const res = await this.party.getPartyRaw(steamId);
-    return new PlayerQueueStateMessageS2C(res.partyId, res.modes, res.inQueue);
+    return new PlayerQueueStateMessageS2C(res.partyId, res.modes as unknown as MatchmakingMode[], res.inQueue);
   }
 }

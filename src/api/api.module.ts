@@ -5,10 +5,7 @@ import {
   ForumApi,
 } from "../generated-api/forum";
 import { PrometheusDriver } from "prometheus-query";
-import {
-  Configuration as MConfiguration,
-  MatchmakerApi,
-} from "../generated-api/matchmaker";
+import { ApiClient as MatchmakerApiClient } from "@dota2classic/matchmaker-generated/dist/module";
 import {
   Configuration as TConfiguration,
   TradeApi,
@@ -71,14 +68,11 @@ const fetchProvider: typeof fetch = (
       inject: [ConfigService],
     },
     {
-      provide: MatchmakerApi,
+      provide: MatchmakerApiClient,
       useFactory: (config: ConfigService) => {
-        return new MatchmakerApi(
-          new MConfiguration({
-            basePath: config.get("api.matchmakerApiUrl"),
-            fetchApi: fetchProvider,
-          }),
-        );
+        const client = new MatchmakerApiClient();
+        client.configure(config.get("api.matchmakerApiUrl"));
+        return client;
       },
       inject: [ConfigService],
     },
@@ -110,7 +104,7 @@ const fetchProvider: typeof fetch = (
   exports: [
     ApiClient,
     ForumApi,
-    MatchmakerApi,
+    MatchmakerApiClient,
     TradeApi,
     TournamentApi,
     PrometheusDriver,
