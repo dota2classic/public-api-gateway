@@ -48,6 +48,27 @@ export function WithUser(): MethodDecorator & ClassDecorator {
   };
 }
 
+@Injectable()
+export class OptionalJwtGuard extends AuthGuard("jwt") {
+  handleRequest<T>(err: any, user: T): T {
+    return user;
+  }
+}
+
+export function WithOptionalUser(): MethodDecorator & ClassDecorator {
+  const a = ApiBearerAuth();
+  const b = UseGuards(OptionalJwtGuard);
+
+  return (
+    target: Object,
+    propertyKey?: string | symbol,
+    descriptor?: TypedPropertyDescriptor<any>,
+  ) => {
+    a(target, propertyKey, descriptor);
+    b(target, propertyKey, descriptor);
+  };
+}
+
 export class RoleGuard implements CanActivate {
   private readonly role: Role[];
   constructor(...role: Role[]) {

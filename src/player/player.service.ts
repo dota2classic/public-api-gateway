@@ -20,7 +20,7 @@ export class PlayerService {
     );
   }
 
-  async search(name: string, count: number): Promise<string[]> {
+  async search(name: string, count: number, friendSteamIds: string[] = []): Promise<string[]> {
     const online = await this.socketGateway.getOnlineSteamIds();
     const parametrizedLike = `%${name.replace(/%/g, "")}%`;
     const results = await this.ds.query<{ steam_id: string }[]>(
@@ -28,6 +28,8 @@ export class PlayerService {
 SELECT
     ue.steam_id,
     CASE
+        WHEN $4::text[] @> ARRAY[ue.steam_id::text]
+        THEN 20000
         WHEN $3::text[] @> ARRAY[ue.steam_id::text]
         THEN 10000
         ELSE 1
@@ -37,7 +39,7 @@ WHERE ue.name ILIKE $1
 ORDER BY score DESC
 LIMIT $2;
     `,
-      [parametrizedLike, count, online],
+      [parametrizedLike, count, online, friendSteamIds],
     );
     return results.map((r) => r.steam_id);
   }

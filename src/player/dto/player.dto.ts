@@ -146,3 +146,9 @@ export class DodgeListEntryDto {
 export class DodgePlayerDto {
   dodgeSteamId: string;
 }
+
+export class PlayerRelationDto {
+  isFriend: boolean;
+  isBlocked: boolean;
+  isDodged: boolean;
+}

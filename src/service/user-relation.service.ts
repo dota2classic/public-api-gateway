@@ -87,6 +87,14 @@ export class UserRelationService implements OnApplicationBootstrap {
     this.getOrCreate(steamId).set(relatedSteamId, relation);
   }
 
+  public getFriends(steamId: string): string[] {
+    const m = this.relationMap.get(steamId);
+    if (!m) return [];
+    return Array.from(m.entries())
+      .filter(([, status]) => status === UserRelationStatus.FRIEND)
+      .map(([id]) => id);
+  }
+
   private getOrCreate(steamId: string): Map<string, UserRelationStatus> {
     let m = this.relationMap.get(steamId);
     if (!m) {

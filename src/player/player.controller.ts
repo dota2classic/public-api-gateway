@@ -20,6 +20,7 @@ import {
   LeaderboardEntryPageDto,
   MeDto,
   MyProfileDto,
+  PlayerRelationDto,
   PlayerSummaryDto,
   PlayerTeammatePageDto,
 } from "./dto/player.dto";
@@ -30,7 +31,7 @@ import {
 import { AuthGuard } from "@nestjs/passport";
 import { QueryBus } from "@nestjs/cqrs";
 import { D2CUser } from "../strategy/jwt.strategy";
-import { OldGuard, WithUser } from "../utils/decorator/with-user";
+import { OldGuard, WithOptionalUser, WithUser } from "../utils/decorator/with-user";
 import { HeroStatsDto } from "./dto/hero.dto";
 import { UserHttpCacheInterceptor } from "../utils/cache-key-track";
 import { UserDTO } from "../shared.dto";
@@ -233,13 +234,67 @@ export class PlayerController {
     return Promise.all(res.data.map(this.mapper.mapDodgeEntry));
   }
 
+  @WithOptionalUser()
   @Get("/search")
   async search(
+    @CurrentUser() user: CurrentUserDto | undefined,
     @Query("name") name: string,
     @Query("count", NullableIntPipe) count: number = 30,
   ): Promise<UserDTO[]> {
-    const steamIds = await this.playerService.search(name, count);
+    const friends = user ? this.relation.getFriends(user.steam_id) : [];
+    if (!name) {
+      return Promise.all(
+        friends.slice(0, count).map((id) => this.userProfile.userDto(id)),
+      );
+    }
+    const steamIds = await this.playerService.search(name, count, friends);
     return Promise.all(steamIds.map((id) => this.userProfile.userDto(id)));
+  }
+
+  @WithUser()
+  @Get("/friends")
+  public async getFriends(@CurrentUser() user: CurrentUserDto): Promise<UserDTO[]> {
+    const friends = this.relation.getFriends(user.steam_id);
+    return Promise.all(friends.map((id) => this.userProfile.userDto(id)));
+  }
+
+  @WithUser()
+  @Get("/:id/relation")
+  public async getRelation(
+    @CurrentUser() user: CurrentUserDto,
+    @Param("id") steamId: string,
+  ): Promise<PlayerRelationDto> {
+    const [relationStatus, dodgeList] = await Promise.combine([
+      this.relation.getRelation(user.steam_id, steamId),
+      this.gsApi.player.playerControllerGetDodgeList({ steamId: user.steam_id }),
+    ]);
+    return {
+      isFriend: relationStatus === UserRelationStatus.FRIEND,
+      isBlocked: relationStatus === UserRelationStatus.BLOCK,
+      isDodged: dodgeList.data.some((d) => d.steamId === steamId),
+    };
+  }
+
+  @WithUser()
+  @Post("/friend/:id")
+  public async addFriend(
+    @CurrentUser() user: CurrentUserDto,
+    @Param("id") steamId: string,
+  ) {
+    await this.relation.setPlayerRelation(
+      user.steam_id,
+      steamId,
+      UserRelationStatus.FRIEND,
+    );
+  }
+
+  @WithUser()
+  @Delete("/friend/:id")
+  public async removeFriend(
+    @CurrentUser() user: CurrentUserDto,
+    @Param("id") steamId: string,
+  ) {
+    await this.relation.clearPlayerRelation(user.steam_id, steamId);
   }
 
   @OldGuard()
