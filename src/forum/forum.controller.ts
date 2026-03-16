@@ -64,8 +64,10 @@ import { Repository } from "typeorm";
 import { CacheTTL } from "@nestjs/cache-manager";
 import { AiService } from "../service/ai.service";
 import { UserHttpCacheInterceptor } from "../utils/cache-key-track";
+import { ReqLoggingInterceptor } from "../metrics/req-logging.interceptor";
 import { Throttle } from "@nestjs/throttler";
 
+@UseInterceptors(ReqLoggingInterceptor)
 @Controller("forum")
 @ApiTags("forum")
 export class ForumController {

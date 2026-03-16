@@ -7,7 +7,9 @@ import {
   Patch,
   Post,
   Query,
+  UseInterceptors,
 } from "@nestjs/common";
+import { ReqLoggingInterceptor } from "../metrics/req-logging.interceptor";
 import { ApiTags } from "@nestjs/swagger";
 import { AdminGuard, WithUser } from "../utils/decorator/with-user";
 import {
@@ -29,6 +31,7 @@ import { makePage } from "../gateway/util/make-page";
 import { ForumApi } from "../generated-api/forum";
 import { ThreadType } from "../gateway/shared-types/thread-type";
 
+@UseInterceptors(ReqLoggingInterceptor)
 @Controller("blog")
 @ApiTags("blog")
 export class BlogpostController {

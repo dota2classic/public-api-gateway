@@ -1,4 +1,5 @@
-import { Controller, Delete, Inject } from "@nestjs/common";
+import { Controller, Delete, Inject, UseInterceptors } from "@nestjs/common";
+import { ReqLoggingInterceptor } from "../metrics/req-logging.interceptor";
 import { ApiTags } from "@nestjs/swagger";
 import { WithUser } from "../utils/decorator/with-user";
 import {
@@ -9,6 +10,7 @@ import { ClientProxy } from "@nestjs/microservices";
 import { UserConnection } from "../gateway/shared-types/user-connection";
 import { RemoveUserConnectionCommand } from "../gateway/commands/remove-user-connection.command";
 
+@UseInterceptors(ReqLoggingInterceptor)
 @Controller("settings")
 @ApiTags("settings")
 export class AuthController {

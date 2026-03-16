@@ -43,8 +43,10 @@ import { UserProfileService } from "../service/user-profile.service";
 import { UserRelationService } from "../service/user-relation.service";
 import { UserRelationStatus } from "../gateway/shared-types/user-relation";
 import { GlobalHttpCacheInterceptor } from "../utils/cache-global";
+import { ReqLoggingInterceptor } from "../metrics/req-logging.interceptor";
 import { PlayerService } from "./player.service";
 
+@UseInterceptors(ReqLoggingInterceptor)
 @Controller("player")
 @ApiTags("player")
 export class PlayerController {

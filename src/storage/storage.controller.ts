@@ -31,8 +31,10 @@ import { StorageMapper } from "./storage.mapper";
 import { UserProfileService } from "../service/user-profile.service";
 import { parseLogFile } from "../utils/parseLogFile";
 import { GlobalHttpCacheInterceptor } from "../utils/cache-global";
+import { ReqLoggingInterceptor } from "../metrics/req-logging.interceptor";
 import { CacheTTL } from "@nestjs/cache-manager";
 
+@UseInterceptors(ReqLoggingInterceptor)
 @Controller("storage")
 @ApiTags("storage")
 export class StorageController {

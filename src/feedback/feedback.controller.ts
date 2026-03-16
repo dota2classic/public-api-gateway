@@ -5,7 +5,9 @@ import {
   Param,
   ParseIntPipe,
   Post,
+  UseInterceptors,
 } from "@nestjs/common";
+import { ReqLoggingInterceptor } from "../metrics/req-logging.interceptor";
 import { ApiTags } from "@nestjs/swagger";
 import { FeedbackMapper } from "./feedback.mapper";
 import { SubmitFeedbackDto } from "./feedback.dto";
@@ -19,6 +21,7 @@ import { FeedbackEntity } from "../database/entities/feedback.entity";
 import { Repository } from "typeorm";
 import { InjectRepository } from "@nestjs/typeorm";
 
+@UseInterceptors(ReqLoggingInterceptor)
 @Controller("feedback")
 @ApiTags("feedback")
 export class FeedbackController {

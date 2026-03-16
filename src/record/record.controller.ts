@@ -15,10 +15,11 @@ import {
 import { RecordMapper } from "./record.mapper";
 import { CacheTTL } from "@nestjs/cache-manager";
 import { GlobalHttpCacheInterceptor } from "../utils/cache-global";
+import { ReqLoggingInterceptor } from "../metrics/req-logging.interceptor";
 
+@UseInterceptors(ReqLoggingInterceptor, GlobalHttpCacheInterceptor)
 @Controller("record")
 @ApiTags("record")
-@UseInterceptors(GlobalHttpCacheInterceptor)
 export class RecordController {
   private logger = new Logger(RecordController.name);
 

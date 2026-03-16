@@ -32,11 +32,10 @@ export class ReqLoggingInterceptor implements NestInterceptor {
     const handler = context.getHandler();
     const controller = Reflect.getMetadata(PATH_METADATA, context.getClass());
 
-    const handlerPath = Reflect.getMetadata(PATH_METADATA, handler);
-    const requestPath =
-      controller != null && handlerPath != null
-        ? path.join(controller, handlerPath)
-        : req.routerPath ?? req.url ?? "unknown";
+    const requestPath = path.join(
+      controller,
+      Reflect.getMetadata(PATH_METADATA, handler),
+    );
 
     const isSSE = Reflect.getMetadata(SSE_METADATA, handler);
 

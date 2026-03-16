@@ -7,7 +7,9 @@ import {
   Req,
   Res,
   UseGuards,
+  UseInterceptors,
 } from "@nestjs/common";
+import { ReqLoggingInterceptor } from "./metrics/req-logging.interceptor";
 import { AuthGuard } from "@nestjs/passport";
 import { JwtService } from "@nestjs/jwt";
 import { steam64to32 } from "./utils/steamIds";
@@ -28,6 +30,7 @@ import { EventBus } from "@nestjs/cqrs";
 import { SteamAuthGuard } from "./strategy/steam-auth.guard";
 import { FastifyReply, FastifyRequest } from "fastify";
 
+@UseInterceptors(ReqLoggingInterceptor)
 @Controller("auth/steam")
 @ApiTags("auth")
 export class SteamController {

@@ -1,4 +1,5 @@
-import { Body, Controller, Get, Inject, Post } from "@nestjs/common";
+import { Body, Controller, Get, Inject, Post, UseInterceptors } from "@nestjs/common";
+import { ReqLoggingInterceptor } from "../metrics/req-logging.interceptor";
 import {
   EventAdminDto,
   GameSessionDto,
@@ -30,6 +31,7 @@ import {
   ReadPacket,
 } from "@nestjs/microservices/interfaces/packet.interface";
 
+@UseInterceptors(ReqLoggingInterceptor)
 @Controller("servers")
 @ApiTags("admin")
 export class ServerController {

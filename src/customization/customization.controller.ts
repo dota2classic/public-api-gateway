@@ -9,7 +9,9 @@ import {
   Patch,
   Post,
   Query,
+  UseInterceptors,
 } from "@nestjs/common";
+import { ReqLoggingInterceptor } from "../metrics/req-logging.interceptor";
 import { UserProfileDecorationType } from "../database/entities/user-profile-decoration.entity";
 import {
   CreateDecorationDto,
@@ -29,6 +31,7 @@ import {
 } from "../utils/decorator/current-user";
 import { CustomizationService } from "./customization.service";
 
+@UseInterceptors(ReqLoggingInterceptor)
 @Controller("customization")
 @ApiTags("customization")
 export class CustomizationController {

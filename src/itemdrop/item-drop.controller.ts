@@ -9,7 +9,9 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  UseInterceptors,
 } from "@nestjs/common";
+import { ReqLoggingInterceptor } from "../metrics/req-logging.interceptor";
 import { ApiTags } from "@nestjs/swagger";
 import { TradeApi } from "../generated-api/tradebot";
 import { AdminGuard, WithUser } from "../utils/decorator/with-user";
@@ -35,6 +37,7 @@ import { SubscriptionProductEntity } from "../database/entities/subscription-pro
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 
+@UseInterceptors(ReqLoggingInterceptor)
 @Controller("drops")
 @ApiTags("drops")
 export class ItemDropController {

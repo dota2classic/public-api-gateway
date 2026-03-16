@@ -6,7 +6,9 @@ import {
   Req,
   Res,
   UseGuards,
+  UseInterceptors,
 } from "@nestjs/common";
+import { ReqLoggingInterceptor } from "./metrics/req-logging.interceptor";
 import { ApiExcludeEndpoint, ApiTags } from "@nestjs/swagger";
 import { Request } from "express";
 import { CookiesUserId } from "./utils/decorator/current-user";
@@ -20,6 +22,7 @@ import { PlayerId } from "./gateway/shared-types/player-id";
 import { UserConnection } from "./gateway/shared-types/user-connection";
 import { FastifyReply } from "fastify";
 
+@UseInterceptors(ReqLoggingInterceptor)
 @Controller("auth/twitch")
 @ApiTags("auth")
 export class TwitchController {

@@ -8,7 +8,9 @@ import {
   Patch,
   Post,
   Query,
+  UseInterceptors,
 } from "@nestjs/common";
+import { ReqLoggingInterceptor } from "../metrics/req-logging.interceptor";
 import { ApiTags } from "@nestjs/swagger";
 import { FeedbackEntity } from "../database/entities/feedback.entity";
 import { FeedbackOptionEntity } from "../database/entities/feedback-option.entity";
@@ -33,6 +35,7 @@ import { PlayerFeedbackEntity } from "../database/entities/player-feedback.entit
 import { makePage } from "../gateway/util/make-page";
 import { NullableIntPipe } from "../utils/pipes";
 
+@UseInterceptors(ReqLoggingInterceptor)
 @Controller("adminFeedback")
 @ApiTags("adminFeedback")
 export class AdminFeedbackController {

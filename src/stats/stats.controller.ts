@@ -14,6 +14,7 @@ import {
 import { CacheTTL } from "@nestjs/cache-manager";
 import { MatchmakingModes } from "../gateway/shared-types/matchmaking-mode";
 import { GlobalHttpCacheInterceptor } from "../utils/cache-global";
+import { ReqLoggingInterceptor } from "../metrics/req-logging.interceptor";
 import { TwitchService } from "../twitch.service";
 import { StatsMapper } from "./stats.mapper";
 import { StatsService } from "./stats.service";
@@ -27,6 +28,7 @@ import {
   asDotaPatch,
 } from "../types/gs-api-compat";
 
+@UseInterceptors(ReqLoggingInterceptor)
 @Controller("stats")
 @ApiTags("stats")
 export class StatsController {

@@ -6,7 +6,9 @@ import {
   Param,
   Post,
   Query,
+  UseInterceptors,
 } from "@nestjs/common";
+import { ReqLoggingInterceptor } from "../metrics/req-logging.interceptor";
 import { ClientProxy } from "@nestjs/microservices";
 import { EventBus, QueryBus } from "@nestjs/cqrs";
 import { ApiClient } from "@dota2classic/gs-api-generated/dist/module";
@@ -56,6 +58,7 @@ import {
   toApiDotaPatch,
 } from "../types/gs-api-compat";
 
+@UseInterceptors(ReqLoggingInterceptor)
 @Controller("admin/users")
 @ApiTags("admin")
 export class AdminUserController {
