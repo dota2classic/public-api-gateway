@@ -117,8 +117,7 @@ export class ReportController {
   }
 
   @WithPagination()
-  @WithUser()
-  @ModeratorGuard()
+  // @ModeratorGuard()
   @Get("/reports")
   public async getReportPage(
     @Query("page", ParseIntPipe) page: number,
