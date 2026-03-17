@@ -19,13 +19,13 @@ import { LobbyReadyHandler } from "./event-handler/lobby-ready.handler";
 import { PartyInvalidatedHandler } from "./event-handler/party-invalidated.handler";
 import { NotificationCreatedHandler } from "./event-handler/notification-created.handler";
 import { GameResultsHandler } from "./event-handler/game-results.handler";
-import { PlayerAbandonedSocketHandler } from "./event-handler/player-abandoned.handler";
 import { PartyService } from "../party.service";
 import { PlayerMapper } from "../player/player.mapper";
 import { MatchMapper } from "../match/match.mapper";
 import { LobbyService } from "../lobby/lobby.service";
 import { LobbyEntity } from "../database/entities/lobby.entity";
 import { LobbySlotEntity } from "../database/entities/lobby-slot.entity";
+import { GameSessionUpdateHandler } from "./event-handler/game-session-update.handler";
 
 @Global()
 @Module({
@@ -50,12 +50,20 @@ import { LobbySlotEntity } from "../database/entities/lobby-slot.entity";
     PartyInvalidatedHandler,
     NotificationCreatedHandler,
     GameResultsHandler,
-    PlayerAbandonedSocketHandler,
+    GameSessionUpdateHandler,
     PartyService,
     PlayerMapper,
     MatchMapper,
     LobbyService,
   ],
-  exports: [SocketDelivery, SocketMessageService, SocketGateway, PartyService, PlayerMapper, MatchMapper, LobbyService],
+  exports: [
+    SocketDelivery,
+    SocketMessageService,
+    SocketGateway,
+    PartyService,
+    PlayerMapper,
+    MatchMapper,
+    LobbyService,
+  ],
 })
 export class SocketModule {}

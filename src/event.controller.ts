@@ -25,6 +25,7 @@ import { LobbyReadyEvent } from "./gateway/events/lobby-ready.event";
 import { PlayerReportBanCreatedEvent } from "./gateway/events/bans/player-report-ban-created.event";
 import { NotificationCreatedEvent } from "./notification/event/notification-created.event";
 import { LobbyUpdatedEvent } from "./lobby/event/lobby-updated.event";
+import { GameSessionUpdateEvent } from "gateway/events/gs/game-session-update.event";
 
 @Controller()
 export class EventController {
@@ -133,6 +134,11 @@ export class EventController {
   @EventPattern(PlayerAbandonedEvent.name)
   async PlayerAbandonedEvent(data: PlayerAbandonedEvent) {
     this.event(PlayerAbandonedEvent, data);
+  }
+
+  @EventPattern(GameSessionUpdateEvent.name)
+  async GameSessionUpdateEvent(data: GameSessionUpdateEvent) {
+    this.event(GameSessionUpdateEvent, data);
   }
 
   @EventPattern(NotificationCreatedEvent.name)
