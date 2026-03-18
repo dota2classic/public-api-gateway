@@ -94,12 +94,15 @@ export class AuthService {
         this.ebus.publish(new UserLoggedInEvent(new PlayerId(steam32id), name, avatar));
 
         if (hwid) {
-          const entry = new SteamidHwidEntryEntity();
-          entry.steamId = steam32id;
-          entry.hwid = hwid;
-          await this.hwidRepository.save(entry).catch((e) =>
-            this.logger.error("Failed to save hwid entry", e),
-          );
+          const exists = await this.hwidRepository.existsBy({ steamId: steam32id, hwid });
+          if (!exists) {
+            const entry = new SteamidHwidEntryEntity();
+            entry.steamId = steam32id;
+            entry.hwid = hwid;
+            await this.hwidRepository.save(entry).catch((e) =>
+              this.logger.error("Failed to save hwid entry", e),
+            );
+          }
         }
 
         return this.createToken(steam32id, name, avatar);

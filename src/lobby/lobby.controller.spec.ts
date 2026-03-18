@@ -202,7 +202,7 @@ describe("LobbyController", () => {
         },
         {
           provide: getRepositoryToken(SteamidHwidEntryEntity),
-          useValue: { save: jest.fn() },
+          useValue: { save: jest.fn(), existsBy: jest.fn().mockResolvedValue(false) },
         },
         makeHistogramProvider({
           name: "http_requests_duration_seconds",
