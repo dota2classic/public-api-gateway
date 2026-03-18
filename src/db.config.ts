@@ -21,6 +21,7 @@ import { PlayerBanEntity } from "./database/entities/player-ban.entity";
 import { MaintenanceEntity } from "./database/entities/maintenance.entity";
 import { DemoHighlightsEntity } from "./database/entities/demo-highlights.entity";
 import { SteamidHwidEntryEntity } from "./database/entities/steamid-hwid-entry.entity";
+import { ToxicityPunishmentMappingEntity } from "./database/entities/toxicity-punishment-mapping.entity";
 
 export const Entities = [
   WebpushSubscriptionEntity,
@@ -46,4 +47,5 @@ export const Entities = [
   MaintenanceEntity,
   DemoHighlightsEntity,
   SteamidHwidEntryEntity,
+  ToxicityPunishmentMappingEntity,
 ];

@@ -4,9 +4,10 @@ import { StorageService } from "./storage.service";
 import { StorageMapper } from "./storage.mapper";
 import { MatchArtifactUploadedHandler } from "./event-handler/match-artifact-uploaded.handler";
 import { FeedbackModule } from "../feedback/feedback.module";
+import { ReportModule } from "../report/report.module";
 
 @Module({
-  imports: [FeedbackModule],
+  imports: [FeedbackModule, ReportModule],
   controllers: [StorageController],
   providers: [StorageService, StorageMapper, MatchArtifactUploadedHandler],
 })

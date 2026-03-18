@@ -19,6 +19,7 @@ import { PlayerBanEntity } from "../database/entities/player-ban.entity";
 import { BanReason } from "../gateway/shared-types/ban";
 import { ConfigService } from "@nestjs/config";
 import { PlayerFlagsEntity } from "../database/entities/player-flags.entity";
+import { ToxicityPunishmentMappingEntity } from "../database/entities/toxicity-punishment-mapping.entity";
 
 @Injectable()
 export class ReportService {
@@ -39,6 +40,8 @@ export class ReportService {
     private readonly config: ConfigService,
     @InjectRepository(PlayerFlagsEntity)
     private readonly playerFlagsEntityRepository: Repository<PlayerFlagsEntity>,
+    @InjectRepository(ToxicityPunishmentMappingEntity)
+    private readonly toxicityMappingRepository: Repository<ToxicityPunishmentMappingEntity>,
   ) {}
 
   public async createLogFromReport(
@@ -225,6 +228,64 @@ ${report.comment ? `Комментарий: \n${report.comment}` : ""}
       NotificationType.REPORT_CREATED,
       "10m",
     );
+  }
+
+  public async applyToxicityModerationResult(
+    steamId: string,
+    score: number,
+    reasoning: string,
+    matchId: number,
+  ): Promise<void> {
+    const mapping = await this.toxicityMappingRepository
+      .createQueryBuilder("m")
+      .where("m.minScore <= :score", { score })
+      .orderBy("m.minScore", "DESC")
+      .getOne();
+
+    if (!mapping) return;
+
+    const alreadyReported = await this.userReportEntityRepository.exists({
+      where: { reportedSteamId: steamId, ruleId: mapping.ruleId, matchId },
+    });
+    if (alreadyReported) return;
+
+    const report = await this.userReportEntityRepository.save(
+      new UserReportEntity("system", steamId, mapping.ruleId, reasoning, matchId),
+    );
+
+    await this.createSystemThreadForReport(report, mapping.rule);
+
+    if (mapping.punishmentId) {
+      await this.createLog(
+        steamId,
+        "system",
+        mapping.ruleId,
+        mapping.punishment.durationHours * 60 * 60,
+        mapping.punishmentId,
+        report.id,
+      );
+    }
+  }
+
+  private async createSystemThreadForReport(
+    report: UserReportEntity,
+    rule: RuleEntity,
+  ) {
+    const thread = await this.forumApi.forumControllerGetThreadForKey({
+      threadType: ThreadType.REPORT,
+      externalId: report.id,
+      title: `[AI] Нарушение правила ${rule.title}`,
+      op: "system",
+    });
+
+    await this.forumApi.forumControllerPostMessage(thread.id, {
+      author: { steam_id: "system", roles: [] },
+      content: `[Автоматическая проверка] Пользователь https://dotaclassic.ru/players/${report.reportedSteamId} нарушил правило ${this.config.get("api.frontUrl")}/static/rules#${rule.id}
+[${rule.title}]
+В матче https://dotaclassic.ru/matches/${report.matchId}
+Комментарий AI: ${report.comment}
+      `,
+    });
   }
 
   private async checkAlreadyReported(

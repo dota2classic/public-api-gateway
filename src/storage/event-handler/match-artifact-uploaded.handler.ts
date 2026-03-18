@@ -5,6 +5,7 @@ import { parseLogFile } from "../../utils/parseLogFile";
 import { AiService } from "../../service/ai.service";
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs";
 import { MatchArtifactUploadedCommand } from "./match-artifact-uploaded.command";
+import { ReportService } from "../../report/report.service";
 
 export interface PlayerChatModerationResult {
   steamId: string;
@@ -21,6 +22,7 @@ export class MatchArtifactUploadedHandler
   constructor(
     @InjectS3() private readonly s3: S3,
     private readonly feedbackAssistant: AiService,
+    private readonly reportService: ReportService,
   ) {}
 
   async execute({ event }: MatchArtifactUploadedCommand): Promise<PlayerChatModerationResult[]> {
@@ -45,9 +47,21 @@ export class MatchArtifactUploadedHandler
       `Chat moderation for match ${event.matchId}: ${JSON.stringify(results)}`,
     );
 
-    results.filter(t => t.messageTemperature >= 6).forEach(t => {
-      this.logger.warn(`Match ${event.matchId}: player ${t.steamId} has high toxicity: ${t.messageTemperature} (${t.reasoning})`);
-    });
+    await Promise.all(
+      results
+        .filter((t) => t.messageTemperature >= 6)
+        .map((t) => {
+          this.logger.warn(
+            `Match ${event.matchId}: player ${t.steamId} toxicity ${t.messageTemperature}: ${t.reasoning}`,
+          );
+          return this.reportService.applyToxicityModerationResult(
+            t.steamId,
+            t.messageTemperature,
+            t.reasoning,
+            event.matchId,
+          );
+        }),
+    );
 
     return results;
   }
