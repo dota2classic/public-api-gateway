@@ -244,6 +244,7 @@ ${report.comment ? `Комментарий: \n${report.comment}` : ""}
   ): Promise<void> {
     const mapping = await this.toxicityMappingRepository
       .createQueryBuilder("m")
+      .innerJoinAndSelect("m.rule", "r")
       .where("m.minScore <= :score", { score })
       .orderBy("m.minScore", "DESC")
       .getOne();
