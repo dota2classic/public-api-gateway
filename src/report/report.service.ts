@@ -1,8 +1,13 @@
-import { HttpException, Injectable, NotFoundException } from "@nestjs/common";
+import {
+  HttpException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { UserReportEntity } from "../database/entities/user-report.entity";
 import { DataSource, EntityManager, Repository } from "typeorm";
-import { ForumApi } from "../generated-api/forum";
+import { ForumApi, ForumMessageDTO } from "../generated-api/forum";
 import { ThreadType } from "../gateway/shared-types/thread-type";
 import { RuleEntity, RuleType } from "../database/entities/rule.entity";
 import {
@@ -14,7 +19,6 @@ import { CurrentUserDto } from "../utils/decorator/current-user";
 import { RulePunishmentEntity } from "../database/entities/rule-punishment.entity";
 import { PunishmentLogEntity } from "../database/entities/punishment-log.entity";
 import { ApplyPunishmentDto, HandleReportDto } from "./report.dto";
-import { ForumMessageDTO } from "../generated-api/forum";
 import { PlayerBanEntity } from "../database/entities/player-ban.entity";
 import { BanReason } from "../gateway/shared-types/ban";
 import { ConfigService } from "@nestjs/config";
@@ -23,6 +27,7 @@ import { ToxicityPunishmentMappingEntity } from "../database/entities/toxicity-p
 
 @Injectable()
 export class ReportService {
+  private logger = new Logger(ReportService.name);
   constructor(
     @InjectRepository(UserReportEntity)
     private readonly userReportEntityRepository: Repository<UserReportEntity>,
@@ -42,6 +47,7 @@ export class ReportService {
     private readonly playerFlagsEntityRepository: Repository<PlayerFlagsEntity>,
     @InjectRepository(ToxicityPunishmentMappingEntity)
     private readonly toxicityMappingRepository: Repository<ToxicityPunishmentMappingEntity>,
+    private readonly configService: ConfigService,
   ) {}
 
   public async createLogFromReport(
@@ -249,37 +255,49 @@ ${report.comment ? `Комментарий: \n${report.comment}` : ""}
     });
     if (alreadyReported) return;
 
+    const botSteamId = this.config.get("api.botSteamId");
+
     const report = await this.userReportEntityRepository.save(
-      new UserReportEntity("system", steamId, mapping.ruleId, reasoning, matchId),
+      new UserReportEntity(
+        botSteamId,
+        steamId,
+        mapping.ruleId,
+        reasoning,
+        matchId,
+      ),
     );
 
-    await this.createSystemThreadForReport(report, mapping.rule);
+    await this.createSystemThreadForReport(report, mapping.rule, botSteamId);
+
+
 
     if (mapping.punishmentId) {
-      await this.createLog(
-        steamId,
-        "system",
-        mapping.ruleId,
-        mapping.punishment.durationHours * 60 * 60,
-        mapping.punishmentId,
+      this.logger.log("Auto-accepting report: giving a punishment");
+      await this.handleReport(
         report.id,
+        { valid: true, overridePunishmentId: mapping.punishmentId },
+        botSteamId,
       );
+    } else {
+      this.logger.log("Auto-accepting report: giving a warning");
+      await this.handleReport(report.id, { valid: false }, botSteamId);
     }
   }
 
   private async createSystemThreadForReport(
     report: UserReportEntity,
     rule: RuleEntity,
+    steamId: string,
   ) {
     const thread = await this.forumApi.forumControllerGetThreadForKey({
       threadType: ThreadType.REPORT,
       externalId: report.id,
       title: `[AI] Нарушение правила ${rule.title}`,
-      op: "system",
+      op: steamId,
     });
 
     await this.forumApi.forumControllerPostMessage(thread.id, {
-      author: { steam_id: "system", roles: [] },
+      author: { steam_id: steamId, roles: [] },
       content: `[Автоматическая проверка] Пользователь https://dotaclassic.ru/players/${report.reportedSteamId} нарушил правило ${this.config.get("api.frontUrl")}/static/rules#${rule.id}
 [${rule.title}]
 В матче https://dotaclassic.ru/matches/${report.matchId}
@@ -305,7 +323,10 @@ ${report.comment ? `Комментарий: \n${report.comment}` : ""}
     }
   }
 
-  public async applyPunishment(dto: ApplyPunishmentDto, executorSteamId: string): Promise<void> {
+  public async applyPunishment(
+    dto: ApplyPunishmentDto,
+    executorSteamId: string,
+  ): Promise<void> {
     const rule = await this.ruleEntityRepository.findOneOrFail({
       where: { id: dto.ruleId },
       relations: ["punishment"],
@@ -368,8 +389,12 @@ ${report.comment ? `Комментарий: \n${report.comment}` : ""}
     });
   }
 
-  public async getReport(id: string): Promise<[UserReportEntity, ForumMessageDTO | undefined]> {
-    const report = await this.userReportEntityRepository.findOne({ where: { id } });
+  public async getReport(
+    id: string,
+  ): Promise<[UserReportEntity, ForumMessageDTO | undefined]> {
+    const report = await this.userReportEntityRepository.findOne({
+      where: { id },
+    });
     const msg = report.messageId
       ? await this.forumApi.forumControllerGetMessage(report.messageId)
       : undefined;
@@ -401,12 +426,19 @@ ${report.comment ? `Комментарий: \n${report.comment}` : ""}
     });
 
     const itemsWithMessages = await Promise.all(
-      items.map(async (item): Promise<[UserReportEntity, ForumMessageDTO | undefined]> => {
-        if (item.messageId) {
-          return [item, await this.forumApi.forumControllerGetMessage(item.messageId)];
-        }
-        return [item, undefined];
-      }),
+      items.map(
+        async (
+          item,
+        ): Promise<[UserReportEntity, ForumMessageDTO | undefined]> => {
+          if (item.messageId) {
+            return [
+              item,
+              await this.forumApi.forumControllerGetMessage(item.messageId),
+            ];
+          }
+          return [item, undefined];
+        },
+      ),
     );
 
     return [itemsWithMessages, count];

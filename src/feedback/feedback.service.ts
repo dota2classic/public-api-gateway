@@ -198,8 +198,6 @@ ${comment}
     Комментарий: ${comment || "Без комментария"}.
     Подскажи, как можно решить проблему пользователя, ответ формулируй, как будто объясняешь пользователю, а не мне.`);
 
-    console.log(response);
-
     await this.forumApi.forumControllerPostMessage(thread.id, {
       author: {
         steam_id: this.config.get("api.botSteamId"),
