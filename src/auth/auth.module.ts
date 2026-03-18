@@ -8,8 +8,11 @@ import SteamStrategy from "../strategy/steam.strategy";
 import { JwtStrategy } from "../strategy/jwt.strategy";
 import { DiscordStrategy } from "../strategy/discord.strategy";
 import TwitchStrategy from "../strategy/twitch.strategy";
+import { TypeOrmModule } from "@nestjs/typeorm";
+import { SteamidHwidEntryEntity } from "../database/entities/steamid-hwid-entry.entity";
 
 @Module({
+  imports: [TypeOrmModule.forFeature([SteamidHwidEntryEntity])],
   controllers: [AuthController, SteamController, DiscordController, TwitchController],
   providers: [AuthService, SteamStrategy, JwtStrategy, DiscordStrategy, TwitchStrategy],
   exports: [AuthService],

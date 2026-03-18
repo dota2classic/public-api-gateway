@@ -20,6 +20,7 @@ import { PunishmentLogEntity } from "./database/entities/punishment-log.entity";
 import { PlayerBanEntity } from "./database/entities/player-ban.entity";
 import { MaintenanceEntity } from "./database/entities/maintenance.entity";
 import { DemoHighlightsEntity } from "./database/entities/demo-highlights.entity";
+import { SteamidHwidEntryEntity } from "./database/entities/steamid-hwid-entry.entity";
 
 export const Entities = [
   WebpushSubscriptionEntity,
@@ -44,4 +45,5 @@ export const Entities = [
   PlayerBanEntity,
   MaintenanceEntity,
   DemoHighlightsEntity,
+  SteamidHwidEntryEntity,
 ];

@@ -9,6 +9,9 @@ import { steam64to32 } from "../utils/steamIds";
 import { EventBus } from "@nestjs/cqrs";
 import { UserLoggedInEvent } from "../gateway/events/user/user-logged-in.event";
 import { PlayerId } from "../gateway/shared-types/player-id";
+import { InjectRepository } from "@nestjs/typeorm";
+import { SteamidHwidEntryEntity } from "../database/entities/steamid-hwid-entry.entity";
+import { Repository } from "typeorm";
 
 export interface JwtPayload {
   sub: string;
@@ -39,6 +42,8 @@ export class AuthService {
     private readonly user: UserProfileService,
     private readonly config: ConfigService,
     private readonly ebus: EventBus,
+    @InjectRepository(SteamidHwidEntryEntity)
+    private readonly hwidRepository: Repository<SteamidHwidEntryEntity>,
   ) {}
 
   public async refreshToken(token: string) {
@@ -52,6 +57,7 @@ export class AuthService {
 
   public async authorizeSessionTokenLauncher(
     sessionToken: string,
+    hwid?: string,
   ): Promise<string | undefined> {
     const q = qs.stringify({
       key: this.config.get("steam.key"),
@@ -86,6 +92,15 @@ export class AuthService {
 
         const steam32id = steam64to32(steamId);
         this.ebus.publish(new UserLoggedInEvent(new PlayerId(steam32id), name, avatar));
+
+        if (hwid) {
+          const entry = new SteamidHwidEntryEntity();
+          entry.steamId = steam32id;
+          entry.hwid = hwid;
+          await this.hwidRepository.save(entry).catch((e) =>
+            this.logger.error("Failed to save hwid entry", e),
+          );
+        }
 
         return this.createToken(steam32id, name, avatar);
       }

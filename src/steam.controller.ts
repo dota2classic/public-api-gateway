@@ -61,9 +61,10 @@ export class SteamController {
   public async steamSessionTicketToToken(
     @Res() res: Response,
     @Query("ticket") ticket: string,
+    @Query("hwid") hwid?: string,
   ) {
     const newToken =
-      await this.authService.authorizeSessionTokenLauncher(ticket);
+      await this.authService.authorizeSessionTokenLauncher(ticket, hwid);
     if (!newToken) {
       res.status(401).send();
     }
