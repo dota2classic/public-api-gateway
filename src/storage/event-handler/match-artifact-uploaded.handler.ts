@@ -38,7 +38,7 @@ export class MatchArtifactUploadedHandler
     if (messages.length === 0) return [];
 
     const chatLog = messages
-      .map((m) => `[${m.steamId}]: ${m.message}`)
+      .map((m) => `[${m.steamId}](${m.allChat ? "ВСЕМ" : "КОМАНДЕ"}): ${m.message}`)
       .join("\n");
 
     const results = await this.feedbackAssistant.getChatModerationResult(chatLog);
