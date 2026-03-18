@@ -1,6 +1,7 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { LobbySlotEntity } from "../database/entities/lobby-slot.entity";
 import { LobbyEntity } from "../database/entities/lobby.entity";
+import { SteamidHwidEntryEntity } from "../database/entities/steamid-hwid-entry.entity";
 import { LobbyController } from "./lobby.controller";
 import { LobbyService } from "./lobby.service";
 import { LobbyMapper } from "./lobby.mapper";
@@ -198,6 +199,10 @@ describe("LobbyController", () => {
         {
           provide: UserProfileService,
           useValue: urep,
+        },
+        {
+          provide: getRepositoryToken(SteamidHwidEntryEntity),
+          useValue: { save: jest.fn() },
         },
         makeHistogramProvider({
           name: "http_requests_duration_seconds",
