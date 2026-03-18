@@ -46,8 +46,7 @@ export class ReportService {
     @InjectRepository(PlayerFlagsEntity)
     private readonly playerFlagsEntityRepository: Repository<PlayerFlagsEntity>,
     @InjectRepository(ToxicityPunishmentMappingEntity)
-    private readonly toxicityMappingRepository: Repository<ToxicityPunishmentMappingEntity>,
-    private readonly configService: ConfigService,
+    private readonly toxicityMappingRepository: Repository<ToxicityPunishmentMappingEntity>
   ) {}
 
   public async createLogFromReport(
@@ -250,6 +249,10 @@ ${report.comment ? `Комментарий: \n${report.comment}` : ""}
       .getOne();
 
     if (!mapping) return;
+
+    this.logger.log(
+      `Found mapping for toxicity level ${score}: expected punishment is ${mapping.punishment?.durationHours}`,
+    );
 
     const alreadyReported = await this.userReportEntityRepository.exists({
       where: { reportedSteamId: steamId, ruleId: mapping.ruleId, matchId },
@@ -469,21 +472,15 @@ ${report.comment ? `Комментарий: \n${report.comment}` : ""}
   private async addCommentHandledPunishment(
     reportId: string,
     punishmentId?: number,
-    note?: string,
   ) {
     let content: string = "";
     if (punishmentId === undefined) {
       content = "Игрок невиновен, наказание не применено.";
     } else {
-      const p = await this.punishmentLogEntityRepository.findOneBy({
+      const p = await this.rulePunishmentEntityRepository.findOneBy({
         id: punishmentId,
       });
-      content = `Применено наказание: ${p.banDurationSeconds / 60 / 60} часов.`;
-    }
-
-    if (note) {
-      content += `
-${note}`;
+      content = `Применено наказание: ${p.durationHours} часов.`;
     }
 
     await this.forumApi
