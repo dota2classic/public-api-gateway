@@ -59,7 +59,8 @@ export class ReportController {
     @Body() dto: HandleReportDto,
     @CurrentUser() user: CurrentUserDto,
   ) {
-    const report = await this.reportService.handleReport(id, dto, user.steam_id);
+    const report = await this.reportService.handleReport(id, dto, user.steam_id, true);
+
     return this.mapper.mapReport(report);
   }
 

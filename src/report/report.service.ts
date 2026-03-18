@@ -256,7 +256,7 @@ ${report.comment ? `Комментарий: \n${report.comment}` : ""}
     });
     if (alreadyReported) return;
 
-    const botSteamId = this.config.get("api.botSteamId");
+    const botSteamId = this.getBotModeratorSteamId();
 
     const report = await this.userReportEntityRepository.save(
       new UserReportEntity(
@@ -270,8 +270,6 @@ ${report.comment ? `Комментарий: \n${report.comment}` : ""}
 
     await this.createSystemThreadForReport(report, mapping.rule, botSteamId);
 
-
-
     if (mapping.punishmentId) {
       this.logger.log("Auto-accepting report: giving a punishment");
       await this.handleReport(
@@ -279,9 +277,11 @@ ${report.comment ? `Комментарий: \n${report.comment}` : ""}
         { valid: true, overridePunishmentId: mapping.punishmentId },
         botSteamId,
       );
+      await this.addCommentHandledPunishment(report.id, mapping.punishmentId);
     } else {
       this.logger.log("Auto-accepting report: giving a warning");
       await this.handleReport(report.id, { valid: false }, botSteamId);
+      await this.addCommentHandledPunishment(report.id, undefined);
     }
   }
 
@@ -356,6 +356,7 @@ ${report.comment ? `Комментарий: \n${report.comment}` : ""}
     id: string,
     dto: HandleReportDto,
     executorSteamId: string,
+    addComment: boolean = false,
   ): Promise<UserReportEntity> {
     const report = await this.userReportEntityRepository.findOne({
       where: { id, handled: false },
@@ -382,6 +383,13 @@ ${report.comment ? `Комментарий: \n${report.comment}` : ""}
 
     if (dto.valid) {
       await this.createLogFromReport(report, punishment, executorSteamId);
+    }
+
+    if (addComment) {
+      await this.addCommentHandledPunishment(
+        report.id,
+        dto.valid ? punishment.id : undefined,
+      );
     }
 
     return this.userReportEntityRepository.findOne({
@@ -456,5 +464,42 @@ ${report.comment ? `Комментарий: \n${report.comment}` : ""}
         403,
       );
     }
+  }
+
+  private async addCommentHandledPunishment(
+    reportId: string,
+    punishmentId?: number,
+    note?: string,
+  ) {
+    let content: string = "";
+    if (punishmentId === undefined) {
+      content = "Игрок невиновен, наказание не применено.";
+    } else {
+      const p = await this.punishmentLogEntityRepository.findOneBy({
+        id: punishmentId,
+      });
+      content = `Применено наказание: ${p.banDurationSeconds / 60 / 60} часов.`;
+    }
+
+    if (note) {
+      content += `
+${note}`;
+    }
+
+    await this.forumApi
+      .forumControllerPostMessage(`${ThreadType.REPORT}_${reportId}`, {
+        author: {
+          steam_id: this.getBotModeratorSteamId(),
+          roles: [],
+        },
+        content,
+      })
+      .catch((e) => {
+        this.logger.warn("There was an issue adding comment to report!", e);
+      });
+  }
+
+  private getBotModeratorSteamId(): string {
+    return this.config.get("api.botSteamId");
   }
 }
