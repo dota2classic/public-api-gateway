@@ -34,6 +34,7 @@ import {
 } from "@testcontainers/rabbitmq";
 import { RabbitMQConfig, RabbitMQModule } from "@golevelup/nestjs-rabbitmq";
 import { ApiClient } from "@dota2classic/gs-api-generated/dist/module";
+import { PlayerService } from "../player/player.service";
 import {
   makeHistogramProvider,
   PrometheusModule,
@@ -203,6 +204,10 @@ describe("LobbyController", () => {
         {
           provide: getRepositoryToken(SteamidHwidEntryEntity),
           useValue: { save: jest.fn(), existsBy: jest.fn().mockResolvedValue(false) },
+        },
+        {
+          provide: PlayerService,
+          useValue: { notifyMightExist: jest.fn() },
         },
         makeHistogramProvider({
           name: "http_requests_duration_seconds",

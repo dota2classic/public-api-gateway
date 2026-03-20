@@ -71,7 +71,7 @@ export class NotificationMapper {
     if (notification.entityType !== NotificationEntityType.ACHIEVEMENT)
       return undefined;
     return {
-      key: notification.entityId as unknown as AchievementKey,
+      key: parseInt(notification.entityId) as AchievementKey,
     };
   }
 
