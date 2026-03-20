@@ -80,7 +80,7 @@ export class AuthService {
       if (star.response.params.result === "OK") {
         const steamId = star.response.params.steamid;
         // Notify this user might exist!
-        this.playerService.notifyMightExist(steamId);
+
 
         const profileQ = qs.stringify({
           key: this.config.get("steam.key"),
@@ -95,6 +95,7 @@ export class AuthService {
         const avatar: string | undefined = player?.avatarfull;
 
         const steam32id = steam64to32(steamId);
+        this.playerService.notifyMightExist(steam32id);
         this.ebus.publish(new UserLoggedInEvent(new PlayerId(steam32id), name, avatar));
 
         if (hwid) {
