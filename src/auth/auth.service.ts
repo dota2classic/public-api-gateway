@@ -12,6 +12,7 @@ import { PlayerId } from "../gateway/shared-types/player-id";
 import { InjectRepository } from "@nestjs/typeorm";
 import { SteamidHwidEntryEntity } from "../database/entities/steamid-hwid-entry.entity";
 import { Repository } from "typeorm";
+import { PlayerService } from "../player/player.service";
 
 export interface JwtPayload {
   sub: string;
@@ -39,6 +40,7 @@ export class AuthService {
   public static REFRESH_TOKEN_EXPIRES_IN = "4d";
   constructor(
     private readonly jwtService: JwtService,
+    private readonly playerService: PlayerService,
     private readonly user: UserProfileService,
     private readonly config: ConfigService,
     private readonly ebus: EventBus,
@@ -77,6 +79,8 @@ export class AuthService {
       const star = res as SteamSessionTokenAuthResponse;
       if (star.response.params.result === "OK") {
         const steamId = star.response.params.steamid;
+        // Notify this user might exist!
+        this.playerService.notifyMightExist(steamId);
 
         const profileQ = qs.stringify({
           key: this.config.get("steam.key"),

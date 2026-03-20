@@ -29,6 +29,7 @@ import { ConfigService } from "@nestjs/config";
 import { EventBus } from "@nestjs/cqrs";
 import { SteamAuthGuard } from "./strategy/steam-auth.guard";
 import { FastifyReply, FastifyRequest } from "fastify";
+import { PlayerService } from "./player/player.service";
 
 @UseInterceptors(ReqLoggingInterceptor)
 @Controller("auth/steam")
@@ -47,7 +48,7 @@ export class SteamController {
     };
   };
   constructor(
-    private readonly jwtService: JwtService,
+    private readonly playerService: PlayerService,
     private readonly authService: AuthService,
     private readonly config: ConfigService,
     private readonly ebus: EventBus,
@@ -153,6 +154,8 @@ export class SteamController {
         req.cookies["d2c:referral"],
       ),
     );
+
+    this.playerService.notifyMightExist(steam32id);
 
     const isHrefRedirect =
       req.cookies["d2c:auth_redirect"] &&
