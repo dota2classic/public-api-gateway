@@ -102,6 +102,7 @@ export class PlayerSummaryDto {
   session?: PlayerSessionDto;
 
   accessMap: GamemodeAccessMap;
+  botGameProgress: number;
   aspects: PlayerAspectDto[];
 
   // asdfsa

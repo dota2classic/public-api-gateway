@@ -111,6 +111,7 @@ export class PlayerMapper {
           }
         : undefined,
       recalibration: it.recalibration,
+      botGameProgress: it.readinessProgress,
       overallStats: this.mapPlayerStats(it.overall),
       seasonStats: this.mapPlayerStats(it.season),
     };
