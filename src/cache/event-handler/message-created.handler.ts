@@ -18,6 +18,7 @@ export class MessageCreatedHandler
   ) {}
 
   async handle(event: MessageCreatedEvent) {
+    if (event.event.deleted) return;
     // Increment and get counter in redis
     const counter = await this.redis.incr(
       MessageCreatedHandler.TELEGRAM_MESSAGE_SPAN_KEY,
