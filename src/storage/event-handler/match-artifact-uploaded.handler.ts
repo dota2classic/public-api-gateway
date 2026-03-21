@@ -27,7 +27,7 @@ export class MatchArtifactUploadedHandler
 
   async execute({ event }: MatchArtifactUploadedCommand): Promise<PlayerChatModerationResult[]> {
     if (event.artifactType !== MatchArtifactType.LOG) return [];
-
+return;
     const object = await this.s3.getObject({
       Bucket: event.bucket,
       Key: event.key,
