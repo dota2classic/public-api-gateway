@@ -89,7 +89,7 @@ export class SocketMessageService {
   async playerGameState(
     steamId: string,
   ): Promise<PlayerGameStateMessageS2C | undefined> {
-    const res = await this.gsApi.player.playerControllerPlayerSummary(steamId);
+    const res = await this.gsApi.player.playerProfileControllerPlayerSummary(steamId);
     if (!res.data.session) return undefined;
 
     return new PlayerGameStateMessageS2C(

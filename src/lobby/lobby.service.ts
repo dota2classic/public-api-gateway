@@ -519,7 +519,7 @@ export class LobbyService {
 
   private async isInGame(steamId: string) {
     try {
-      const res = await this.gsApi.player.playerControllerPlayerSummary(steamId);
+      const res = await this.gsApi.player.playerProfileControllerPlayerSummary(steamId);
       return !!res.data.session;
     } catch (e) {
       this.logger.error("Error getting summary", e);

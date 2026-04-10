@@ -151,7 +151,7 @@ export class MatchController {
     @CurrentUser() user: CurrentUserDto,
     @Body() dto: ReportPlayerDto,
   ) {
-    await this.gsApi.player.playerControllerReportPlayer({
+    await this.gsApi.player.playerModerationControllerReportPlayer({
       reporterSteamId: user.steam_id,
       reportedSteamId: dto.steamId,
       aspect: dto.aspect,

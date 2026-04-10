@@ -26,12 +26,12 @@ export class PartyService {
     const [banStatusesRes, summariesRes, lobbies] = await Promise.combine([
       Promise.all(
         party.players.map((steamId) =>
-          this.gsApi.player.playerControllerBanInfo(steamId),
+          this.gsApi.player.playerModerationControllerBanInfo(steamId),
         ),
       ),
       Promise.all(
         party.players.map((steamId) =>
-          this.gsApi.player.playerControllerPlayerSummary(steamId),
+          this.gsApi.player.playerProfileControllerPlayerSummary(steamId),
         ),
       ),
       Promise.all(

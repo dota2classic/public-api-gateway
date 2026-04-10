@@ -4,6 +4,7 @@ import {
   Get,
   Inject,
   Param,
+  Patch,
   Post,
   Query,
   UseInterceptors,
@@ -17,6 +18,8 @@ import {
   BanHammerDto,
   CrimeLogDto,
   CrimeLogPageDto,
+  EducationLockDto,
+  PatchEducationLockDto,
   PlayerFlagDto,
   SmurfData,
   UpdateModeDTO,
@@ -182,7 +185,7 @@ export class AdminUserController {
   public async smurfOf(
     @Param("steam_id") steamId: string,
   ): Promise<SmurfData[]> {
-    const res = await this.gsApi.player.playerControllerSmurfData(steamId);
+    const res = await this.gsApi.player.playerModerationControllerSmurfData(steamId);
     return Promise.all(
       res.data.relatedBans.map(async (rb) => ({
         user: await this.user.userDto(rb.steam_id),
@@ -250,6 +253,32 @@ export class AdminUserController {
       };
     }
     return ex;
+  }
+
+  @ModeratorGuard()
+  @WithUser()
+  @Get("/player/:id/education_lock")
+  public async getEducationLock(
+    @Param("id") id: string,
+  ): Promise<EducationLockDto> {
+    const res =
+      await this.gsApi.player.playerEducationControllerGetEducationLock(id);
+    return res.data;
+  }
+
+  @AdminGuard()
+  @WithUser()
+  @Patch("/player/:id/education_lock")
+  public async patchEducationLock(
+    @Param("id") id: string,
+    @Body() dto: PatchEducationLockDto,
+  ): Promise<EducationLockDto> {
+    const res =
+      await this.gsApi.player.playerEducationControllerPatchEducationLock(
+        id,
+        dto,
+      );
+    return res.data;
   }
 
   @ModeratorGuard()

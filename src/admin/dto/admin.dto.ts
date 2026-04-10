@@ -156,3 +156,16 @@ export class PlayerFlagDto {
 }
 
 export class UpdatePlayerFlagDto extends PartialType(PlayerFlagDto) {}
+
+export class EducationLockDto {
+  steamId: string;
+  requiredGames: number;
+  resolved: boolean;
+  totalBotGames: number;
+  recentKda: number;
+  recentWinrate: number;
+}
+
+export class PatchEducationLockDto {
+  requiredGames: number;
+}

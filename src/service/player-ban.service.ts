@@ -14,12 +14,12 @@ export class PlayerBanService {
   constructor(private readonly gsApi: ApiClient) {}
 
   public async hasPlayedAnyGame(steamId: string) {
-    const res = await this.gsApi.player.playerControllerPlayerSummary(steamId);
+    const res = await this.gsApi.player.playerProfileControllerPlayerSummary(steamId);
     return asMatchAccessLevel(res.data.accessLevel) !== MatchAccessLevel.EDUCATION;
   }
 
   public async getBanStatus(steamId: string) {
-    const res = await this.gsApi.player.playerControllerBanInfo(steamId);
+    const res = await this.gsApi.player.playerModerationControllerBanInfo(steamId);
     const bi = res.data;
     // More than 365 days = perma ban
     if (

@@ -55,7 +55,7 @@ export class MetaController {
   public async heroPlayers(
     @Param("hero") hero: string,
   ): Promise<HeroPlayerDto[]> {
-    const res = await this.gsApi.player.playerControllerGetHeroPlayers(hero);
+    const res = await this.gsApi.player.playerProfileControllerGetHeroPlayers(hero);
     return await Promise.all(res.data.map(this.mapper.mapHeroPlayer));
   }
 }

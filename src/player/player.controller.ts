@@ -66,9 +66,9 @@ export class PlayerController {
   // @CacheTTL(5)
   async me(@CurrentUser() user: CurrentUserDto): Promise<MeDto> {
     const [summary, banStatus, reportsAvailable] = await Promise.combine([
-      this.gsApi.player.playerControllerPlayerSummary(user.steam_id),
-      this.gsApi.player.playerControllerBanInfo(user.steam_id),
-      this.gsApi.player.playerControllerReportsAvailable(user.steam_id),
+      this.gsApi.player.playerProfileControllerPlayerSummary(user.steam_id),
+      this.gsApi.player.playerModerationControllerBanInfo(user.steam_id),
+      this.gsApi.player.playerModerationControllerReportsAvailable(user.steam_id),
     ]);
     return this.mapper.mapMe(summary.data, banStatus.data, reportsAvailable.data);
   }
@@ -94,7 +94,7 @@ export class PlayerController {
     @Query("per_page", new PerPagePipe()) perPage: number,
     @Query("season_id", NullableIntPipe) seasonId?: number,
   ): Promise<LeaderboardEntryPageDto> {
-    const res = await this.gsApi.player.playerControllerLeaderboard({
+    const res = await this.gsApi.player.playerRankingControllerLeaderboard({
       page,
       per_page: perPage,
       season_id: seasonId,
@@ -118,7 +118,7 @@ export class PlayerController {
     @Query("page", PagePipe) page: number,
     @Query("per_page", new PerPagePipe()) perPage: number,
   ): Promise<PlayerTeammatePageDto> {
-    const res = await this.gsApi.player.playerControllerPlayerTeammates(
+    const res = await this.gsApi.player.playerProfileControllerPlayerTeammates(
       steam_id,
       { page, per_page: perPage },
     );
@@ -138,7 +138,7 @@ export class PlayerController {
 
   @Get("/:id/achievements")
   async achievements(@Param("id") steam_id: string): Promise<AchievementDto[]> {
-    const res = await this.gsApi.player.playerControllerPlayerAchievements(steam_id);
+    const res = await this.gsApi.player.playerAchievementsControllerPlayerAchievements(steam_id);
 
     return Promise.all(res.data.map(this.mapper.mapAchievement));
   }
@@ -149,8 +149,8 @@ export class PlayerController {
     this.playerService.notifyMightExist(steamId);
 
     const [raw, bans] = await Promise.combine([
-      this.gsApi.player.playerControllerPlayerSummary(steamId),
-      this.gsApi.player.playerControllerBanInfo(steamId),
+      this.gsApi.player.playerProfileControllerPlayerSummary(steamId),
+      this.gsApi.player.playerModerationControllerBanInfo(steamId),
     ]);
 
     return this.mapper.mapPlayerSummary(raw.data, bans.data);
@@ -166,7 +166,7 @@ export class PlayerController {
   @UseInterceptors(UserHttpCacheInterceptor)
   @Get("/summary/hero/:id")
   async heroSummary(@Param("id") steam_id: string): Promise<HeroStatsDto[]> {
-    const res = await this.gsApi.player.playerControllerPlayerHeroSummary(steam_id);
+    const res = await this.gsApi.player.playerProfileControllerPlayerHeroSummary(steam_id);
     return res.data;
   }
 
@@ -175,7 +175,7 @@ export class PlayerController {
   async getDodgeList(
     @CurrentUser() user: CurrentUserDto,
   ): Promise<DodgeListEntryDto[]> {
-    const res = await this.gsApi.player.playerControllerGetDodgeList({
+    const res = await this.gsApi.player.playerSocialControllerGetDodgeList({
       steamId: user.steam_id,
     });
     return Promise.all(res.data.map(this.mapper.mapDodgeEntry));
@@ -188,7 +188,7 @@ export class PlayerController {
     @CurrentUser() user: CurrentUserDto,
   ): Promise<PlayerSummaryDto> {
     try {
-      await this.gsApi.player.playerControllerStartRecalibration({
+      await this.gsApi.player.playerRankingControllerStartRecalibration({
         steamId: user.steam_id,
       });
       return this.playerSummary(user.steam_id);
@@ -203,7 +203,7 @@ export class PlayerController {
   @WithUser()
   @Post("/abandon_game")
   public async abandonGame(@CurrentUser() user: CurrentUserDto) {
-    await this.gsApi.player.playerControllerAbandonSession({
+    await this.gsApi.player.playerSessionControllerAbandonSession({
       steamId: user.steam_id,
     });
   }
@@ -215,7 +215,7 @@ export class PlayerController {
     @CurrentUser() user: CurrentUserDto,
     @Body() dto: DodgePlayerDto,
   ): Promise<DodgeListEntryDto[]> {
-    const res = await this.gsApi.player.playerControllerDodgePlayer({
+    const res = await this.gsApi.player.playerSocialControllerDodgePlayer({
       steamId: user.steam_id,
       toDodgeSteamId: dto.dodgeSteamId,
     });
@@ -229,7 +229,7 @@ export class PlayerController {
     @CurrentUser() user: CurrentUserDto,
     @Body() dto: DodgePlayerDto,
   ): Promise<DodgeListEntryDto[]> {
-    const res = await this.gsApi.player.playerControllerUnDodgePlayer({
+    const res = await this.gsApi.player.playerSocialControllerUnDodgePlayer({
       steamId: user.steam_id,
       toDodgeSteamId: dto.dodgeSteamId,
     });
@@ -268,7 +268,7 @@ export class PlayerController {
   ): Promise<PlayerRelationDto> {
     const [relationStatus, dodgeList] = await Promise.combine([
       this.relation.getRelation(user.steam_id, steamId),
-      this.gsApi.player.playerControllerGetDodgeList({ steamId: user.steam_id }),
+      this.gsApi.player.playerSocialControllerGetDodgeList({ steamId: user.steam_id }),
     ]);
     return {
       isFriend: relationStatus === UserRelationStatus.FRIEND,
