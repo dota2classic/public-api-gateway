@@ -6,7 +6,6 @@ import { UserRelationStatus } from "../gateway/shared-types/user-relation";
 import { Cron, CronExpression } from "@nestjs/schedule";
 import { UserProfileFastService } from "@dota2classic/caches/dist/service/user-profile-fast.service";
 import { UserFastProfileDto } from "../gateway/caches/user-fast-profile.dto";
-import { isOld } from "../utils/is-old";
 import { measure } from "../utils/decorator/measure";
 
 @Injectable()
@@ -32,7 +31,8 @@ export class UserRelationService implements OnApplicationBootstrap {
     related: string,
   ): Promise<UserRelationStatus | undefined> {
     const u = await this.fast.get(steamId);
-    if (!u || !isOld(u.roles.map((t) => t.role))) return undefined;
+    if (!u) return undefined;
+
     return this.getRelationSync(steamId, related);
   }
 
