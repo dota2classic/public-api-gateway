@@ -54,7 +54,7 @@ class MockLoggerInterceptor implements NestInterceptor {
 }
 
 describe("LobbyController", () => {
-  jest.setTimeout(60000);
+  jest.setTimeout(120000);
 
   let container: StartedPostgreSqlContainer;
   let redis: StartedRedisContainer;

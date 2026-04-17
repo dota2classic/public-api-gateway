@@ -243,7 +243,7 @@ export class PlayerController {
     @Query("name") name: string,
     @Query("count", NullableIntPipe) count: number = 30,
   ): Promise<UserDTO[]> {
-    const friends = user ? this.relation.getFriends(user.steam_id) : [];
+    const friends = user ? await this.relation.getFriends(user.steam_id) : [];
     if (!name) {
       return Promise.all(
         friends.slice(0, count).map((id) => this.userProfile.userDto(id)),
@@ -256,7 +256,7 @@ export class PlayerController {
   @WithUser()
   @Get("/friends")
   public async getFriends(@CurrentUser() user: CurrentUserDto): Promise<UserDTO[]> {
-    const friends = this.relation.getFriends(user.steam_id);
+    const friends = await this.relation.getFriends(user.steam_id);
     return Promise.all(friends.map((id) => this.userProfile.userDto(id)));
   }
 

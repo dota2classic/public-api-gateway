@@ -44,6 +44,21 @@ import { UserRelationEntity } from "../database/entities/user-relation.entity";
       },
       inject: [ConfigService],
     },
+    {
+      provide: "user-relation",
+      async useFactory(config: ConfigService) {
+        return new Keyv(
+          new KeyvRedis({
+            url: `redis://${config.get("redis.host")}:6379`,
+            password: config.get<string>("redis.password"),
+          }),
+          {
+            namespace: "user-relation",
+          },
+        );
+      },
+      inject: [ConfigService],
+    },
     StorageMapper,
     CustomizationMapper,
     UserProfileService,
