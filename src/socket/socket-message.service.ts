@@ -97,6 +97,7 @@ export class SocketMessageService {
       res.data.session.matchId,
       asMatchmakingMode(res.data.session.lobbyType),
       res.data.session.abandoned,
+      res.data.session.canAbandon
     );
   }
 

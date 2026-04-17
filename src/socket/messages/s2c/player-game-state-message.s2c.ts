@@ -5,6 +5,7 @@ export class PlayerGameStateMessageS2C {
     public readonly serverUrl: string,
     public readonly matchId: number,
     public readonly lobbyType: MatchmakingMode,
-    public readonly abandoned: boolean
+    public readonly abandoned: boolean,
+    public readonly canAbandon: boolean
   ) {}
 }
