@@ -225,7 +225,7 @@ describe("LobbyController", () => {
           provide: ApiClient,
           useValue: {
             player: {
-              playerControllerPlayerSummary: () =>
+              playerProfileControllerPlayerSummary: () =>
                 Promise.resolve({ data: {} }),
             },
           },
