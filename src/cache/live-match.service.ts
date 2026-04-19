@@ -8,9 +8,10 @@ interface LiveMatchEntry {
 }
 @Injectable()
 export class LiveMatchService {
-  // MINUTE DELAY
-  // matchID key => events
   private cache = new Map<number, LiveMatchEntry>();
+  // set immediately on game end — blocks new incoming events
+  private stoppedMatchesCache = new Map<number, boolean>();
+  // set after delay — hides match from list() / streamMatch
   private finishedMatchesCache = new Map<number, boolean>();
 
   private readonly entityCache = new Map<number, LiveMatchDto>();
@@ -22,15 +23,19 @@ export class LiveMatchService {
     this.logger.log(`Using delay of ${this.delay} for live previews`);
   }
 
+  private isMatchStopped(id: number): boolean {
+    return this.stoppedMatchesCache.get(id) === true;
+  }
+
   private isMatchComplete(id: number): boolean {
     return this.finishedMatchesCache.get(id) === true;
   }
 
   public async pushEvent(event: LiveMatchDto) {
     this.logger.verbose(
-      `Pushing event ${event.matchId} ${this.isMatchComplete(event.matchId)}`,
+      `Pushing event ${event.matchId} stopped=${this.isMatchStopped(event.matchId)}`,
     );
-    if (this.isMatchComplete(event.matchId)) return;
+    if (this.isMatchStopped(event.matchId)) return;
 
     if (!this.cache.has(event.matchId)) {
       // if not subject, we
@@ -47,19 +52,20 @@ export class LiveMatchService {
 
     await new Promise((resolve) => setTimeout(resolve, this.delay));
 
-    try {
-      this.cache.get(event.matchId).source.next(event);
-    } catch (e) {}
+    this.cache.get(event.matchId)?.source.next(event);
   }
 
   public onStop(id: number) {
-    const sub = this.cache.get(id);
-    if (sub) {
-      sub.source.complete();
-      this.cache.delete(id);
+    this.stoppedMatchesCache.set(id, true);
+    setTimeout(() => {
+      const sub = this.cache.get(id);
+      if (sub) {
+        sub.source.complete();
+        this.cache.delete(id);
+        this.entityCache.delete(id);
+      }
       this.finishedMatchesCache.set(id, true);
-      this.entityCache.delete(id);
-    }
+    }, this.delay);
   }
 
   public list(): LiveMatchDto[] {
