@@ -48,9 +48,7 @@ import { WithPagination } from "../utils/decorator/pagination";
 import { MatchmakingInfo } from "../stats/stats.dto";
 import { InjectS3, S3 } from "nestjs-s3";
 import { UserProfileService } from "../service/user-profile.service";
-import { SocketDelivery } from "../socket/socket-delivery";
-import { MessageTypeS2C } from "../socket/messages/s2c/message-type.s2c";
-import { PleaseEnterQueueMessageS2C } from "../socket/messages/s2c/please-enter-queue-message.s2c";
+import { PlayerPleaseGoQueueEvent } from "../notification/event/player-please-go-queue.event";
 import { PlayerFlagsEntity } from "../database/entities/player-flags.entity";
 import { Repository } from "typeorm";
 import { InjectRepository } from "@nestjs/typeorm";
@@ -79,7 +77,6 @@ export class AdminUserController {
     @InjectRepository(PlayerFlagsEntity)
     private readonly playerFlagsRepo: Repository<PlayerFlagsEntity>,
     @InjectS3() private readonly s3: S3,
-    private readonly socketDelivery: SocketDelivery,
   ) {}
 
   @ModeratorGuard()
@@ -278,10 +275,9 @@ export class AdminUserController {
     @Param("id") id: string,
     @Body() dto: PleaseGoQueueDto,
   ): Promise<void> {
-    await this.socketDelivery.deliver(
-      id,
-      MessageTypeS2C.GO_QUEUE,
-      new PleaseEnterQueueMessageS2C(dto.mode, Dota2Version.Dota_684, dto.inQueue),
+    this.rq.emit(
+      PlayerPleaseGoQueueEvent.name,
+      new PlayerPleaseGoQueueEvent(id, dto.mode, dto.inQueue),
     );
   }
 

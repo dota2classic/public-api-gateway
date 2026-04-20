@@ -26,6 +26,7 @@ import { LobbyService } from "../lobby/lobby.service";
 import { LobbyEntity } from "../database/entities/lobby.entity";
 import { LobbySlotEntity } from "../database/entities/lobby-slot.entity";
 import { GameSessionUpdateHandler } from "./event-handler/game-session-update.handler";
+import { PlayerPleaseGoQueueHandler } from "./event-handler/player-please-go-queue.handler";
 
 @Global()
 @Module({
@@ -51,6 +52,7 @@ import { GameSessionUpdateHandler } from "./event-handler/game-session-update.ha
     NotificationCreatedHandler,
     GameResultsHandler,
     GameSessionUpdateHandler,
+    PlayerPleaseGoQueueHandler,
     PartyService,
     PlayerMapper,
     MatchMapper,

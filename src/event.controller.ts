@@ -24,6 +24,7 @@ import { BanSystemEvent } from "./gateway/events/gs/ban-system.event";
 import { LobbyReadyEvent } from "./gateway/events/lobby-ready.event";
 import { PlayerReportBanCreatedEvent } from "./gateway/events/bans/player-report-ban-created.event";
 import { NotificationCreatedEvent } from "./notification/event/notification-created.event";
+import { PlayerPleaseGoQueueEvent } from "./notification/event/player-please-go-queue.event";
 import { LobbyUpdatedEvent } from "./lobby/event/lobby-updated.event";
 import { GameSessionUpdateEvent } from "gateway/events/gs/game-session-update.event";
 
@@ -144,6 +145,11 @@ export class EventController {
   @EventPattern(NotificationCreatedEvent.name)
   async NotificationCreatedEvent(data: NotificationCreatedEvent) {
     this.event(NotificationCreatedEvent, data);
+  }
+
+  @EventPattern(PlayerPleaseGoQueueEvent.name)
+  async PlayerPleaseGoQueueEvent(data: PlayerPleaseGoQueueEvent) {
+    this.event(PlayerPleaseGoQueueEvent, data);
   }
 
   @EventPattern(LobbyUpdatedEvent.name)

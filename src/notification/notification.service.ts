@@ -9,10 +9,9 @@ import { MatchmakingMode } from "../gateway/shared-types/matchmaking-mode";
 import { GetQueueStateQueryResult } from "../gateway/queries/QueueState/get-queue-state-query.result";
 import { GetQueueStateQuery } from "../gateway/queries/QueueState/get-queue-state.query";
 import { Dota2Version } from "../gateway/shared-types/dota2version";
-import { SocketDelivery } from "../socket/socket-delivery";
-import { MessageTypeS2C } from "../socket/messages/s2c/message-type.s2c";
-import { PleaseEnterQueueMessageS2C } from "../socket/messages/s2c/please-enter-queue-message.s2c";
 import { ConfigService } from "@nestjs/config";
+import { PlayerPleaseGoQueueEvent } from "./event/player-please-go-queue.event";
+import Redis from "ioredis";
 import {
   NotificationEntity,
   NotificationEntityType,
@@ -32,7 +31,6 @@ export class NotificationService {
     @InjectRepository(WebpushSubscriptionEntity)
     private readonly webpushSubscriptionEntityRepository: Repository<WebpushSubscriptionEntity>,
     private qbus: QueryBus,
-    private readonly delivery: SocketDelivery,
     private readonly config: ConfigService,
     @InjectRepository(NotificationEntity)
     private readonly notificationEntityRepository: Repository<NotificationEntity>,
@@ -41,6 +39,7 @@ export class NotificationService {
     @Inject("QueryCore") private readonly redisEventQueue: ClientProxy,
     private readonly redlock: RedlockService,
     private readonly gsApi: ApiClient,
+    @Inject("REDIS") private readonly redis: Redis,
   ) {
     webpush.setVapidDetails(
       "mailto:enchantinggg4@gmail.com",
@@ -141,11 +140,21 @@ export class NotificationService {
       .filter((t) => t.modes.includes(mode))
       .reduce((a, b) => a + b.players.length, 0);
 
-    return await this.delivery.broadcastPredicate(
-      (steamId) => !ignorePing.has(steamId),
-      MessageTypeS2C.GO_QUEUE,
-      new PleaseEnterQueueMessageS2C(mode, Dota2Version.Dota_684, inQueue),
+    const onlineKeys: string[] = await this.redis.keys("connected_steamId:*");
+    const onlineSteamIds = [
+      ...new Set(
+        onlineKeys.map((key) => key.replace("connected_steamId:", "").split(":")[0]),
+      ),
+    ];
+
+    const eligible = onlineSteamIds.filter((id) => !ignorePing.has(id));
+    eligible.forEach((steamId) =>
+      this.redisEventQueue.emit(
+        PlayerPleaseGoQueueEvent.name,
+        new PlayerPleaseGoQueueEvent(steamId, mode, inQueue),
+      ),
     );
+    return eligible.length;
   }
 
   @Cron(CronExpression.EVERY_10_SECONDS)
