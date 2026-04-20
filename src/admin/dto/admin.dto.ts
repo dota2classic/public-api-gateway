@@ -169,3 +169,9 @@ export class EducationLockDto {
 export class PatchEducationLockDto {
   requiredGames: number;
 }
+
+export class PleaseGoQueueDto {
+  @ApiProperty({ enum: MatchmakingMode, enumName: "MatchmakingMode" })
+  mode: MatchmakingMode;
+  inQueue: number;
+}
