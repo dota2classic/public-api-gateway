@@ -27,6 +27,7 @@ import { NotificationCreatedEvent } from "./notification/event/notification-crea
 import { PlayerPleaseGoQueueEvent } from "./notification/event/player-please-go-queue.event";
 import { LobbyUpdatedEvent } from "./lobby/event/lobby-updated.event";
 import { GameSessionUpdateEvent } from "gateway/events/gs/game-session-update.event";
+import { PlayerDeclinedGameEvent } from "./gateway/events/mm/player-declined-game.event";
 
 @Controller()
 export class EventController {
@@ -160,5 +161,10 @@ export class EventController {
   @EventPattern(LobbyReadyEvent.name)
   async LobbyReadyEvent(data: LobbyReadyEvent) {
     this.event(LobbyReadyEvent, data);
+  }
+
+  @EventPattern(PlayerDeclinedGameEvent.name)
+  async PlayerDeclinedGameEvent(data: PlayerDeclinedGameEvent) {
+    this.event(PlayerDeclinedGameEvent, data);
   }
 }
