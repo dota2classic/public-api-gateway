@@ -14,6 +14,7 @@ import {
   Query,
   Req,
   Sse,
+  UnauthorizedException,
   UseGuards,
   UseInterceptors,
 } from "@nestjs/common";
@@ -120,6 +121,7 @@ export class ForumController {
     @Query("order") order: SortOrder = SortOrder.ASC,
     @CurrentUser() user?: CurrentUserDto,
   ): Promise<ThreadMessageDTO[]> {
+    this.assertCommentsVisible(threadType, user);
     try {
       const id = `${threadType}_${_id}`;
       const msgs = await this.api.forumControllerMessages(
@@ -158,6 +160,7 @@ export class ForumController {
     @Query("perPage", NullableIntPipe) perPage: number = 15,
     @CurrentUser() user?: CurrentUserDto,
   ): Promise<ThreadMessagePageDTO> {
+    this.assertCommentsVisible(threadType, user);
     const pg = await this.api.forumControllerGetLatestPage(
       `${threadType}_${id}`,
       perPage,
@@ -199,6 +202,7 @@ export class ForumController {
     @Query("per_page", new PerPagePipe(15)) perPage: number = 15,
     @CurrentUser() user?: CurrentUserDto,
   ): Promise<ThreadMessagePageDTO> {
+    this.assertCommentsVisible(threadType, user);
     const pg = await this.api.forumControllerMessagesPage(
       `${threadType}_${id}`,
       page,
@@ -357,6 +361,7 @@ export class ForumController {
     @Param("threadType") threadType: ThreadType,
     @CurrentUser() user?: CurrentUserDto,
   ): Observable<ThreadMessageSseDto> {
+    this.assertCommentsVisible(threadType, user);
     const externalThreadId = `${threadType}_${id}`;
 
     return this.ebus.pipe(
@@ -555,5 +560,20 @@ export class ForumController {
     const user = await this.api.forumControllerGetUser(steamId);
 
     return this.mapper.mapUser(user);
+  }
+
+  // Player profile comments and news comments are hidden from guests —
+  // everything else (forum, tickets, lobby/match chat) stays public.
+  private assertCommentsVisible(
+    threadType: ThreadType,
+    user: CurrentUserDto | undefined,
+  ) {
+    const gatedForGuests =
+      threadType === ThreadType.PLAYER || threadType === ThreadType.BLOGPOST;
+    if (gatedForGuests && !user) {
+      throw new UnauthorizedException(
+        "Войдите, чтобы посмотреть комментарии",
+      );
+    }
   }
 }
