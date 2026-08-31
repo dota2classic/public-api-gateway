@@ -89,16 +89,34 @@ export class PlayerController {
     name: "season_id",
     required: false,
   })
+  @ApiQuery({
+    name: "sort",
+    required: false,
+    enum: ["mmr", "games", "wins", "winrate", "kda", "playtime", "abandons"],
+  })
+  @ApiQuery({
+    name: "sort_dir",
+    required: false,
+    enum: ["ASC", "DESC"],
+  })
   async leaderboard(
     @Query("page", PagePipe) page: number,
     @Query("per_page", new PerPagePipe()) perPage: number,
     @Query("season_id", NullableIntPipe) seasonId?: number,
+    @Query("sort") sort?: string,
+    @Query("sort_dir") sortDir?: string,
   ): Promise<LeaderboardEntryPageDto> {
+    // sort/sort_dir aren't in the published gs-api-generated types yet
+    // (dota2classic/gameserver#12 not released) — gameserver's own runtime
+    // just spreads the query object into the querystring, so this is
+    // forwarded correctly today despite the type gap. Drop the cast once
+    // the package picks up the new signature.
     const res = await this.gsApi.player.playerRankingControllerLeaderboard({
       page,
       per_page: perPage,
       season_id: seasonId,
-    });
+      ...(sort ? { sort, sort_dir: sortDir } : {}),
+    } as Parameters<typeof this.gsApi.player.playerRankingControllerLeaderboard>[0]);
     const rawPage = res.data;
 
     return {

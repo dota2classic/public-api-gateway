@@ -18,6 +18,9 @@ import {
 } from "../utils/decorator/current-user";
 import {
   ApplyPunishmentDto,
+  BulkHandleReportDto,
+  BulkHandleReportResultDto,
+  BulkReportPreviewDto,
   HandleReportDto,
   PunishmentLogPageDto,
   ReportDto,
@@ -62,6 +65,31 @@ export class ReportController {
     const report = await this.reportService.handleReport(id, dto, user.steam_id, true);
 
     return this.mapper.mapReport(report);
+  }
+
+  @ModeratorGuard()
+  @WithUser()
+  @ApiQuery({
+    name: "olderThanDays",
+    required: true,
+    type: Number,
+  })
+  @Get("/admin/bulk-handle/preview")
+  public async previewBulkHandle(
+    @Query("olderThanDays", ParseIntPipe) olderThanDays: number,
+  ): Promise<BulkReportPreviewDto> {
+    const count = await this.reportService.previewBulkHandle(olderThanDays);
+    return { count };
+  }
+
+  @ModeratorGuard()
+  @WithUser()
+  @Post("/admin/bulk-handle")
+  public async bulkHandleReports(
+    @Body() dto: BulkHandleReportDto,
+    @CurrentUser() user: CurrentUserDto,
+  ): Promise<BulkHandleReportResultDto> {
+    return this.reportService.bulkHandleReports(dto, user.steam_id);
   }
 
   @Get("/report/:id")
