@@ -47,6 +47,14 @@ export class PlayerMapper {
   public mapLeaderboardEntry = async (
     it: GsApi.LeaderboardEntryDto,
   ): Promise<LeaderboardEntryDto> => {
+    // winrate/kda aren't in the published gs-api-generated types yet
+    // (dota2classic/gameserver#12 not released) — the field is really
+    // there on the response body already, just untyped. Drop this cast
+    // once the package picks it up.
+    const withStats = it as GsApi.LeaderboardEntryDto & {
+      winrate: number;
+      kda: number;
+    };
     return {
       mmr: it.mmr,
       id: numSteamId(it.steamId),
@@ -58,6 +66,8 @@ export class PlayerMapper {
       assists: it.assists,
       wins: it.wins,
       abandons: it.abandons,
+      winrate: withStats.winrate,
+      kda: withStats.kda,
       play_time: it.playtime,
       rank: it.rank,
     };
