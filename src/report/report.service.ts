@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   HttpException,
   Injectable,
   Logger,
@@ -6,7 +7,7 @@ import {
 } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { UserReportEntity } from "../database/entities/user-report.entity";
-import { DataSource, EntityManager, Repository } from "typeorm";
+import { DataSource, EntityManager, LessThan, Repository } from "typeorm";
 import { ForumApi, ForumMessageDTO } from "../generated-api/forum";
 import { ThreadType } from "../gateway/shared-types/thread-type";
 import { RuleEntity, RuleType } from "../database/entities/rule.entity";
@@ -18,7 +19,12 @@ import { NotificationService } from "../notification/notification.service";
 import { CurrentUserDto } from "../utils/decorator/current-user";
 import { RulePunishmentEntity } from "../database/entities/rule-punishment.entity";
 import { PunishmentLogEntity } from "../database/entities/punishment-log.entity";
-import { ApplyPunishmentDto, HandleReportDto } from "./report.dto";
+import {
+  ApplyPunishmentDto,
+  BulkHandleReportDto,
+  BulkHandleReportResultDto,
+  HandleReportDto,
+} from "./report.dto";
 import { PlayerBanEntity } from "../database/entities/player-ban.entity";
 import { BanReason } from "../gateway/shared-types/ban";
 import { ConfigService } from "@nestjs/config";
@@ -367,14 +373,25 @@ ${report.comment ? `Комментарий: \n${report.comment}` : ""}
       relations: ["rule"],
     });
 
-    const punishment = dto.overridePunishmentId
-      ? await this.rulePunishmentEntityRepository.findOne({
-          where: { id: dto.overridePunishmentId },
-        })
-      : report.rule.punishment;
+    if (!report) {
+      throw new NotFoundException("Report not found or already handled");
+    }
 
-    if (!punishment) {
-      throw new NotFoundException("Punishment not found for rule or override");
+    // Only accepting a report actually applies a punishment — rejecting
+    // one shouldn't require the rule to have one configured at all.
+    let punishment: RulePunishmentEntity | undefined;
+    if (dto.valid) {
+      punishment = dto.overridePunishmentId
+        ? await this.rulePunishmentEntityRepository.findOne({
+            where: { id: dto.overridePunishmentId },
+          })
+        : report.rule.punishment;
+
+      if (!punishment) {
+        throw new NotFoundException(
+          "Punishment not found for rule or override",
+        );
+      }
     }
 
     const uc = await this.userReportEntityRepository.update(
@@ -400,6 +417,75 @@ ${report.comment ? `Комментарий: \n${report.comment}` : ""}
       where: { id },
       relations: ["rule"],
     });
+  }
+
+  // Hard cap on a single bulk call — the moderator can just call it again
+  // for the rest rather than one request quietly walking the whole backlog.
+  private static readonly BULK_HANDLE_MAX = 500;
+
+  private async resolveBulkTargetIds(
+    dto: Pick<BulkHandleReportDto, "ids" | "olderThanDays">,
+    limit: number,
+  ): Promise<string[]> {
+    if (dto.ids?.length) {
+      return dto.ids.slice(0, limit);
+    }
+
+    if (dto.olderThanDays !== undefined) {
+      const cutoff = new Date(
+        Date.now() - dto.olderThanDays * 24 * 60 * 60 * 1000,
+      );
+      const rows = await this.userReportEntityRepository.find({
+        where: { handled: false, createdAt: LessThan(cutoff) },
+        order: { createdAt: "ASC" },
+        take: limit,
+        select: ["id"],
+      });
+      return rows.map((r) => r.id);
+    }
+
+    throw new BadRequestException("Provide either ids or olderThanDays");
+  }
+
+  public async previewBulkHandle(
+    olderThanDays: number,
+  ): Promise<number> {
+    const cutoff = new Date(Date.now() - olderThanDays * 24 * 60 * 60 * 1000);
+    return this.userReportEntityRepository.count({
+      where: { handled: false, createdAt: LessThan(cutoff) },
+    });
+  }
+
+  public async bulkHandleReports(
+    dto: BulkHandleReportDto,
+    executorSteamId: string,
+  ): Promise<BulkHandleReportResultDto> {
+    const targetIds = await this.resolveBulkTargetIds(
+      dto,
+      ReportService.BULK_HANDLE_MAX,
+    );
+
+    let processed = 0;
+    const failedIds: string[] = [];
+
+    for (const id of targetIds) {
+      try {
+        await this.handleReport(
+          id,
+          { valid: dto.valid, overridePunishmentId: dto.overridePunishmentId },
+          executorSteamId,
+          true,
+        );
+        processed++;
+      } catch (e) {
+        this.logger.warn(
+          `Bulk handle failed for report ${id}: ${e?.message || e}`,
+        );
+        failedIds.push(id);
+      }
+    }
+
+    return { processed, failed: failedIds.length, failedIds };
   }
 
   public async getReport(

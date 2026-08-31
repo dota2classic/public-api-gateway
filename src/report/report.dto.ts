@@ -33,6 +33,25 @@ export class HandleReportDto {
   overridePunishmentId?: number;
 }
 
+export class BulkHandleReportDto {
+  // Either an explicit id list, or olderThanDays to target the unhandled
+  // backlog older than N days — one of the two is required.
+  ids?: string[];
+  olderThanDays?: number;
+  valid: boolean;
+  overridePunishmentId?: number;
+}
+
+export class BulkHandleReportResultDto {
+  processed: number;
+  failed: number;
+  failedIds: string[];
+}
+
+export class BulkReportPreviewDto {
+  count: number;
+}
+
 export class PunishmentLogDto {
   id: number;
   createdAt: string;
