@@ -8,8 +8,14 @@ import { ForumApi } from "../../generated-api/forum";
 export class MessageCreatedHandler
   implements IEventHandler<MessageCreatedEvent>
 {
-  private static TELEGRAM_MESSAGE_SPAN = 50;
-  private static TELEGRAM_MESSAGE_SPAN_KEY = "telegram_message_span_counter";
+  private static PROMO_MESSAGE_SPAN = 25;
+  private static PROMO_MESSAGE_SPAN_KEY = "promo_message_span_counter";
+  // Rotated every PROMO_MESSAGE_SPAN messages so the two promos don't land
+  // on top of each other.
+  private static PROMO_MESSAGES = [
+    `Подписывайся на наш телеграм канал! https://t.me/dota2classicru - мемы, новости проекта, интересная статистика и другие интересные посты!`,
+    `Если вы хотите приобрести итемы по лучшим ценам и поддержать DotaClassic - покупайте на сайте наших партнеров Collector's Shop: https://collectorsshop.ru/promo/old - промокод OLD даёт 7% скидки!`,
+  ];
   private logger = new Logger(MessageCreatedHandler.name);
 
   constructor(
@@ -21,24 +27,28 @@ export class MessageCreatedHandler
     if (event.event.deleted) return;
     // Increment and get counter in redis
     const counter = await this.redis.incr(
-      MessageCreatedHandler.TELEGRAM_MESSAGE_SPAN_KEY,
+      MessageCreatedHandler.PROMO_MESSAGE_SPAN_KEY,
     );
-    if (counter % MessageCreatedHandler.TELEGRAM_MESSAGE_SPAN === 0) {
+    if (counter % MessageCreatedHandler.PROMO_MESSAGE_SPAN === 0) {
       // Reset to 0
-      await this.redis.set(MessageCreatedHandler.TELEGRAM_MESSAGE_SPAN_KEY, 0);
+      await this.redis.set(MessageCreatedHandler.PROMO_MESSAGE_SPAN_KEY, 0);
 
-      // Do your custom action
-      await this.postMessage();
+      const round = counter / MessageCreatedHandler.PROMO_MESSAGE_SPAN;
+      const content =
+        MessageCreatedHandler.PROMO_MESSAGES[
+          round % MessageCreatedHandler.PROMO_MESSAGES.length
+        ];
+      await this.postMessage(content);
     }
   }
 
-  private async postMessage() {
+  private async postMessage(content: string) {
     try {
       // Send a message to all chat
       await this.forumApi.forumControllerPostMessage(
         "forum_17aa3530-d152-462e-a032-909ae69019ed",
         {
-          content: `Подписывайся на наш телеграм канал! https://t.me/dota2classicru - мемы, новости проекта, интересная статистика и другие интересные посты!`,
+          content,
           author: {
             steam_id: "159907143",
             roles: [],
@@ -46,10 +56,7 @@ export class MessageCreatedHandler
         },
       );
     } catch (e) {
-      this.logger.warn(
-        "There wa an issue sending message about telegram stuff",
-        e,
-      );
+      this.logger.warn("There was an issue sending a promo message", e);
     }
   }
 }
