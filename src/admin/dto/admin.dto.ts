@@ -145,6 +145,13 @@ export class CrimeLogPageDto extends Page<CrimeLogDto> {
 export class SmurfData {
   user: UserDTO;
   ban: BanStatusDto;
+  // Logged in to the launcher from the same computer
+  sharedHwid: boolean;
+  // Connected to a match from the same IP
+  sharedIp: boolean;
+  games?: number;
+  // iso
+  lastMatch?: string;
 }
 
 export class PlayerFlagDto {

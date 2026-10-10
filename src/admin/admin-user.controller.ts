@@ -44,6 +44,7 @@ import { Dota2Version } from "../gateway/shared-types/dota2version";
 import { PlayerBanHammeredEvent } from "../gateway/events/bans/player-ban-hammered.event";
 import { NullableIntPipe, PagePipe, PerPagePipe } from "../utils/pipes";
 import { AdminMapper } from "./admin.mapper";
+import { SmurfLinksService } from "./smurf-links.service";
 import { WithPagination } from "../utils/decorator/pagination";
 import { MatchmakingInfo } from "../stats/stats.dto";
 import { InjectS3, S3 } from "nestjs-s3";
@@ -57,7 +58,6 @@ import {
   asDotaMap,
   asGameMode,
   asDotaPatch,
-  asBanReason,
   toApiDotaMap,
   toApiGameMode,
   toApiDotaPatch,
@@ -77,6 +77,7 @@ export class AdminUserController {
     @InjectRepository(PlayerFlagsEntity)
     private readonly playerFlagsRepo: Repository<PlayerFlagsEntity>,
     @InjectS3() private readonly s3: S3,
+    private readonly smurfLinks: SmurfLinksService,
   ) {}
 
   @ModeratorGuard()
@@ -187,17 +188,7 @@ export class AdminUserController {
   public async smurfOf(
     @Param("steam_id") steamId: string,
   ): Promise<SmurfData[]> {
-    const res = await this.gsApi.player.playerModerationControllerSmurfData(steamId);
-    return Promise.all(
-      res.data.relatedBans.map(async (rb) => ({
-        user: await this.user.userDto(rb.steam_id),
-        ban: {
-          isBanned: rb.isBanned,
-          bannedUntil: rb.bannedUntil,
-          status: asBanReason(rb.status),
-        },
-      })),
-    );
+    return this.smurfLinks.getSmurfData(steamId);
   }
 
   @ModeratorGuard()

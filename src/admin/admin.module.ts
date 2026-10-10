@@ -4,10 +4,14 @@ import { ServerController } from "./server.controller";
 import { AdminUserController } from "./admin-user.controller";
 import { AdminMapper } from "./admin.mapper";
 import { PlayerFlagsEntity } from "../database/entities/player-flags.entity";
+import { SteamidHwidEntryEntity } from "../database/entities/steamid-hwid-entry.entity";
+import { SmurfLinksService } from "./smurf-links.service";
 
 @Module({
-  imports: [TypeOrmModule.forFeature([PlayerFlagsEntity])],
+  imports: [
+    TypeOrmModule.forFeature([PlayerFlagsEntity, SteamidHwidEntryEntity]),
+  ],
   controllers: [ServerController, AdminUserController],
-  providers: [AdminMapper],
+  providers: [AdminMapper, SmurfLinksService],
 })
 export class AdminModule {}
