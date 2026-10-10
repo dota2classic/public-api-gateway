@@ -10,10 +10,13 @@ import { SmurfData } from "./dto/admin.dto";
 // Value the launcher sends when WMI fails — shared by unrelated players
 export const UNKNOWN_HWID = "unknown";
 
-// Every linked account costs a few gameserver calls; shared IPs
-// (mobile CGNAT, public VPNs) can link hundreds of accounts.
-const MAX_LINKS = 100;
-const STATS_CONCURRENCY = 5;
+// Shared IPs (mobile CGNAT, public VPNs) can link hundreds of accounts.
+const MAX_LINKS = 200;
+// Games/last match cost two gameserver calls per account and this list is
+// loaded with every admin player page, so only the top links get them
+// (HWID links come first).
+const MAX_LINKS_WITH_STATS = 30;
+const CONCURRENCY = 10;
 
 export interface SmurfLink {
   steamId: string;
@@ -79,17 +82,13 @@ export class SmurfLinksService {
 
     return mapWithConcurrency(
       links.slice(0, MAX_LINKS),
-      STATS_CONCURRENCY,
-      async (link): Promise<SmurfData> => {
+      CONCURRENCY,
+      async (link, i): Promise<SmurfData> => {
         const knownBan = ipBans.get(link.steamId);
         const [user, ban, stats] = await Promise.all([
           this.user.userDto(link.steamId),
-          knownBan
-            ? Promise.resolve(knownBan)
-            : this.gsApi.player
-                .playerModerationControllerBanInfo(link.steamId)
-                .then((r) => r.data),
-          this.matchStats(link.steamId),
+          knownBan ? Promise.resolve(knownBan) : this.banInfo(link.steamId),
+          i < MAX_LINKS_WITH_STATS ? this.matchStats(link.steamId) : {},
         ]);
         return {
           user,
@@ -118,6 +117,24 @@ export class SmurfLinksService {
     return rows.map((r) => r.steam_id);
   }
 
+  // A gameserver hiccup on one account must not break the whole list
+  private async banInfo(
+    steamId: string,
+  ): Promise<{ isBanned: boolean; bannedUntil: string; status: number }> {
+    try {
+      return (
+        await this.gsApi.player.playerModerationControllerBanInfo(steamId)
+      ).data;
+    } catch (e) {
+      this.logger.warn(`Failed to load ban info for ${steamId}`, e);
+      return {
+        isBanned: false,
+        bannedUntil: new Date(0).toISOString(),
+        status: 0,
+      };
+    }
+  }
+
   // Stats are a nice-to-have: a gameserver hiccup must not break the whole list
   private async matchStats(
     steamId: string,
@@ -144,14 +161,14 @@ export class SmurfLinksService {
 async function mapWithConcurrency<T, R>(
   items: T[],
   limit: number,
-  fn: (item: T) => Promise<R>,
+  fn: (item: T, index: number) => Promise<R>,
 ): Promise<R[]> {
   const result: R[] = new Array(items.length);
   let next = 0;
   const worker = async () => {
     while (next < items.length) {
       const i = next++;
-      result[i] = await fn(items[i]);
+      result[i] = await fn(items[i], i);
     }
   };
   await Promise.all(

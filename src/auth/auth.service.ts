@@ -39,6 +39,8 @@ export class AuthService {
 
   // Seconds
   public static REFRESH_TOKEN_EXPIRES_IN = "4d";
+  // Launcher sends a SHA-256 hex or "unknown"; anything else is junk
+  private static readonly HWID_FORMAT = /^[0-9A-Za-z-]{7,128}$/;
   constructor(
     private readonly jwtService: JwtService,
     private readonly playerService: PlayerService,
@@ -99,18 +101,25 @@ export class AuthService {
         this.playerService.notifyMightExist(steam32id);
         this.ebus.publish(new UserLoggedInEvent(new PlayerId(steam32id), name, avatar));
 
-        if (hwid) {
+        if (hwid && !AuthService.HWID_FORMAT.test(hwid)) {
+          this.logger.warn(`Ignoring malformed hwid from ${steam32id}`);
+        } else if (hwid) {
           const exists = await this.hwidRepository.existsBy({ steamId: steam32id, hwid });
+          let saved = false;
           if (!exists) {
             const entry = new SteamidHwidEntryEntity();
             entry.steamId = steam32id;
             entry.hwid = hwid;
-            await this.hwidRepository.save(entry).catch((e) =>
-              this.logger.error("Failed to save hwid entry", e),
-            );
+            saved = await this.hwidRepository
+              .save(entry)
+              .then(() => true)
+              .catch((e) => {
+                this.logger.error("Failed to save hwid entry", e);
+                return false;
+              });
           }
           this.ebus.publish(
-            new LauncherHwidLoginEvent(steam32id, hwid, !exists),
+            new LauncherHwidLoginEvent(steam32id, hwid, saved),
           );
         }
 
