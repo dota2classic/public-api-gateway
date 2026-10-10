@@ -84,6 +84,8 @@ export default (): ExpectedConfig => {
       forumApiUrl: process.env.FORUM_API,
       tradeApiUrl: process.env.TRADE_API,
       botSteamId: process.env.BOT_STEAM_ID || "159907143",
+      // "Мультоводство и смурфинг" — punishment for HWID auto-ban
+      smurfRuleId: process.env.SMURF_RULE_ID || "21",
     },
     telemetry: {
       jaeger: {

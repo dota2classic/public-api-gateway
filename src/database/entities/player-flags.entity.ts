@@ -33,4 +33,13 @@ export class PlayerFlagsEntity {
     default: false,
   })
   legalRemove: boolean;
+
+  // Any account that logs in to the launcher from this player's computer
+  // gets this player's ban
+  @Column({
+    name: "auto_ban_hwid",
+    type: "boolean",
+    default: false,
+  })
+  autoBanHwid: boolean;
 }
