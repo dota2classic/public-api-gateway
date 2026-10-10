@@ -59,21 +59,13 @@ export class LauncherHwidLoginHandler
   }
 
   private async check({ steamId, hwid, isNewEntry }: LauncherHwidLoginEvent) {
-    const firstSeen = new Map(
-      (
-        await this.hwidRepository
-          .createQueryBuilder("e")
-          .select("e.steam_id", "steam_id")
-          .addSelect("MIN(e.created_at)", "first_seen")
-          .where("e.hwid = :hwid", { hwid })
-          .groupBy("e.steam_id")
-          .getRawMany<{ steam_id: string; first_seen: Date }>()
-      ).map((r) => [r.steam_id, new Date(r.first_seen).getTime()]),
-    );
-    const ownFirstSeenMs = firstSeen.get(steamId) ?? Date.now();
-    firstSeen.delete(steamId);
-
-    const others = [...firstSeen.keys()];
+    const others = (
+      await this.hwidRepository
+        .createQueryBuilder("e")
+        .select("DISTINCT e.steam_id", "steam_id")
+        .where("e.hwid = :hwid AND e.steam_id <> :steamId", { hwid, steamId })
+        .getRawMany<{ steam_id: string }>()
+    ).map((r) => r.steam_id);
     if (others.length === 0) return;
 
     const bannedOthers: ActiveBan[] = (
@@ -84,7 +76,6 @@ export class LauncherHwidLoginHandler
       steamId: b.steamId,
       bannedUntil: b.endTime.toISOString(),
       reason: b.reason,
-      firstSeenMs: firstSeen.get(b.steamId),
     }));
     if (bannedOthers.length === 0) return;
 
@@ -101,7 +92,6 @@ export class LauncherHwidLoginHandler
 
     const decision = decideHwidLogin({
       ownBan: await this.ownBan(steamId),
-      ownFirstSeenMs,
       bannedOthers,
       autoBanSources,
       isNewEntry,

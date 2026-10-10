@@ -8,8 +8,6 @@ import { BanReason } from "../../gateway/shared-types/ban";
 const DAY = 24 * 60 * 60 * 1000;
 const NOW = Date.parse("2026-10-11T12:00:00Z");
 const PERMA = 175200 * 60 * 60 * 1000;
-// The twin first appeared on the computer a day ago
-const TWIN_FIRST_SEEN = NOW - DAY;
 
 const notBanned = { isBanned: false, bannedUntil: new Date(0).toISOString() };
 const bannedFor = (ms: number) => ({
@@ -20,12 +18,10 @@ const ban = (
   steamId: string,
   bannedUntil: string,
   reason = BanReason.RULE_VIOLATION,
-  firstSeenMs = NOW - 100 * DAY,
-): ActiveBan => ({ steamId, bannedUntil, reason, firstSeenMs });
+): ActiveBan => ({ steamId, bannedUntil, reason });
 
 const input = (over: Partial<HwidLoginInput>): HwidLoginInput => ({
   ownBan: notBanned,
-  ownFirstSeenMs: TWIN_FIRST_SEEN,
   bannedOthers: [],
   autoBanSources: new Set(),
   isNewEntry: true,
@@ -55,7 +51,7 @@ describe("decideHwidLogin", () => {
     ).toEqual({ kind: "none" });
   });
 
-  it("auto-bans when a flagged banned account was on the computer first, on any login", () => {
+  it("auto-bans when a banned account on the computer has the flag, on any login", () => {
     expect(
       decideHwidLogin(
         input({
@@ -85,7 +81,7 @@ describe("decideHwidLogin", () => {
     });
   });
 
-  it("ignores short matchmaking penalties entirely", () => {
+  it("any active ban of the flagged account counts, even a short one", () => {
     const abandon = ban("scout", "2026-10-11T12:10:00Z", BanReason.ABANDON);
     expect(
       decideHwidLogin(
@@ -94,25 +90,7 @@ describe("decideHwidLogin", () => {
           autoBanSources: new Set(["scout"]),
         }),
       ),
-    ).toEqual({ kind: "none" });
-  });
-
-  it("does not auto-ban when the flagged account came to this computer later (spoofed HWID)", () => {
-    const griefer = ban(
-      "griefer",
-      "2046-10-05T00:00:00Z",
-      BanReason.RULE_VIOLATION,
-      NOW - 1000,
-    );
-    expect(
-      decideHwidLogin(
-        input({
-          bannedOthers: [griefer],
-          autoBanSources: new Set(["griefer"]),
-          isNewEntry: false,
-        }),
-      ),
-    ).toEqual({ kind: "none" });
+    ).toEqual({ kind: "autoban", source: abandon });
   });
 
   it("does not punish again an account already serving the punishment", () => {

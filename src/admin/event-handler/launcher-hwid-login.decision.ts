@@ -4,21 +4,12 @@ export interface ActiveBan {
   steamId: string;
   bannedUntil: string;
   reason: BanReason;
-  // First launcher login of that account from this computer
-  firstSeenMs: number;
 }
 
 export type HwidLoginDecision =
   | { kind: "none" }
   | { kind: "notify"; banned: ActiveBan[] }
   | { kind: "autoban"; source: ActiveBan };
-
-// Matchmaking penalties (decline, load failure, abandon) are short and
-// automatic — they say nothing about the player, so they never count
-export const SERIOUS_BAN_REASONS: ReadonlySet<BanReason> = new Set([
-  BanReason.INFINITE_BAN,
-  BanReason.RULE_VIOLATION,
-]);
 
 const until = (b: { bannedUntil: string }) => new Date(b.bannedUntil).getTime();
 
@@ -27,7 +18,6 @@ export const reasonName = (r: BanReason) => BanReason[r] ?? `reason ${r}`;
 
 export interface HwidLoginInput {
   ownBan: { isBanned: boolean; bannedUntil: string };
-  ownFirstSeenMs: number;
   // Other accounts on this computer with an active ban
   bannedOthers: ActiveBan[];
   // Accounts flagged "auto-ban twins by HWID"
@@ -41,27 +31,19 @@ export interface HwidLoginInput {
 
 /**
  * What to do when an account logs in from a computer where other accounts
- * have a serious active ban:
- * - one of them is flagged for auto-ban and was on this computer first ->
- *   punish the account by the smurfing rule, unless it already serves at least
- *   half of that punishment (repeated logins must not stack punishments).
- *   "Was here first" matters because HWID is sent by the client: a banned
- *   player could send someone else's HWID to get that person auto-banned;
+ * have an active ban:
+ * - one of them is flagged for auto-ban -> punish the account by the smurfing
+ *   rule, unless it already serves at least half of that punishment
+ *   (repeated logins must not stack punishments);
  * - otherwise tell moderators, but only on the first login from this computer
- *   so a regular player does not spam the chat.
+ *   so the moderators' chat is not spammed on every launcher start.
  */
 export function decideHwidLogin(input: HwidLoginInput): HwidLoginDecision {
-  const banned = input.bannedOthers.filter((b) =>
-    SERIOUS_BAN_REASONS.has(b.reason),
-  );
+  const banned = input.bannedOthers;
   if (banned.length === 0) return { kind: "none" };
 
   const source = banned
-    .filter(
-      (b) =>
-        input.autoBanSources.has(b.steamId) &&
-        b.firstSeenMs < input.ownFirstSeenMs,
-    )
+    .filter((b) => input.autoBanSources.has(b.steamId))
     .sort((a, b) => until(b) - until(a))[0];
 
   if (source && input.punishmentMs !== undefined) {
