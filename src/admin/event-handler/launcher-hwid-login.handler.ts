@@ -2,8 +2,7 @@ import { Logger } from "@nestjs/common";
 import { EventsHandler, IEventHandler } from "@nestjs/cqrs";
 import { ConfigService } from "@nestjs/config";
 import { InjectRepository } from "@nestjs/typeorm";
-import { In, Repository } from "typeorm";
-import { ApiClient } from "@dota2classic/gs-api-generated/dist/module";
+import { In, MoreThan, Repository } from "typeorm";
 import { RedlockService } from "@dota2classic/redlock/dist/redlock.service";
 import { LauncherHwidLoginEvent } from "../../auth/event/launcher-hwid-login.event";
 import { SteamidHwidEntryEntity } from "../../database/entities/steamid-hwid-entry.entity";
@@ -12,8 +11,7 @@ import { TelegramNotificationService } from "../../notification/telegram-notific
 import { UserProfileService } from "../../service/user-profile.service";
 import { RuleEntity } from "../../database/entities/rule.entity";
 import { ReportService } from "../../report/report.service";
-import { asBanReason } from "../../types/gs-api-compat";
-import { Role } from "../../gateway/shared-types/roles";
+import { PlayerBanEntity } from "../../database/entities/player-ban.entity";
 import { fullDate } from "../../utils/format-date";
 import { UNKNOWN_HWID } from "../smurf-links.service";
 import {
@@ -22,12 +20,6 @@ import {
   reasonName,
 } from "./launcher-hwid-login.decision";
 
-// More accounts than this on one HWID is a computer club or a broken
-// (low-entropy) HWID — not something to auto-ban or ping moderators about
-const MAX_ACCOUNTS_PER_HWID = 20;
-
-const STAFF_ROLES = new Set([Role.MODERATOR, Role.ADMIN]);
-
 @EventsHandler(LauncherHwidLoginEvent)
 export class LauncherHwidLoginHandler
   implements IEventHandler<LauncherHwidLoginEvent>
@@ -35,7 +27,6 @@ export class LauncherHwidLoginHandler
   private readonly logger = new Logger(LauncherHwidLoginHandler.name);
 
   constructor(
-    private readonly gsApi: ApiClient,
     private readonly redlock: RedlockService,
     private readonly config: ConfigService,
     private readonly reports: ReportService,
@@ -47,6 +38,9 @@ export class LauncherHwidLoginHandler
     private readonly flagsRepository: Repository<PlayerFlagsEntity>,
     @InjectRepository(RuleEntity)
     private readonly ruleRepository: Repository<RuleEntity>,
+    // Same table gameserver reads; one query for all accounts on the computer
+    @InjectRepository(PlayerBanEntity)
+    private readonly banRepository: Repository<PlayerBanEntity>,
   ) {}
 
   async handle(event: LauncherHwidLoginEvent) {
@@ -81,18 +75,17 @@ export class LauncherHwidLoginHandler
 
     const others = [...firstSeen.keys()];
     if (others.length === 0) return;
-    if (others.length > MAX_ACCOUNTS_PER_HWID) {
-      this.logger.warn(
-        `HWID of ${steamId} is shared by ${others.length} accounts, skipping`,
-      );
-      return;
-    }
 
     const bannedOthers: ActiveBan[] = (
-      await Promise.all(others.map((id) => this.banInfo(id)))
-    )
-      .filter((b) => b.isBanned)
-      .map((b) => ({ ...b, firstSeenMs: firstSeen.get(b.steamId) }));
+      await this.banRepository.find({
+        where: { steamId: In(others), endTime: MoreThan(new Date()) },
+      })
+    ).map((b) => ({
+      steamId: b.steamId,
+      bannedUntil: b.endTime.toISOString(),
+      reason: b.reason,
+      firstSeenMs: firstSeen.get(b.steamId),
+    }));
     if (bannedOthers.length === 0) return;
 
     const flags = await this.flagsRepository.find({
@@ -107,7 +100,7 @@ export class LauncherHwidLoginHandler
     const rule = autoBanSources.size > 0 ? await this.smurfRule() : undefined;
 
     const decision = decideHwidLogin({
-      ownBan: await this.banInfo(steamId),
+      ownBan: await this.ownBan(steamId),
       ownFirstSeenMs,
       bannedOthers,
       autoBanSources,
@@ -117,11 +110,6 @@ export class LauncherHwidLoginHandler
         : undefined,
       nowMs: Date.now(),
     });
-
-    if (decision.kind === "autoban" && (await this.isStaff(steamId))) {
-      this.logger.warn(`Not auto-banning staff account ${steamId}`);
-      return;
-    }
 
     if (decision.kind === "autoban") {
       const { source } = decision;
@@ -168,21 +156,13 @@ ${banned.join("\n")}`,
     return rule;
   }
 
-  private async isStaff(steamId: string): Promise<boolean> {
-    const user = await this.user.userDto(steamId);
-    return user.roles.some((r) => STAFF_ROLES.has(r.role));
-  }
-
-  private async banInfo(
+  private async ownBan(
     steamId: string,
-  ): Promise<Omit<ActiveBan, "firstSeenMs"> & { isBanned: boolean }> {
-    const { data } =
-      await this.gsApi.player.playerModerationControllerBanInfo(steamId);
+  ): Promise<{ isBanned: boolean; bannedUntil: string }> {
+    const ban = await this.banRepository.findOne({ where: { steamId } });
     return {
-      steamId,
-      isBanned: data.isBanned,
-      bannedUntil: data.bannedUntil,
-      reason: asBanReason(data.status),
+      isBanned: !!ban && ban.endTime.getTime() > Date.now(),
+      bannedUntil: (ban?.endTime ?? new Date(0)).toISOString(),
     };
   }
 

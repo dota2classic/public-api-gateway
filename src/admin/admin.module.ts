@@ -10,6 +10,7 @@ import { LauncherHwidLoginHandler } from "./event-handler/launcher-hwid-login.ha
 import { NotificationModule } from "../notification/notification.module";
 import { ReportModule } from "../report/report.module";
 import { RuleEntity } from "../database/entities/rule.entity";
+import { PlayerBanEntity } from "../database/entities/player-ban.entity";
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { RuleEntity } from "../database/entities/rule.entity";
       PlayerFlagsEntity,
       SteamidHwidEntryEntity,
       RuleEntity,
+      PlayerBanEntity,
     ]),
     NotificationModule,
     ReportModule,
