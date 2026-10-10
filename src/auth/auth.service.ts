@@ -8,6 +8,7 @@ import * as qs from "querystring";
 import { steam64to32 } from "../utils/steamIds";
 import { EventBus } from "@nestjs/cqrs";
 import { UserLoggedInEvent } from "../gateway/events/user/user-logged-in.event";
+import { LauncherHwidLoginEvent } from "./event/launcher-hwid-login.event";
 import { PlayerId } from "../gateway/shared-types/player-id";
 import { InjectRepository } from "@nestjs/typeorm";
 import { SteamidHwidEntryEntity } from "../database/entities/steamid-hwid-entry.entity";
@@ -108,6 +109,9 @@ export class AuthService {
               this.logger.error("Failed to save hwid entry", e),
             );
           }
+          this.ebus.publish(
+            new LauncherHwidLoginEvent(steam32id, hwid, !exists),
+          );
         }
 
         return this.createToken(steam32id, name, avatar);

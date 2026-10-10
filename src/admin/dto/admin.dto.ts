@@ -160,6 +160,7 @@ export class PlayerFlagDto {
   disableReports: boolean;
   disableStreams: boolean;
   legalRemove: boolean;
+  autoBanHwid: boolean;
 }
 
 export class UpdatePlayerFlagDto extends PartialType(PlayerFlagDto) {}
