@@ -8,11 +8,18 @@ import { SteamidHwidEntryEntity } from "../database/entities/steamid-hwid-entry.
 import { SmurfLinksService } from "./smurf-links.service";
 import { LauncherHwidLoginHandler } from "./event-handler/launcher-hwid-login.handler";
 import { NotificationModule } from "../notification/notification.module";
+import { ReportModule } from "../report/report.module";
+import { RuleEntity } from "../database/entities/rule.entity";
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([PlayerFlagsEntity, SteamidHwidEntryEntity]),
+    TypeOrmModule.forFeature([
+      PlayerFlagsEntity,
+      SteamidHwidEntryEntity,
+      RuleEntity,
+    ]),
     NotificationModule,
+    ReportModule,
   ],
   controllers: [ServerController, AdminUserController],
   providers: [AdminMapper, SmurfLinksService, LauncherHwidLoginHandler],

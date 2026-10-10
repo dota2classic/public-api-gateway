@@ -1,6 +1,6 @@
-import { Inject, Logger } from "@nestjs/common";
+import { Logger } from "@nestjs/common";
 import { EventsHandler, IEventHandler } from "@nestjs/cqrs";
-import { ClientProxy } from "@nestjs/microservices";
+import { ConfigService } from "@nestjs/config";
 import { InjectRepository } from "@nestjs/typeorm";
 import { In, Repository } from "typeorm";
 import { ApiClient } from "@dota2classic/gs-api-generated/dist/module";
@@ -9,60 +9,16 @@ import { SteamidHwidEntryEntity } from "../../database/entities/steamid-hwid-ent
 import { PlayerFlagsEntity } from "../../database/entities/player-flags.entity";
 import { TelegramNotificationService } from "../../notification/telegram-notification.service";
 import { UserProfileService } from "../../service/user-profile.service";
-import { PlayerBanHammeredEvent } from "../../gateway/events/bans/player-ban-hammered.event";
-import { PlayerId } from "../../gateway/shared-types/player-id";
-import { BanReason } from "../../gateway/shared-types/ban";
+import { RuleEntity } from "../../database/entities/rule.entity";
+import { ReportService } from "../../report/report.service";
 import { asBanReason } from "../../types/gs-api-compat";
 import { fullDate } from "../../utils/format-date";
 import { UNKNOWN_HWID } from "../smurf-links.service";
-
-interface ActiveBan {
-  steamId: string;
-  bannedUntil: string;
-  reason: BanReason;
-}
-
-export type HwidLoginDecision =
-  | { kind: "none" }
-  | { kind: "notify"; banned: ActiveBan[] }
-  | { kind: "autoban"; source: ActiveBan };
-
-const until = (b: { bannedUntil: string }) => new Date(b.bannedUntil).getTime();
-
-// Production has reasons missing from the enum (3, 5, 6)
-const reasonName = (r: BanReason) => BanReason[r] ?? `reason ${r}`;
-
-/**
- * What to do when an account logs in from a computer where other accounts
- * have active bans:
- * - one of them has the auto-ban flag -> give the account the longest such ban,
- *   unless it already has a ban at least as long;
- * - otherwise tell moderators, but only on the first login from this computer
- *   so a regular player does not spam the chat.
- */
-export function decideHwidLogin(
-  ownBan: { isBanned: boolean; bannedUntil: string },
-  bannedOthers: ActiveBan[],
-  autoBanSources: Set<string>,
-  isNewEntry: boolean,
-): HwidLoginDecision {
-  if (bannedOthers.length === 0) return { kind: "none" };
-
-  const source = bannedOthers
-    .filter((b) => autoBanSources.has(b.steamId))
-    .sort((a, b) => until(b) - until(a))[0];
-
-  if (source) {
-    // Never shorten a ban the account already has
-    if (ownBan.isBanned && until(ownBan) >= until(source)) {
-      return { kind: "none" };
-    }
-    return { kind: "autoban", source };
-  }
-
-  if (ownBan.isBanned || !isNewEntry) return { kind: "none" };
-  return { kind: "notify", banned: bannedOthers };
-}
+import {
+  ActiveBan,
+  decideHwidLogin,
+  reasonName,
+} from "./launcher-hwid-login.decision";
 
 @EventsHandler(LauncherHwidLoginEvent)
 export class LauncherHwidLoginHandler
@@ -71,14 +27,17 @@ export class LauncherHwidLoginHandler
   private readonly logger = new Logger(LauncherHwidLoginHandler.name);
 
   constructor(
-    @Inject("QueryCore") private readonly rq: ClientProxy,
     private readonly gsApi: ApiClient,
+    private readonly config: ConfigService,
+    private readonly reports: ReportService,
     private readonly user: UserProfileService,
     private readonly telegram: TelegramNotificationService,
     @InjectRepository(SteamidHwidEntryEntity)
     private readonly hwidRepository: Repository<SteamidHwidEntryEntity>,
     @InjectRepository(PlayerFlagsEntity)
     private readonly flagsRepository: Repository<PlayerFlagsEntity>,
+    @InjectRepository(RuleEntity)
+    private readonly ruleRepository: Repository<RuleEntity>,
   ) {}
 
   async handle(event: LauncherHwidLoginEvent) {
@@ -115,28 +74,33 @@ export class LauncherHwidLoginHandler
       flags.filter((f) => f.autoBanHwid).map((f) => f.steamId),
     );
 
+    const rule = autoBanSources.size > 0 ? await this.smurfRule() : undefined;
+
     const decision = decideHwidLogin(
       await this.banInfo(steamId),
       bannedOthers,
       autoBanSources,
       isNewEntry,
+      rule ? rule.punishment.durationHours * 60 * 60 * 1000 : undefined,
+      Date.now(),
     );
 
     if (decision.kind === "autoban") {
       const { source } = decision;
       this.logger.log(
-        `Auto-ban ${steamId}: HWID shared with ${source.steamId}, until ${source.bannedUntil}`,
+        `Auto-ban ${steamId} by rule ${rule.id}: HWID shared with ${source.steamId}`,
       );
-      this.rq.emit(PlayerBanHammeredEvent.name, {
-        playerId: new PlayerId(steamId),
-        endTime: source.bannedUntil,
-        reason: source.reason,
-      });
+      // Same path as a moderator's "guilty" verdict: bans and writes the
+      // punishment log, executed by the bot account
+      await this.reports.applyPunishment(
+        { steamId, ruleId: rule.id },
+        this.config.get("api.botSteamId"),
+      );
       await this.telegram.notifyHtml(
         `[АВТОБАН ПО HWID]
 Аккаунт: ${await this.link(steamId)}
-Зашёл с компьютера игрока ${await this.link(source.steamId)}
-Бан: ${reasonName(source.reason)} до ${fullDate(new Date(source.bannedUntil))}`,
+Зашёл с компьютера игрока ${await this.link(source.steamId)} (${reasonName(source.reason)} до ${fullDate(new Date(source.bannedUntil))})
+Наказание: ${rule.title} — ${rule.punishment.title}`,
       );
     } else if (decision.kind === "notify") {
       const banned = await Promise.all(
@@ -152,6 +116,18 @@ export class LauncherHwidLoginHandler
 ${banned.join("\n")}`,
       );
     }
+  }
+
+  private async smurfRule(): Promise<RuleEntity | undefined> {
+    const id = Number(this.config.get("api.smurfRuleId"));
+    const rule = await this.ruleRepository.findOne({ where: { id } });
+    if (!rule?.punishment) {
+      this.logger.error(
+        `Smurf rule ${id} or its punishment not found, auto-ban disabled`,
+      );
+      return undefined;
+    }
+    return rule;
   }
 
   private async banInfo(
