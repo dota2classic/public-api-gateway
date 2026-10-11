@@ -12,6 +12,7 @@ import { UserProfileService } from "../../service/user-profile.service";
 import { RuleEntity } from "../../database/entities/rule.entity";
 import { ReportService } from "../../report/report.service";
 import { PlayerBanEntity } from "../../database/entities/player-ban.entity";
+import { ForumApi } from "../../generated-api/forum";
 import { fullDate } from "../../utils/format-date";
 import { UNKNOWN_HWID } from "../smurf-links.service";
 import {
@@ -32,6 +33,7 @@ export class LauncherHwidLoginHandler
     private readonly reports: ReportService,
     private readonly user: UserProfileService,
     private readonly telegram: TelegramNotificationService,
+    private readonly forumApi: ForumApi,
     @InjectRepository(SteamidHwidEntryEntity)
     private readonly hwidRepository: Repository<SteamidHwidEntryEntity>,
     @InjectRepository(PlayerFlagsEntity)
@@ -112,6 +114,7 @@ export class LauncherHwidLoginHandler
         { steamId, ruleId: rule.id },
         this.config.get("api.botSteamId"),
       );
+      await this.mute(steamId, rule.punishment.durationHours * 60 * 60 * 1000);
       await this.telegram.notifyHtml(
         `[АВТОБАН ПО HWID]
 Аккаунт: ${await this.link(steamId)}
@@ -131,6 +134,23 @@ export class LauncherHwidLoginHandler
 Впервые зашёл с компьютера, где есть забаненные аккаунты:
 ${banned.join("\n")}`,
       );
+    }
+  }
+
+  // Twins are also muted for the punishment's duration; a longer existing
+  // mute is kept. Not logged in the ban log
+  private async mute(steamId: string, durationMs: number) {
+    try {
+      const user = await this.forumApi.forumControllerGetUser(steamId);
+      const until = Math.max(
+        new Date(user.muteUntil).getTime() || 0,
+        Date.now() + durationMs,
+      );
+      await this.forumApi.forumControllerUpdateUser(steamId, {
+        muteUntil: new Date(until).toISOString(),
+      });
+    } catch (e) {
+      this.logger.error(`Failed to mute auto-banned ${steamId}`, e);
     }
   }
 
