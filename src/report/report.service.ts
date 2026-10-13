@@ -435,11 +435,15 @@ ${report.comment ? `Комментарий: \n${report.comment}` : ""}
       const cutoff = new Date(
         Date.now() - dto.olderThanDays * 24 * 60 * 60 * 1000,
       );
+      // loadEagerRelations: false — the eager `rule` join makes TypeORM wrap
+      // take+order in a DISTINCT subquery that only selects `id`, so the
+      // ORDER BY created_at fails with "column ... does not exist".
       const rows = await this.userReportEntityRepository.find({
         where: { handled: false, createdAt: LessThan(cutoff) },
         order: { createdAt: "ASC" },
         take: limit,
         select: ["id"],
+        loadEagerRelations: false,
       });
       return rows.map((r) => r.id);
     }
