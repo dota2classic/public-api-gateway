@@ -8,7 +8,6 @@ import {
   Post,
   Query,
   UseGuards,
-  UseInterceptors,
 } from "@nestjs/common";
 import { CacheTTL } from "@nestjs/cache-manager";
 import { ApiBearerAuth, ApiQuery, ApiTags } from "@nestjs/swagger";
@@ -33,7 +32,6 @@ import { QueryBus } from "@nestjs/cqrs";
 import { D2CUser } from "../strategy/jwt.strategy";
 import { OldGuard, WithOptionalUser, WithUser } from "../utils/decorator/with-user";
 import { HeroStatsDto } from "./dto/hero.dto";
-import { UserHttpCacheInterceptor } from "../utils/cache-key-track";
 import { UserDTO } from "../shared.dto";
 import { AchievementDto } from "./dto/achievement.dto";
 import { WithPagination } from "../utils/decorator/pagination";
@@ -42,11 +40,10 @@ import { PartyService } from "../party.service";
 import { UserProfileService } from "../service/user-profile.service";
 import { UserRelationService } from "../service/user-relation.service";
 import { UserRelationStatus } from "../gateway/shared-types/user-relation";
-import { GlobalHttpCacheInterceptor } from "../utils/cache-global";
-import { ReqLoggingInterceptor } from "../metrics/req-logging.interceptor";
+import { CacheShared } from "../utils/http-cache";
 import { PlayerService } from "./player.service";
+import { PlayerSummaryService } from "../service/player-summary.service";
 
-@UseInterceptors(ReqLoggingInterceptor)
 @Controller("player")
 @ApiTags("player")
 export class PlayerController {
@@ -58,19 +55,17 @@ export class PlayerController {
     private readonly userProfile: UserProfileService,
     private readonly relation: UserRelationService,
     private readonly playerService: PlayerService,
+    private readonly playerSummaries: PlayerSummaryService,
   ) {}
 
-  // @UseInterceptors(UserHttpCacheInterceptor)
   @Get("/me")
   @WithUser()
-  // @CacheTTL(5)
   async me(@CurrentUser() user: CurrentUserDto): Promise<MeDto> {
-    const [summary, banStatus, reportsAvailable] = await Promise.combine([
-      this.gsApi.player.playerProfileControllerPlayerSummary(user.steam_id),
-      this.gsApi.player.playerModerationControllerBanInfo(user.steam_id),
+    const [{ summary, ban }, reportsAvailable] = await Promise.all([
+      this.playerSummaries.get(user.steam_id),
       this.gsApi.player.playerModerationControllerReportsAvailable(user.steam_id),
     ]);
-    return this.mapper.mapMe(summary.data, banStatus.data, reportsAvailable.data);
+    return this.mapper.mapMe(summary, ban, reportsAvailable.data);
   }
 
   @Get("/connections")
@@ -81,7 +76,7 @@ export class PlayerController {
     return {};
   }
 
-  @UseInterceptors(GlobalHttpCacheInterceptor)
+  @CacheShared()
   @CacheTTL(60 * 2)
   @Get("/leaderboard")
   @WithPagination()
@@ -129,6 +124,8 @@ export class PlayerController {
     };
   }
 
+  @CacheTTL(30)
+  @CacheShared()
   @WithPagination()
   @Get("/:id/teammates")
   async teammates(
@@ -154,24 +151,22 @@ export class PlayerController {
     return this.userProfile.userDto(steam_id);
   }
 
+  @CacheTTL(30)
+  @CacheShared()
   @Get("/:id/achievements")
   async achievements(@Param("id") steam_id: string): Promise<AchievementDto[]> {
     const res = await this.gsApi.player.playerAchievementsControllerPlayerAchievements(steam_id);
 
-    return Promise.all(res.data.map(this.mapper.mapAchievement));
+    return this.mapper.mapAchievements(res.data);
   }
 
   @CacheTTL(5)
+  @CacheShared()
   @Get("/:id/summary")
   async playerSummary(@Param("id") steamId: string): Promise<PlayerSummaryDto> {
     this.playerService.notifyMightExist(steamId);
-
-    const [raw, bans] = await Promise.combine([
-      this.gsApi.player.playerProfileControllerPlayerSummary(steamId),
-      this.gsApi.player.playerModerationControllerBanInfo(steamId),
-    ]);
-
-    return this.mapper.mapPlayerSummary(raw.data, bans.data);
+    const { summary, ban } = await this.playerSummaries.get(steamId);
+    return this.mapper.mapPlayerSummary(summary, ban);
   }
 
   @Get("/party")
@@ -181,7 +176,7 @@ export class PlayerController {
     return this.partyService.getParty(user.steam_id);
   }
 
-  @UseInterceptors(UserHttpCacheInterceptor)
+  @CacheTTL(10)
   @Get("/summary/hero/:id")
   async heroSummary(@Param("id") steam_id: string): Promise<HeroStatsDto[]> {
     const res = await this.gsApi.player.playerProfileControllerPlayerHeroSummary(steam_id);
@@ -209,6 +204,7 @@ export class PlayerController {
       await this.gsApi.player.playerRankingControllerStartRecalibration({
         steamId: user.steam_id,
       });
+      this.playerSummaries.invalidate(user.steam_id);
       return this.playerSummary(user.steam_id);
     } catch (e) {
       throw new HttpException(
@@ -263,19 +259,17 @@ export class PlayerController {
   ): Promise<UserDTO[]> {
     const friends = user ? await this.relation.getFriends(user.steam_id) : [];
     if (!name) {
-      return Promise.all(
-        friends.slice(0, count).map((id) => this.userProfile.userDto(id)),
-      );
+      return this.userProfile.userDtos(friends.slice(0, count));
     }
     const steamIds = await this.playerService.search(name, count, friends);
-    return Promise.all(steamIds.map((id) => this.userProfile.userDto(id)));
+    return this.userProfile.userDtos(steamIds);
   }
 
   @WithUser()
   @Get("/friends")
   public async getFriends(@CurrentUser() user: CurrentUserDto): Promise<UserDTO[]> {
     const friends = await this.relation.getFriends(user.steam_id);
-    return Promise.all(friends.map((id) => this.userProfile.userDto(id)));
+    return this.userProfile.userDtos(friends);
   }
 
   @WithUser()
@@ -284,7 +278,7 @@ export class PlayerController {
     @CurrentUser() user: CurrentUserDto,
     @Param("id") steamId: string,
   ): Promise<PlayerRelationDto> {
-    const [relationStatus, dodgeList] = await Promise.combine([
+    const [relationStatus, dodgeList] = await Promise.all([
       this.relation.getRelation(user.steam_id, steamId),
       this.gsApi.player.playerSocialControllerGetDodgeList({ steamId: user.steam_id }),
     ]);

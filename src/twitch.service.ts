@@ -42,6 +42,7 @@ export class TwitchService implements OnApplicationBootstrap {
   private oauth: ApisauceInstance;
   private helix: ApisauceInstance;
   private token?: string;
+  private readonly enabled: boolean;
 
   get streams(): FullStreamInfo[] {
     return this._streams;
@@ -53,23 +54,34 @@ export class TwitchService implements OnApplicationBootstrap {
     @InjectRepository(PlayerFlagsEntity)
     private readonly playerFlagsEntityRepository: Repository<PlayerFlagsEntity>,
   ) {
+    this.enabled = this.config.get<boolean>("twitch.enabled");
     this.oauth = create({
       baseURL: "https://id.twitch.tv",
+      timeout: 5000,
     });
     this.helix = create({
       baseURL: "https://api.twitch.tv/helix",
+      timeout: 5000,
     });
 
-    this.helix.setHeader("Client-id", this.config.get("twitch.clientId"));
+    if (this.enabled) {
+      this.helix.setHeader("Client-id", this.config.get("twitch.clientId"));
+    }
   }
 
-  async onApplicationBootstrap() {
-    await this.refreshToken();
-    this.fetchLivestreams().catch();
+  onApplicationBootstrap() {
+    if (!this.enabled) {
+      this.logger.log("Twitch integration disabled");
+      return;
+    }
+    this.refreshToken()
+      .then(() => this.fetchLivestreams())
+      .catch((e) => this.logger.error("Twitch bootstrap failed", e));
   }
 
   @Cron(CronExpression.EVERY_MINUTE)
   private async fetchLivestreams() {
+    if (!this.enabled) return;
     try {
       this._streams = await this.getLiveStreamingDota();
     } catch (e) {
@@ -112,6 +124,7 @@ export class TwitchService implements OnApplicationBootstrap {
 
   @Cron(CronExpression.EVERY_5_MINUTES)
   private async refreshToken() {
+    if (!this.enabled) return;
     const token = await this.oauth.post<{
       access_token: string;
       expires_in: number;
@@ -142,6 +155,7 @@ export class TwitchService implements OnApplicationBootstrap {
   private async getDotaStreams(
     twitchUsernames: string[],
   ): Promise<StreamInfo[]> {
+    if (!this.enabled) return [];
     const batches = this.chunk(twitchUsernames, 100);
     const batchResults = await Promise.all(batches.map((b) => this.fetchStreamBatch(b)));
     return batchResults

@@ -11,7 +11,7 @@ import { GetQueueStateQuery } from "../gateway/queries/QueueState/get-queue-stat
 import { Dota2Version } from "../gateway/shared-types/dota2version";
 import { ConfigService } from "@nestjs/config";
 import { PlayerPleaseGoQueueEvent } from "./event/player-please-go-queue.event";
-import Redis from "ioredis";
+import { OnlinePresenceService } from "../socket/online-presence.service";
 import {
   NotificationEntity,
   NotificationEntityType,
@@ -39,7 +39,7 @@ export class NotificationService {
     @Inject("QueryCore") private readonly redisEventQueue: ClientProxy,
     private readonly redlock: RedlockService,
     private readonly gsApi: ApiClient,
-    @Inject("REDIS") private readonly redis: Redis,
+    private readonly presence: OnlinePresenceService,
   ) {
     webpush.setVapidDetails(
       "mailto:enchantinggg4@gmail.com",
@@ -140,12 +140,7 @@ export class NotificationService {
       .filter((t) => t.modes.includes(mode))
       .reduce((a, b) => a + b.players.length, 0);
 
-    const onlineKeys: string[] = await this.redis.keys("connected_steamId:*");
-    const onlineSteamIds = [
-      ...new Set(
-        onlineKeys.map((key) => key.replace("connected_steamId:", "").split(":")[0]),
-      ),
-    ];
+    const onlineSteamIds = await this.presence.steamIds();
 
     const eligible = onlineSteamIds.filter((id) => !ignorePing.has(id));
     eligible.forEach((steamId) =>

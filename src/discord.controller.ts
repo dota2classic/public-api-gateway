@@ -1,5 +1,4 @@
-import { Controller, Get, Inject, Req, Res, UseGuards, UseInterceptors } from "@nestjs/common";
-import { ReqLoggingInterceptor } from "./metrics/req-logging.interceptor";
+import { Controller, Get, Inject, Req, Res, UseGuards } from "@nestjs/common";
 import { ApiExcludeEndpoint } from "@nestjs/swagger";
 import { AuthGuard } from "@nestjs/passport";
 import { ClientProxy } from "@nestjs/microservices";
@@ -11,7 +10,6 @@ import { UserConnection } from "./gateway/shared-types/user-connection";
 import { numSteamId } from "./utils/steamIds";
 import { ConfigService } from "@nestjs/config";
 
-@UseInterceptors(ReqLoggingInterceptor)
 @Controller("auth/discord")
 export class DiscordController {
   constructor(

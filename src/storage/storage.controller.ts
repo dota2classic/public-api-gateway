@@ -30,11 +30,9 @@ import { StorageService } from "./storage.service";
 import { StorageMapper } from "./storage.mapper";
 import { UserProfileService } from "../service/user-profile.service";
 import { parseLogFile } from "../utils/parseLogFile";
-import { GlobalHttpCacheInterceptor } from "../utils/cache-global";
-import { ReqLoggingInterceptor } from "../metrics/req-logging.interceptor";
+import { CacheShared } from "../utils/http-cache";
 import { CacheTTL } from "@nestjs/cache-manager";
 
-@UseInterceptors(ReqLoggingInterceptor)
 @Controller("storage")
 @ApiTags("storage")
 export class StorageController {
@@ -110,7 +108,7 @@ export class StorageController {
     };
   }
 
-  @UseInterceptors(GlobalHttpCacheInterceptor)
+  @CacheShared()
   @CacheTTL(60)
   @Get("/match/:id/log")
   public async getLogMessages(

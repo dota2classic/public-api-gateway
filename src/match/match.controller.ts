@@ -6,7 +6,6 @@ import {
   Param,
   Put,
   Query,
-  UseInterceptors,
 } from "@nestjs/common";
 import { CacheTTL } from "@nestjs/cache-manager";
 import { ApiParam, ApiQuery, ApiTags } from "@nestjs/swagger";
@@ -23,14 +22,11 @@ import {
   CurrentUser,
   CurrentUserDto,
 } from "../utils/decorator/current-user";
-import { UserHttpCacheInterceptor } from "../utils/cache-key-track";
-import { ReqLoggingInterceptor } from "../metrics/req-logging.interceptor";
 import { WithPagination } from "../utils/decorator/pagination";
 import { WithUser } from "../utils/decorator/with-user";
 import { ApiClient } from "@dota2classic/gs-api-generated/dist/module";
 import { PagePipe, PerPagePipe } from "../utils/pipes";
 
-@UseInterceptors(ReqLoggingInterceptor)
 @Controller("match")
 @ApiTags("match")
 export class MatchController {
@@ -39,7 +35,7 @@ export class MatchController {
     private readonly gsApi: ApiClient,
   ) {}
 
-  @UseInterceptors(UserHttpCacheInterceptor)
+  @CacheTTL(10)
   @WithPagination()
   @ApiQuery({
     name: "mode",
@@ -60,7 +56,7 @@ export class MatchController {
     return this.mapper.mapMatchPage(res.data);
   }
 
-  @UseInterceptors(UserHttpCacheInterceptor)
+  @CacheTTL(10)
   @WithPagination()
   @ApiQuery({
     name: "hero",
@@ -80,7 +76,6 @@ export class MatchController {
     return this.mapper.mapMatchPage(res.data);
   }
 
-  @UseInterceptors(UserHttpCacheInterceptor)
   @CacheTTL(10)
   @ApiParam({
     name: "id",
@@ -113,7 +108,7 @@ export class MatchController {
     return this.getReportMatrix(user, id);
   }
 
-  @UseInterceptors(UserHttpCacheInterceptor)
+  @CacheTTL(10)
   @ApiParam({
     name: "id",
     required: true,

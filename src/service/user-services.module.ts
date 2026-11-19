@@ -12,6 +12,8 @@ import { PlayerFlagsEntity } from "../database/entities/player-flags.entity";
 import { PlayerBanService } from "./player-ban.service";
 import { UserRelationService } from "./user-relation.service";
 import { UserRelationEntity } from "../database/entities/user-relation.entity";
+import { PlayerSummaryService } from "./player-summary.service";
+import { DecorationPreferencesCache } from "./decoration-preferences.cache";
 
 @Global()
 @Module({
@@ -64,7 +66,18 @@ import { UserRelationEntity } from "../database/entities/user-relation.entity";
     UserProfileService,
     PlayerBanService,
     UserRelationService,
+    PlayerSummaryService,
+    DecorationPreferencesCache,
   ],
-  exports: [UserProfileModule, StorageMapper, CustomizationMapper, UserProfileService, PlayerBanService, UserRelationService],
+  exports: [
+    DecorationPreferencesCache,
+    UserProfileModule,
+    StorageMapper,
+    CustomizationMapper,
+    UserProfileService,
+    PlayerBanService,
+    UserRelationService,
+    PlayerSummaryService,
+  ],
 })
 export class UserServicesModule {}

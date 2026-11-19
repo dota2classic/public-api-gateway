@@ -19,6 +19,7 @@ import { UserProfileService } from "../service/user-profile.service";
 import { RoleLifetime } from "../gateway/caches/user-fast-profile.dto";
 import { GetPartyQueryResultDto as MatchmakerGetPartyQueryResultDto } from "@dota2classic/matchmaker-generated/dist/Api";
 import { LobbySlotEntity } from "../database/entities/lobby-slot.entity";
+import { PlayerSummaryBundle } from "../service/player-summary.service";
 import {
   asBanReason,
   asMatchAccessLevel,
@@ -150,8 +151,7 @@ export class PlayerMapper {
 
   public mapParty = async (
     party: MatchmakerGetPartyQueryResultDto,
-    banStatuses: GsApi.BanStatusDto[],
-    summaries: GsApi.PlayerSummaryDto[],
+    summaries: PlayerSummaryBundle[],
     lobbies: (LobbySlotEntity | undefined)[],
   ): Promise<PartyDto> => {
     return {
@@ -159,10 +159,9 @@ export class PlayerMapper {
       enterQueueAt: party.enterQueueTime,
       leader: await this.mapPlayerInParty(party.leaderId),
       players: await Promise.all(
-        party.players.map(async (plr) => {
-          const status = banStatuses.find((t) => t.steam_id === plr);
-          const summary = summaries.find((t) => t.steamId === plr);
-          const lobby = lobbies.find((t) => t?.steamId === plr);
+        party.players.map(async (plr, index) => {
+          const { summary, ban: status } = summaries[index];
+          const lobby = lobbies[index];
 
           return {
             session: summary.session
@@ -184,12 +183,17 @@ export class PlayerMapper {
     return this.userRepository.userDto(steamId);
   };
 
-  public mapAchievement = async (
-    ach: GsApi.AchievementDto,
-  ): Promise<AchievementDto> => {
+  public mapAchievements = async (
+    achievements: GsApi.AchievementDto[],
+  ): Promise<AchievementDto[]> => {
+    const users = await this.userRepository.userDtos(achievements.map((ach) => ach.steamId));
+    return achievements.map((ach, index) => this.mapAchievement(ach, users[index]));
+  };
+
+  private mapAchievement = (ach: GsApi.AchievementDto, user: UserDTO): AchievementDto => {
     return {
       key: asAchievementKey(ach.key),
-      user: await this.userRepository.userDto(ach.steamId),
+      user,
 
       isComplete: ach.isComplete,
       progress: ach.progress,

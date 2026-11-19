@@ -1,5 +1,4 @@
-import { Controller, Get, Logger, Res, UseGuards, UseInterceptors } from "@nestjs/common";
-import { ReqLoggingInterceptor } from "../metrics/req-logging.interceptor";
+import { Controller, Get, Logger, Res, UseGuards } from "@nestjs/common";
 import { Response } from "express";
 import { PaymentService } from "./payment.service";
 import { CookiesUserId } from "../utils/decorator/current-user";
@@ -8,7 +7,6 @@ import { CookieUserGuard } from "../utils/decorator/with-user";
 import { ApiExcludeController } from "@nestjs/swagger";
 
 @ApiExcludeController()
-@UseInterceptors(ReqLoggingInterceptor)
 @Controller("payment_web_hook")
 export class PaymentHooksController {
   private static SELFWORK_AUTHORIZED_IPS = ["178.205.169.35", "81.23.144.157"];

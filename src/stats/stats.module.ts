@@ -18,6 +18,6 @@ import { PlayerFlagsEntity } from "../database/entities/player-flags.entity";
   ],
   controllers: [StatsController],
   providers: [StatsService, StatsMapper, TwitchService],
-  exports: [TwitchService],
+  exports: [TwitchService, StatsService],
 })
 export class StatsModule {}

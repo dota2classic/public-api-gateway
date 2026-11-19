@@ -35,23 +35,7 @@ import {
 import { RabbitMQConfig, RabbitMQModule } from "@golevelup/nestjs-rabbitmq";
 import { ApiClient } from "@dota2classic/gs-api-generated/dist/module";
 import { PlayerService } from "../player/player.service";
-import {
-  makeHistogramProvider,
-  PrometheusModule,
-} from "@willsoto/nestjs-prometheus";
-import { ReqLoggingInterceptor } from "../metrics/req-logging.interceptor";
-import { CallHandler, ExecutionContext, NestInterceptor } from "@nestjs/common";
-import { Observable } from "rxjs";
 import { RoleLifetimeDto } from "../shared.dto";
-
-class MockLoggerInterceptor implements NestInterceptor {
-  intercept(
-    context: ExecutionContext,
-    next: CallHandler<any>,
-  ): Observable<any> | Promise<Observable<any>> {
-    return next.handle();
-  }
-}
 
 describe("LobbyController", () => {
   jest.setTimeout(120000);
@@ -136,9 +120,6 @@ describe("LobbyController", () => {
         await ConfigModule.forRoot({
           load: [() => ({ api: { jwtSecret: "notasecret" } })],
         }),
-        PrometheusModule.register({
-          path: "/metrics",
-        }),
         TypeOrmModule.forRoot({
           host: container.getHost(),
           port: container.getFirstMappedPort(),
@@ -209,12 +190,6 @@ describe("LobbyController", () => {
           provide: PlayerService,
           useValue: { notifyMightExist: jest.fn() },
         },
-        makeHistogramProvider({
-          name: "http_requests_duration_seconds",
-          help: "Duration of HTTP requests in seconds",
-          labelNames: ["method", "route", "request_type", "status_code"],
-          buckets: [0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1, 2, 5], // you can adjust buckets
-        }),
         {
           provide: EventBus,
           useValue: {
@@ -237,10 +212,7 @@ describe("LobbyController", () => {
           },
         },
       ],
-    })
-      .overrideInterceptor(ReqLoggingInterceptor)
-      .useClass(MockLoggerInterceptor)
-      .compile();
+    }).compile();
 
     controller = module.get(LobbyController);
     mapper = module.get(LobbyMapper);

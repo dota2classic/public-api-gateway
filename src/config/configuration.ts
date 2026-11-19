@@ -1,3 +1,5 @@
+import { isTwitchEnabled } from "./twitch";
+
 const YAML_CONFIG_FILENAME = "config.yaml";
 
 export interface ExpectedConfig {
@@ -42,6 +44,7 @@ export interface ExpectedConfig {
     port: number;
   };
   twitch: {
+    enabled: boolean;
     secret: string;
     clientId: string;
   };
@@ -97,6 +100,7 @@ export default (): ExpectedConfig => {
       },
     },
     twitch: {
+      enabled: isTwitchEnabled(),
       secret: process.env.TWITCH_SECRET,
       clientId: process.env.TWITCH_CLIENT_ID,
     },

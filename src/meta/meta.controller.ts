@@ -1,4 +1,4 @@
-import { Controller, Get, Param, UseInterceptors } from "@nestjs/common";
+import { Controller, Get, Param } from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
 import {
   HeroItemDto,
@@ -10,10 +10,9 @@ import {
 import { ApiClient } from "@dota2classic/gs-api-generated/dist/module";
 import { CacheTTL } from "@nestjs/cache-manager";
 import { MetaMapper } from "./meta.mapper";
-import { ReqLoggingInterceptor } from "../metrics/req-logging.interceptor";
-import { GlobalHttpCacheInterceptor } from "../utils/cache-global";
+import { CacheShared } from "../utils/http-cache";
 
-@UseInterceptors(ReqLoggingInterceptor, GlobalHttpCacheInterceptor)
+@CacheShared()
 @Controller("meta")
 @ApiTags("meta")
 export class MetaController {

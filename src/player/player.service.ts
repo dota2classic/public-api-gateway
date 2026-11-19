@@ -1,15 +1,15 @@
 import { Inject, Injectable } from "@nestjs/common";
 import { DataSource } from "typeorm";
-import { SocketGateway } from "../socket/socket.gateway";
 import { ClientProxy } from "@nestjs/microservices";
 import { UserMightExistEvent } from "../gateway/events/user/user-might-exist.event";
 import { PlayerId } from "../gateway/shared-types/player-id";
+import { OnlinePresenceService } from "../socket/online-presence.service";
 
 @Injectable()
 export class PlayerService {
   constructor(
     private readonly ds: DataSource,
-    private readonly socketGateway: SocketGateway,
+    private readonly presence: OnlinePresenceService,
     @Inject("QueryCore") private readonly redisEventQueue: ClientProxy,
   ) {}
 
@@ -21,7 +21,7 @@ export class PlayerService {
   }
 
   async search(name: string, count: number, friendSteamIds: string[] = []): Promise<string[]> {
-    const online = await this.socketGateway.getOnlineSteamIds();
+    const online = await this.presence.steamIds();
     const parametrizedLike = `%${name.replace(/%/g, "")}%`;
     const results = await this.ds.query<{ steam_id: string }[]>(
       `

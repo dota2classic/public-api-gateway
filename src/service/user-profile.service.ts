@@ -4,7 +4,7 @@ import { UserProfileFastService } from "@dota2classic/caches/dist/service/user-p
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { UserFastProfileDto } from "../gateway/caches/user-fast-profile.dto";
-import { UserProfileDecorationPreferencesEntity } from "../database/entities/user-profile-decoration-preferences.entity";
+import { DecorationPreferencesCache } from "./decoration-preferences.cache";
 import { CustomizationMapper } from "../customization/customization.mapper";
 import { UserDTO } from "../shared.dto";
 import { PlayerFlagsEntity } from "../database/entities/player-flags.entity";
@@ -17,17 +17,23 @@ export class UserProfileService {
   constructor(
     @Inject("full-profile") private readonly keyv: Keyv,
     private readonly fastUserService: UserProfileFastService<UserFastProfileDto>,
-    @InjectRepository(UserProfileDecorationPreferencesEntity)
-    private readonly userProfileDecorationPreferencesEntityRepository: Repository<UserProfileDecorationPreferencesEntity>,
+    private readonly decorations: DecorationPreferencesCache,
     private readonly customizationMapper: CustomizationMapper,
     @InjectRepository(PlayerFlagsEntity)
     private readonly playerFlagsEntityRepository: Repository<PlayerFlagsEntity>,
   ) {}
 
+  public userDtos = async (steamIds: string[]): Promise<UserDTO[]> => {
+    const unique = [...new Set(steamIds)];
+    const dtos = await Promise.all(unique.map(this.userDto));
+    const byId = new Map(unique.map((steamId, index) => [steamId, dtos[index]]));
+    return steamIds.map((steamId) => byId.get(steamId));
+  };
+
   public userDto = async (steamId: string): Promise<UserDTO> => {
-    const [fu, prefs, flags] = await Promise.combine([
+    const [fu, prefs, flags] = await Promise.all([
       this.fastUserService.get(steamId),
-      this.getProfileDecorations(steamId),
+      this.decorations.get(steamId).catch(() => undefined),
       this.getPlayerFlags(steamId),
     ]);
 
@@ -56,20 +62,11 @@ export class UserProfileService {
     };
   };
 
-  @memoize2({ maxAge: 10_000 })
+  @memoize2({ maxAge: 10_000, primitive: true })
   private async getPlayerFlags(steamId: string) {
     return this.playerFlagsEntityRepository.findOne({
       where: { steamId },
     });
-  }
-
-  // @memoize2({ maxAge: 10_000 })
-  private async getProfileDecorations(steamId: string) {
-    return this.userProfileDecorationPreferencesEntityRepository
-      .findOne({
-        where: { steamId },
-      })
-      .catch(() => undefined);
   }
 
   public name = async (steamId: string) =>

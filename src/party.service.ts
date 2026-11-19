@@ -1,16 +1,14 @@
 import { Injectable } from "@nestjs/common";
-import { QueryBus } from "@nestjs/cqrs";
-import { ApiClient } from "@dota2classic/gs-api-generated/dist/module";
 import { PlayerMapper } from "./player/player.mapper";
 import { PartyDto } from "./player/dto/party.dto";
 import { ApiClient as MatchmakerApiClient } from "@dota2classic/matchmaker-generated/dist/module";
 import { LobbyService } from "./lobby/lobby.service";
+import { PlayerSummaryService } from "./service/player-summary.service";
 
 @Injectable()
 export class PartyService {
   constructor(
-    private readonly qbus: QueryBus,
-    private readonly gsApi: ApiClient,
+    private readonly playerSummaries: PlayerSummaryService,
     private readonly mapper: PlayerMapper,
     private readonly matchmakerApi: MatchmakerApiClient,
     private readonly lobby: LobbyService,
@@ -23,25 +21,11 @@ export class PartyService {
   public async getParty(steamId: string): Promise<PartyDto> {
     const party = await this.getPartyRaw(steamId);
 
-    const [banStatusesRes, summariesRes, lobbies] = await Promise.combine([
-      Promise.all(
-        party.players.map((steamId) =>
-          this.gsApi.player.playerModerationControllerBanInfo(steamId),
-        ),
-      ),
-      Promise.all(
-        party.players.map((steamId) =>
-          this.gsApi.player.playerProfileControllerPlayerSummary(steamId),
-        ),
-      ),
-      Promise.all(
-        party.players.map((steamId) => this.lobby.getLobbyOf(steamId)),
-      ),
+    const [summaries, lobbies] = await Promise.all([
+      this.playerSummaries.getMany(party.players),
+      Promise.all(party.players.map((steamId) => this.lobby.getLobbyOf(steamId))),
     ]);
 
-    const banStatuses = banStatusesRes.map((r) => r.data);
-    const summaries = summariesRes.map((r) => r.data);
-
-    return this.mapper.mapParty(party, banStatuses, summaries, lobbies);
+    return this.mapper.mapParty(party, summaries, lobbies);
   }
 }

@@ -7,7 +7,6 @@ import { GetRoleSubscriptionsQuery } from "./gateway/queries/user/GetRoleSubscri
 import { LiveMatchStreamModule } from "./cache/live-match-stream.module";
 import { GetPlayerInfoQuery } from "./gateway/queries/GetPlayerInfo/get-player-info.query";
 import * as redisStore from "cache-manager-redis-store";
-import { UserHttpCacheInterceptor } from "./utils/cache-key-track";
 import { GetReportsAvailableQuery } from "./gateway/queries/GetReportsAvailable/get-reports-available.query";
 import { ScheduleModule } from "@nestjs/schedule";
 import { MainService } from "./main.service";
@@ -52,6 +51,9 @@ import { SocketModule } from "./socket/socket.module";
 import { NotificationModule } from "./notification/notification.module";
 import { PaymentsModule } from "./payments/payments.module";
 import { ItemDropModule } from "./itemdrop/itemdrop.module";
+import { APP_INTERCEPTOR } from "@nestjs/core";
+import { ReqLoggingInterceptor } from "./metrics/req-logging.interceptor";
+import { HttpCacheInterceptor } from "./utils/http-cache";
 
 @Module({
   imports: [
@@ -181,7 +183,8 @@ import { ItemDropModule } from "./itemdrop/itemdrop.module";
     RmqController,
   ],
   providers: [
-    UserHttpCacheInterceptor,
+    { provide: APP_INTERCEPTOR, useClass: ReqLoggingInterceptor },
+    { provide: APP_INTERCEPTOR, useClass: HttpCacheInterceptor },
     MainService,
     PermaBanGuard,
 
