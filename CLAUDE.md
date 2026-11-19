@@ -34,8 +34,7 @@ src/
   config/           # configuration.ts (env mapping), typeorm.config.ts
   core/             # @Global CoreModule — CqrsModule, JwtModule, RedlockModule, RabbitMQModule, Redis
   customization/    # CustomizationController (still in AppModule)
-  database/         # TypeORM migrations
-  entity/           # All TypeORM entities (imported via db.config.ts)
+  database/         # TypeORM entities/ (imported via db.config.ts) and migrations/
   event-handler/    # Misc CQRS handlers (SRCDSPerformanceHandler)
   feedback/         # FeedbackModule — FeedbackService, AiService (exported), FeedbackMapper, event handlers
   forum/            # ForumModule — ForumController, ForumMapper (exported), LiveMatchService (exported)
@@ -140,7 +139,6 @@ Register in `app.module.ts` providers. No need to touch `rmq.controller.ts`.
 ### REST controller conventions
 
 ```typescript
-@UseInterceptors(ReqLoggingInterceptor)
 @Controller("feature")
 @ApiTags("feature")
 export class FeatureController {
@@ -159,6 +157,10 @@ Auth decorators:
 - `@AdminGuard()` — admin only
 - `@ModeratorGuard()` — admin or moderator
 - `@CurrentUser()` — parameter decorator, injects `{ steam_id, roles }`
+
+Request metrics (`ReqLoggingInterceptor`) and HTTP caching (`HttpCacheInterceptor`, `src/utils/http-cache.ts`) are global interceptors registered in `app.module.ts`; do not add them per controller.
+- `@CacheTTL(seconds)` on a GET handler caches its response in Redis, keyed by URL and the current user.
+- Add `@CacheShared()` when the response does not depend on the user (one entry for everyone).
 
 ---
 
@@ -203,7 +205,7 @@ Log files are parsed with `parseLogFile(text)` from `src/utils/parseLogFile.ts`,
 
 ### Entities & database
 
-- Entities live in `src/entity/`, imported in `src/db.config.ts` `Entities` array
+- Entities live in `src/database/entities/`, imported in `src/db.config.ts` `Entities` array
 - `synchronize: false` — always use migrations
 - Generate a migration after changing entities: `npm run migration:generate -- src/database/migrations/DescriptiveName`
 - Migrations run automatically on startup in production
@@ -220,7 +222,7 @@ Log files are parsed with `parseLogFile(text)` from `src/utils/parseLogFile.ts`,
 | S3 | `s3.*` | Replays bucket `logs`, uploads bucket configurable |
 | OpenAI/ProxyAPI | `gpt.token` | Used by FeedbackAssistantService |
 | Telegram | `telegram.*` | TelegramNotificationService |
-| Steam/Discord/Twitch | respective keys | OAuth strategies in `src/strategy/`, controllers in `AuthModule` |
+| Steam/Discord/Twitch | respective keys | OAuth strategies in `src/strategy/`, controllers in `AuthModule`; Twitch is off when `TWITCH_ENABLED=false` or its credentials are missing (`src/config/twitch.ts`) |
 
 All config comes from environment variables mapped in `src/config/configuration.ts`.
 
@@ -228,4 +230,4 @@ All config comes from environment variables mapped in `src/config/configuration.
 
 ## Notifications
 
-Use `NotificationService.createNotification(steamId, entityId, entityType, type, ttl?)` to create in-app and Telegram notifications. Entity types and notification types are enums in `src/entity/notification.entity.ts`.
+Use `NotificationService.createNotification(steamId, entityId, entityType, type, ttl?)` to create in-app and Telegram notifications. Entity types and notification types are enums in `src/database/entities/notification.entity.ts`.
