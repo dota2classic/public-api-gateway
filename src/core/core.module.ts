@@ -1,9 +1,9 @@
-import { Global, Module } from "@nestjs/common";
+import { Global, Inject, Module } from "@nestjs/common";
 import { CqrsModule } from "@nestjs/cqrs";
 import { JwtModule, JwtModuleOptions } from "@nestjs/jwt";
 import { ConfigService } from "@nestjs/config";
 import { ClientsModule, RmqOptions, Transport } from "@nestjs/microservices";
-import { getRedisTransportOptions } from "../config/redis.config";
+import { getRedisTransportOptions, logRedisErrors } from "../config/redis.config";
 import { RedlockModule } from "@dota2classic/redlock";
 import { RedlockModuleOptions } from "@dota2classic/redlock/dist/redlock.module-definition";
 import Redis from "ioredis";
@@ -85,11 +85,13 @@ import { RabbitMQConfig, RabbitMQModule } from "@golevelup/nestjs-rabbitmq";
   providers: [
     {
       provide: "REDIS",
-      useFactory: async (config: ConfigService) => {
-        return new Redis(6379, config.get("redis.host"), {
-          password: config.get("redis.password"),
-        });
-      },
+      useFactory: (config: ConfigService) =>
+        logRedisErrors(
+          new Redis(6379, config.get("redis.host"), {
+            password: config.get("redis.password"),
+          }),
+          "REDIS",
+        ),
       inject: [ConfigService],
     },
   ],
@@ -102,4 +104,8 @@ import { RabbitMQConfig, RabbitMQModule } from "@golevelup/nestjs-rabbitmq";
     "REDIS",
   ],
 })
-export class CoreModule {}
+export class CoreModule {
+  constructor(@Inject("RedlockRedis") redlockRedis: Redis) {
+    logRedisErrors(redlockRedis, "RedlockRedis");
+  }
+}
