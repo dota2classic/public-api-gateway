@@ -23,6 +23,9 @@ export class ReqLoggingInterceptor implements NestInterceptor {
   ) {}
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
+    if (context.getType() !== "http") {
+      return next.handle();
+    }
     // Extract request and response objects
     const req: FastifyRequest = context.switchToHttp().getRequest();
     const res: FastifyReply = context.switchToHttp().getResponse();

@@ -4,9 +4,7 @@ import {
   Param,
   ParseIntPipe,
   Sse,
-  UseInterceptors,
 } from "@nestjs/common";
-import { ReqLoggingInterceptor } from "../metrics/req-logging.interceptor";
 import { LiveMatchService } from "../cache/live-match.service";
 import { ApiParam, ApiTags } from "@nestjs/swagger";
 import {
@@ -24,7 +22,6 @@ function wrapSse<A>() {
   });
 }
 
-@UseInterceptors(ReqLoggingInterceptor)
 @Controller("live")
 @ApiTags("live")
 export class LiveMatchController {

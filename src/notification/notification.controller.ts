@@ -6,9 +6,7 @@ import {
   Param,
   Patch,
   Post,
-  UseInterceptors,
 } from "@nestjs/common";
-import { ReqLoggingInterceptor } from "../metrics/req-logging.interceptor";
 import { ApiTags } from "@nestjs/swagger";
 import {
   NotificationDto,
@@ -25,7 +23,6 @@ import { NotificationMapper } from "./notification.mapper";
 import { PleaseGoQueueEvent } from "./event/please-go-queue.event";
 import { AmqpConnection } from "@golevelup/nestjs-rabbitmq";
 
-@UseInterceptors(ReqLoggingInterceptor)
 @Controller("notification")
 @ApiTags("notification")
 export class NotificationController {

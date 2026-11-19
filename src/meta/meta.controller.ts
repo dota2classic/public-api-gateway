@@ -10,10 +10,9 @@ import {
 import { ApiClient } from "@dota2classic/gs-api-generated/dist/module";
 import { CacheTTL } from "@nestjs/cache-manager";
 import { MetaMapper } from "./meta.mapper";
-import { ReqLoggingInterceptor } from "../metrics/req-logging.interceptor";
 import { GlobalHttpCacheInterceptor } from "../utils/cache-global";
 
-@UseInterceptors(ReqLoggingInterceptor, GlobalHttpCacheInterceptor)
+@UseInterceptors(GlobalHttpCacheInterceptor)
 @Controller("meta")
 @ApiTags("meta")
 export class MetaController {

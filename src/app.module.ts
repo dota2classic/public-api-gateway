@@ -52,6 +52,8 @@ import { SocketModule } from "./socket/socket.module";
 import { NotificationModule } from "./notification/notification.module";
 import { PaymentsModule } from "./payments/payments.module";
 import { ItemDropModule } from "./itemdrop/itemdrop.module";
+import { APP_INTERCEPTOR } from "@nestjs/core";
+import { ReqLoggingInterceptor } from "./metrics/req-logging.interceptor";
 
 @Module({
   imports: [
@@ -181,6 +183,7 @@ import { ItemDropModule } from "./itemdrop/itemdrop.module";
     RmqController,
   ],
   providers: [
+    { provide: APP_INTERCEPTOR, useClass: ReqLoggingInterceptor },
     UserHttpCacheInterceptor,
     MainService,
     PermaBanGuard,

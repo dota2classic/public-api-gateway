@@ -6,9 +6,7 @@ import {
   Param,
   Patch,
   Post,
-  UseInterceptors,
 } from "@nestjs/common";
-import { ReqLoggingInterceptor } from "../metrics/req-logging.interceptor";
 import { ApiTags } from "@nestjs/swagger";
 
 import { TournamentApi } from "../generated-api/tournament";
@@ -35,7 +33,6 @@ import {
 import { TournamentMapper } from "./tournament.mapper";
 import { BanLevel, PlayerBanService } from "../service/player-ban.service";
 
-@UseInterceptors(ReqLoggingInterceptor)
 @Controller("tournament")
 @ApiTags("tournament")
 export class TournamentController {

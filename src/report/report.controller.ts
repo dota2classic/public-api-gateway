@@ -7,7 +7,6 @@ import {
   Post,
   Query,
   UseGuards,
-  UseInterceptors,
 } from "@nestjs/common";
 import { ApiQuery, ApiTags } from "@nestjs/swagger";
 import { CustomThrottlerGuard } from "../strategy/custom-throttler.guard";
@@ -33,9 +32,7 @@ import { ReportMapper } from "./report.mapper";
 import { WithPagination } from "../utils/decorator/pagination";
 import { NullableIntPipe } from "../utils/pipes";
 import { makePage } from "../gateway/util/make-page";
-import { ReqLoggingInterceptor } from "../metrics/req-logging.interceptor";
 
-@UseInterceptors(ReqLoggingInterceptor)
 @Controller("report")
 @ApiTags("report")
 export class ReportController {

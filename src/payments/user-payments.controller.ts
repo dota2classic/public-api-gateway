@@ -1,5 +1,4 @@
-import { Body, Controller, Get, Post, UseInterceptors } from "@nestjs/common";
-import { ReqLoggingInterceptor } from "../metrics/req-logging.interceptor";
+import { Body, Controller, Get, Post } from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
 import { PaymentService } from "./payment.service";
 import { AdminGuard, WithUser } from "../utils/decorator/with-user";
@@ -12,7 +11,6 @@ import { SubscriptionProductEntity } from "../database/entities/subscription-pro
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 
-@UseInterceptors(ReqLoggingInterceptor)
 @Controller("user_payment")
 @ApiTags("user_payment")
 export class UserPaymentsController {
