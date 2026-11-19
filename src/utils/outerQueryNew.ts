@@ -3,12 +3,7 @@ import { ClientProxy } from "@nestjs/microservices";
 import { Logger, Type } from "@nestjs/common";
 import { performance } from "perf_hooks";
 import { timeout } from "rxjs/operators";
-import { QueryCache } from "../rcache";
-
-export interface CacheMiddleware<T, B> {
-  getCached(query: T): Promise<B | undefined>;
-  setNew(query: T, value: B): Promise<void>;
-}
+import { RedisCacheStore } from "../core/redis-cache.store";
 
 export function outerQueryNew<T, B>(
   type: Type<T>,
@@ -21,13 +16,12 @@ export function outerQueryNew<T, B>(
       private readonly logger = new Logger(ClassName);
       constructor(
         private readonly redis: ClientProxy,
-        private readonly cache: QueryCache<any, any>,
+        private readonly cache: RedisCacheStore,
       ) {}
 
       async execute(query: T): Promise<B> {
         const cached = await this.cache
-          // @ts-ignore
-          .getCached([type.name, [query]])
+          .get<B>(JSON.stringify([type.name, [query]]))
           .catch((e) => {
             console.error("nooo", e);
           });
@@ -63,9 +57,9 @@ export function outerQueryNew<T, B>(
 
   return {
     provide: context[ClassName],
-    useFactory(core: ClientProxy, cache: QueryCache<any, any>) {
+    useFactory(core: ClientProxy, cache: RedisCacheStore) {
       return new context[ClassName](core, cache);
     },
-    inject: [provide, "QueryCache"],
+    inject: [provide, RedisCacheStore],
   };
 }

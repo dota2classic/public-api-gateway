@@ -3,9 +3,10 @@ import { NestFactory } from "@nestjs/core";
 import { AppModule } from "./app.module";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 import * as cookieParser from "cookie-parser";
-import { Transport } from "@nestjs/microservices";
+import { RedisOptions } from "@nestjs/microservices";
 import { ValidationPipe } from "@nestjs/common";
 import configuration from "./config/configuration";
+import { getRedisTransportOptions } from "./config/redis.config";
 import { ConfigService } from "@nestjs/config";
 import { EntityNotFoundErrorFilter } from "./middleware/typeorm-error-filter";
 import {
@@ -59,16 +60,7 @@ async function bootstrap() {
       this.raw.end();
     });
 
-  app.connectMicroservice({
-    transport: Transport.REDIS,
-    options: {
-      url: `redis://${config.get("redis.host")}:6379`,
-      host: config.get("redis.host"),
-      retryAttempts: Infinity,
-      retryDelay: 5000,
-      password: config.get("redis.password"),
-    },
-  });
+  app.connectMicroservice<RedisOptions>(getRedisTransportOptions(config));
 
   app.useGlobalPipes(new ValidationPipe());
   app.use(cookieParser());

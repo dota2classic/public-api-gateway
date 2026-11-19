@@ -6,14 +6,11 @@ import { GetConnectionsQuery } from "./gateway/queries/GetConnections/get-connec
 import { GetRoleSubscriptionsQuery } from "./gateway/queries/user/GetRoleSubscriptions/get-role-subscriptions.query";
 import { LiveMatchStreamModule } from "./cache/live-match-stream.module";
 import { GetPlayerInfoQuery } from "./gateway/queries/GetPlayerInfo/get-player-info.query";
-import * as redisStore from "cache-manager-redis-store";
 import { GetReportsAvailableQuery } from "./gateway/queries/GetReportsAvailable/get-reports-available.query";
 import { ScheduleModule } from "@nestjs/schedule";
 import { MainService } from "./main.service";
 import { Entities } from "./db.config";
 import { TypeOrmModule, TypeOrmModuleOptions } from "@nestjs/typeorm";
-import { CacheModule, CacheModuleOptions } from "@nestjs/cache-manager";
-import { QueryCache } from "./rcache";
 import { ThrottlerModule } from "@nestjs/throttler";
 import { GetQueueStateQuery } from "./gateway/queries/QueueState/get-queue-state.query";
 import { GetPartyInvitationsQuery } from "./gateway/queries/GetPartyInvitations/get-party-invitations.query";
@@ -161,21 +158,6 @@ import { HttpCacheInterceptor } from "./utils/http-cache";
     ]),
     TypeOrmModule.forFeature(Entities),
     ScheduleModule.forRoot(),
-    CacheModule.registerAsync({
-      isGlobal: true,
-      useFactory(config: ConfigService): CacheModuleOptions {
-        return {
-          ttl: 10,
-          store: redisStore,
-          port: 6379,
-          url: `redis://${config.get("redis.host")}:6379`,
-          host: config.get("redis.host"),
-          auth_pass: config.get("redis.password"),
-        };
-      },
-      inject: [ConfigService],
-      imports: [],
-    }),
     ApiModule,
   ],
   controllers: [
@@ -188,17 +170,6 @@ import { HttpCacheInterceptor } from "./utils/http-cache";
     MainService,
     PermaBanGuard,
 
-    {
-      provide: "QueryCache",
-      useFactory(config: ConfigService) {
-        return new QueryCache({
-          url: `redis://${config.get("redis.host")}:6379`,
-          password: config.get("redis.password"),
-          ttl: 1000,
-        });
-      },
-      inject: [ConfigService],
-    },
     outerQueryNew(GetQueueStateQuery, "QueryCore"),
     outerQueryNew(GetUserInfoQuery, "QueryCore"),
     outerQueryNew(GetAllConnectionsQuery, "QueryCore"),

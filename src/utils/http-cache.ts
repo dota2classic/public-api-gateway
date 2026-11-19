@@ -8,7 +8,8 @@ import {
   SetMetadata,
 } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
-import { CACHE_MANAGER, CACHE_TTL_METADATA, CacheStore } from "@nestjs/cache-manager";
+import { CACHE_TTL_METADATA, CacheStore } from "@nestjs/cache-manager";
+import { RedisCacheStore } from "../core/redis-cache.store";
 import { isNil } from "@nestjs/common/utils/shared.utils";
 import { FastifyReply, FastifyRequest } from "fastify";
 import { from, lastValueFrom, Observable, of } from "rxjs";
@@ -24,7 +25,7 @@ export class HttpCacheInterceptor implements NestInterceptor {
   private readonly inFlight = new Map<string, Promise<unknown>>();
 
   constructor(
-    @Inject(CACHE_MANAGER) private readonly cache: CacheStore,
+    @Inject(RedisCacheStore) private readonly cache: CacheStore,
     private readonly reflector: Reflector,
   ) {}
 
