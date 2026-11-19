@@ -4,6 +4,7 @@ import { JwtModule, JwtModuleOptions } from "@nestjs/jwt";
 import { ConfigService } from "@nestjs/config";
 import { ClientsModule, RmqOptions, Transport } from "@nestjs/microservices";
 import { getRedisTransportOptions, logRedisErrors } from "../config/redis.config";
+import { RedisCacheStore } from "./redis-cache.store";
 import { RedlockModule } from "@dota2classic/redlock";
 import { RedlockModuleOptions } from "@dota2classic/redlock/dist/redlock.module-definition";
 import Redis from "ioredis";
@@ -94,8 +95,10 @@ import { RabbitMQConfig, RabbitMQModule } from "@golevelup/nestjs-rabbitmq";
         ),
       inject: [ConfigService],
     },
+    RedisCacheStore,
   ],
   exports: [
+    RedisCacheStore,
     CqrsModule,
     JwtModule,
     RedlockModule,
