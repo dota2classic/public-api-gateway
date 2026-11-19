@@ -7,12 +7,10 @@ import {
   GameSeasonDto,
   MaintenanceDto,
   MatchmakingInfo,
-  PerModePlayersDto,
   QueueTimeDto,
   TwitchStreamDto,
 } from "./stats.dto";
 import { CacheTTL } from "@nestjs/cache-manager";
-import { MatchmakingModes } from "../gateway/shared-types/matchmaking-mode";
 import { CacheShared } from "../utils/http-cache";
 import { TwitchService } from "../twitch.service";
 import { StatsMapper } from "./stats.mapper";
@@ -115,36 +113,9 @@ export class StatsController {
     return res.data;
   }
 
-  @CacheShared()
   @Get("/online")
-  @CacheTTL(10) // 10 seconds
   async online(): Promise<CurrentOnlineDto> {
-    const [onlineRes, sessionsRes] = await Promise.all([
-      this.gsApi.info.infoControllerGetCurrentOnline(),
-      this.gsApi.info.infoControllerGameSessions(),
-    ]);
-
-    const ses = sessionsRes.data;
-
-    const perMode: PerModePlayersDto[] = MatchmakingModes.map((mode) => {
-      const sessions = ses.filter((t) => asMatchmakingMode(t.info.mode) === mode);
-      const playerCount = sessions.reduce(
-        (a, b) => a + b.info.radiant.length + b.info.dire.length,
-        0,
-      );
-
-      return {
-        lobby_type: mode,
-        playerCount,
-      };
-    });
-
-    return {
-      inGame: onlineRes.data,
-      servers: 0,
-      sessions: sessionsRes.data.length,
-      perMode,
-    };
+    return this.statsService.currentOnline();
   }
 
   // NOTE: getServers endpoint removed - infoControllerGameServers no longer exists in the API

@@ -1,7 +1,10 @@
 import { Injectable, OnApplicationBootstrap } from "@nestjs/common";
-import { QueueTimeDto } from "./stats.dto";
+import * as memoize from "memoizee";
+import { ApiClient } from "@dota2classic/gs-api-generated/dist/module";
+import { CurrentOnlineDto, PerModePlayersDto, QueueTimeDto } from "./stats.dto";
 import { range } from "../utils/range";
-import { MatchmakingMode } from "../gateway/shared-types/matchmaking-mode";
+import { MatchmakingMode, MatchmakingModes } from "../gateway/shared-types/matchmaking-mode";
+import { asMatchmakingMode } from "../types/gs-api-compat";
 import { avg } from "../utils/average";
 import { PrometheusDriver } from "prometheus-query";
 import { Cron, CronExpression } from "@nestjs/schedule";
@@ -18,6 +21,7 @@ export class StatsService implements OnApplicationBootstrap {
     private readonly maintenanceRepository: Repository<MaintenanceEntity>,
     @InjectRepository(DemoHighlightsEntity)
     private readonly demoHighlightsRepository: Repository<DemoHighlightsEntity>,
+    private readonly gsApi: ApiClient,
   ) {}
 
   private _stats: [number, QueueTimeDto[]][] = [];
@@ -29,6 +33,38 @@ export class StatsService implements OnApplicationBootstrap {
   async onApplicationBootstrap() {
     await this.refreshQueueStats();
   }
+
+  public readonly currentOnline = memoize(
+    async (): Promise<CurrentOnlineDto> => {
+      const [onlineRes, sessionsRes] = await Promise.all([
+        this.gsApi.info.infoControllerGetCurrentOnline(),
+        this.gsApi.info.infoControllerGameSessions(),
+      ]);
+
+      const ses = sessionsRes.data;
+
+      const perMode: PerModePlayersDto[] = MatchmakingModes.map((mode) => {
+        const sessions = ses.filter((t) => asMatchmakingMode(t.info.mode) === mode);
+        const playerCount = sessions.reduce(
+          (a, b) => a + b.info.radiant.length + b.info.dire.length,
+          0,
+        );
+
+        return {
+          lobby_type: mode,
+          playerCount,
+        };
+      });
+
+      return {
+        inGame: onlineRes.data,
+        servers: 0,
+        sessions: sessionsRes.data.length,
+        perMode,
+      };
+    },
+    { promise: true, maxAge: 10_000 },
+  );
 
   async getMaintenance(): Promise<{ active: boolean }> {
     const m = await this.maintenanceRepository.find({});

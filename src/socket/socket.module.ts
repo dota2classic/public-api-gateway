@@ -28,10 +28,12 @@ import { LobbySlotEntity } from "../database/entities/lobby-slot.entity";
 import { GameSessionUpdateHandler } from "./event-handler/game-session-update.handler";
 import { PlayerPleaseGoQueueHandler } from "./event-handler/player-please-go-queue.handler";
 import { PlayerDeclinedGameHandler } from "./event-handler/player-declined-game.handler";
+import { OnlinePresenceService } from "./online-presence.service";
+import { StatsModule } from "../stats/stats.module";
 
 @Global()
 @Module({
-  imports: [TypeOrmModule.forFeature([LobbyEntity, LobbySlotEntity])],
+  imports: [TypeOrmModule.forFeature([LobbyEntity, LobbySlotEntity]), StatsModule],
   providers: [
     SocketGateway,
     SocketDelivery,
@@ -59,8 +61,10 @@ import { PlayerDeclinedGameHandler } from "./event-handler/player-declined-game.
     PlayerMapper,
     MatchMapper,
     LobbyService,
+    OnlinePresenceService,
   ],
   exports: [
+    OnlinePresenceService,
     SocketDelivery,
     SocketMessageService,
     SocketGateway,
