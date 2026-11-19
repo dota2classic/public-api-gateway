@@ -19,6 +19,7 @@ import { UserProfileService } from "../service/user-profile.service";
 import { RoleLifetime } from "../gateway/caches/user-fast-profile.dto";
 import { GetPartyQueryResultDto as MatchmakerGetPartyQueryResultDto } from "@dota2classic/matchmaker-generated/dist/Api";
 import { LobbySlotEntity } from "../database/entities/lobby-slot.entity";
+import { PlayerSummaryBundle } from "../service/player-summary.service";
 import {
   asBanReason,
   asMatchAccessLevel,
@@ -150,8 +151,7 @@ export class PlayerMapper {
 
   public mapParty = async (
     party: MatchmakerGetPartyQueryResultDto,
-    banStatuses: GsApi.BanStatusDto[],
-    summaries: GsApi.PlayerSummaryDto[],
+    summaries: PlayerSummaryBundle[],
     lobbies: (LobbySlotEntity | undefined)[],
   ): Promise<PartyDto> => {
     return {
@@ -159,10 +159,9 @@ export class PlayerMapper {
       enterQueueAt: party.enterQueueTime,
       leader: await this.mapPlayerInParty(party.leaderId),
       players: await Promise.all(
-        party.players.map(async (plr) => {
-          const status = banStatuses.find((t) => t.steam_id === plr);
-          const summary = summaries.find((t) => t.steamId === plr);
-          const lobby = lobbies.find((t) => t?.steamId === plr);
+        party.players.map(async (plr, index) => {
+          const { summary, ban: status } = summaries[index];
+          const lobby = lobbies[index];
 
           return {
             session: summary.session

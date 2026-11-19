@@ -42,6 +42,7 @@ import { UserRelationService } from "../service/user-relation.service";
 import { UserRelationStatus } from "../gateway/shared-types/user-relation";
 import { CacheShared } from "../utils/http-cache";
 import { PlayerService } from "./player.service";
+import { PlayerSummaryService } from "../service/player-summary.service";
 
 @Controller("player")
 @ApiTags("player")
@@ -54,17 +55,17 @@ export class PlayerController {
     private readonly userProfile: UserProfileService,
     private readonly relation: UserRelationService,
     private readonly playerService: PlayerService,
+    private readonly playerSummaries: PlayerSummaryService,
   ) {}
 
   @Get("/me")
   @WithUser()
   async me(@CurrentUser() user: CurrentUserDto): Promise<MeDto> {
-    const [summary, banStatus, reportsAvailable] = await Promise.combine([
-      this.gsApi.player.playerProfileControllerPlayerSummary(user.steam_id),
-      this.gsApi.player.playerModerationControllerBanInfo(user.steam_id),
+    const [{ summary, ban }, reportsAvailable] = await Promise.all([
+      this.playerSummaries.get(user.steam_id),
       this.gsApi.player.playerModerationControllerReportsAvailable(user.steam_id),
     ]);
-    return this.mapper.mapMe(summary.data, banStatus.data, reportsAvailable.data);
+    return this.mapper.mapMe(summary, ban, reportsAvailable.data);
   }
 
   @Get("/connections")
@@ -164,13 +165,8 @@ export class PlayerController {
   @Get("/:id/summary")
   async playerSummary(@Param("id") steamId: string): Promise<PlayerSummaryDto> {
     this.playerService.notifyMightExist(steamId);
-
-    const [raw, bans] = await Promise.combine([
-      this.gsApi.player.playerProfileControllerPlayerSummary(steamId),
-      this.gsApi.player.playerModerationControllerBanInfo(steamId),
-    ]);
-
-    return this.mapper.mapPlayerSummary(raw.data, bans.data);
+    const { summary, ban } = await this.playerSummaries.get(steamId);
+    return this.mapper.mapPlayerSummary(summary, ban);
   }
 
   @Get("/party")
@@ -208,6 +204,7 @@ export class PlayerController {
       await this.gsApi.player.playerRankingControllerStartRecalibration({
         steamId: user.steam_id,
       });
+      this.playerSummaries.invalidate(user.steam_id);
       return this.playerSummary(user.steam_id);
     } catch (e) {
       throw new HttpException(
@@ -283,7 +280,7 @@ export class PlayerController {
     @CurrentUser() user: CurrentUserDto,
     @Param("id") steamId: string,
   ): Promise<PlayerRelationDto> {
-    const [relationStatus, dodgeList] = await Promise.combine([
+    const [relationStatus, dodgeList] = await Promise.all([
       this.relation.getRelation(user.steam_id, steamId),
       this.gsApi.player.playerSocialControllerGetDodgeList({ steamId: user.steam_id }),
     ]);
