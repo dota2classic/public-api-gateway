@@ -8,7 +8,6 @@ import {
   Post,
   Query,
   UseGuards,
-  UseInterceptors,
 } from "@nestjs/common";
 import { CacheTTL } from "@nestjs/cache-manager";
 import { ApiBearerAuth, ApiQuery, ApiTags } from "@nestjs/swagger";
@@ -33,7 +32,6 @@ import { QueryBus } from "@nestjs/cqrs";
 import { D2CUser } from "../strategy/jwt.strategy";
 import { OldGuard, WithOptionalUser, WithUser } from "../utils/decorator/with-user";
 import { HeroStatsDto } from "./dto/hero.dto";
-import { UserHttpCacheInterceptor } from "../utils/cache-key-track";
 import { UserDTO } from "../shared.dto";
 import { AchievementDto } from "./dto/achievement.dto";
 import { WithPagination } from "../utils/decorator/pagination";
@@ -42,7 +40,7 @@ import { PartyService } from "../party.service";
 import { UserProfileService } from "../service/user-profile.service";
 import { UserRelationService } from "../service/user-relation.service";
 import { UserRelationStatus } from "../gateway/shared-types/user-relation";
-import { GlobalHttpCacheInterceptor } from "../utils/cache-global";
+import { CacheShared } from "../utils/http-cache";
 import { PlayerService } from "./player.service";
 
 @Controller("player")
@@ -58,10 +56,8 @@ export class PlayerController {
     private readonly playerService: PlayerService,
   ) {}
 
-  // @UseInterceptors(UserHttpCacheInterceptor)
   @Get("/me")
   @WithUser()
-  // @CacheTTL(5)
   async me(@CurrentUser() user: CurrentUserDto): Promise<MeDto> {
     const [summary, banStatus, reportsAvailable] = await Promise.combine([
       this.gsApi.player.playerProfileControllerPlayerSummary(user.steam_id),
@@ -79,7 +75,7 @@ export class PlayerController {
     return {};
   }
 
-  @UseInterceptors(GlobalHttpCacheInterceptor)
+  @CacheShared()
   @CacheTTL(60 * 2)
   @Get("/leaderboard")
   @WithPagination()
@@ -127,6 +123,8 @@ export class PlayerController {
     };
   }
 
+  @CacheTTL(30)
+  @CacheShared()
   @WithPagination()
   @Get("/:id/teammates")
   async teammates(
@@ -152,6 +150,8 @@ export class PlayerController {
     return this.userProfile.userDto(steam_id);
   }
 
+  @CacheTTL(30)
+  @CacheShared()
   @Get("/:id/achievements")
   async achievements(@Param("id") steam_id: string): Promise<AchievementDto[]> {
     const res = await this.gsApi.player.playerAchievementsControllerPlayerAchievements(steam_id);
@@ -160,6 +160,7 @@ export class PlayerController {
   }
 
   @CacheTTL(5)
+  @CacheShared()
   @Get("/:id/summary")
   async playerSummary(@Param("id") steamId: string): Promise<PlayerSummaryDto> {
     this.playerService.notifyMightExist(steamId);
@@ -179,7 +180,7 @@ export class PlayerController {
     return this.partyService.getParty(user.steam_id);
   }
 
-  @UseInterceptors(UserHttpCacheInterceptor)
+  @CacheTTL(10)
   @Get("/summary/hero/:id")
   async heroSummary(@Param("id") steam_id: string): Promise<HeroStatsDto[]> {
     const res = await this.gsApi.player.playerProfileControllerPlayerHeroSummary(steam_id);

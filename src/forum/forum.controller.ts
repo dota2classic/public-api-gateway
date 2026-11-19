@@ -16,7 +16,6 @@ import {
   Sse,
   UnauthorizedException,
   UseGuards,
-  UseInterceptors,
 } from "@nestjs/common";
 import { ApiParam, ApiQuery, ApiTags } from "@nestjs/swagger";
 import { filter, Observable } from "rxjs";
@@ -64,7 +63,6 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { CacheTTL } from "@nestjs/cache-manager";
 import { AiService } from "../service/ai.service";
-import { UserHttpCacheInterceptor } from "../utils/cache-key-track";
 import { Throttle } from "@nestjs/throttler";
 
 @Controller("forum")
@@ -231,7 +229,6 @@ export class ForumController {
   })
   @WithOptionalUser()
   @Get("threads")
-  @UseInterceptors(UserHttpCacheInterceptor)
   @CacheTTL(15)
   async threads(
     @Req() req: any,
@@ -267,7 +264,6 @@ export class ForumController {
     enumName: "ThreadType",
   })
   @Get("thread/:id/:threadType")
-  @UseInterceptors(UserHttpCacheInterceptor)
   @CacheTTL(15)
   async getThread(
     @Param("id") id: string,

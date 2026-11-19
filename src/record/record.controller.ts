@@ -3,7 +3,6 @@ import {
   Get,
   Logger,
   Param,
-  UseInterceptors,
 } from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
 import { ApiClient } from "@dota2classic/gs-api-generated/dist/module";
@@ -14,9 +13,9 @@ import {
 } from "./record.dto";
 import { RecordMapper } from "./record.mapper";
 import { CacheTTL } from "@nestjs/cache-manager";
-import { GlobalHttpCacheInterceptor } from "../utils/cache-global";
+import { CacheShared } from "../utils/http-cache";
 
-@UseInterceptors(GlobalHttpCacheInterceptor)
+@CacheShared()
 @Controller("record")
 @ApiTags("record")
 export class RecordController {
@@ -34,7 +33,7 @@ export class RecordController {
     return this.mapper.mapRecordsResponse(res.data);
   }
 
-  // @CacheTTL(60 * 30)
+  @CacheTTL(10)
   @Get("year/:steam_id")
   public async playerYearSummary(
     @Param("steam_id") steamId: string,
@@ -53,6 +52,7 @@ export class RecordController {
     return this.mapper.mapRecordsResponse(res.data);
   }
 
+  @CacheTTL(10)
   @Get("daily")
   public async dailyRecords(): Promise<PlayerDailyRecord[]> {
     const res = await this.gsApi.record.recordControllerPlayerDaily();

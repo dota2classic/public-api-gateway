@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Post, UseInterceptors } from "@nestjs/common";
+import { Controller, Get, Param, Post } from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
 import { ApiClient } from "@dota2classic/gs-api-generated/dist/module";
 import {
@@ -13,7 +13,7 @@ import {
 } from "./stats.dto";
 import { CacheTTL } from "@nestjs/cache-manager";
 import { MatchmakingModes } from "../gateway/shared-types/matchmaking-mode";
-import { GlobalHttpCacheInterceptor } from "../utils/cache-global";
+import { CacheShared } from "../utils/http-cache";
 import { TwitchService } from "../twitch.service";
 import { StatsMapper } from "./stats.mapper";
 import { StatsService } from "./stats.service";
@@ -59,14 +59,14 @@ export class StatsController {
     return this.statsService.getHighlights(id);
   }
 
-  @UseInterceptors(GlobalHttpCacheInterceptor)
+  @CacheShared()
   @CacheTTL(5)
   @Get("/maintenance")
   async maintenance(): Promise<MaintenanceDto> {
     return this.statsService.getMaintenance();
   }
 
-  @UseInterceptors(GlobalHttpCacheInterceptor)
+  @CacheShared()
   @CacheTTL(30)
   @Get("/matchmaking")
   async getMatchmakingInfo(): Promise<MatchmakingInfo[]> {
@@ -98,7 +98,7 @@ export class StatsController {
     });
   }
 
-  @UseInterceptors(GlobalHttpCacheInterceptor)
+  @CacheShared()
   @CacheTTL(60)
   @Get("/twitch")
   async getTwitchStreams(): Promise<TwitchStreamDto[]> {
@@ -107,7 +107,7 @@ export class StatsController {
     return Promise.all(streams.map(this.mapper.mapStream));
   }
 
-  @UseInterceptors(GlobalHttpCacheInterceptor)
+  @CacheShared()
   @CacheTTL(60 * 60) // 1 hr
   @Get("/seasons")
   async getGameSeasons(): Promise<GameSeasonDto[]> {
@@ -115,7 +115,7 @@ export class StatsController {
     return res.data;
   }
 
-  @UseInterceptors(GlobalHttpCacheInterceptor)
+  @CacheShared()
   @Get("/online")
   @CacheTTL(10) // 10 seconds
   async online(): Promise<CurrentOnlineDto> {
@@ -149,7 +149,7 @@ export class StatsController {
 
   // NOTE: getServers endpoint removed - infoControllerGameServers no longer exists in the API
 
-  @UseInterceptors(GlobalHttpCacheInterceptor)
+  @CacheShared()
   @CacheTTL(60 * 5)
   @Get("/agg_stats")
   public async getAggStats(): Promise<AggregatedStatsDto> {
