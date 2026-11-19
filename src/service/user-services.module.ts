@@ -13,6 +13,7 @@ import { PlayerBanService } from "./player-ban.service";
 import { UserRelationService } from "./user-relation.service";
 import { UserRelationEntity } from "../database/entities/user-relation.entity";
 import { PlayerSummaryService } from "./player-summary.service";
+import { DecorationPreferencesCache } from "./decoration-preferences.cache";
 
 @Global()
 @Module({
@@ -66,8 +67,10 @@ import { PlayerSummaryService } from "./player-summary.service";
     PlayerBanService,
     UserRelationService,
     PlayerSummaryService,
+    DecorationPreferencesCache,
   ],
   exports: [
+    DecorationPreferencesCache,
     UserProfileModule,
     StorageMapper,
     CustomizationMapper,

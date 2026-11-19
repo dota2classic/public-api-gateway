@@ -11,6 +11,7 @@ import {
   SelectDecorationDto,
   UpdateDecorationDto,
 } from "./customization.dto";
+import { DecorationPreferencesCache } from "../service/decoration-preferences.cache";
 
 @Injectable()
 export class CustomizationService {
@@ -20,6 +21,7 @@ export class CustomizationService {
     @InjectRepository(UserProfileDecorationPreferencesEntity)
     private readonly userDecorationPreferences: Repository<UserProfileDecorationPreferencesEntity>,
     private readonly dataSource: DataSource,
+    private readonly decorationPreferences: DecorationPreferencesCache,
   ) {}
 
   async createDecoration(dto: CreateDecorationDto): Promise<UserProfileDecorationEntity> {
@@ -57,6 +59,7 @@ export class CustomizationService {
         { [field]: dto.id || null },
       );
     }
+    this.decorationPreferences.invalidate();
   }
 
   async updateDecoration(id: number, dto: UpdateDecorationDto): Promise<UserProfileDecorationEntity> {
@@ -69,6 +72,7 @@ export class CustomizationService {
       })
       .where({ id })
       .execute();
+    this.decorationPreferences.invalidate();
 
     return this.decorationRepository.findOneBy({ id });
   }
@@ -98,6 +102,7 @@ export class CustomizationService {
 
       await tx.remove(decoration);
     });
+    this.decorationPreferences.invalidate();
   }
 
   async findAll(type?: UserProfileDecorationType): Promise<UserProfileDecorationEntity[]> {

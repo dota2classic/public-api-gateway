@@ -183,12 +183,17 @@ export class PlayerMapper {
     return this.userRepository.userDto(steamId);
   };
 
-  public mapAchievement = async (
-    ach: GsApi.AchievementDto,
-  ): Promise<AchievementDto> => {
+  public mapAchievements = async (
+    achievements: GsApi.AchievementDto[],
+  ): Promise<AchievementDto[]> => {
+    const users = await this.userRepository.userDtos(achievements.map((ach) => ach.steamId));
+    return achievements.map((ach, index) => this.mapAchievement(ach, users[index]));
+  };
+
+  private mapAchievement = (ach: GsApi.AchievementDto, user: UserDTO): AchievementDto => {
     return {
       key: asAchievementKey(ach.key),
-      user: await this.userRepository.userDto(ach.steamId),
+      user,
 
       isComplete: ach.isComplete,
       progress: ach.progress,

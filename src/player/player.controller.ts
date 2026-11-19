@@ -157,7 +157,7 @@ export class PlayerController {
   async achievements(@Param("id") steam_id: string): Promise<AchievementDto[]> {
     const res = await this.gsApi.player.playerAchievementsControllerPlayerAchievements(steam_id);
 
-    return Promise.all(res.data.map(this.mapper.mapAchievement));
+    return this.mapper.mapAchievements(res.data);
   }
 
   @CacheTTL(5)
@@ -259,19 +259,17 @@ export class PlayerController {
   ): Promise<UserDTO[]> {
     const friends = user ? await this.relation.getFriends(user.steam_id) : [];
     if (!name) {
-      return Promise.all(
-        friends.slice(0, count).map((id) => this.userProfile.userDto(id)),
-      );
+      return this.userProfile.userDtos(friends.slice(0, count));
     }
     const steamIds = await this.playerService.search(name, count, friends);
-    return Promise.all(steamIds.map((id) => this.userProfile.userDto(id)));
+    return this.userProfile.userDtos(steamIds);
   }
 
   @WithUser()
   @Get("/friends")
   public async getFriends(@CurrentUser() user: CurrentUserDto): Promise<UserDTO[]> {
     const friends = await this.relation.getFriends(user.steam_id);
-    return Promise.all(friends.map((id) => this.userProfile.userDto(id)));
+    return this.userProfile.userDtos(friends);
   }
 
   @WithUser()
