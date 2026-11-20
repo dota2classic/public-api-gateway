@@ -87,6 +87,28 @@ describe("LiveMatchService (fake timers)", () => {
 
       expect(svc.list()[0].duration).toBe(10);
     });
+
+    it("keeps discarding late events after the match left the list, until the stop is forgotten", async () => {
+      const svc = makeService();
+      const push = svc.pushEvent(makeEvent(1));
+      jest.advanceTimersByTime(DELAY);
+      await push;
+
+      svc.onStop(1);
+      jest.advanceTimersByTime(DELAY);
+
+      const late = svc.pushEvent(makeEvent(1, 999));
+      jest.advanceTimersByTime(DELAY);
+      await late;
+      expect(svc.list()).toHaveLength(0);
+      expect(svc.isLive(1)).toBe(false);
+
+      jest.advanceTimersByTime(60 * 60 * 1000);
+      const fresh = svc.pushEvent(makeEvent(1, 5));
+      jest.advanceTimersByTime(DELAY);
+      await fresh;
+      expect(svc.list()).toHaveLength(1);
+    });
   });
 
   describe("streamMatch", () => {

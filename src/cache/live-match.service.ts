@@ -8,11 +8,11 @@ interface LiveMatchEntry {
 }
 @Injectable()
 export class LiveMatchService {
+  private static readonly STOPPED_RETENTION_MS = 60 * 60 * 1000;
+
   private cache = new Map<number, LiveMatchEntry>();
   // set immediately on game end — blocks new incoming events
-  private stoppedMatchesCache = new Map<number, boolean>();
-  // set after delay — hides match from list() / streamMatch
-  private finishedMatchesCache = new Map<number, boolean>();
+  private stoppedMatchesCache = new Set<number>();
 
   private readonly entityCache = new Map<number, LiveMatchDto>();
   private readonly logger = new Logger(LiveMatchService.name);
@@ -24,11 +24,7 @@ export class LiveMatchService {
   }
 
   private isMatchStopped(id: number): boolean {
-    return this.stoppedMatchesCache.get(id) === true;
-  }
-
-  private isMatchComplete(id: number): boolean {
-    return this.finishedMatchesCache.get(id) === true;
+    return this.stoppedMatchesCache.has(id);
   }
 
   public async pushEvent(event: LiveMatchDto) {
@@ -56,7 +52,7 @@ export class LiveMatchService {
   }
 
   public onStop(id: number) {
-    this.stoppedMatchesCache.set(id, true);
+    this.stoppedMatchesCache.add(id);
     setTimeout(() => {
       const sub = this.cache.get(id);
       if (sub) {
@@ -64,20 +60,21 @@ export class LiveMatchService {
         this.cache.delete(id);
         this.entityCache.delete(id);
       }
-      this.finishedMatchesCache.set(id, true);
     }, this.delay);
+    setTimeout(
+      () => this.stoppedMatchesCache.delete(id),
+      LiveMatchService.STOPPED_RETENTION_MS,
+    );
   }
 
   public list(): LiveMatchDto[] {
-    return [...this.entityCache.values()].filter(
-      (t) => !this.isMatchComplete(t.matchId),
-    );
+    return [...this.entityCache.values()];
   }
 
   public streamMatch(id: number): Observable<LiveMatchDto> {
     const liveOne = this.cache.get(id);
 
-    if (liveOne && !this.isMatchComplete(id)) {
+    if (liveOne) {
       return concat(of(this.entityCache.get(id)), liveOne.source);
     }
 
