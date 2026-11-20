@@ -51,6 +51,7 @@ import { ItemDropModule } from "./itemdrop/itemdrop.module";
 import { APP_INTERCEPTOR } from "@nestjs/core";
 import { ReqLoggingInterceptor } from "./metrics/req-logging.interceptor";
 import { HttpCacheInterceptor } from "./utils/http-cache";
+import { getLoggerParams } from "./config/logger.config";
 
 @Module({
   imports: [
@@ -82,22 +83,9 @@ import { HttpCacheInterceptor } from "./utils/http-cache";
       isGlobal: true,
       load: [configuration],
     }),
-    LoggerModule.forRoot({
-      pinoHttp: {
-        autoLogging: true,
-        transport: {
-          target: "pino-pretty",
-          options: {
-            colorize: process.env.NODE_ENV !== "production",
-            singleLine: true,
-          },
-        },
-        level: process.env.LOG_LEVEL || "info",
-        redact: {
-          paths: ["req.headers.authorization", "req.headers.cookie"],
-          remove: true,
-        },
-      },
+    LoggerModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: getLoggerParams,
     }),
     GsApiGeneratedModule.forRootAsync({
       imports: [],

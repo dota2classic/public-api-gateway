@@ -17,6 +17,7 @@ import fastifyCookie from "@fastify/cookie";
 import fastify from "fastify";
 import fastyfyMultipart from "@fastify/multipart";
 import { Logger } from "nestjs-pino";
+import { API_PREFIX } from "./config/api-prefix";
 
 async function bootstrap() {
   const parsedConfig = configuration();
@@ -34,7 +35,7 @@ async function bootstrap() {
   );
 
   app.useLogger(app.get(Logger));
-  app.setGlobalPrefix("v1");
+  app.setGlobalPrefix(API_PREFIX);
   app.useGlobalFilters(new EntityNotFoundErrorFilter());
 
   const options = new DocumentBuilder()
