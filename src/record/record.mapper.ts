@@ -9,6 +9,7 @@ import {
 import { MatchMapper } from "../match/match.mapper";
 import { UserProfileService } from "../service/user-profile.service";
 import { asMatchmakingMode } from "../types/gs-api-compat";
+import { UserDTO } from "../shared.dto";
 
 @Injectable()
 export class RecordMapper {
@@ -17,26 +18,26 @@ export class RecordMapper {
     private readonly matchMapper: MatchMapper,
   ) {}
 
-  public mapPlayerRecord = async (
+  private mapPlayerRecord = (
     it: GsApi.PlayerRecordDto,
-  ): Promise<PlayerRecordDto> => {
-    return {
-      player: await this.urepo.userDto(it.steamId),
-      match: it.match && (await this.matchMapper.mapMatch(it.match)),
-      recordType: it.recordType,
-    };
-  };
+    users: Map<string, UserDTO>,
+  ): PlayerRecordDto => ({
+    player: users.get(it.steamId),
+    match: it.match && this.matchMapper.toMatch(it.match, users),
+    recordType: it.recordType,
+  });
 
-  public mapDailyRecord = async (
-    it: GsApi.PlayerDailyRecord,
-  ): Promise<PlayerDailyRecord> => {
-    return {
-      player: await this.urepo.userDto(it.steam_id),
+  public mapDailyRecords = async (
+    records: GsApi.PlayerDailyRecord[],
+  ): Promise<PlayerDailyRecord[]> => {
+    const users = await this.urepo.userDtoMap(records.map((it) => it.steam_id));
+    return records.map((it) => ({
+      player: users.get(it.steam_id),
       mmrChange: it.mmr_change,
       games: it.games,
       loss: it.loss,
       wins: it.wins,
-    };
+    }));
   };
 
   mapYearResult = (source: GsApi.PlayerYearSummaryDto): PlayerYearSummaryDto => ({
@@ -65,12 +66,17 @@ export class RecordMapper {
   public mapRecordsResponse = async (
     records: GsApi.PlayerRecordsResponse,
   ): Promise<PlayerRecordsResponse> => {
-    const [overall, month, season, day] = await Promise.all([
-      Promise.all(records.overall.map(this.mapPlayerRecord)),
-      Promise.all(records.month.map(this.mapPlayerRecord)),
-      Promise.all(records.season.map(this.mapPlayerRecord)),
-      Promise.all(records.day.map(this.mapPlayerRecord)),
-    ]);
-    return { overall, month, season, day };
+    const all = [...records.overall, ...records.month, ...records.season, ...records.day];
+    const users = await this.urepo.userDtoMap(
+      all.flatMap((it) => [it.steamId, ...(it.match ? this.matchMapper.steamIds(it.match) : [])]),
+    );
+    const map = (list: GsApi.PlayerRecordDto[]) =>
+      list.map((it) => this.mapPlayerRecord(it, users));
+    return {
+      overall: map(records.overall),
+      month: map(records.month),
+      season: map(records.season),
+      day: map(records.day),
+    };
   };
 }

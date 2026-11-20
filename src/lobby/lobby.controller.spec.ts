@@ -25,7 +25,6 @@ import { IsNull, Repository } from "typeorm";
 import { DotaTeam } from "../gateway/shared-types/dota-team";
 import { Dota_Map } from "../gateway/shared-types/dota-map";
 import { UserProfileService } from "../service/user-profile.service";
-import Keyv from "keyv";
 import { ClientsModule, RedisOptions, Transport } from "@nestjs/microservices";
 import { RedisContainer, StartedRedisContainer } from "@testcontainers/redis";
 import {
@@ -52,7 +51,7 @@ describe("LobbyController", () => {
 
   // @ts-ignore
   let urep = new UserProfileService(
-    new Keyv(),
+    undefined,
     undefined,
     undefined,
     undefined,

@@ -56,6 +56,6 @@ export class RecordController {
   @Get("daily")
   public async dailyRecords(): Promise<PlayerDailyRecord[]> {
     const res = await this.gsApi.record.recordControllerPlayerDaily();
-    return Promise.all(res.data.map(this.mapper.mapDailyRecord));
+    return this.mapper.mapDailyRecords(res.data);
   }
 }

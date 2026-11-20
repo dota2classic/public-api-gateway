@@ -12,6 +12,7 @@ import { ConfigService } from "@nestjs/config";
 import { MatchmakingMode } from "../gateway/shared-types/matchmaking-mode";
 import { UserProfileService } from "../service/user-profile.service";
 import { asMatchmakingMode, asGameMode } from "../types/gs-api-compat";
+import { UserDTO } from "../shared.dto";
 
 @Injectable()
 export class MatchMapper {
@@ -29,27 +30,35 @@ export class MatchMapper {
     streak: it.streak,
   });
 
-  public mapPlayerInMatch = async (
+  public steamIds = (it: GsApi.MatchDto): string[] =>
+    [...it.radiant, ...it.dire].map((player) => player.steam_id);
+
+  public mapMatch = async (
+    it: GsApi.MatchDto,
+    mapForSteamId?: string,
+  ): Promise<MatchDto> =>
+    this.toMatch(it, await this.user.userDtoMap(this.steamIds(it)));
+
+  private mapPlayerInMatch = (
     it: GsApi.PlayerInMatchDto,
-  ): Promise<PlayerInMatchDto> => {
+    users: Map<string, UserDTO>,
+  ): PlayerInMatchDto => {
     const { steam_id, ...dto } = it;
     return {
       ...dto,
       partyIndex: dto.partyIndex,
-      user: await this.user.userDto(it.steam_id),
+      user: users.get(steam_id),
       mmr: it.mmr && this.mapMmr(it.mmr),
       bear: dto.bear,
     };
   };
 
-  public mapMatch = async (
+  public toMatch = (
     it: GsApi.MatchDto,
-    mapForSteamId?: string,
-  ): Promise<MatchDto> => {
-    const [radiant, dire] = await Promise.combine([
-      Promise.all(it.radiant.map(this.mapPlayerInMatch)),
-      Promise.all(it.dire.map(this.mapPlayerInMatch)),
-    ]);
+    users: Map<string, UserDTO>,
+  ): MatchDto => {
+    const radiant = it.radiant.map((player) => this.mapPlayerInMatch(player, users));
+    const dire = it.dire.map((player) => this.mapPlayerInMatch(player, users));
     const mode = asMatchmakingMode(it.mode);
 
     let replayUrl: string | undefined = undefined;
@@ -101,11 +110,10 @@ export class MatchMapper {
     it: GsApi.MatchPageDto,
     mapForSteamId?: string,
   ): Promise<MatchPageDto> => {
+    const users = await this.user.userDtoMap(it.data.flatMap(this.steamIds));
     return {
       ...it,
-      data: await Promise.all(
-        it.data.map((t) => this.mapMatch(t, mapForSteamId)),
-      ),
+      data: it.data.map((match) => this.toMatch(match, users)),
     };
   };
 }
