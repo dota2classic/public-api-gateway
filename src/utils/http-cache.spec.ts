@@ -1,8 +1,11 @@
-import { CallHandler, ExecutionContext } from "@nestjs/common";
-import { Reflector } from "@nestjs/core";
-import { CacheStore, CacheTTL } from "@nestjs/cache-manager";
+import { CallHandler, Controller, ExecutionContext, Get } from "@nestjs/common";
+import { APP_INTERCEPTOR, Reflector } from "@nestjs/core";
+import { CacheTTL } from "@nestjs/cache-manager";
+import { Test } from "@nestjs/testing";
+import { FastifyAdapter, NestFastifyApplication } from "@nestjs/platform-fastify";
 import { lastValueFrom, Observable } from "rxjs";
 import { CacheShared, HttpCacheInterceptor } from "./http-cache";
+import { RedisCacheStore } from "../core/redis-cache.store";
 
 class Routes {
   @CacheTTL(10)
@@ -15,13 +18,13 @@ class Routes {
   uncached() {}
 }
 
-const memoryStore = (): CacheStore & { data: Map<string, unknown> } => {
-  const data = new Map<string, unknown>();
+const memoryStore = () => {
+  const data = new Map<string, string>();
   return {
     data,
-    get: async (key) => data.get(key) as never,
-    set: async (key, value) => {
-      data.set(key, value);
+    getRaw: async (key: string) => data.get(key),
+    setRaw: async (key: string, raw: string) => {
+      data.set(key, raw);
     },
   };
 };
@@ -88,5 +91,76 @@ describe("HttpCacheInterceptor", () => {
     await run(interceptor, contextOf(routes.shared, "/p", undefined, "POST"), next);
 
     expect(store.data.size).toBe(0);
+  });
+});
+
+const payload = {
+  name: "Игрок ☃ \"quoted\"",
+  nested: [{ ratio: 1.5, empty: null, dropped: undefined }],
+  at: new Date(0),
+  big: 2 ** 53,
+};
+
+@Controller("probe")
+class Probe {
+  @Get("plain")
+  plain() {
+    return payload;
+  }
+
+  @CacheTTL(10)
+  @CacheShared()
+  @Get("cached")
+  cached() {
+    return payload;
+  }
+
+  @Get("plain-text")
+  plainText() {
+    return "hello";
+  }
+
+  @CacheTTL(10)
+  @CacheShared()
+  @Get("cached-text")
+  cachedText() {
+    return "hello";
+  }
+}
+
+describe("HttpCacheInterceptor over Fastify", () => {
+  let app: NestFastifyApplication;
+
+  beforeAll(async () => {
+    const module = await Test.createTestingModule({
+      controllers: [Probe],
+      providers: [
+        { provide: RedisCacheStore, useValue: memoryStore() },
+        { provide: APP_INTERCEPTOR, useClass: HttpCacheInterceptor },
+      ],
+    }).compile();
+    app = module.createNestApplication<NestFastifyApplication>(new FastifyAdapter(), { logger: false });
+    await app.init();
+    await app.getHttpAdapter().getInstance().ready();
+  });
+
+  afterAll(() => app.close());
+
+  const fetchOne = async (url: string) => {
+    const res = await app.inject({ method: "GET", url });
+    const { date, "x-cache": cache, ...headers } = res.headers;
+    return { status: res.statusCode, body: res.body, headers, cache };
+  };
+
+  it.each([
+    ["plain", "cached"],
+    ["plain-text", "cached-text"],
+  ])("answers MISS and HIT for %s exactly like the uncached route", async (plain, cached) => {
+    const baseline = await fetchOne(`/probe/${plain}`);
+    const miss = await fetchOne(`/probe/${cached}`);
+    const hit = await fetchOne(`/probe/${cached}`);
+
+    expect(miss).toEqual({ ...baseline, cache: "MISS" });
+    expect(hit).toEqual({ ...baseline, cache: "HIT" });
   });
 });
