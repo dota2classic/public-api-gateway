@@ -164,7 +164,6 @@ export class PlayerController {
   @CacheShared()
   @Get("/:id/summary")
   async playerSummary(@Param("id") steamId: string): Promise<PlayerSummaryDto> {
-    this.playerService.notifyMightExist(steamId);
     const { summary, ban } = await this.playerSummaries.get(steamId);
     return this.mapper.mapPlayerSummary(summary, ban);
   }

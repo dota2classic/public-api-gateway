@@ -7,14 +7,21 @@ export class RedisCacheStore implements CacheStore {
   constructor(@Inject("REDIS") private readonly redis: Redis) {}
 
   async get<T>(key: string): Promise<T | undefined> {
-    const raw = await this.redis.get(key);
-    return raw === null ? undefined : JSON.parse(raw);
+    const raw = await this.getRaw(key);
+    return raw === undefined ? undefined : JSON.parse(raw);
   }
 
-  async set<T>(key: string, value: T, options?: { ttl?: number }): Promise<void> {
-    const raw = JSON.stringify(value);
-    if (options?.ttl) {
-      await this.redis.set(key, raw, "EX", options.ttl);
+  set<T>(key: string, value: T, options?: { ttl?: number }): Promise<void> {
+    return this.setRaw(key, JSON.stringify(value), options?.ttl);
+  }
+
+  async getRaw(key: string): Promise<string | undefined> {
+    return (await this.redis.get(key)) ?? undefined;
+  }
+
+  async setRaw(key: string, raw: string, ttl?: number): Promise<void> {
+    if (ttl) {
+      await this.redis.set(key, raw, "EX", ttl);
     } else {
       await this.redis.set(key, raw);
     }

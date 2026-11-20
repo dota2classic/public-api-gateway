@@ -1,5 +1,5 @@
-import { Inject, Injectable, Logger } from "@nestjs/common";
-import Keyv from "keyv";
+import { Inject, Injectable } from "@nestjs/common";
+import Redis from "ioredis";
 import { UserProfileFastService } from "@dota2classic/caches/dist/service/user-profile-fast.service";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
@@ -8,14 +8,13 @@ import { DecorationPreferencesCache } from "./decoration-preferences.cache";
 import { CustomizationMapper } from "../customization/customization.mapper";
 import { UserDTO } from "../shared.dto";
 import { PlayerFlagsEntity } from "../database/entities/player-flags.entity";
+import { UserProfileDecorationPreferencesEntity } from "../database/entities/user-profile-decoration-preferences.entity";
 import { memoize2 } from "../utils/memoize";
 
 @Injectable()
 export class UserProfileService {
-  private logger = new Logger(UserProfileService.name);
-
   constructor(
-    @Inject("full-profile") private readonly keyv: Keyv,
+    @Inject("REDIS") private readonly redis: Redis,
     private readonly fastUserService: UserProfileFastService<UserFastProfileDto>,
     private readonly decorations: DecorationPreferencesCache,
     private readonly customizationMapper: CustomizationMapper,
@@ -24,34 +23,53 @@ export class UserProfileService {
   ) {}
 
   public userDtos = async (steamIds: string[]): Promise<UserDTO[]> => {
-    const unique = [...new Set(steamIds)];
-    const dtos = await Promise.all(unique.map(this.userDto));
-    const byId = new Map(unique.map((steamId, index) => [steamId, dtos[index]]));
+    const byId = await this.userDtoMap(steamIds);
     return steamIds.map((steamId) => byId.get(steamId));
   };
 
-  public userDto = async (steamId: string): Promise<UserDTO> => {
-    const [fu, prefs, flags] = await Promise.all([
-      this.fastUserService.get(steamId),
-      this.decorations.get(steamId).catch(() => undefined),
-      this.getPlayerFlags(steamId),
+  public userDtoMap = async (steamIds: Iterable<string>): Promise<Map<string, UserDTO>> => {
+    const unique = [...new Set(steamIds)];
+    const [profiles, prefs, removed] = await Promise.all([
+      this.fastProfiles(unique),
+      Promise.all(unique.map(this.preferences)),
+      this.legallyRemoved(),
     ]);
+    return new Map(
+      unique.map((steamId, i) => [
+        steamId,
+        this.toUserDto(steamId, profiles[i], prefs[i], removed.has(steamId)),
+      ]),
+    );
+  };
 
-    if (flags?.legalRemove) {
-      fu.name = "Removed";
-      fu.avatar = "";
-      fu.connections = [];
-    }
+  public userDto = async (steamId: string): Promise<UserDTO> => {
+    const [fu, prefs, removed] = await Promise.all([
+      this.fastUserService.get(steamId),
+      this.preferences(steamId),
+      this.legallyRemoved(),
+    ]);
+    return this.toUserDto(steamId, fu, prefs, removed.has(steamId));
+  };
 
+  public name = async (steamId: string) =>
+    this.fastUserService.get(steamId).then((it) => it.name);
+
+  private toUserDto = (
+    steamId: string,
+    fu: UserFastProfileDto | undefined,
+    prefs: UserProfileDecorationPreferencesEntity | undefined,
+    removed: boolean,
+  ): UserDTO => {
+    const avatar = removed ? "" : fu?.avatar || "";
     return {
       steamId: steamId,
-      name: fu?.name || "Loading",
-      avatar: fu?.avatar || "",
+      name: removed ? "Removed" : fu?.name || "Loading",
+      avatar,
       roles:
         fu?.roles.filter((t) => new Date(t.endTime).getTime() > Date.now()) ||
         [],
-      connections: fu?.connections || [],
-      avatarSmall: (fu?.avatar || "").replace("_full", "_medium"),
+      connections: removed ? [] : fu?.connections || [],
+      avatarSmall: avatar.replace("_full", "_medium"),
       hat: prefs?.hat && this.customizationMapper.mapDecoration(prefs.hat),
       icon: prefs?.icon && this.customizationMapper.mapDecoration(prefs.icon),
       title:
@@ -62,13 +80,25 @@ export class UserProfileService {
     };
   };
 
-  @memoize2({ maxAge: 10_000, primitive: true })
-  private async getPlayerFlags(steamId: string) {
-    return this.playerFlagsEntityRepository.findOne({
-      where: { steamId },
-    });
-  }
+  private preferences = (steamId: string) =>
+    this.decorations.get(steamId).catch(() => undefined);
 
-  public name = async (steamId: string) =>
-    this.fastUserService.get(steamId).then((it) => it.name);
+  private fastProfiles = async (
+    steamIds: string[],
+  ): Promise<(UserFastProfileDto | undefined)[]> => {
+    if (steamIds.length === 0) return [];
+    const raws = await this.redis.mget(
+      steamIds.map((steamId) => `${this.fastUserService.cacheKey}:${steamId}`),
+    );
+    return raws.map((raw) => (raw && JSON.parse(raw)) || undefined);
+  };
+
+  @memoize2({ maxAge: 10_000, promise: true })
+  private async legallyRemoved(): Promise<Set<string>> {
+    const rows = await this.playerFlagsEntityRepository.find({
+      select: { steamId: true },
+      where: { legalRemove: true },
+    });
+    return new Set(rows.map((row) => row.steamId));
+  }
 }

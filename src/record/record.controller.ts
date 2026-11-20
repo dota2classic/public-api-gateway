@@ -43,7 +43,7 @@ export class RecordController {
     return this.mapper.mapYearResult(res.data);
   }
 
-  @CacheTTL(60 * 30)
+  @CacheTTL(60 * 5)
   @Get("/:steam_id")
   public async playerRecords(
     @Param("steam_id") steamId: string,
@@ -56,6 +56,6 @@ export class RecordController {
   @Get("daily")
   public async dailyRecords(): Promise<PlayerDailyRecord[]> {
     const res = await this.gsApi.record.recordControllerPlayerDaily();
-    return Promise.all(res.data.map(this.mapper.mapDailyRecord));
+    return this.mapper.mapDailyRecords(res.data);
   }
 }

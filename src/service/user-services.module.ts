@@ -32,21 +32,6 @@ import { DecorationPreferencesCache } from "./decoration-preferences.cache";
   ],
   providers: [
     {
-      provide: "full-profile",
-      async useFactory(config: ConfigService) {
-        return new Keyv(
-          new KeyvRedis({
-            url: `redis://${config.get("redis.host")}:6379`,
-            password: config.get<string>("redis.password"),
-          }),
-          {
-            namespace: "user-profile-full",
-          },
-        );
-      },
-      inject: [ConfigService],
-    },
-    {
       provide: "user-relation",
       async useFactory(config: ConfigService) {
         return new Keyv(
