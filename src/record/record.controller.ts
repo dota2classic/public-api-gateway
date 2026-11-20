@@ -43,7 +43,7 @@ export class RecordController {
     return this.mapper.mapYearResult(res.data);
   }
 
-  @CacheTTL(60 * 30)
+  @CacheTTL(60 * 5)
   @Get("/:steam_id")
   public async playerRecords(
     @Param("steam_id") steamId: string,
