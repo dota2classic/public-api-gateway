@@ -100,14 +100,19 @@ export class PlayerMapper {
   };
 
   public mapPlayerSummary = async (
-    it: GsApi.PlayerSummaryDto,
+    it: GsApi.PlayerSummaryDto & { educationVerified?: boolean },
     status: GsApi.BanStatusDto,
   ): Promise<PlayerSummaryDto> => {
+    const accessMap = this.mapAccessLevel(asMatchAccessLevel(it.accessLevel));
+    const unverifiedWithHumanAccess =
+      status.isBanned && accessMap.humanGames && it.educationVerified !== true;
+    if (unverifiedWithHumanAccess) accessMap.humanGames = false;
+
     return {
       user: await this.userRepository.userDto(it.steamId),
       id: numSteamId(it.steamId),
       calibrationGamesLeft: it.calibrationGamesLeft,
-      accessMap: this.mapAccessLevel(asMatchAccessLevel(it.accessLevel)),
+      accessMap,
       aspects: it.reports,
       banStatus: {
         isBanned: status.isBanned,
@@ -122,7 +127,7 @@ export class PlayerMapper {
           }
         : undefined,
       recalibration: it.recalibration,
-      botGameProgress: it.readinessProgress,
+      botGameProgress: unverifiedWithHumanAccess ? 0 : it.readinessProgress,
       overallStats: this.mapPlayerStats(it.overall),
       seasonStats: this.mapPlayerStats(it.season),
     };
