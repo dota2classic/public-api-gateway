@@ -33,6 +33,8 @@ import { DotaPatch } from "../gateway/constants/patch";
 import { Region } from "../gateway/shared-types/region";
 import { GameServerPluginParameters } from "../gateway/commands/LaunchGameServer/game-server-plugin-parameters";
 
+import { BanLevel, PlayerBanService } from "../service/player-ban.service";
+
 @Injectable()
 export class LobbyService {
   private logger = new Logger(LobbyService.name);
@@ -47,9 +49,11 @@ export class LobbyService {
     @Inject("QueryCore") private readonly redisEventQueue: ClientProxy,
     private readonly gsApi: ApiClient,
     private readonly amqpConnection: AmqpConnection,
+    private readonly playerBan: PlayerBanService,
   ) {}
 
   public async createLobby(user: CurrentUserDto): Promise<LobbyEntity> {
+    await this.playerBan.assertNotBanned(user.steam_id, BanLevel.TEMPORAL);
     // If not mod and in game => bad!
     if (!this.isModerator(user) && (await this.isInGame(user.steam_id))) {
       throw new HttpException("Нельзя создавать лобби находясь в игре!", 403);
@@ -127,6 +131,7 @@ export class LobbyService {
     user: CurrentUserDto,
     password: string,
   ): Promise<LobbyEntity> {
+    await this.playerBan.assertNotBanned(user.steam_id, BanLevel.TEMPORAL);
     if (!this.isModerator(user) && (await this.isInGame(user.steam_id))) {
       throw new HttpException("Нельзя заходить в лобби находясь в игре!", 403);
     }
@@ -354,6 +359,11 @@ export class LobbyService {
         HttpStatusCode.BadRequest,
       );
     }
+
+    const players = new Set([user.steam_id, ...filledSlots.map((slot) => slot.steamId)]);
+    await Promise.all([...players].map((id) =>
+      this.playerBan.assertNotBanned(id, BanLevel.TEMPORAL),
+    ));
 
     // We need a lock for this maybe??
 

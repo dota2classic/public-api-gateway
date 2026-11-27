@@ -14,7 +14,8 @@ import { PlayerGameStateMessageS2C } from "./messages/s2c/player-game-state-mess
 import { GetQueueStateQuery } from "../gateway/queries/QueueState/get-queue-state.query";
 import { GetQueueStateQueryResult } from "../gateway/queries/QueueState/get-queue-state-query.result";
 import { Dota2Version } from "../gateway/shared-types/dota2version";
-import { MatchmakingMode, MatchmakingModes } from "../gateway/shared-types/matchmaking-mode";
+import { MatchmakingMode } from "../gateway/shared-types/matchmaking-mode";
+import { activeMatchmakingModes } from "../stats/active-matchmaking-modes";
 import { QueueStateMessageS2C } from "./messages/s2c/queue-state-message.s2c";
 import { PlayerQueueStateMessageS2C } from "./messages/s2c/player-queue-state-message.s2c";
 import { UserProfileService } from "../service/user-profile.service";
@@ -107,7 +108,7 @@ export class SocketMessageService {
       GetQueueStateQueryResult
     >(new GetQueueStateQuery(Dota2Version.Dota_684));
 
-    return MatchmakingModes.map((mode) => {
+    return activeMatchmakingModes.map((mode) => {
       const inQueue = res.entries
         .filter((t) => t.modes.includes(mode))
         .reduce((a, b) => a + b.players.length, 0);

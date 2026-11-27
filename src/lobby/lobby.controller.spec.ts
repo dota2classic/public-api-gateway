@@ -1,3 +1,4 @@
+import { PlayerBanService } from "../service/player-ban.service";
 import { Test, TestingModule } from "@nestjs/testing";
 import { LobbySlotEntity } from "../database/entities/lobby-slot.entity";
 import { LobbyEntity } from "../database/entities/lobby.entity";
@@ -174,6 +175,7 @@ describe("LobbyController", () => {
       controllers: [LobbyController],
       providers: [
         LobbyService,
+        { provide: PlayerBanService, useValue: { assertNotBanned: jest.fn() } },
         LobbyMapper,
         AuthService,
         JwtStrategy,

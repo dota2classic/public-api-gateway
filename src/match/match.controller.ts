@@ -1,5 +1,6 @@
 import {
   Body,
+  ForbiddenException,
   Controller,
   Get,
   NotFoundException,
@@ -16,6 +17,7 @@ import {
   MatchReportInfoDto,
   ReportPlayerDto,
 } from "./dto/match.dto";
+import { asMatchmakingMode } from "../types/gs-api-compat";
 import { MatchMapper } from "./match.mapper";
 import { WithOptionalUser } from "../utils/decorator/with-optional-user";
 import {
@@ -146,6 +148,10 @@ export class MatchController {
     @CurrentUser() user: CurrentUserDto,
     @Body() dto: ReportPlayerDto,
   ) {
+    const match = await this.gsApi.match.matchControllerGetMatch(dto.matchId);
+    if (asMatchmakingMode(match.data.mode) === MatchmakingMode.SECRET) {
+      throw new ForbiddenException("Reports are disabled for SECRET matches");
+    }
     await this.gsApi.player.playerModerationControllerReportPlayer({
       reporterSteamId: user.steam_id,
       reportedSteamId: dto.steamId,

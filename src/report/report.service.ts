@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ForbiddenException,
   HttpException,
   Injectable,
   Logger,
@@ -31,6 +32,12 @@ import { ConfigService } from "@nestjs/config";
 import { PlayerFlagsEntity } from "../database/entities/player-flags.entity";
 import { ToxicityPunishmentMappingEntity } from "../database/entities/toxicity-punishment-mapping.entity";
 
+import { isAxiosError } from "axios";
+import { ApiClient } from "@dota2classic/gs-api-generated/dist/module";
+import { MatchmakingMode } from "../gateway/shared-types/matchmaking-mode";
+import { asMatchmakingMode } from "../types/gs-api-compat";
+import { SECRET_QUEUE_CHAT } from "../forum/queue-chat";
+
 @Injectable()
 export class ReportService {
   private logger = new Logger(ReportService.name);
@@ -40,6 +47,7 @@ export class ReportService {
     @InjectRepository(RuleEntity)
     private readonly ruleEntityRepository: Repository<RuleEntity>,
     private readonly forumApi: ForumApi,
+    private readonly gsApi: ApiClient,
     private readonly notification: NotificationService,
     @InjectRepository(PunishmentLogEntity)
     private readonly punishmentLogEntityRepository: Repository<PunishmentLogEntity>,
@@ -162,6 +170,13 @@ export class ReportService {
     messageId: string,
   ) {
     await this.checkHasPermission(reporter.steam_id);
+    const message = await this.forumApi.forumControllerGetMessage(messageId);
+    if (message.threadId === SECRET_QUEUE_CHAT) {
+      throw new ForbiddenException("Reports are disabled in the SECRET queue chat");
+    }
+    if (message.threadId.startsWith(`${ThreadType.MATCH}_`)) {
+      await this.assertMatchAllowsReports(Number(message.threadId.slice(ThreadType.MATCH.length + 1)));
+    }
     const alreadyReported = await this.userReportEntityRepository.exists({
       where: {
         reportedSteamId: reported,
@@ -193,6 +208,7 @@ export class ReportService {
     matchId: number,
   ) {
     await this.checkHasPermission(reporter.steam_id);
+    await this.assertMatchAllowsReports(matchId);
     await this.checkAlreadyReported(reported, ruleId, matchId);
 
     const report = await this.userReportEntityRepository.save(
@@ -206,6 +222,21 @@ export class ReportService {
     );
 
     await this.createThreadForReport(reporter, report);
+  }
+
+  private async assertMatchAllowsReports(matchId: number) {
+    const mode = await this.gsApi.match.matchControllerGetMatch(matchId)
+      .then(({ data }) => data.mode)
+      .catch(async (error: unknown) => {
+        if (!isAxiosError(error) || error.response?.status !== 404) throw error;
+        const { data: sessions } = await this.gsApi.info.infoControllerGameSessions();
+        const session = sessions.find((session) => session.matchId === matchId);
+        if (!session) throw new NotFoundException("Match not found");
+        return session.info.mode;
+      });
+    if (asMatchmakingMode(mode) === MatchmakingMode.SECRET) {
+      throw new ForbiddenException("Reports are disabled for SECRET matches");
+    }
   }
 
   private async createThreadForReport(

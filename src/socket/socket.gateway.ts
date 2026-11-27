@@ -95,6 +95,7 @@ export class SocketGateway implements OnGatewayDisconnect, OnGatewayConnection {
     @MessageBody() data: EnterQueueMessageC2S,
     @ConnectedSocket() client: PlayerSocket,
   ) {
+    if (!client.steamId || !Array.isArray(data?.modes)) return;
     await this.redisQueue
       .emit(
         PlayerEnterQueueRequestedEvent.name,
