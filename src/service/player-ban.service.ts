@@ -2,6 +2,7 @@ import { ForbiddenException, Injectable } from "@nestjs/common";
 import { ApiClient } from "@dota2classic/gs-api-generated/dist/module";
 import { MatchAccessLevel } from "../gateway/shared-types/match-access-level";
 import { asMatchAccessLevel } from "../types/gs-api-compat";
+import { isSecretQueueBan } from "../utils/secret-ban";
 
 export enum BanLevel {
   NONE,
@@ -14,12 +15,16 @@ export class PlayerBanService {
   constructor(private readonly gsApi: ApiClient) {}
 
   public async hasPlayedAnyGame(steamId: string) {
-    const res = await this.gsApi.player.playerProfileControllerPlayerSummary(steamId);
-    return asMatchAccessLevel(res.data.accessLevel) !== MatchAccessLevel.EDUCATION;
+    const res =
+      await this.gsApi.player.playerProfileControllerPlayerSummary(steamId);
+    return (
+      asMatchAccessLevel(res.data.accessLevel) !== MatchAccessLevel.EDUCATION
+    );
   }
 
   public async getBanStatus(steamId: string) {
-    const res = await this.gsApi.player.playerModerationControllerBanInfo(steamId);
+    const res =
+      await this.gsApi.player.playerModerationControllerBanInfo(steamId);
     const bi = res.data;
     if (!bi.isBanned) return BanLevel.NONE;
     // More than 365 days = perma ban
@@ -29,6 +34,12 @@ export class PlayerBanService {
     )
       return BanLevel.PERMANENT;
     return BanLevel.TEMPORAL;
+  }
+
+  public async hasSecretQueueBan(steamId: string): Promise<boolean> {
+    const { data } =
+      await this.gsApi.player.playerModerationControllerBanInfo(steamId);
+    return isSecretQueueBan(data);
   }
 
   public async assertNotBanned(

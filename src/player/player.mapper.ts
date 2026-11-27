@@ -1,3 +1,4 @@
+import { isSecretQueueBan } from "../utils/secret-ban";
 import { Injectable } from "@nestjs/common";
 import * as GsApi from "@dota2classic/gs-api-generated/dist/Api";
 import {
@@ -105,7 +106,9 @@ export class PlayerMapper {
   ): Promise<PlayerSummaryDto> => {
     const accessMap = this.mapAccessLevel(asMatchAccessLevel(it.accessLevel));
     const unverifiedWithHumanAccess =
-      status.isBanned && accessMap.humanGames && it.educationVerified !== true;
+      isSecretQueueBan(status) &&
+      accessMap.humanGames &&
+      it.educationVerified !== true;
     if (unverifiedWithHumanAccess) accessMap.humanGames = false;
 
     return {
@@ -191,11 +194,18 @@ export class PlayerMapper {
   public mapAchievements = async (
     achievements: GsApi.AchievementDto[],
   ): Promise<AchievementDto[]> => {
-    const users = await this.userRepository.userDtos(achievements.map((ach) => ach.steamId));
-    return achievements.map((ach, index) => this.mapAchievement(ach, users[index]));
+    const users = await this.userRepository.userDtos(
+      achievements.map((ach) => ach.steamId),
+    );
+    return achievements.map((ach, index) =>
+      this.mapAchievement(ach, users[index]),
+    );
   };
 
-  private mapAchievement = (ach: GsApi.AchievementDto, user: UserDTO): AchievementDto => {
+  private mapAchievement = (
+    ach: GsApi.AchievementDto,
+    user: UserDTO,
+  ): AchievementDto => {
     return {
       key: asAchievementKey(ach.key),
       user,
