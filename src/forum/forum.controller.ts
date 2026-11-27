@@ -67,8 +67,8 @@ import { CacheTTL } from "@nestjs/cache-manager";
 import { AiService } from "../service/ai.service";
 import { Throttle } from "@nestjs/throttler";
 
-import { BanLevel, PlayerBanService } from "../service/player-ban.service";
-import { isQueueChat, SECRET_QUEUE_CHAT } from "./queue-chat";
+import { PlayerBanService } from "../service/player-ban.service";
+import { canAccessQueueChat, isQueueChat, QueueChatStreamGuard, SECRET_QUEUE_CHAT } from "./queue-chat";
 
 @Controller("forum")
 @ApiTags("forum")
@@ -363,17 +363,17 @@ export class ForumController {
     enum: ThreadType,
     enumName: "ThreadType",
   })
+  @UseGuards(QueueChatStreamGuard)
   @WithOptionalUser()
   @Sse("thread/:id/:threadType/sse")
-  async thread(
+  thread(
     @Param("id") id: string,
     @Param("threadType") threadType: ThreadType,
     @CurrentUser() user?: CurrentUserDto,
-  ): Promise<Observable<ThreadMessageSseDto>> {
+  ): Observable<ThreadMessageSseDto> {
     this.assertCommentsVisible(threadType, user);
     const externalThreadId = `${threadType}_${id}`;
 
-    await this.assertQueueChatAccess(externalThreadId, user);
     const updates = this.ebus.pipe(
       filter((it) => it instanceof MessageUpdatedEvent),
       filter((mce: MessageUpdatedEvent) => mce.threadId === externalThreadId),
@@ -387,7 +387,7 @@ export class ForumController {
 
     if (!user || !isQueueChat(externalThreadId)) return updates;
     const accessRevoked = timer(15_000, 15_000).pipe(
-      exhaustMap(() => this.canAccessQueueChat(externalThreadId, user)),
+      exhaustMap(() => canAccessQueueChat(externalThreadId, user, this.playerBan)),
       catchError(() => of(false)),
       filter((allowed) => !allowed),
     );
@@ -596,15 +596,8 @@ export class ForumController {
     return this.mapper.mapUser(user);
   }
 
-  private async canAccessQueueChat(threadId: string, user?: CurrentUserDto) {
-    if (!isQueueChat(threadId)) return true;
-    if (!user) return threadId !== SECRET_QUEUE_CHAT;
-    const banned = (await this.playerBan.getBanStatus(user.steam_id)) !== BanLevel.NONE;
-    return banned === (threadId === SECRET_QUEUE_CHAT);
-  }
-
   private async assertQueueChatAccess(threadId: string, user?: CurrentUserDto) {
-    if (!(await this.canAccessQueueChat(threadId, user))) {
+    if (!(await canAccessQueueChat(threadId, user, this.playerBan))) {
       throw new ForbiddenException("Этот чат вам недоступен");
     }
   }
