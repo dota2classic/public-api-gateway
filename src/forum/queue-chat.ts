@@ -1,5 +1,5 @@
 import { CanActivate, ExecutionContext, Injectable } from "@nestjs/common";
-import { BanLevel, PlayerBanService } from "../service/player-ban.service";
+import { PlayerBanService } from "../service/player-ban.service";
 import { CurrentUserDto } from "../utils/decorator/current-user";
 
 export const PUBLIC_QUEUE_CHAT = "forum_17aa3530-d152-462e-a032-909ae69019ed";
@@ -16,7 +16,7 @@ export async function canAccessQueueChat(
 ): Promise<boolean> {
   if (!isQueueChat(threadId)) return true;
   if (!user) return threadId !== SECRET_QUEUE_CHAT;
-  const banned = (await playerBan.getBanStatus(user.steam_id)) !== BanLevel.NONE;
+  const banned = await playerBan.hasSecretQueueBan(user.steam_id);
   return banned === (threadId === SECRET_QUEUE_CHAT);
 }
 
@@ -29,6 +29,10 @@ export class QueueChatStreamGuard implements CanActivate {
       params: { id: string; threadType: string };
       user?: CurrentUserDto;
     }>();
-    return canAccessQueueChat(`${params.threadType}_${params.id}`, user, this.playerBan);
+    return canAccessQueueChat(
+      `${params.threadType}_${params.id}`,
+      user,
+      this.playerBan,
+    );
   }
 }
