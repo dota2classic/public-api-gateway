@@ -3,7 +3,8 @@ import * as memoize from "memoizee";
 import { ApiClient } from "@dota2classic/gs-api-generated/dist/module";
 import { CurrentOnlineDto, PerModePlayersDto, QueueTimeDto } from "./stats.dto";
 import { range } from "../utils/range";
-import { MatchmakingMode, MatchmakingModes } from "../gateway/shared-types/matchmaking-mode";
+import { MatchmakingMode } from "../gateway/shared-types/matchmaking-mode";
+import { activeMatchmakingModes } from "../stats/active-matchmaking-modes";
 import { asMatchmakingMode } from "../types/gs-api-compat";
 import { avg } from "../utils/average";
 import { PrometheusDriver } from "prometheus-query";
@@ -43,7 +44,7 @@ export class StatsService implements OnApplicationBootstrap {
 
       const ses = sessionsRes.data;
 
-      const perMode: PerModePlayersDto[] = MatchmakingModes.map((mode) => {
+      const perMode: PerModePlayersDto[] = activeMatchmakingModes.map((mode) => {
         const sessions = ses.filter((t) => asMatchmakingMode(t.info.mode) === mode);
         const playerCount = sessions.reduce(
           (a, b) => a + b.info.radiant.length + b.info.dire.length,

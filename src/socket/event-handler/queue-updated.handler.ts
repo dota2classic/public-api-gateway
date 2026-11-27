@@ -5,7 +5,7 @@ import { SocketDelivery } from "../socket-delivery";
 import { MessageTypeS2C } from "../messages/s2c/message-type.s2c";
 import { QueueStateMessageS2C } from "../messages/s2c/queue-state-message.s2c";
 import { Dota2Version } from "../../gateway/shared-types/dota2version";
-import { MatchmakingModes } from "../../gateway/shared-types/matchmaking-mode";
+import { activeMatchmakingModes } from "../../stats/active-matchmaking-modes";
 
 @EventsHandler(QueueUpdatedEvent)
 export class QueueUpdatedHandler implements IEventHandler<QueueUpdatedEvent> {
@@ -17,7 +17,7 @@ export class QueueUpdatedHandler implements IEventHandler<QueueUpdatedEvent> {
   async handle(event: QueueUpdatedEvent) {
     try {
       await Promise.all(
-        MatchmakingModes.map((mode) =>
+        activeMatchmakingModes.map((mode) =>
           this.delivery.broadcastAll(
             MessageTypeS2C.QUEUE_STATE,
             new QueueStateMessageS2C(

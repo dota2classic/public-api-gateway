@@ -3,7 +3,9 @@ import {
   Body,
   Controller,
   Delete,
+  ForbiddenException,
   Get,
+  Header,
   HttpException,
   Logger,
   NotFoundException,
@@ -18,7 +20,7 @@ import {
   UseGuards,
 } from "@nestjs/common";
 import { ApiParam, ApiQuery, ApiTags } from "@nestjs/swagger";
-import { filter, Observable } from "rxjs";
+import { catchError, exhaustMap, filter, Observable, of, takeUntil, timer } from "rxjs";
 import { EventBus } from "@nestjs/cqrs";
 import { makePage } from "../gateway/util/make-page";
 import { asyncMap } from "rxjs-async-map";
@@ -65,6 +67,9 @@ import { CacheTTL } from "@nestjs/cache-manager";
 import { AiService } from "../service/ai.service";
 import { Throttle } from "@nestjs/throttler";
 
+import { BanLevel, PlayerBanService } from "../service/player-ban.service";
+import { isQueueChat, SECRET_QUEUE_CHAT } from "./queue-chat";
+
 @Controller("forum")
 @ApiTags("forum")
 export class ForumController {
@@ -78,6 +83,7 @@ export class ForumController {
     @InjectRepository(BlogpostEntity)
     private readonly blogpostEntityRepository: Repository<BlogpostEntity>,
     private readonly feedbackAssistant: AiService,
+    private readonly playerBan: PlayerBanService,
   ) {}
 
   @ApiParam({
@@ -108,6 +114,7 @@ export class ForumController {
     required: false,
   })
   @WithOptionalUser()
+  @Header("Cache-Control", "private, no-store")
   @Get("thread/:id/:threadType/messages")
   async getMessages(
     @Param("id") _id: string,
@@ -118,8 +125,9 @@ export class ForumController {
     @CurrentUser() user?: CurrentUserDto,
   ): Promise<ThreadMessageDTO[]> {
     this.assertCommentsVisible(threadType, user);
+    const id = `${threadType}_${_id}`;
+    await this.assertQueueChatAccess(id, user);
     try {
-      const id = `${threadType}_${_id}`;
       const msgs = await this.api.forumControllerMessages(
         id,
         cursor,
@@ -149,6 +157,7 @@ export class ForumController {
     enumName: "ThreadType",
   })
   @WithOptionalUser()
+  @Header("Cache-Control", "private, no-store")
   @Get("thread/:id/:threadType/latestPage")
   async getLatestPage(
     @Param("id") id: string,
@@ -157,6 +166,7 @@ export class ForumController {
     @CurrentUser() user?: CurrentUserDto,
   ): Promise<ThreadMessagePageDTO> {
     this.assertCommentsVisible(threadType, user);
+    await this.assertQueueChatAccess(`${threadType}_${id}`, user);
     const pg = await this.api.forumControllerGetLatestPage(
       `${threadType}_${id}`,
       perPage,
@@ -189,6 +199,7 @@ export class ForumController {
   })
   @WithPagination()
   @WithOptionalUser()
+  @Header("Cache-Control", "private, no-store")
   @Get("thread/:id/:threadType/page")
   async messagesPage(
     @Param("id") id: string,
@@ -199,6 +210,7 @@ export class ForumController {
     @CurrentUser() user?: CurrentUserDto,
   ): Promise<ThreadMessagePageDTO> {
     this.assertCommentsVisible(threadType, user);
+    await this.assertQueueChatAccess(`${threadType}_${id}`, user);
     const pg = await this.api.forumControllerMessagesPage(
       `${threadType}_${id}`,
       page,
@@ -263,12 +275,15 @@ export class ForumController {
     enum: ThreadType,
     enumName: "ThreadType",
   })
+  @WithOptionalUser()
+  @Header("Cache-Control", "private, no-store")
   @Get("thread/:id/:threadType")
-  @CacheTTL(15)
   async getThread(
     @Param("id") id: string,
     @Param("threadType") threadType: ThreadType,
+    @CurrentUser() user?: CurrentUserDto,
   ) {
+    await this.assertQueueChatAccess(`${threadType}_${id}`, user);
     if (
       threadType === ThreadType.FORUM ||
       threadType === ThreadType.TICKET ||
@@ -350,21 +365,33 @@ export class ForumController {
   })
   @WithOptionalUser()
   @Sse("thread/:id/:threadType/sse")
-  thread(
+  async thread(
     @Param("id") id: string,
     @Param("threadType") threadType: ThreadType,
     @CurrentUser() user?: CurrentUserDto,
-  ): Observable<ThreadMessageSseDto> {
+  ): Promise<Observable<ThreadMessageSseDto>> {
     this.assertCommentsVisible(threadType, user);
     const externalThreadId = `${threadType}_${id}`;
 
-    return this.ebus.pipe(
+    await this.assertQueueChatAccess(externalThreadId, user);
+    const updates = this.ebus.pipe(
       filter((it) => it instanceof MessageUpdatedEvent),
       filter((mce: MessageUpdatedEvent) => mce.threadId === externalThreadId),
       asyncMap(async (mce: MessageUpdatedEvent) => {
+        if (externalThreadId === SECRET_QUEUE_CHAT) {
+          await this.assertQueueChatAccess(externalThreadId, user);
+        }
         return { data: await this.mapper.mapApiMessage(mce, user) };
       }, 1),
     );
+
+    if (!user || !isQueueChat(externalThreadId)) return updates;
+    const accessRevoked = timer(15_000, 15_000).pipe(
+      exhaustMap(() => this.canAccessQueueChat(externalThreadId, user)),
+      catchError(() => of(false)),
+      filter((allowed) => !allowed),
+    );
+    return updates.pipe(takeUntil(accessRevoked));
   }
 
   @Patch("thread/message/:id")
@@ -375,6 +402,7 @@ export class ForumController {
     @Body() content: EditMessageDto,
     @CurrentUser() user: CurrentUserDto,
   ): Promise<ThreadMessageDTO> {
+    await this.getAccessibleMessage(id, user);
     try {
       return await this.api
         .forumControllerEditMessage(id, {
@@ -388,15 +416,15 @@ export class ForumController {
   }
 
   @UseGuards(CustomThrottlerGuard)
+  @WithOptionalUser()
+  @Header("Cache-Control", "private, no-store")
   @Get("thread/message/:id")
-  async getMessage(@Param("id") id: string): Promise<ThreadMessageDTO> {
-    try {
-      return await this.api
-        .forumControllerGetMessage(id)
-        .then(this.mapper.mapApiMessage);
-    } catch (response) {
-      throw new HttpException("Muted", response.status);
-    }
+  async getMessage(
+    @Param("id") id: string,
+    @CurrentUser() user?: CurrentUserDto,
+  ): Promise<ThreadMessageDTO> {
+    const message = await this.getAccessibleMessage(id, user);
+    return this.mapper.mapApiMessage(message, user);
   }
 
   @Post("thread/message")
@@ -406,6 +434,7 @@ export class ForumController {
     @Body() content: CreateMessageDTO,
     @CurrentUser() user: CurrentUserDto,
   ): Promise<ThreadMessageDTO> {
+    await this.assertQueueChatAccess(content.threadId, user);
     try {
       return await this.api
         .forumControllerPostMessage(content.threadId, {
@@ -462,7 +491,11 @@ export class ForumController {
   @Delete("thread/message/:id")
   @ModeratorGuard()
   @WithUser()
-  async deleteMessage(@Param("id") id: string): Promise<ThreadMessageDTO> {
+  async deleteMessage(
+    @Param("id") id: string,
+    @CurrentUser() user: CurrentUserDto,
+  ): Promise<ThreadMessageDTO> {
+    await this.getAccessibleMessage(id, user);
     return this.api
       .forumControllerDeleteMessage(id)
       .then(this.mapper.mapApiMessage);
@@ -474,7 +507,9 @@ export class ForumController {
   async updateThread(
     @Param("id") id: string,
     @Body() dto: UpdateThreadDTO,
+    @CurrentUser() user: CurrentUserDto,
   ): Promise<ThreadDTO> {
+    await this.assertQueueChatAccess(id, user);
     return this.api
       .forumControllerUpdateThread(id, dto)
       .then(this.mapper.mapThread);
@@ -510,6 +545,7 @@ export class ForumController {
     @Body() content: UpdateMessageReactionDto,
     @CurrentUser() user: CurrentUserDto,
   ): Promise<ThreadMessageDTO> {
+    await this.getAccessibleMessage(messageId, user);
     try {
       return await this.api
         .forumControllerToggleReaction(messageId, {
@@ -525,7 +561,11 @@ export class ForumController {
   @Post("thread/message/:id/pin")
   @ModeratorGuard()
   @WithUser()
-  async pinMessage(@Param("id") messageId: string) {
+  async pinMessage(
+    @Param("id") messageId: string,
+    @CurrentUser() user: CurrentUserDto,
+  ) {
+    await this.getAccessibleMessage(messageId, user);
     try {
       return await this.api.forumControllerPinMessage(messageId);
     } catch (response) {
@@ -554,6 +594,27 @@ export class ForumController {
     const user = await this.api.forumControllerGetUser(steamId);
 
     return this.mapper.mapUser(user);
+  }
+
+  private async canAccessQueueChat(threadId: string, user?: CurrentUserDto) {
+    if (!isQueueChat(threadId)) return true;
+    if (!user) return threadId !== SECRET_QUEUE_CHAT;
+    const banned = (await this.playerBan.getBanStatus(user.steam_id)) !== BanLevel.NONE;
+    return banned === (threadId === SECRET_QUEUE_CHAT);
+  }
+
+  private async assertQueueChatAccess(threadId: string, user?: CurrentUserDto) {
+    if (!(await this.canAccessQueueChat(threadId, user))) {
+      throw new ForbiddenException("Этот чат вам недоступен");
+    }
+  }
+
+  private async getAccessibleMessage(id: string, user?: CurrentUserDto) {
+    const message = await this.api.forumControllerGetMessage(id).catch((response) => {
+      throw new HttpException("Message unavailable", response?.status || 502);
+    });
+    await this.assertQueueChatAccess(message.threadId, user);
+    return message;
   }
 
   // Player profile comments and news comments are hidden from guests —

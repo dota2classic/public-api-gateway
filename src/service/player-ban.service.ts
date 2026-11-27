@@ -21,13 +21,14 @@ export class PlayerBanService {
   public async getBanStatus(steamId: string) {
     const res = await this.gsApi.player.playerModerationControllerBanInfo(steamId);
     const bi = res.data;
+    if (!bi.isBanned) return BanLevel.NONE;
     // More than 365 days = perma ban
     if (
       new Date(bi.bannedUntil) >=
       new Date(Date.now() + 1000 * 60 * 60 * 24 * 365)
     )
       return BanLevel.PERMANENT;
-    return bi.isBanned ? BanLevel.TEMPORAL : BanLevel.NONE;
+    return BanLevel.TEMPORAL;
   }
 
   public async assertNotBanned(
